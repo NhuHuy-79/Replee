@@ -40,10 +40,4 @@ class ExtensionTest {
         }
         Assert.assertEquals(expected, actual)
     }
-
-    @Test
-    fun shouldReturnMappedSting_whenMapSuccessSuspend(){
-        //TODO("Use with coroutine-test")
-    }
-
 }
