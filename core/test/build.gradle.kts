@@ -18,4 +18,5 @@ dependencies{
     api(libs.turbine)
     api(libs.kotlinx.coroutines.test)
     api(libs.mockk)
+    api(libs.truth)
 }
