@@ -2,22 +2,27 @@
 agp = "8.12.3"
 flowOperators = "0.1.1"
 hiltAndroidVersion = "2.57.1"
+hiltNavigationCompose = "1.3.0"
 kotlin = "2.0.21"
 coreKtx = "1.17.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
+kotlinxCoroutinesTest = "1.10.2"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.2"
 composeBom = "2024.09.00"
 appcompat = "1.7.1"
 material = "1.13.0"
 
+materialIconsExtended = "1.7.8"
+mockk = "1.14.7"
 nav3Core = "1.0.0"
 lifecycleViewmodelNav3 = "2.10.0"
 kotlinSerialization = "2.0.21"
 kotlinxSerializationCore = "1.8.0"
 material3AdaptiveNav3 = "1.3.0-alpha05"
+robolectric = "4.16"
 roomRuntime = "2.8.4"
 googleGmsGoogleServices = "4.4.4"
 firebaseAuth = "24.0.1"
@@ -26,9 +31,17 @@ credentialsPlayServicesAuth = "1.5.0"
 googleid = "1.1.1"
 firebaseFirestore = "26.0.2"
 firebaseMessaging = "25.0.1"
+timber = "5.0.1"
+truth = "1.4.5"
+turbine = "1.2.1"
+uiTooling = "1.10.0"
+jetbrainsKotlinJvm = "2.0.21"
+junitJunit = "4.12"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroidVersion" }
@@ -48,6 +61,7 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
@@ -61,6 +75,13 @@ androidx-credentials-play-services-auth = { group = "androidx.credentials", name
 googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+truth = { module = "com.google.truth:truth", version.ref = "truth" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "uiTooling" }
+junit-junit = { group = "junit", name = "junit", version.ref = "junitJunit" }
 
 
 [plugins]
@@ -70,5 +91,6 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 android-library = { id = "com.android.library", version.ref = "agp" }
 jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerialization"}
 google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
+jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 
 

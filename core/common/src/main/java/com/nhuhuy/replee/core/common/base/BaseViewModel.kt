@@ -13,12 +13,13 @@ interface UiState
 
 interface UiEvent
 
+
 abstract class BaseViewModel<A: UiAction, E: UiEvent, S: UiState>() : ViewModel(){
     abstract val state: StateFlow<S>
     private val _event = Channel<E>()
     val event = _event.receiveAsFlow()
 
-    fun onEvent(event: E){
+    protected fun onEvent(event: E){
         _event.trySend(event)
     }
 

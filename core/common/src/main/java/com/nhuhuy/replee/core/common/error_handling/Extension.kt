@@ -55,15 +55,13 @@ suspend inline fun <D, F : Failure, R> Resource<D, F>.mapSuccessSuspend(
 }
 
 suspend inline fun <D, F : Failure> safeCall(
+    errorMapper: (e: Exception) -> F,
     block: suspend () -> D,
-    transform: (Exception) -> F,
-    logger: (Exception) -> Unit = {}
 ): Resource<D, F> {
     return try {
         Resource.Success(block())
     } catch (e: Exception) {
-        logger(e)
-        Resource.Failure(transform(e))
+        Resource.Failure(errorMapper(e))
     }
 }
 

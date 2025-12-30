@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.common
+package com.nhuhuy.replee.core.common.data
 
 object Constant{
 

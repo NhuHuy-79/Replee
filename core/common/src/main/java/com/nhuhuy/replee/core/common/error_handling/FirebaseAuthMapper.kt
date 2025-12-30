@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.firebase.mapper
+package com.nhuhuy.replee.core.common.error_handling
 
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuthEmailException
@@ -6,9 +6,8 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
-import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 
-fun Exception.toAuthError(): RemoteFailure {
+fun Exception.toRemoteFailure(): RemoteFailure {
     return when (this) {
         is FirebaseAuthInvalidUserException -> RemoteFailure.Auth.USER_NOT_FOUND
         is FirebaseAuthWeakPasswordException -> RemoteFailure.Auth.WEAK_PASSWORD

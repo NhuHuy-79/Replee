@@ -45,12 +45,14 @@ android {
 
 dependencies {
     implementation(project(":core:common"))
+    implementation(project(":core:firebase"))
     implementation(project(":core:design_system"))
     implementation(project(":feature_chat"))
     implementation(project(":feature_auth"))
 
     //Hilt
     implementation(libs.dagger.hilt.android)
+    implementation(libs.androidx.hilt.navigation.compose)
     ksp(libs.hilt.android.compiler)
 
     //Nav3

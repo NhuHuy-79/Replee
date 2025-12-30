@@ -5,7 +5,6 @@ import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.mapSuccess
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

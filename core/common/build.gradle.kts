@@ -33,7 +33,11 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:firebase"))
     api(libs.flow.operators)
+    api(libs.androidx.material.icons.extended)
+    api(libs.timber)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
