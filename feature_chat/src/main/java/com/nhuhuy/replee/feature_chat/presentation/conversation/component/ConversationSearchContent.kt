@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.common.data.model.Account
+import com.nhuhuy.replee.core.design_system.component.UserImage
 import java.util.Locale
 
 @ExperimentalMaterial3Api
@@ -115,7 +116,7 @@ fun UserItem(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ConversationUserImage(userName = userName)
+        UserImage(userName = userName)
         Spacer(Modifier.height(8.dp))
         Text(
             text = userName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
