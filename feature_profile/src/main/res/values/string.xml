@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Profile Screen-->
+    <string name="app_theme_dialog_title">Select your theme</string>
+    <string name="app_theme_content">You can always change this later</string>
+    <string name="app_theme_default">Default</string>
+    <string name="app_theme_dark">Dark</string>
+    <string name="app_theme_light">Light</string>
+
+    <string name="notification_dialog_title">"Choose your option"</string>
+    <string name="notification_dialog_content">"You can always change this later"</string>
+    <string name="notification_off">None</string>
+    <string name="notification_private">Private</string>
+    <string name="notification_group">Group</string>
+</resources>
