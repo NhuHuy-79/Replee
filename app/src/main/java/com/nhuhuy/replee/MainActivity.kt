@@ -4,6 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.getValue
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nhuhuy.replee.navigation.MainGraph
 import com.nhuhuy.replee.ui.theme.RepleeTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -15,7 +18,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             RepleeTheme {
-                MainGraph()
+                val viewModel: MainViewModel = hiltViewModel()
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                MainGraph(isLogged = state)
             }
         }
     }

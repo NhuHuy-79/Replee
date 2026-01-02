@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalResources
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -73,7 +74,7 @@ fun EntryProviderScope<NavKey>.authGraph(
         metadata = AUTH_METADATA_TRANSITION
     ) { _ ->
         val viewModel: LoginViewModel = hiltViewModel()
-        val state by viewModel.state.collectAsState()
+        val state by viewModel.state.collectAsStateWithLifecycle()
         val snackBarHostState = remember { SnackbarHostState() }
         val resource = LocalResources.current
         ObserveEffect(viewModel.event) { event ->
@@ -112,7 +113,7 @@ fun EntryProviderScope<NavKey>.authGraph(
         metadata = AUTH_METADATA_TRANSITION
     ) { _ ->
         val viewModel: SignUpViewModel = hiltViewModel()
-        val state by viewModel.state.collectAsState()
+        val state by viewModel.state.collectAsStateWithLifecycle()
         val snackBarHostState = remember { SnackbarHostState() }
         val resource = LocalResources.current
         ObserveEffect(viewModel.event) { event ->
@@ -144,7 +145,7 @@ fun EntryProviderScope<NavKey>.authGraph(
         metadata = AUTH_METADATA_TRANSITION
     ) { _ ->
         val viewModel: RecoverPasswordViewModel = hiltViewModel()
-        val state by viewModel.state.collectAsState()
+        val state by viewModel.state.collectAsStateWithLifecycle()
         val snackBarHostState = remember { SnackbarHostState() }
         val resource = LocalResources.current
         ObserveEffect(viewModel.event) { event ->

@@ -8,6 +8,7 @@ import com.nhuhuy.replee.core.common.base.UiState
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.error_handling.onFailure
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
+import com.nhuhuy.replee.feature_auth.domain.model.ValidateResult
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import com.nhuhuy.replee.feature_auth.presentation.shared.DynamicInput
 import com.nhuhuy.replee.feature_auth.utils.Validator
@@ -41,6 +42,7 @@ sealed interface SignUpAction : UiAction {
     data class OnConfirmPasswordChange(val confirmPassword: String) : SignUpAction
     data object SignUp : SignUpAction
 }
+
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     private val validator: Validator,
@@ -87,18 +89,27 @@ class SignUpViewModel @Inject constructor(
                     _state.reduce {
                         copy(
                             name = DynamicInput(
-                                text = action.name
+                                text = action.name,
+                                validateResult = ValidateResult.Valid
                             )
                         )
                     }
                 }
 
                 is SignUpAction.OnPasswordChange -> {
+                    val confirmedPassword = state.value.confirmPassword
                     _state.reduce {
                         copy(
                             password = DynamicInput(
                                 text = action.password,
                                 validateResult = validator.validatePassword(action.password)
+                            ),
+                            confirmPassword = DynamicInput(
+                                text = confirmedPassword.text,
+                                validateResult = validator.isPasswordConfirmed(
+                                    password = action.password,
+                                    confirmedPassword = confirmedPassword.text
+                                )
                             )
                         )
                     }
@@ -107,7 +118,11 @@ class SignUpViewModel @Inject constructor(
                 SignUpAction.SignUp -> {
                     val value = state.value
                     _state.reduce { copy(showLoading = true) }
-                    authRepository.signUpWithEmail(name = value.name.text, email = value.email.text, password = value.password.text)
+                    authRepository.signUpWithEmail(
+                        name = value.name.text,
+                        email = value.email.text,
+                        password = value.password.text
+                    )
                         .onSuccess {
                             _state.reduce { copy(showLoading = false) }
                             onEvent(SignUpEvent.SignUpSuccessfully)

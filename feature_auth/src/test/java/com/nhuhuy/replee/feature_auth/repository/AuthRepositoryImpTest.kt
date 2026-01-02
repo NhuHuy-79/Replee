@@ -7,7 +7,7 @@ import com.nhuhuy.replee.core.common.error_handling.FirestoreDataNotFoundExcepti
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.feature_auth.data.repository.AuthRepositoryImp
-import com.nhuhuy.replee.feature_auth.data.source.AuthDataSource
+import com.nhuhuy.replee.core.firebase.AuthDataSource
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -45,7 +45,7 @@ class AuthRepositoryImpTest {
     fun loginWithEmail_whenThrowException_shouldReturnRemoteFailure() = runTest {
         fakeCurrentUserId()
         val exception = Exception("error")
-        val expected: Resource<String, RemoteFailure> = Resource.Failure(RemoteFailure.Unknown)
+        val expected: Resource<String, RemoteFailure> = Resource.Error(RemoteFailure.Unknown)
         coEvery {
             authDataSource.loginWithEmail("email", "password")
         } throws exception
@@ -91,7 +91,7 @@ class AuthRepositoryImpTest {
             accountDataSource.addAccount(account)
         } throws FirestoreDataNotFoundException()
 
-        val expected: Resource<String, RemoteFailure> = Resource.Failure(RemoteFailure.Unknown)
+        val expected: Resource<String, RemoteFailure> = Resource.Error(RemoteFailure.Unknown)
         val actual = authRepository.signUpWithEmail("name","email", "password")
 
         Truth.assertThat(expected).isInstanceOf(actual::class.java)
@@ -116,7 +116,7 @@ class AuthRepositoryImpTest {
 
     fun fakeCurrentUserId(){
         coEvery {
-            authDataSource.currentUser.uid
+            authDataSource.provideCurrentUser().uid
         } returns "id"
     }
 }

@@ -6,7 +6,7 @@ import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.safeCall
 import com.nhuhuy.replee.core.common.error_handling.toRemoteFailure
-import com.nhuhuy.replee.feature_auth.data.source.AuthDataSource
+import com.nhuhuy.replee.core.firebase.AuthDataSource
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -31,7 +31,7 @@ class AuthRepositoryImp @Inject constructor(
                 }
             ) {
                 authDataSource.loginWithEmail(email, password)
-                authDataSource.currentUser.uid
+                authDataSource.provideCurrentUser().uid
             }
         }
     }
@@ -49,7 +49,7 @@ class AuthRepositoryImp @Inject constructor(
                 },
             ) {
                 authDataSource.signUpWithEmail(email, password)
-                val id = authDataSource.currentUser.uid
+                val id = authDataSource.provideCurrentUser().uid
                 try {
                     val account = Account(
                         id = id,
@@ -77,6 +77,17 @@ class AuthRepositoryImp @Inject constructor(
             ) {
                 authDataSource.sendRecoverPasswordEmail(email)
             }
+        }
+    }
+
+    override suspend fun provideCurrentUser(): Resource<String, RemoteFailure> {
+        return safeCall(
+            errorMapper = { e ->
+                Timber.e(e)
+                e.toRemoteFailure()
+            }
+        ){
+            authDataSource.provideCurrentUser().uid
         }
     }
 }

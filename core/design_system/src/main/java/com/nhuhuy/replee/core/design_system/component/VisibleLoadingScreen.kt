@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_auth.presentation.shared
+package com.nhuhuy.replee.core.design_system.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -19,10 +19,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.replee.feature_auth.R
+import com.nhuhuy.replee.core.design_system.R
 
 @Composable
 fun LoadingScreen(
+    modifier: Modifier = Modifier,
+){
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+
+        Image(
+            painter = painterResource(R.drawable.bg_loading),
+            contentDescription = null,
+            modifier = Modifier.size(250.dp)
+        )
+
+        Spacer(Modifier.height(8.dp))
+
+        LinearProgressIndicator(
+            modifier = Modifier.width(250.dp)
+        )
+    }
+}
+@Composable
+fun VisibleLoadingScreen(
     modifier: Modifier,
     show: Boolean
 ){
@@ -55,7 +78,7 @@ fun LoadingScreen(
 @Preview
 @Composable
 private fun LoadingScreenPreview() {
-    LoadingScreen(
+    VisibleLoadingScreen(
         modifier = Modifier.fillMaxSize(),
         show = true
     )

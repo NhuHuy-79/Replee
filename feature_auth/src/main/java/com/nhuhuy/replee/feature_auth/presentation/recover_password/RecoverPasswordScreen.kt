@@ -17,7 +17,7 @@ import com.nhuhuy.replee.feature_auth.R
 import com.nhuhuy.replee.feature_auth.presentation.shared.AuthButton
 import com.nhuhuy.replee.feature_auth.presentation.shared.AuthLayout
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
-import com.nhuhuy.replee.feature_auth.presentation.shared.LoadingScreen
+import com.nhuhuy.replee.core.design_system.component.VisibleLoadingScreen
 import com.nhuhuy.replee.feature_auth.presentation.shared.NormalTextField
 import com.nhuhuy.replee.feature_auth.utils.toUiText
 
@@ -78,7 +78,7 @@ fun RecoverPasswordScreen(
         }
     }
 
-    LoadingScreen(
+    VisibleLoadingScreen(
         modifier = Modifier.fillMaxSize(),
         show = state.showLoading
     )

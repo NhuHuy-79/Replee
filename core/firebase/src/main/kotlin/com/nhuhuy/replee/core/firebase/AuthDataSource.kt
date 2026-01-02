@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_auth.data.source
+package com.nhuhuy.replee.core.firebase
 
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.tasks.await
@@ -10,6 +10,8 @@ class AuthDataSource @Inject constructor(
     class CurrentUserNotFound(msg : String = "Firebase User not found") : Exception(msg)
 
     val currentUser get() = auth.currentUser ?: throw CurrentUserNotFound()
+
+    fun provideCurrentUser() = auth.currentUser ?: throw CurrentUserNotFound()
 
     suspend fun loginWithEmail(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password).await()
