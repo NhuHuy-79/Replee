@@ -34,6 +34,7 @@ android {
 
 dependencies {
     implementation(project(":core:firebase"))
+    api( libs.androidx.datastore.preferences)
     api(libs.flow.operators)
     api(libs.androidx.material.icons.extended)
     api(libs.timber)
