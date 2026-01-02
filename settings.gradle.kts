@@ -29,5 +29,4 @@ include(":feature_auth")
 include(":core:database")
 include(":core:firebase")
 include(":core:test")
-
 include(":feature_profile")

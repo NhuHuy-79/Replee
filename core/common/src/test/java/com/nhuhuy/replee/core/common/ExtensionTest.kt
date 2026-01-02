@@ -17,7 +17,7 @@ class ExtensionTest {
     @Before
     fun setUp(){
         success = Resource.Success("Success")
-        failure = Resource.Failure(RemoteFailure.Network)
+        failure = Resource.Error(RemoteFailure.Network)
     }
 
     @Test

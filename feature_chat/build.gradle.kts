@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -12,6 +15,10 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+    }
+
+    buildFeatures {
+        compose = true
     }
 
     buildTypes {
@@ -34,7 +41,14 @@ android {
 
 dependencies {
     implementation(project(":core:common"))
+    implementation(project(":core:firebase"))
+    implementation(project(":core:database"))
+    implementation(project(":core:test"))
     implementation(project(":core:design_system"))
+
+    implementation(libs.dagger.hilt.android)
+    debugImplementation(libs.ui.tooling)
+    ksp(libs.hilt.android.compiler)
 
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
