@@ -9,8 +9,6 @@ class AuthDataSource @Inject constructor(
 ) {
     class CurrentUserNotFound(msg : String = "Firebase User not found") : Exception(msg)
 
-    val currentUser get() = auth.currentUser ?: throw CurrentUserNotFound()
-
     fun provideCurrentUser() = auth.currentUser ?: throw CurrentUserNotFound()
 
     suspend fun loginWithEmail(email: String, password: String) {
