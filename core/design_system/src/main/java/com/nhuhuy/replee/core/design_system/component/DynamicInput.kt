@@ -1,7 +1,7 @@
-package com.nhuhuy.replee.feature_auth.presentation.shared
+package com.nhuhuy.replee.core.design_system.component
 
 import androidx.compose.runtime.Immutable
-import com.nhuhuy.replee.feature_auth.domain.model.ValidateResult
+import com.nhuhuy.replee.core.common.ValidateResult
 
 @Immutable
 data class DynamicInput(

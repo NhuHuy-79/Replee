@@ -4,7 +4,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.nhuhuy.replee.core.common.data.AccountDataSource
 import com.nhuhuy.replee.core.firebase.AuthDataSource
-import com.nhuhuy.replee.feature_auth.utils.Validator
+import com.nhuhuy.replee.core.common.Validator
 import com.nhuhuy.replee.feature_chat.data.mapper.ConversationMapper
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationRemoteDataSource
 import dagger.Module

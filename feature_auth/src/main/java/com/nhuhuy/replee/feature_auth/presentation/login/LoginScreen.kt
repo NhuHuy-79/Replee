@@ -27,8 +27,8 @@ import com.nhuhuy.replee.feature_auth.presentation.shared.AuthButton
 import com.nhuhuy.replee.feature_auth.presentation.shared.AuthLayout
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.core.design_system.component.VisibleLoadingScreen
-import com.nhuhuy.replee.feature_auth.presentation.shared.NormalTextField
-import com.nhuhuy.replee.feature_auth.presentation.shared.SecureTextField
+import com.nhuhuy.replee.core.design_system.component.NormalTextField
+import com.nhuhuy.replee.core.design_system.component.SecureTextField
 import com.nhuhuy.replee.feature_auth.presentation.shared.customText
 import com.nhuhuy.replee.feature_auth.utils.toUiText
 import kotlinx.coroutines.InternalCoroutinesApi

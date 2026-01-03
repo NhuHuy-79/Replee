@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_auth.presentation.shared
+package com.nhuhuy.replee.core.design_system.component
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.relocation.BringIntoViewRequester

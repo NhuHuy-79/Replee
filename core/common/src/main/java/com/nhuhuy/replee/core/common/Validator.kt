@@ -1,7 +1,6 @@
-package com.nhuhuy.replee.feature_auth.utils
+package com.nhuhuy.replee.core.common
 
 import android.util.Patterns
-import com.nhuhuy.replee.feature_auth.domain.model.ValidateResult
 
 class Validator() {
     private val passwordMinLength: Int = 8

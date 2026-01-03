@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_auth.domain.model
+package com.nhuhuy.replee.core.common
 
 sealed interface ValidateResult {
     data object Empty: ValidateResult

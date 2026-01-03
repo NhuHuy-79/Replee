@@ -2,7 +2,7 @@ package com.nhuhuy.replee.feature_auth.utils
 
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.feature_auth.R
-import com.nhuhuy.replee.feature_auth.domain.model.ValidateResult
+import com.nhuhuy.replee.core.common.ValidateResult
 
 fun ValidateResult.toUiText() : Int? {
     return when (this) {

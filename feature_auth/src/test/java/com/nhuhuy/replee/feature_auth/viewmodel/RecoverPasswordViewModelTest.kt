@@ -4,12 +4,12 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.test.DispatcherRuleTest
-import com.nhuhuy.replee.feature_auth.domain.model.ValidateResult
+import com.nhuhuy.replee.core.common.ValidateResult
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import com.nhuhuy.replee.feature_auth.presentation.recover_password.RecoverPasswordAction
 import com.nhuhuy.replee.feature_auth.presentation.recover_password.RecoverPasswordEvent
 import com.nhuhuy.replee.feature_auth.presentation.recover_password.RecoverPasswordViewModel
-import com.nhuhuy.replee.feature_auth.utils.Validator
+import com.nhuhuy.replee.core.common.Validator
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
