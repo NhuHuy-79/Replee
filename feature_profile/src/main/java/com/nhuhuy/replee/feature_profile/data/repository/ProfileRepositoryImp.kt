@@ -3,8 +3,8 @@ package com.nhuhuy.replee.feature_profile.data.repository
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.safeCall
-import com.nhuhuy.replee.core.common.error_handling.toRemoteFailure
-import com.nhuhuy.replee.core.firebase.AuthDataSource
+import com.nhuhuy.replee.core.firebase.utils.toRemoteFailure
+import com.nhuhuy.replee.core.firebase.data_source.AuthDataSource
 import com.nhuhuy.replee.feature_profile.domain.repository.ProfileRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext

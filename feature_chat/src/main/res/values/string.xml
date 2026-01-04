@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--Conversation Screen-->
-    <string name="conversation_screen_empty">You haven\'t opened any conversation yet. Please add someone to message.</string>
+    <string name="conversation_screen_empty">You haven\'t opened any conversation yet.\nlease add someone to message.</string>
     <!--Retry Screen-->
     <string name="retry_btn">Retry</string>
-    <string name="retry_content">No connection was found. Please check your connection or try again.</string>
+    <string name="retry_content">No connection was found.\nPlease check your connection or try again.</string>
     
 </resources>

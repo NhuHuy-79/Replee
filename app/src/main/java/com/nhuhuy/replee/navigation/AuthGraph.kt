@@ -28,6 +28,7 @@ import com.nhuhuy.replee.feature_auth.presentation.sign_up.SignUpEvent
 import com.nhuhuy.replee.feature_auth.presentation.sign_up.SignUpScreen
 import com.nhuhuy.replee.feature_auth.presentation.sign_up.SignUpViewModel
 import com.nhuhuy.replee.feature_auth.utils.toUiText
+import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction
 import kotlinx.serialization.Serializable
 
 @Serializable

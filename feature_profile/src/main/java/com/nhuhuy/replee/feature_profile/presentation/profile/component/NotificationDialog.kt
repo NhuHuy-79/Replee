@@ -43,7 +43,7 @@ fun NotificationDialog(
         title = {
             Text(
                 text = stringResource(R.string.notification_dialog_title),
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
@@ -51,7 +51,8 @@ fun NotificationDialog(
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = stringResource(R.string.notification_dialog_content)
+                    text = stringResource(R.string.notification_dialog_content),
+                    style = MaterialTheme.typography.bodyLarge
                 )
                 NotificationMode.entries.forEach { notificationMode ->
                     BaseRadioButton(

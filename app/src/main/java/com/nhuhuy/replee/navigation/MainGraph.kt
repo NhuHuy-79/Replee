@@ -27,10 +27,12 @@ fun MainGraph(
         entryDecorators = listOf(
             rememberSaveableStateHolderNavEntryDecorator(),
             rememberViewModelStoreNavEntryDecorator()
+
         ),
         entryProvider = entryProvider {
             authGraph(backStack)
             chatGraph(backStack)
+            profileGraph(backStack)
         }
     )
 }

@@ -5,7 +5,6 @@ package com.nhuhuy.replee.feature_chat.presentation.conversation.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Edit
@@ -18,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.common.data.model.Account
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
@@ -26,7 +24,7 @@ import com.nhuhuy.replee.feature_chat.presentation.conversation.state.Conversati
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationState
 
 @Composable
-internal fun ConversationSuccessScreen(
+internal fun ConversationContent(
     converationList: List<Conversation>,
     state: ConversationState,
     onAction: (ConversationAction) -> Unit
@@ -87,7 +85,7 @@ internal fun ConversationSuccessScreen(
 @Preview
 @Composable
 fun ConversationScreenPreview() {
-    ConversationSuccessScreen(
+    ConversationContent(
         converationList = emptyList(),
         state = ConversationState(),
         onAction = {}

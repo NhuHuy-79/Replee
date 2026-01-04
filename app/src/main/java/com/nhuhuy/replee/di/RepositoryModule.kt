@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.di
 
-import com.nhuhuy.replee.core.common.data.repo.AccountRepository
-import com.nhuhuy.replee.core.common.data.repo.AccountRepositoryImp
+import com.nhuhuy.replee.core.firebase.repository.AccountRepository
+import com.nhuhuy.replee.core.firebase.repository.AccountRepositoryImp
 import com.nhuhuy.replee.feature_auth.data.repository.AuthRepositoryImp
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import com.nhuhuy.replee.feature_chat.data.repository.ConversationRepositoryImp

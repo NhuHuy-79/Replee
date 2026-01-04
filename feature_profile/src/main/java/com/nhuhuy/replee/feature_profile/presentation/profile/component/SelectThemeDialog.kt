@@ -37,7 +37,7 @@ fun SelectThemeDialog(
         title = {
             Text(
                 text = stringResource(R.string.app_theme_dialog_title),
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
@@ -45,7 +45,8 @@ fun SelectThemeDialog(
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = stringResource(R.string.app_theme_dialog_title)
+                    text = stringResource(R.string.app_theme_content),
+                    style = MaterialTheme.typography.bodyMedium
                 )
                 ThemeMode.entries.forEach { themeMode ->
                     BaseRadioButton(

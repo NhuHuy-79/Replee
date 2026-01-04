@@ -3,8 +3,7 @@ package com.nhuhuy.replee.feature_chat.presentation.conversation
 import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.core.common.data.repo.AccountRepository
-import com.nhuhuy.replee.core.common.error_handling.onFailure
+import com.nhuhuy.replee.core.firebase.repository.AccountRepository
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
@@ -95,7 +94,9 @@ class ConversationViewModel @Inject constructor(
                 }
             }
 
-            ConversationAction.OnAvatarClick -> {}
+            ConversationAction.OnAvatarClick -> {
+                onEvent(ConversationEvent.GoToProfile)
+            }
         }
     }
 

@@ -6,7 +6,7 @@ import com.nhuhuy.replee.core.common.Validator
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.data.model.Account
-import com.nhuhuy.replee.core.common.data.repo.AccountRepository
+import com.nhuhuy.replee.core.firebase.repository.AccountRepository
 import com.nhuhuy.replee.core.common.error_handling.onFailure
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.core.design_system.component.DynamicInput
@@ -16,7 +16,6 @@ import com.nhuhuy.replee.feature_profile.presentation.profile.state.Overlay
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileEvent
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileState
-import com.skydoves.flow.operators.onetime.OnetimeWhileSubscribed
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,7 +48,8 @@ class ProfileViewModel @Inject constructor(
         }.onFailure {
             emit(Account())
         }
-    }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Account())
+
 
     override val state: StateFlow<ProfileState> = combine(
         inputState,
@@ -66,7 +66,7 @@ class ProfileViewModel @Inject constructor(
             newPassword = input.newPassword,
             overlay = overlay,
         )
-    }.stateIn(viewModelScope, SharingStarted.OnetimeWhileSubscribed(5000), ProfileState())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ProfileState())
 
     override fun onAction(action: ProfileAction) {
         viewModelScope.launch {
@@ -101,7 +101,7 @@ class ProfileViewModel @Inject constructor(
                     }
                 }
                 is ProfileAction.OnNewPasswordChange -> {
-                    val old = state.value.oldPassword.text
+                    val old = inputState.value.oldPassword.text
                     _inputState.reduce {
                         copy(
                             newPassword = DynamicInput(
@@ -120,14 +120,15 @@ class ProfileViewModel @Inject constructor(
                 }
                 ProfileAction.OnLogOut -> {
                     profileRepository.logOut()
+                    onEvent(ProfileEvent.GoToSignIn)
                 }
 
                 ProfileAction.OnUpdatePassword.BottomSheet -> {
                     _overlayState.update { Overlay.UPDATE_PASSWORD }
                 }
                 ProfileAction.OnUpdatePassword.Confirm -> {
-                    val old = state.value.oldPassword.text
-                    val new = state.value.newPassword.text
+                    val old = inputState.value.oldPassword.text
+                    val new = inputState.value.newPassword.text
                     profileRepository.updatePassword(old = old, new = new)
                         .onSuccess {
                             onEvent(ProfileEvent.UpdatePassword.Success)

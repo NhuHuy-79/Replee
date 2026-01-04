@@ -60,7 +60,7 @@ fun ConversationList(
                 Text(
                     text = stringResource(R.string.conversation_screen_empty),
                     style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(24.dp)
                 )
             }
         }

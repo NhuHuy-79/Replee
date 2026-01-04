@@ -1,21 +1,15 @@
 package com.nhuhuy.replee.feature_chat.data.source.conversation
 
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.snapshots
 import com.google.firebase.firestore.toObjects
 import com.nhuhuy.replee.core.common.data.Constant
-import com.nhuhuy.replee.core.common.error_handling.FirestoreDataNotFoundException
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
-import com.nhuhuy.replee.core.common.error_handling.toRemoteFailure
+import com.nhuhuy.replee.core.firebase.utils.toRemoteFailure
 import com.nhuhuy.replee.feature_chat.data.model.ConversationDTO
-import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import javax.inject.Inject

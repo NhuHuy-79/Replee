@@ -59,7 +59,11 @@ fun ProfileScreen(
                 .padding(innerPadding)
         ) {
             item {
-                ProfileUserCard()
+                ProfileUserCard(
+                    onEditClick = {
+                        onAction(ProfileAction.OnUpdatePassword.BottomSheet)
+                    }
+                )
             }
 
             item {

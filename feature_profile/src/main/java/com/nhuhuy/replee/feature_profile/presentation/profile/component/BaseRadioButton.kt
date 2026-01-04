@@ -25,7 +25,6 @@ fun BaseRadioButton(
                 onClick()
             },
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ){
         RadioButton(
             onClick = {},

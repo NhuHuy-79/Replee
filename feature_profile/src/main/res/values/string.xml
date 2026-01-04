@@ -7,13 +7,13 @@
     <string name="password_same_as_old">New password cannot be same as old password.</string>
     <!--Profile Screen-->
     <string name="app_theme_dialog_title">Select your theme</string>
-    <string name="app_theme_content">You can always change this later</string>
+    <string name="app_theme_content">You can always change this later.</string>
     <string name="app_theme_default">Default</string>
     <string name="app_theme_dark">Dark</string>
     <string name="app_theme_light">Light</string>
 
     <string name="notification_dialog_title">"Choose your option"</string>
-    <string name="notification_dialog_content">"You can always change this later"</string>
+    <string name="notification_dialog_content">"You can always change this later."</string>
     <string name="notification_off">None</string>
     <string name="notification_private">Private</string>
     <string name="notification_group">Group</string>
