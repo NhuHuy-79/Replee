@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.common.error_handling
+package com.nhuhuy.replee.core.firebase.utils
 
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuthEmailException

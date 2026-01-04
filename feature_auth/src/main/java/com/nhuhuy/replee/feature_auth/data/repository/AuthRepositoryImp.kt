@@ -1,12 +1,12 @@
 package com.nhuhuy.replee.feature_auth.data.repository
 
-import com.nhuhuy.replee.core.common.data.AccountNetworkDataSource
+import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.safeCall
-import com.nhuhuy.replee.core.common.error_handling.toRemoteFailure
+import com.nhuhuy.replee.core.firebase.utils.toRemoteFailure
 import com.nhuhuy.replee.core.firebase.AccountDTO
-import com.nhuhuy.replee.core.firebase.AuthDataSource
+import com.nhuhuy.replee.core.firebase.data_source.AuthDataSource
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
