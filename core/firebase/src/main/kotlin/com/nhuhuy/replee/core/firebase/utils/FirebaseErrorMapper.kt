@@ -6,7 +6,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
-import java.io.IOException
+import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 
 fun Exception.toRemoteFailure(): RemoteFailure {
     return when (this) {
@@ -17,12 +17,5 @@ fun Exception.toRemoteFailure(): RemoteFailure {
         is FirebaseAuthUserCollisionException -> RemoteFailure.Auth.USER_ALREADY_EXIST
         is FirebaseNetworkException -> RemoteFailure.Network
         else -> RemoteFailure.Unknown
-    }
-}
-
-fun Exception.toLocalFailure() : LocalFailure {
-    return when (this) {
-        is IOException -> LocalFailure.IO
-        else -> LocalFailure.Unknown
     }
 }

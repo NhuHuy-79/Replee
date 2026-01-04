@@ -97,20 +97,12 @@ class SignUpViewModel @Inject constructor(
                 }
 
                 is SignUpAction.OnPasswordChange -> {
-                    val confirmedPassword = state.value.confirmPassword
                     _state.reduce {
                         copy(
                             password = DynamicInput(
                                 text = action.password,
                                 validateResult = validator.validatePassword(action.password)
                             ),
-                            confirmPassword = DynamicInput(
-                                text = confirmedPassword.text,
-                                validateResult = validator.isPasswordConfirmed(
-                                    password = action.password,
-                                    confirmedPassword = confirmedPassword.text
-                                )
-                            )
                         )
                     }
                 }

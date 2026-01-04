@@ -1,13 +1,13 @@
 package com.nhuhuy.replee.feature_auth.repository
 
 import com.google.common.truth.Truth
-import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.common.data.model.Account
 import com.nhuhuy.replee.core.common.error_handling.FirestoreDataNotFoundException
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
-import com.nhuhuy.replee.feature_auth.data.repository.AuthRepositoryImp
+import com.nhuhuy.replee.core.firebase.AccountDTO
+import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.firebase.data_source.AuthDataSource
+import com.nhuhuy.replee.feature_auth.data.repository.AuthRepositoryImp
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -61,7 +61,7 @@ class AuthRepositoryImpTest {
             authDataSource.signUpWithEmail("email", "password")
         } returns Unit
         coEvery {
-            val account = Account(
+            val account = AccountDTO(
                 id = "id",
                 name = "name",
                 email = "email",
@@ -77,13 +77,12 @@ class AuthRepositoryImpTest {
 
     @Test
     fun signUpWithEmail_whenThrowException_shouldReturnRemoteFailure() = runTest {
-        val exception = FirestoreDataNotFoundException()
         fakeCurrentUserId()
         coEvery {
             authDataSource.signUpWithEmail("email", "password")
         } returns Unit
         coEvery {
-            val account = Account(
+            val account = AccountDTO(
                 id = "id",
                 name = "name",
                 email = "email",

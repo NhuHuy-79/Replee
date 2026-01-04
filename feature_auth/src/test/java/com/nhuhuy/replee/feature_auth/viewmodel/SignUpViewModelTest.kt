@@ -35,17 +35,19 @@ class SignUpViewModelTest {
     }
 
     @Test
-    fun onActionLogin_ShouldReturnSuccess() = runTest {
+    fun onActionSignUp_ShouldReturnSuccess() = runTest {
         coEvery {
             authRepository.signUpWithEmail("name","email", "password")
         } returns Resource.Success("id")
 
         every { validator.validateEmail("email") } returns ValidateResult.Valid
         every { validator.validatePassword("password") } returns ValidateResult.Valid
+        every { validator.isPasswordConfirmed("password", "password") } returns ValidateResult.Valid
 
         signUpViewModel.onAction(SignUpAction.OnNameChange("name"))
         signUpViewModel.onAction(SignUpAction.OnEmailChange("email"))
         signUpViewModel.onAction(SignUpAction.OnPasswordChange("password"))
+        signUpViewModel.onAction(SignUpAction.OnConfirmPasswordChange("password"))
 
 
         signUpViewModel.event.test {
