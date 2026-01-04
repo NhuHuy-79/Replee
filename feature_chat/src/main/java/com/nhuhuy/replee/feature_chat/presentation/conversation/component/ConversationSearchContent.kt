@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.feature_chat.presentation.conversation.component
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,9 +33,11 @@ import java.util.Locale
 @ExperimentalMaterial3Api
 @Composable
 fun ConversationSearchBar(
+    currentUser: Account,
     userList: List<Account>,
     expand: Boolean,
     input: String,
+    onAvatarClick: () -> Unit,
     onSearch: (String) -> Unit,
     onValueChange: (String) -> Unit,
     onExpandChange: (Boolean) -> Unit,
@@ -62,6 +65,14 @@ fun ConversationSearchBar(
                     focusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     focusedContainerColor = MaterialTheme.colorScheme.secondary,
                 ),
+                trailingIcon = {
+                    UserImage(
+                        userName = currentUser.name,
+                        modifier = Modifier.clickable{
+                            onAvatarClick()
+                        }
+                    )
+                },
                 leadingIcon = {
                     IconButton(
                         onClick = {

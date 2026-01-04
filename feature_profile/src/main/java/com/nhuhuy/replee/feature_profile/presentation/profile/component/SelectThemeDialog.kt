@@ -17,7 +17,7 @@ import com.nhuhuy.replee.feature_profile.R
 import com.nhuhuy.replee.feature_profile.data.data_store.ThemeMode
 
 @Composable
-fun AppThemeDialog(
+fun SelectThemeDialog(
     modifier: Modifier = Modifier,
     currentThemeMode: ThemeMode,
     onThemeModeSelect: (theme: ThemeMode) -> Unit,

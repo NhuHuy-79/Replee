@@ -32,6 +32,14 @@ class Validator() {
 
     fun isPasswordConfirmed(password: String, confirmedPassword: String): ValidateResult{
         return if (password == confirmedPassword) ValidateResult.Valid else ValidateResult.PasswordError.NOT_MATCH
+    }
 
+    fun validateNewPassword(old: String, new: String): ValidateResult {
+        return when {
+            new.isEmpty() -> ValidateResult.Empty
+            isValidPassword(new) -> ValidateResult.Valid
+            old == new -> ValidateResult.PasswordError.SAME_AS_OLD
+            else -> ValidateResult.PasswordError.INVALID
+        }
     }
 }

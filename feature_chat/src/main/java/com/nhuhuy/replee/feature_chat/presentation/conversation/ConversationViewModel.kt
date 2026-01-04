@@ -3,12 +3,16 @@ package com.nhuhuy.replee.feature_chat.presentation.conversation
 import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
+import com.nhuhuy.replee.core.common.data.repo.AccountRepository
+import com.nhuhuy.replee.core.common.error_handling.onFailure
+import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationAction
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent
+import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent.*
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationState
 import com.skydoves.flow.operators.restartable.RestartableStateFlow
 import com.skydoves.flow.operators.restartable.restartableStateIn
@@ -18,12 +22,27 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
-    private val conversationRepository: ConversationRepository
+    private val conversationRepository: ConversationRepository,
+    private val accountRepository: AccountRepository
 ) : BaseViewModel<ConversationAction, ConversationEvent, ConversationState>() {
+
+    init {
+        viewModelScope.launch {
+            accountRepository.getCurrentAccount()
+                .onSuccess { account ->
+                    _state.reduce {
+                        copy(currentUser = account)
+                    }
+                }
+
+        }
+    }
+
     private val _state = MutableStateFlow(ConversationState())
     override val state: StateFlow<ConversationState>
         get() = _state.asStateFlow()
@@ -43,7 +62,7 @@ class ConversationViewModel @Inject constructor(
 
             }
             is ConversationAction.OnConversationClick -> {
-                onEvent(ConversationEvent.NavigateToChatRoom(action.conversationId))
+                onEvent(NavigateToChatRoom(action.conversationId))
             }
             ConversationAction.OnDismissPress -> {
 ;
@@ -75,6 +94,8 @@ class ConversationViewModel @Inject constructor(
                     copy(expandSearchBar = action.expand)
                 }
             }
+
+            ConversationAction.OnAvatarClick -> {}
         }
     }
 

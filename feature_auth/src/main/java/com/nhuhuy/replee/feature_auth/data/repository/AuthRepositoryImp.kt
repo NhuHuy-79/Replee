@@ -1,11 +1,11 @@
 package com.nhuhuy.replee.feature_auth.data.repository
 
-import com.nhuhuy.replee.core.common.data.AccountDataSource
-import com.nhuhuy.replee.core.common.data.model.Account
+import com.nhuhuy.replee.core.common.data.AccountNetworkDataSource
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.safeCall
 import com.nhuhuy.replee.core.common.error_handling.toRemoteFailure
+import com.nhuhuy.replee.core.firebase.AccountDTO
 import com.nhuhuy.replee.core.firebase.AuthDataSource
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -15,7 +15,7 @@ import java.lang.Exception
 import javax.inject.Inject
 
 class AuthRepositoryImp @Inject constructor(
-    private val accountDataSource: AccountDataSource,
+    private val accountNetworkDataSource: AccountNetworkDataSource,
     private val authDataSource: AuthDataSource,
     private val dispatcher: CoroutineDispatcher,
 ) : AuthRepository {
@@ -25,7 +25,7 @@ class AuthRepositoryImp @Inject constructor(
     ): Resource<String, RemoteFailure> {
         return withContext(dispatcher) {
             safeCall(
-                errorMapper = { e ->
+                throwable = { e ->
                     Timber.e(e)
                     e.toRemoteFailure()
                 }
@@ -43,7 +43,7 @@ class AuthRepositoryImp @Inject constructor(
     ): Resource<String, RemoteFailure> {
         return withContext(dispatcher) {
             safeCall(
-                errorMapper = { e ->
+                throwable = { e ->
                     Timber.e(e)
                     e.toRemoteFailure()
                 },
@@ -51,12 +51,12 @@ class AuthRepositoryImp @Inject constructor(
                 authDataSource.signUpWithEmail(email, password)
                 val id = authDataSource.provideCurrentUser().uid
                 try {
-                    val account = Account(
+                    val account = AccountDTO(
                         id = id,
                         name = name,
                         email = email,
                     )
-                    accountDataSource.addAccount(account)
+                    accountNetworkDataSource.addAccount(account)
                 } catch (e: Exception) {
                     Timber.e(e)
                     authDataSource.deleteCurrentUser()
@@ -70,7 +70,7 @@ class AuthRepositoryImp @Inject constructor(
     override suspend fun sendRecoverPasswordEmail(email: String): Resource<Unit, RemoteFailure> {
         return withContext(dispatcher) {
             safeCall(
-                errorMapper = { e ->
+                throwable = { e ->
                     Timber.e(e)
                     e.toRemoteFailure()
                 }
@@ -82,12 +82,16 @@ class AuthRepositoryImp @Inject constructor(
 
     override suspend fun provideCurrentUser(): Resource<String, RemoteFailure> {
         return safeCall(
-            errorMapper = { e ->
+            throwable = { e ->
                 Timber.e(e)
                 e.toRemoteFailure()
             }
         ){
             authDataSource.provideCurrentUser().uid
         }
+    }
+
+    override fun isUserLogged(): Boolean {
+        return authDataSource.isUserLogged()
     }
 }

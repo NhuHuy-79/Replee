@@ -46,9 +46,11 @@ android {
 dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:firebase"))
+    implementation(project(":core:database"))
     implementation(project(":core:design_system"))
     implementation(project(":feature_chat"))
     implementation(project(":feature_auth"))
+    implementation(project(":feature_profile"))
 
     //Hilt
     implementation(libs.dagger.hilt.android)

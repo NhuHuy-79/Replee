@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.nhuhuy.replee.core.common.data.model.Account
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationAction
@@ -54,6 +55,7 @@ internal fun ConversationSuccessScreen(
 
         ) {
             ConversationSearchBar(
+                currentUser = Account(),
                 userList = state.userList,
                 expand = state.expandSearchBar,
                 input = state.searchQuery,
@@ -66,6 +68,9 @@ internal fun ConversationSuccessScreen(
                 onExpandChange = { expand ->
                     onAction(ConversationAction.OnExpandChange(expand))
                 },
+                onAvatarClick = {
+                    onAction(ConversationAction.OnAvatarClick)
+                }
             )
 
             ConversationList(

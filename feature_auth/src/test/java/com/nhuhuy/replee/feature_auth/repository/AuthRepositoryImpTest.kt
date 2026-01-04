@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_auth.repository
 
 import com.google.common.truth.Truth
-import com.nhuhuy.replee.core.common.data.AccountDataSource
+import com.nhuhuy.replee.core.common.data.AccountNetworkDataSource
 import com.nhuhuy.replee.core.common.data.model.Account
 import com.nhuhuy.replee.core.common.error_handling.FirestoreDataNotFoundException
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
@@ -19,14 +19,14 @@ import org.junit.Test
 
 class AuthRepositoryImpTest {
     private lateinit var authRepository: AuthRepository
-    private lateinit var accountDataSource: AccountDataSource
+    private lateinit var accountNetworkDataSource: AccountNetworkDataSource
     private lateinit var authDataSource: AuthDataSource
 
     @Before
     fun setUp() {
         authDataSource = mockk()
-        accountDataSource = mockk()
-        authRepository = AuthRepositoryImp(accountDataSource,authDataSource, dispatcher = Dispatchers.IO)
+        accountNetworkDataSource = mockk()
+        authRepository = AuthRepositoryImp(accountNetworkDataSource,authDataSource, dispatcher = Dispatchers.IO)
     }
 
     @Test
@@ -66,7 +66,7 @@ class AuthRepositoryImpTest {
                 name = "name",
                 email = "email",
             )
-            accountDataSource.addAccount(account)
+            accountNetworkDataSource.addAccount(account)
         } returns Unit
 
         val expected : Resource<String, RemoteFailure> = Resource.Success("id")
@@ -88,7 +88,7 @@ class AuthRepositoryImpTest {
                 name = "name",
                 email = "email",
             )
-            accountDataSource.addAccount(account)
+            accountNetworkDataSource.addAccount(account)
         } throws FirestoreDataNotFoundException()
 
         val expected: Resource<String, RemoteFailure> = Resource.Error(RemoteFailure.Unknown)

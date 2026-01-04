@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_auth.presentation.shared
+package com.nhuhuy.replee.core.design_system.component
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,7 +11,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AuthButton(
+fun CommonButton(
     modifier: Modifier,
     @StringRes res: Int,
     enabled: Boolean = true,

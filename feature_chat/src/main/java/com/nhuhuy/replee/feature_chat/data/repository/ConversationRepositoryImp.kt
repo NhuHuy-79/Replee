@@ -1,7 +1,5 @@
 package com.nhuhuy.replee.feature_chat.data.repository
 
-import com.nhuhuy.replee.core.common.data.AccountDataSource
-import com.nhuhuy.replee.core.common.data.model.Account
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.mapResource
@@ -39,7 +37,7 @@ class ConversationRepositoryImp @Inject constructor(
     override suspend fun addConversation(conversation: Conversation): Resource<Unit, RemoteFailure> {
         return withContext(dispatcher) {
             safeCall(
-                errorMapper = { e ->
+                throwable = { e ->
                     Timber.e(e)
                     e.toRemoteFailure()
                 }

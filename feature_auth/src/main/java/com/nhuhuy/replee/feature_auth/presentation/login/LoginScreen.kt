@@ -23,7 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nhuhuy.replee.feature_auth.R
-import com.nhuhuy.replee.feature_auth.presentation.shared.AuthButton
+import com.nhuhuy.replee.core.design_system.component.CommonButton
 import com.nhuhuy.replee.feature_auth.presentation.shared.AuthLayout
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.core.design_system.component.VisibleLoadingScreen
@@ -97,7 +97,7 @@ fun LoginScreen(
         item { Spacer(Modifier.height(4.dp)) }
 
         item {
-            AuthButton(
+            CommonButton(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),

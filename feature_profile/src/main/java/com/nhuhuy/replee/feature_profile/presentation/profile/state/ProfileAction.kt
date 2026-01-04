@@ -1,11 +1,12 @@
 package com.nhuhuy.replee.feature_profile.presentation.profile.state
 
 import com.nhuhuy.replee.core.common.base.UiAction
-import com.nhuhuy.replee.core.common.base.UiEvent
 import com.nhuhuy.replee.feature_profile.data.data_store.NotificationMode
 import com.nhuhuy.replee.feature_profile.data.data_store.ThemeMode
 
 sealed interface ProfileAction : UiAction {
+
+    data object OnDismiss: ProfileAction
     data object OnAboutClick: ProfileAction
     sealed interface OnDarkModeClick : ProfileAction {
         data class Select(val option: ThemeMode): OnDarkModeClick
@@ -15,4 +16,14 @@ sealed interface ProfileAction : UiAction {
         data class Select(val option: NotificationMode) : OnNotificationClick
         data object Dialog: OnNotificationClick
     }
+
+    sealed interface OnUpdatePassword : ProfileAction {
+        data object BottomSheet : OnUpdatePassword
+        data object Confirm : OnUpdatePassword
+    }
+
+    data object OnLogOut : ProfileAction
+
+    data class OnNewPasswordChange(val password: String) : ProfileAction
+    data class OnOldPasswordChange(val password: String) : ProfileAction
 }

@@ -2,33 +2,33 @@ package com.nhuhuy.replee.core.common.data
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObjects
-import com.nhuhuy.replee.core.common.data.model.Account
 import com.nhuhuy.replee.core.common.error_handling.FirestoreCannotConvertObjectException
 import com.nhuhuy.replee.core.common.error_handling.FirestoreDataNotFoundException
+import com.nhuhuy.replee.core.firebase.AccountDTO
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class AccountDataSource @Inject constructor(
+class AccountNetworkDataSource @Inject constructor(
     firestore: FirebaseFirestore
 ){
     private val collection = firestore.collection(Constant.Firestore.USER_COLLECTION)
 
-    suspend fun addAccount(account: Account){
+    suspend fun addAccount(account: AccountDTO){
         collection.document(account.id).set(account).await()
     }
 
-    suspend fun getAccountById(id: String) : Account{
+    suspend fun getAccountById(id: String) : AccountDTO{
         return collection.document(id)
             .get()
             .await()
-            .toObject(Account::class.java) ?: throw FirestoreCannotConvertObjectException()
+            .toObject(AccountDTO::class.java) ?: throw FirestoreCannotConvertObjectException()
     }
 
-    suspend fun getAccountByEmail(email: String) : Account {
+    suspend fun getAccountByEmail(email: String) : AccountDTO {
         val accounts = collection
             .get()
             .await()
-            .toObjects<Account>()
+            .toObjects<AccountDTO>()
         return accounts.find { account -> account.email == email } ?: throw FirestoreDataNotFoundException()
     }
 }

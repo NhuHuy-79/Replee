@@ -1,5 +1,6 @@
 package com.nhuhuy.replee
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.error_handling.onFailure
@@ -18,14 +19,13 @@ import kotlinx.coroutines.flow.stateIn
 class MainViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel(){
+    private val isLogged = authRepository.isUserLogged()
     private val _state: Flow<Boolean> = flow {
-        authRepository.provideCurrentUser()
-            .onFailure {
-                emit(false)
-            }
-            .onSuccess {
-                emit(true)
-            }
+        authRepository.provideCurrentUser().onSuccess {
+            emit(true)
+        }.onFailure {
+            emit(false)
+        }
     }
-    val state = _state.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    val state = _state.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), isLogged)
 }

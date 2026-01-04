@@ -13,4 +13,5 @@ sealed interface ConversationAction : UiAction{
     data object OnAddFabClick: ConversationAction
     data class OnConversationClick(val conversationId: String) : ConversationAction
     data object Retry: ConversationAction
+    data object OnAvatarClick: ConversationAction
 }

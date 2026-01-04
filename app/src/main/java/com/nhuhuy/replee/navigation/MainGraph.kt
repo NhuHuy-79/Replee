@@ -20,7 +20,6 @@ fun MainGraph(
         NavBackStack(startDestination)
     }
     NavDisplay(
-
         backStack = backStack,
         onBack = {
             backStack.removeLastOrNull()

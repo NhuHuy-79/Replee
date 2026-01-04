@@ -25,7 +25,9 @@ fun UserImage(
         contentAlignment = Alignment.Center
     ){
         Text(
-            text = userName.toCharArray().first().uppercase(),
+            text = if (userName.isEmpty()){
+                "U"
+            } else userName.toCharArray().first().uppercase(),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.SemiBold
             ),

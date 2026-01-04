@@ -10,5 +10,6 @@ sealed interface ValidateResult {
     enum class PasswordError : ValidateResult{
         INVALID,
         NOT_MATCH,
+        SAME_AS_OLD,
     }
 }

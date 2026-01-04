@@ -1,7 +1,6 @@
 package com.nhuhuy.replee.core.common.error_handling
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.supervisorScope
 
@@ -60,13 +59,13 @@ suspend inline fun <D, F : Failure, R> Resource<D, F>.mapSuccessSuspend(
 }
 
 suspend inline fun <D, F : Failure> safeCall(
-    errorMapper: (e: Exception) -> F,
+    throwable: (e: Exception) -> F,
     block: suspend () -> D,
 ): Resource<D, F> {
     return try {
         Resource.Success(block())
     } catch (e: Exception) {
-        Resource.Error(errorMapper(e))
+        Resource.Error(throwable(e))
     }
 }
 
@@ -93,6 +92,7 @@ inline fun <D, F: Failure, R> Flow<Resource<D, F>>.mapParallel(
         }
     }
 }
+
 
 
 

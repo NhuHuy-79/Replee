@@ -9,4 +9,6 @@ interface AuthRepository {
     suspend fun signUpWithEmail(name: String, email: String, password: String) : Resource<String, RemoteFailure>
     suspend fun sendRecoverPasswordEmail(email: String) : Resource<Unit, RemoteFailure>
     suspend fun provideCurrentUser(): Resource<String, RemoteFailure>
+
+    fun isUserLogged() : Boolean
 }

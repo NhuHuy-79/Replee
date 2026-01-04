@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.feature_auth.R
-import com.nhuhuy.replee.feature_auth.presentation.shared.AuthButton
+import com.nhuhuy.replee.core.design_system.component.CommonButton
 import com.nhuhuy.replee.feature_auth.presentation.shared.AuthLayout
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.core.design_system.component.VisibleLoadingScreen
@@ -65,7 +65,7 @@ fun RecoverPasswordScreen(
         item { Spacer(Modifier.height(8.dp)) }
 
         item {
-            AuthButton(
+            CommonButton(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),

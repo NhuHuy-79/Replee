@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--Validate Result-->
+    <string name="empty_input">Input cannot be empty!</string>
+    <string name="invalid_password">Password must have at least 8 characters,\n including uppercase, lowercase, digit and special character</string>
+    <string name="password_not_match">Password not match!</string>
+    <string name="password_same_as_old">New password cannot be same as old password.</string>
     <!--Profile Screen-->
     <string name="app_theme_dialog_title">Select your theme</string>
     <string name="app_theme_content">You can always change this later</string>
@@ -12,4 +17,17 @@
     <string name="notification_off">None</string>
     <string name="notification_private">Private</string>
     <string name="notification_group">Group</string>
+
+    <string name="profile_screen_title">Profile</string>
+    <string name="profile_screen_subtitle">General</string>
+    <string name="profile_item_notification">Notification</string>
+    <string name="profile_item_theme">Theme</string>
+    <string name="profile_item_storage">Storage &amp; Data</string>
+    <string name="profile_item_logout">Log out</string>
+    <string name="profile_item_about">About</string>
+
+    <string name="profile_password_edit_title">Change your password</string>
+    <string name="profile_old_passwd">Old Password</string>
+    <string name="profile_new_passwd">New Password</string>
+    <string name="profile_confirm_btn">Confirm</string>
 </resources>
