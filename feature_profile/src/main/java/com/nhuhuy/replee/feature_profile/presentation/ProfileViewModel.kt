@@ -37,10 +37,10 @@ class ProfileViewModel @Inject constructor(
 ) : BaseViewModel<ProfileAction, ProfileEvent, ProfileState>() {
 
     private val _inputState = MutableStateFlow(InputState())
-    val inputState : StateFlow<InputState> = _inputState.asStateFlow()
+    private val inputState : StateFlow<InputState> = _inputState.asStateFlow()
 
     private val _overlayState = MutableStateFlow(Overlay.NONE)
-    val dialogState = _overlayState.asStateFlow()
+    private val dialogState = _overlayState.asStateFlow()
 
     private val account = flow {
         accountRepository.getCurrentAccount().onSuccess { account ->
