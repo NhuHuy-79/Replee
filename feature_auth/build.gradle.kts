@@ -50,6 +50,8 @@ dependencies {
     implementation(project(":core:design_system"))
     implementation(project(":core:firebase"))
     testImplementation(project(":core:test"))
+    implementation(project(":core:database"))
+
     //Hilt
     implementation(libs.dagger.hilt.android)
     testImplementation(libs.junit.junit)

@@ -61,6 +61,7 @@ fun ProfileScreen(
         ) {
             item {
                 ProfileUserCard(
+                    user = state.account,
                     onEditClick = {
                         onAction(ProfileAction.OnUpdatePassword.BottomSheet)
                     }

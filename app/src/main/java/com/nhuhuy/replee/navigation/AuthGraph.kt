@@ -131,7 +131,7 @@ fun EntryProviderScope<NavKey>.authGraph(
                     backstack.removeAll{ destination ->
                         destination is AuthDestination
                     }
-                    backstack.add(HomeDestination.Chat)
+                    backstack.add(HomeDestination.ConversationList)
                 }
             }
         }

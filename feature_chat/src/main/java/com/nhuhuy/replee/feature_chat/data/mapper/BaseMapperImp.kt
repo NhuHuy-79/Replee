@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.feature_chat.data.mapper
 
-import com.nhuhuy.replee.core.firebase.toMilliseconds
+import com.nhuhuy.replee.core.firebase.utils.toMilliseconds
 import com.nhuhuy.replee.feature_chat.data.model.ConversationDTO
 import com.nhuhuy.replee.feature_chat.data.model.ConversationDTOUser
 import com.nhuhuy.replee.feature_chat.data.model.ConversationEntity

@@ -18,6 +18,8 @@
     <string name="notification_private">Private</string>
     <string name="notification_group">Group</string>
 
+    <string name="profile_screen_edit_btn">Edit</string>
+
     <string name="profile_screen_title">Profile</string>
     <string name="profile_screen_subtitle">General</string>
     <string name="profile_item_notification">Notification</string>

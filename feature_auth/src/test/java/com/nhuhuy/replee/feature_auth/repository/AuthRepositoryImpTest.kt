@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_auth.repository
 
 import com.google.common.truth.Truth
-import com.nhuhuy.replee.core.common.error_handling.FirestoreDataNotFoundException
+import com.nhuhuy.replee.core.firebase.utils.FirestoreDataNotFoundException
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.firebase.AccountDTO

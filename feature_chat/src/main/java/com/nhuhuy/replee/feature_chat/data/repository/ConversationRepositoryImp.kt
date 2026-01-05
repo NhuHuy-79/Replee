@@ -4,7 +4,7 @@ import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.mapResource
 import com.nhuhuy.replee.core.common.error_handling.safeCall
-import com.nhuhuy.replee.core.firebase.utils.toRemoteFailure
+import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.firebase.data_source.AuthDataSource
 import com.nhuhuy.replee.feature_chat.data.mapper.ConversationMapper
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationRemoteDataSource

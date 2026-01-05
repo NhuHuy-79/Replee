@@ -1,24 +1,26 @@
 package com.nhuhuy.replee.feature_auth.data.repository
 
-import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
+import com.nhuhuy.replee.core.common.data.model.toAccountEntity
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.safeCall
-import com.nhuhuy.replee.core.firebase.utils.toRemoteFailure
+import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.firebase.AccountDTO
+import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.firebase.data_source.AuthDataSource
+import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.lang.Exception
 import javax.inject.Inject
 
 class AuthRepositoryImp @Inject constructor(
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val authDataSource: AuthDataSource,
     private val dispatcher: CoroutineDispatcher,
-) : AuthRepository {
+    private val accountLocalDataSource: AccountLocalDataSource,
+    ) : AuthRepository {
     override suspend fun loginWithEmail(
         email: String,
         password: String
@@ -57,6 +59,7 @@ class AuthRepositoryImp @Inject constructor(
                         email = email,
                     )
                     accountNetworkDataSource.addAccount(account)
+                    accountLocalDataSource.saveAccount(account.toAccountEntity())
                 } catch (e: Exception) {
                     Timber.e(e)
                     authDataSource.deleteCurrentUser()
@@ -86,7 +89,7 @@ class AuthRepositoryImp @Inject constructor(
                 Timber.e(e)
                 e.toRemoteFailure()
             }
-        ){
+        ) {
             authDataSource.provideCurrentUser().uid
         }
     }

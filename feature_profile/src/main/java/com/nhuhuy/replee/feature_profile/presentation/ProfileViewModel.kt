@@ -6,7 +6,7 @@ import com.nhuhuy.replee.core.common.Validator
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.data.model.Account
-import com.nhuhuy.replee.core.firebase.repository.AccountRepository
+import com.nhuhuy.replee.core.common.repository.AccountRepository
 import com.nhuhuy.replee.core.common.error_handling.onFailure
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.core.design_system.component.DynamicInput

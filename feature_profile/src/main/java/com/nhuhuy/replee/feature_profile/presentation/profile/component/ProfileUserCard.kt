@@ -13,13 +13,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.nhuhuy.replee.core.common.data.model.Account
 import com.nhuhuy.replee.core.design_system.component.UserImage
+import com.nhuhuy.replee.feature_profile.R
 
-@Preview
 @Composable
 fun ProfileUserCard(
+    user: Account,
     modifier: Modifier = Modifier,
     onEditClick: () -> Unit = {},
 ) {
@@ -30,19 +32,19 @@ fun ProfileUserCard(
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ){
         UserImage(
-            userName = "Nhu huy",
+            userName = user.name,
         )
 
         Column(
             modifier = Modifier
         ) {
             Text(
-                text = "Nhu Huy",
+                text = user.name,
                 style = MaterialTheme.typography.titleMedium,
             )
 
             Text(
-                text = "badang@gmail.com",
+                text = user.email,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.outline
             )
@@ -58,7 +60,7 @@ fun ProfileUserCard(
             ),
         ) {
             Text(
-                text = "Edit"
+                text = stringResource(R.string.profile_screen_edit_btn)
             )
         }
     }

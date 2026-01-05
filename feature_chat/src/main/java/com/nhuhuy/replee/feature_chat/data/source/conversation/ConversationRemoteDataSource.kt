@@ -2,10 +2,10 @@ package com.nhuhuy.replee.feature_chat.data.source.conversation
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObjects
-import com.nhuhuy.replee.core.common.data.Constant
+import com.nhuhuy.replee.core.firebase.Constant
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
-import com.nhuhuy.replee.core.firebase.utils.toRemoteFailure
+import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.feature_chat.data.model.ConversationDTO
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow

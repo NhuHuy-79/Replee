@@ -35,6 +35,9 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:firebase"))
+    implementation(project(":core:database"))
+
     //Hilt
     implementation(libs.dagger.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)

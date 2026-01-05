@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.firebase.utils
+package com.nhuhuy.replee.core.common
 
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuthEmailException
