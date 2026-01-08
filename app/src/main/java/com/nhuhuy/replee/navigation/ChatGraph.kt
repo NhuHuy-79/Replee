@@ -13,6 +13,9 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.conversation.ConversationViewModel
 import com.nhuhuy.replee.feature_chat.presentation.conversation.component.ConversationScreen
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent
+import com.nhuhuy.replee.feature_chat.presentation.information.InformationScreen
+import com.nhuhuy.replee.feature_chat.presentation.information.InformationViewModel
+import com.nhuhuy.replee.feature_chat.presentation.information.state.InformationEvent
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -25,6 +28,13 @@ sealed interface HomeDestination : NavKey {
         val conversationId: String,
         val ownerId: String,
         val otherUserId: String,
+    ) : HomeDestination
+
+    @Serializable
+    data class Information(
+        val otherUserName: String,
+        val otherUserId: String,
+        val otherUserEmail: String
     ) : HomeDestination
 }
 
@@ -85,8 +95,14 @@ fun EntryProviderScope<NavKey>.chatGraph(
         ObserveEffect(viewModel.event) { event ->
             when (event) {
                 ChatEvent.NavigateBack -> backstack.removeLastOrNull()
-                ChatEvent.NavigateToInformation -> {
-                    //TODO("navigate to information")
+                is ChatEvent.NavigateToInformation -> {
+                    backstack.add(
+                        HomeDestination.Information(
+                            otherUserId = event.otherUserId,
+                            otherUserName = event.otherUserName,
+                            otherUserEmail = event.otherUserEmail
+                        )
+                    )
                 }
             }
         }
@@ -94,6 +110,31 @@ fun EntryProviderScope<NavKey>.chatGraph(
         ChatScreen(
             state = state,
             messageList = message,
+            onAction = viewModel::onAction
+        )
+    }
+
+    entry<HomeDestination.Information> { screen ->
+        val viewModel: InformationViewModel = hiltViewModel(
+            creationCallback = { factory: InformationViewModel.Factory ->
+                factory.create(
+                    otherUserId = screen.otherUserId,
+                    otherUserName = screen.otherUserName,
+                    otherUserEmail = screen.otherUserEmail
+                )
+            }
+        )
+
+        val state by viewModel.state.collectAsStateWithLifecycle()
+
+        ObserveEffect(viewModel.event) { event ->
+            when (event) {
+                InformationEvent.NavigateBack -> backstack.removeLastOrNull()
+            }
+        }
+
+        InformationScreen(
+            state = state,
             onAction = viewModel::onAction
         )
     }

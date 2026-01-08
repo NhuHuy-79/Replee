@@ -6,14 +6,12 @@ import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.core.common.repository.AccountRepository
 import com.nhuhuy.replee.core.design_system.state.ScreenState
-import com.nhuhuy.replee.core.design_system.state.ScreenStateHost
 import com.nhuhuy.replee.core.design_system.state.toScreenState
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
-import com.skydoves.flow.operators.onetime.OnetimeWhileSubscribed
 import com.skydoves.flow.operators.restartable.restartableStateIn
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -56,7 +54,7 @@ class ChatViewModel @AssistedInject constructor(
             viewModelScope, SharingStarted.WhileSubscribed(5000),
             ScreenState.Loading
         )
-    val messages : StateFlow<ScreenState<List<Message>>> = _messages
+    val messages: StateFlow<ScreenState<List<Message>>> = _messages
 
     override fun onAction(action: ChatAction) {
         viewModelScope.launch {
@@ -79,7 +77,10 @@ class ChatViewModel @AssistedInject constructor(
                         sentAt = System.currentTimeMillis()
                     )
 
-                    val screenState = messageRepository.addNewMessage(conversationId = conversationId, message = message)
+                    val screenState = messageRepository.addNewMessage(
+                        conversationId = conversationId,
+                        message = message
+                    )
                         .onSuccess {
                             _state.reduce { copy(messageInput = "") }
                         }
@@ -97,7 +98,22 @@ class ChatViewModel @AssistedInject constructor(
 
                 ChatAction.OnBackClick -> onEvent(ChatEvent.NavigateBack)
                 is ChatAction.OnReadMessage -> {
-                    messageRepository.markMessageAsRead(messageIds = action.ids.toList(), conversationId = conversationId, receiverId = currentUserId)
+                    messageRepository.markMessageAsRead(
+                        messageIds = action.ids.toList(),
+                        conversationId = conversationId,
+                        receiverId = currentUserId
+                    )
+                }
+
+                ChatAction.OnMoreClick -> {
+                    val otherUser = state.value.otherUser
+                    onEvent(
+                        ChatEvent.NavigateToInformation(
+                            otherUserId = otherUserId,
+                            otherUserName = otherUser.name,
+                            otherUserEmail = otherUser.email
+                        )
+                    )
                 }
             }
         }
@@ -106,7 +122,7 @@ class ChatViewModel @AssistedInject constructor(
     @AssistedFactory
     interface Factory {
         fun create(
-            @Assisted("otherUserId")otherUserId: String,
+            @Assisted("otherUserId") otherUserId: String,
             @Assisted("currentUserId") currentUserId: String,
             @Assisted("conversationId") conversationId: String
         ): ChatViewModel

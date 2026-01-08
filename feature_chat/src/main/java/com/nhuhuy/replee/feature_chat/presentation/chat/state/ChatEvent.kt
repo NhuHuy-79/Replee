@@ -1,8 +1,13 @@
 package com.nhuhuy.replee.feature_chat.presentation.chat.state
 
+import com.google.android.datatransport.cct.StringMerger
 import com.nhuhuy.replee.core.common.base.UiEvent
 
 sealed interface ChatEvent : UiEvent{
     data object NavigateBack : ChatEvent
-    data object NavigateToInformation: ChatEvent
+    data class NavigateToInformation(
+        val otherUserId: String,
+        val otherUserName: String,
+        val otherUserEmail: String
+    ): ChatEvent
 }

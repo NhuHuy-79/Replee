@@ -14,23 +14,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.design_system.component.UserImage
 
-@Preview
 @Composable
-fun InformationUser(modifier: Modifier = Modifier) {
+fun InformationUser(
+    userName: String,
+    email: String,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier.padding(horizontal = 32.dp)
             .padding(bottom = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         UserImage(
-            userName = "Nguyen Nhu Huy",
+            userName = userName,
             modifier = Modifier.size(120.dp)
         )
 
         Spacer(Modifier.height(24.dp))
 
         Text(
-            text = "Nguyen Nhu Huy",
+            text = userName,
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -38,7 +41,7 @@ fun InformationUser(modifier: Modifier = Modifier) {
         Spacer(Modifier.height(8.dp))
 
         Text(
-            text = "badang@gmail.com",
+            text = email,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.outlineVariant,
         )

@@ -19,17 +19,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.feature_chat.presentation.information.component.InformationOptionRow
 import com.nhuhuy.replee.feature_chat.presentation.information.component.InformationUser
+import com.nhuhuy.replee.feature_chat.presentation.information.state.InformationAction
+import com.nhuhuy.replee.feature_chat.presentation.information.state.InformationState
 
-@Preview
 @Composable
 fun InformationScreen(
-    modifier: Modifier = Modifier
+    state: InformationState,
+    onAction: (InformationAction) -> Unit
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             InformationTopBar(
-                onBackPressed = {},
+                onBackPressed = {
+                    onAction(InformationAction.OnBackPressed)
+                },
                 onMoreClick = {},
                 modifier = Modifier.fillMaxWidth()
             )
@@ -41,8 +45,16 @@ fun InformationScreen(
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            InformationUser()
-            InformationOptionRow {  }
+            InformationUser(
+                userName = state.otherUserName,
+                email = state.otherUserEmail,
+                modifier = Modifier
+            )
+            InformationOptionRow(
+                onOptionSelect = { option ->
+                    onAction(InformationAction.OnOptionSelect(option))
+                }
+            )
         }
     }
 }

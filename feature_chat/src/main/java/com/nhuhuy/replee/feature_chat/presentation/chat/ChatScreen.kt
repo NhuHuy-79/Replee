@@ -80,7 +80,7 @@ fun ChatScreen(
                     //TODO("navigate to Search screen")
                 },
                 onMoreClick = {
-                    //TODO("navigate to more screen")
+                    onAction(ChatAction.OnMoreClick)
                 },
             )
         },
