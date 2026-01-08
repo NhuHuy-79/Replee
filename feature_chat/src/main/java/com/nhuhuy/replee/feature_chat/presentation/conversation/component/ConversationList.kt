@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.nhuhuy.replee.core.common.utils.formatToString
 import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
@@ -27,88 +29,95 @@ import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 @Composable
 fun ConversationList(
     conversationList: List<Conversation>,
-    onConversationClick: (id: String) -> Unit,
+    onConversationClick: (conversation: Conversation) -> Unit,
     modifier: Modifier = Modifier,
-){
-    LazyColumn(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        if (!conversationList.isEmpty()){
+) {
+    if (conversationList.isEmpty()) {
+        Column(
+            modifier = modifier,
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(R.drawable.bg_empty),
+                contentDescription = null
+            )
+            Text(
+                text = stringResource(R.string.conversation_screen_empty),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(24.dp)
+            )
+        }
+    } else {
+        LazyColumn(
+            modifier = modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             items(
                 items = conversationList,
                 key = { conversation -> conversation.id }
-            ){ item ->
+            ) { item ->
                 ConversationItem(
                     conversation = item,
-                    modifier = Modifier.fillMaxWidth()
-                        .clickable{
-                            onConversationClick(item.id)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onConversationClick(item)
                         }
-                )
-            }
-        } else {
-            item {
-                Image(
-                    painter = painterResource(R.drawable.bg_empty),
-                    contentDescription = null
-                )
-            }
-
-            item {
-                Text(
-                    text = stringResource(R.string.conversation_screen_empty),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(24.dp)
                 )
             }
         }
     }
-}
 
+}
 
 @Composable
 fun ConversationItem(
     conversation: Conversation,
     modifier: Modifier = Modifier
-){
+) {
     Row(
         modifier = modifier
             .height(84.dp)
             .padding(vertical = 14.dp, horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ){
+    ) {
         UserImage(
-            userName = conversation.members.first().name
+            userName = conversation.otherUser.name
         )
         ConversationLastMessage(
-            userName = conversation.members.first().name,
-            messageContent = conversation.lastMessageContent
+            isLastSender = conversation.lastSenderId == conversation.owner.uid,
+            userName = conversation.otherUser.name,
+            messageContent = conversation.lastMessageContent,
         )
+
+        Spacer(Modifier.weight(1f))
 
         Column(
             modifier = Modifier.fillMaxHeight(),
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.spacedBy(
-                8.dp)
+                8.dp
+            )
         ) {
             Text(
-                text = "4:30 PM",
+                text = conversation.lastMessageTime?.formatToString().orEmpty(),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.outline
             )
 
-            Badge(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Text(
-                    text = "1",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(2.dp)
-                )
+            if (conversation.unreadMessageCount > 0) {
+                Badge(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ) {
+                    Text(
+                        text = "${conversation.unreadMessageCount}",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(2.dp)
+                    )
+                }
             }
         }
     }
@@ -116,17 +125,21 @@ fun ConversationItem(
 
 @Composable
 fun ConversationLastMessage(
+    isLastSender: Boolean,
     userName: String,
     messageContent: String,
-){
-    Column {
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+    ) {
         Text(
             text = userName,
             style = MaterialTheme.typography.titleMedium,
         )
 
         Text(
-            text = messageContent,
+            text = if (isLastSender) "You: $messageContent" else messageContent,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.outline
         )

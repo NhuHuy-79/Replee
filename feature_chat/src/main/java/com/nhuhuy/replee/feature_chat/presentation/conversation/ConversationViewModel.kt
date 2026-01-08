@@ -3,15 +3,18 @@ package com.nhuhuy.replee.feature_chat.presentation.conversation
 import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.core.common.repository.AccountRepository
+import com.nhuhuy.replee.core.common.error_handling.onFailure
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
+import com.nhuhuy.replee.core.common.repository.AccountRepository
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
+import com.nhuhuy.replee.feature_chat.presentation.conversation.state.BottomSheet
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationAction
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent.*
+import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent.NavigateToChatRoom
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationState
 import com.skydoves.flow.operators.restartable.RestartableStateFlow
 import com.skydoves.flow.operators.restartable.restartableStateIn
@@ -38,7 +41,6 @@ class ConversationViewModel @Inject constructor(
                         copy(currentUser = account)
                     }
                 }
-
         }
     }
 
@@ -56,48 +58,87 @@ class ConversationViewModel @Inject constructor(
     val conversationState: StateFlow<ScreenState<List<Conversation>>> = _conversationState
 
     override fun onAction(action: ConversationAction) {
-        when (action) {
-            ConversationAction.OnAddFabClick -> {
-
-            }
-            is ConversationAction.OnConversationClick -> {
-                onEvent(NavigateToChatRoom(action.conversationId))
-            }
-            ConversationAction.OnDismissPress -> {
-;
-            }
-            ConversationAction.OnSearchBarClick -> {
-                _state.reduce {
-                    copy(expandSearchBar = true)
+        viewModelScope.launch {
+            when (action) {
+                ConversationAction.OnAddFabClick -> {
+                    _state.reduce {
+                        copy(bottomSheet = BottomSheet.OPEN)
+                    }
                 }
-            }
 
-            ConversationAction.OnSearchBarClose -> {
-                _state.reduce {
-                    copy(expandSearchBar = false)
+                is ConversationAction.OnConversationClick -> {
+                    val conversation = action.conversation
+                    onEvent(
+                        NavigateToChatRoom(
+                            conversationId = conversation.id,
+                            currentUserId = conversation.owner.uid,
+                            otherUserId = conversation.otherUser.uid
+                        )
+                    )
                 }
-            }
 
-            ConversationAction.Retry -> {
-                _conversationState.restart()
-            }
-
-            is ConversationAction.OnQueryChange -> {
-                _state.reduce {
-                    copy(searchQuery = action.value)
+                ConversationAction.OnDismissPress -> {
+                    _state.reduce {
+                        copy(bottomSheet = BottomSheet.CLOSE)
+                    }
                 }
-            }
 
-            is ConversationAction.OnExpandChange -> {
-                _state.reduce {
-                    copy(expandSearchBar = action.expand)
+                ConversationAction.OnSearch -> {
+                    _state.reduce {
+                        copy(searchState = ScreenState.Loading)
+                    }
+                    val query = state.value.searchQuery
+                    val result = accountRepository.getAccountListWithEmail(query)
+                    _state.reduce {
+                        copy(searchState = result.toScreenState())
+                    }
                 }
-            }
 
-            ConversationAction.OnAvatarClick -> {
-                onEvent(ConversationEvent.GoToProfile)
+                ConversationAction.OnSearchBarClose -> {
+                    _state.reduce {
+                        copy(expandSearchBar = false, searchQuery = "")
+                    }
+                }
+
+                ConversationAction.Retry -> {
+                    _conversationState.restart()
+                }
+
+                is ConversationAction.OnQueryChange -> {
+                    _state.reduce {
+                        copy(searchQuery = action.value)
+                    }
+                }
+
+                is ConversationAction.OnExpandChange -> {
+                    _state.reduce {
+                        copy(expandSearchBar = action.expand)
+                    }
+                }
+
+                is ConversationAction.OnAvatarClick -> {
+                    conversationRepository.addConversation(action.account)
+                        .onSuccess { id ->
+                            _state.reduce {
+                                copy(expandSearchBar = false, searchQuery = "")
+                            }
+                            onEvent(
+                                NavigateToChatRoom(
+                                    conversationId = id,
+                                    currentUserId = state.value.currentUser.id,
+                                    otherUserId = action.account.id
+                                )
+                            )
+                        }
+                        .onFailure { error ->
+                            onEvent(Error(error))
+                        }
+                }
+
+                ConversationAction.OnOwnerClick -> {
+                    onEvent(GoToProfile)
+                }
             }
         }
     }
-
 }
