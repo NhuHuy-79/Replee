@@ -88,9 +88,7 @@ fun EntryProviderScope<NavKey>.authGraph(
                 }
 
                 LoginEvent.NavigateToHome -> {
-                    backstack.removeAll{ destination ->
-                        destination is AuthDestination
-                    }
+                    backstack.clear()
                     backstack.add(HomeDestination.ConversationList)
                 }
 

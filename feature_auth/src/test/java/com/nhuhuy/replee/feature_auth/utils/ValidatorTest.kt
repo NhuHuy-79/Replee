@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_auth.utils
 
-import com.nhuhuy.replee.core.common.ValidateResult
-import com.nhuhuy.replee.core.common.Validator
+import com.nhuhuy.replee.core.common.utils.ValidateResult
+import com.nhuhuy.replee.core.common.utils.Validator
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

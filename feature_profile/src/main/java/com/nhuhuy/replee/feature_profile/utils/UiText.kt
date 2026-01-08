@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.feature_profile.utils
 
-import com.nhuhuy.replee.core.common.ValidateResult
+import com.nhuhuy.replee.core.common.utils.ValidateResult
 import com.nhuhuy.replee.feature_profile.R
 
 fun ValidateResult.toUiText() : Int? {

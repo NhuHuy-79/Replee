@@ -8,10 +8,10 @@ import com.nhuhuy.replee.core.common.base.UiState
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.error_handling.onFailure
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
-import com.nhuhuy.replee.core.common.ValidateResult
+import com.nhuhuy.replee.core.common.utils.ValidateResult
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import com.nhuhuy.replee.core.design_system.component.DynamicInput
-import com.nhuhuy.replee.core.common.Validator
+import com.nhuhuy.replee.core.common.utils.Validator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

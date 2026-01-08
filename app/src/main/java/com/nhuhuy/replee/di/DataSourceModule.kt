@@ -7,8 +7,8 @@ import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.database.entity.account.AccountDao
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.firebase.data_source.AuthDataSource
-import com.nhuhuy.replee.feature_chat.data.mapper.ConversationMapper
-import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationRemoteDataSource
+import com.nhuhuy.replee.feature_chat.data.mapper.MessageMapper
+import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStore
 import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStoreImp
 import dagger.Module
@@ -21,9 +21,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class DataSourceModule {
+
     @Provides
     @Singleton
-    fun provideConversationMapper() = ConversationMapper()
+    fun provideMessageMapper() = MessageMapper()
 
     @Provides
     @Singleton
@@ -40,8 +41,8 @@ class DataSourceModule {
 
     @Provides
     @Singleton
-    fun provideConversationDataSource(firestore: FirebaseFirestore) : ConversationRemoteDataSource =
-        ConversationRemoteDataSource(firestore)
+    fun provideConversationDataSource(firestore: FirebaseFirestore) : ConversationNetworkDataSource =
+        ConversationNetworkDataSource(firestore)
 
     @Provides
     @Singleton
