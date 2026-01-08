@@ -12,7 +12,8 @@ import com.nhuhuy.replee.core.common.error_handling.Failure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 
 @Stable
-interface ScreenState<out T>{
+sealed interface ScreenState<out T>{
+    data object Idle: ScreenState<Nothing>
     data class Success<out T>(val data: T) : ScreenState<T>
     data object Loading: ScreenState<Nothing>
     data class Error(val error: Failure) : ScreenState<Nothing>
@@ -33,6 +34,7 @@ fun <T>ScreenStateHost(
     success: @Composable (T) -> Unit,
     failure: @Composable () -> Unit,
     loading: @Composable () -> Unit,
+    idle: @Composable () -> Unit = {},
 ){
     AnimatedContent(
         modifier = modifier,
@@ -44,6 +46,7 @@ fun <T>ScreenStateHost(
             ScreenState.Loading -> loading()
             is ScreenState.Success -> success(state.data)
             is ScreenState.Error -> failure()
+            ScreenState.Idle -> idle()
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.di
 
-import com.nhuhuy.replee.core.common.Validator
+import com.nhuhuy.replee.core.common.utils.Validator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
