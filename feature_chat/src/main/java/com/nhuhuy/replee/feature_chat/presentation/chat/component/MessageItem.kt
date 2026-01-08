@@ -24,8 +24,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 
@@ -91,7 +93,8 @@ fun MyMessageItem(
 
         if (isLast || clicked) {
             Text(
-                text = if (message.seen) "Seen" else "Sent",
+                text = if (message.seen) stringResource(R.string.message_status_seen) else
+                    stringResource(R.string.message_status_sent),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.align(Alignment.End).padding(end = 10.dp)
