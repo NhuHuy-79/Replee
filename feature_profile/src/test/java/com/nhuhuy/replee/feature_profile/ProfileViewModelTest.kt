@@ -2,7 +2,7 @@ package com.nhuhuy.replee.feature_profile
 
 import app.cash.turbine.test
 import com.google.common.truth.Truth
-import com.nhuhuy.replee.core.common.Validator
+import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.common.data.model.Account
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.repository.AccountRepository

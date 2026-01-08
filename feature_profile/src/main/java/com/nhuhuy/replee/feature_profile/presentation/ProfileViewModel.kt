@@ -2,7 +2,7 @@ package com.nhuhuy.replee.feature_profile.presentation
 
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
-import com.nhuhuy.replee.core.common.Validator
+import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.data.model.Account

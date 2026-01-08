@@ -32,8 +32,8 @@ fun EntryProviderScope<NavKey>.profileGraph(
                 is ProfileEvent.UpdatePassword.Failure -> {}
                 ProfileEvent.UpdatePassword.Success -> {}
                 ProfileEvent.GoToSignIn -> {
+                    backstack.clear()
                     backstack.add(AuthDestination.Login)
-                    backstack.remove(ProfileDestination.Profile)
                 }
             }
         }
