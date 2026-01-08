@@ -11,5 +11,11 @@
     <string name="chat_screen_placeholder">Message</string>
     <string name="chat_screen_success_banner">Send message successfully!</string>
     <string name="chat_screen_failure_banner">Something went wrong!</string>
-    
+
+    <!--Information Screen-->
+    <string name="information_screen_message">Message</string>
+    <string name="information_screen_call">Call</string>
+    <string name="information_screen_mute">Mute</string>
+
+
 </resources>
