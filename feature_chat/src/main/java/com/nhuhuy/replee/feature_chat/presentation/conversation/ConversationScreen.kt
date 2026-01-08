@@ -1,8 +1,9 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.nhuhuy.replee.feature_chat.presentation.conversation.component
+package com.nhuhuy.replee.feature_chat.presentation.conversation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,9 +18,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.common.data.model.Account
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
+import com.nhuhuy.replee.feature_chat.presentation.conversation.component.ConversationList
+import com.nhuhuy.replee.feature_chat.presentation.conversation.component.ConversationSearchBar
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationAction
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationState
 
@@ -49,16 +53,17 @@ internal fun ConversationContent(
                     color = MaterialTheme.colorScheme.surface
                 )
                 .padding(innerPadding),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
 
         ) {
             ConversationSearchBar(
-                currentUser = Account(),
-                userList = state.userList,
+                currentUser = state.currentUser,
+                state = state.searchState,
                 expand = state.expandSearchBar,
                 input = state.searchQuery,
                 onSearch = {
-                    onAction(ConversationAction.OnSearchBarClick)
+                    onAction(ConversationAction.OnSearch)
                 },
                 onValueChange = { value ->
                     onAction(ConversationAction.OnQueryChange(value))
@@ -66,17 +71,21 @@ internal fun ConversationContent(
                 onExpandChange = { expand ->
                     onAction(ConversationAction.OnExpandChange(expand))
                 },
-                onAvatarClick = {
-                    onAction(ConversationAction.OnAvatarClick)
+                onAvatarClick = { account ->
+                    onAction(ConversationAction.OnAvatarClick(account = account))
+                },
+                goToProfile = {
+                    onAction(ConversationAction.OnOwnerClick)
                 }
             )
 
             ConversationList(
                 conversationList = converationList,
-                onConversationClick = { id ->
-                    onAction(ConversationAction.OnConversationClick(id))
+                onConversationClick = { conversation ->
+                    onAction(ConversationAction.OnConversationClick(conversation))
                 },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.weight(1f)
+                    .padding(horizontal = 16.dp)
             )
         }
     }

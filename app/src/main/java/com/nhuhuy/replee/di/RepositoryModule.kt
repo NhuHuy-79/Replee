@@ -5,7 +5,9 @@ import com.nhuhuy.replee.core.common.repository.AccountRepositoryImp
 import com.nhuhuy.replee.feature_auth.data.repository.AuthRepositoryImp
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import com.nhuhuy.replee.feature_chat.data.repository.ConversationRepositoryImp
+import com.nhuhuy.replee.feature_chat.data.repository.MessageRepositoryImp
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
+import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import com.nhuhuy.replee.feature_profile.data.repository.ProfileRepositoryImp
 import com.nhuhuy.replee.feature_profile.domain.repository.ProfileRepository
 import dagger.Binds
@@ -28,5 +30,9 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindAccountRepository(accountRepository: AccountRepositoryImp) : AccountRepository
+
+    @Binds
+    abstract fun bindMessageRepository(messageRepositoryImp: MessageRepositoryImp): MessageRepository
+
 
 }

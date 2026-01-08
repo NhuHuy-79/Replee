@@ -7,6 +7,9 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.nhuhuy.replee.core.design_system.ObserveEffect
+import com.nhuhuy.replee.feature_chat.presentation.chat.ChatScreen
+import com.nhuhuy.replee.feature_chat.presentation.chat.ChatViewModel
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.conversation.ConversationViewModel
 import com.nhuhuy.replee.feature_chat.presentation.conversation.component.ConversationScreen
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent
@@ -18,7 +21,11 @@ sealed interface HomeDestination : NavKey {
     data object ConversationList : HomeDestination
 
     @Serializable
-    data object Chat : HomeDestination
+    data class Chat(
+        val conversationId: String,
+        val ownerId: String,
+        val otherUserId: String,
+    ) : HomeDestination
 }
 
 fun EntryProviderScope<NavKey>.chatGraph(
@@ -34,9 +41,21 @@ fun EntryProviderScope<NavKey>.chatGraph(
         ObserveEffect(event) { event ->
             when (event) {
                 is ConversationEvent.NavigateToChatRoom -> {
+                    backstack.add(
+                        HomeDestination.Chat(
+                            conversationId = event.conversationId,
+                            ownerId = event.currentUserId,
+                            otherUserId = event.otherUserId
+                        )
+                    )
                 }
+
                 ConversationEvent.GoToProfile -> {
                     backstack.add(ProfileDestination.Profile)
+                }
+
+                is ConversationEvent.Error -> {
+
                 }
             }
         }
@@ -48,7 +67,34 @@ fun EntryProviderScope<NavKey>.chatGraph(
         )
     }
 
-    entry<HomeDestination.Chat> {
+    entry<HomeDestination.Chat> { screen ->
+        val viewModel: ChatViewModel = hiltViewModel(
+            key = screen.conversationId,
+            creationCallback = { factory: ChatViewModel.Factory ->
+                factory.create(
+                    conversationId = screen.conversationId,
+                    currentUserId = screen.ownerId,
+                    otherUserId = screen.otherUserId
+                )
+            }
+        )
 
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val message by viewModel.messages.collectAsStateWithLifecycle()
+
+        ObserveEffect(viewModel.event) { event ->
+            when (event) {
+                ChatEvent.NavigateBack -> backstack.removeLastOrNull()
+                ChatEvent.NavigateToInformation -> {
+                    //TODO("navigate to information")
+                }
+            }
+        }
+
+        ChatScreen(
+            state = state,
+            messageList = message,
+            onAction = viewModel::onAction
+        )
     }
 }
