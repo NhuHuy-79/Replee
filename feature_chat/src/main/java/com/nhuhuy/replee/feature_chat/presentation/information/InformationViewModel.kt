@@ -24,7 +24,8 @@ class InformationViewModel @AssistedInject constructor(
     private val _state = MutableStateFlow(
         InformationState(
             otherUserId = otherUserId,
-            otherUserName = otherUserName
+            otherUserName = otherUserName,
+            otherUserEmail = otherUserEmail
         )
     )
     override val state: StateFlow<InformationState>

@@ -41,7 +41,7 @@ fun LoginScreen(
 ) = BoxContainer {
     AuthLayout(
         titleRes = R.string.login_screen_title,
-        bgRes = R.drawable.bg_login,
+        bgRes = R.drawable.bg_sign_in,
         snackBarHostState = snackBarHostState
     ) {
         item {
@@ -94,7 +94,7 @@ fun LoginScreen(
             )
         }
 
-        item { Spacer(Modifier.height(4.dp)) }
+        item { Spacer(Modifier.height(8.dp)) }
 
         item {
             CommonButton(

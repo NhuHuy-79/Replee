@@ -37,7 +37,6 @@ class Validator() {
     fun validateNewPassword(old: String, new: String): ValidateResult {
         return when {
             new.isEmpty() -> ValidateResult.Empty
-            isValidPassword(new) -> ValidateResult.Valid
             old == new -> ValidateResult.PasswordError.SAME_AS_OLD
             else -> ValidateResult.PasswordError.INVALID
         }

@@ -7,8 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nhuhuy.replee.core.design_system.theme.RepleeTheme
 import com.nhuhuy.replee.navigation.MainGraph
-import com.nhuhuy.replee.ui.theme.RepleeTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
