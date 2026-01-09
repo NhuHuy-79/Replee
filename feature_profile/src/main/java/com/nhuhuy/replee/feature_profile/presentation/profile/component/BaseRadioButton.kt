@@ -27,7 +27,7 @@ fun BaseRadioButton(
         verticalAlignment = Alignment.CenterVertically,
     ){
         RadioButton(
-            onClick = {},
+            onClick = onClick,
             selected = selected
         )
 

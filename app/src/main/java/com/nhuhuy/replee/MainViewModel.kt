@@ -12,8 +12,16 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
+import kotlin.math.log
+
+@Immutable
+data class MainState(
+    val isLogged: Boolean = false,
+    val themeMode: ThemeMode = ThemeMode.DEFAULT
+)
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -31,5 +39,15 @@ class MainViewModel @Inject constructor(
     val logged = _logged.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), isLogged)
 
     val theme = settingDataStore.observeTheme().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ThemeMode.DEFAULT)
+
+    val state = combine(
+        logged,
+        theme
+    ){ logged, theme ->
+        MainState(
+            isLogged = logged,
+            themeMode = theme
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MainState())
 
 }
