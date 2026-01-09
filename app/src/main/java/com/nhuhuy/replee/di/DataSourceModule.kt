@@ -6,7 +6,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.database.entity.account.AccountDao
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.firebase.data_source.AuthDataSource
+import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthService
 import com.nhuhuy.replee.feature_chat.data.mapper.MessageMapper
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStore
@@ -37,7 +37,7 @@ class DataSourceModule {
 
     @Provides
     @Singleton
-    fun provideAuthDataSource(firebaseAuth: FirebaseAuth) : AuthDataSource = AuthDataSource(firebaseAuth)
+    fun provideAuthDataSource(firebaseAuth: FirebaseAuth) : FirebaseAuthService = FirebaseAuthService(firebaseAuth)
 
     @Provides
     @Singleton

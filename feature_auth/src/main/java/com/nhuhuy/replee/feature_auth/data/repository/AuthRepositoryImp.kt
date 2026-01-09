@@ -7,7 +7,7 @@ import com.nhuhuy.replee.core.common.error_handling.safeCall
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.firebase.AccountDTO
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.firebase.data_source.AuthDataSource
+import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthService
 import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 class AuthRepositoryImp @Inject constructor(
     private val accountNetworkDataSource: AccountNetworkDataSource,
-    private val authDataSource: AuthDataSource,
+    private val firebaseAuthService: FirebaseAuthService,
     private val dispatcher: CoroutineDispatcher,
     private val accountLocalDataSource: AccountLocalDataSource,
     ) : AuthRepository {
@@ -32,8 +32,11 @@ class AuthRepositoryImp @Inject constructor(
                     e.toRemoteFailure()
                 }
             ) {
-                authDataSource.loginWithEmail(email, password)
-                authDataSource.provideCurrentUser().uid
+                firebaseAuthService.loginWithEmail(email, password)
+                val userId = firebaseAuthService.provideCurrentUser().uid
+                val account = accountNetworkDataSource.getAccountById(userId).toAccountEntity()
+                accountLocalDataSource.saveAccount(account.copy(logOut = false))
+                userId
             }
         }
     }
@@ -50,8 +53,8 @@ class AuthRepositoryImp @Inject constructor(
                     e.toRemoteFailure()
                 },
             ) {
-                authDataSource.signUpWithEmail(email, password)
-                val id = authDataSource.provideCurrentUser().uid
+                firebaseAuthService.signUpWithEmail(email, password)
+                val id = firebaseAuthService.provideCurrentUser().uid
                 try {
                     val account = AccountDTO(
                         id = id,
@@ -62,7 +65,7 @@ class AuthRepositoryImp @Inject constructor(
                     accountLocalDataSource.saveAccount(account.toAccountEntity())
                 } catch (e: Exception) {
                     Timber.e(e)
-                    authDataSource.deleteCurrentUser()
+                    firebaseAuthService.deleteCurrentUser()
                 }
 
                 id
@@ -78,7 +81,7 @@ class AuthRepositoryImp @Inject constructor(
                     e.toRemoteFailure()
                 }
             ) {
-                authDataSource.sendRecoverPasswordEmail(email)
+                firebaseAuthService.sendRecoverPasswordEmail(email)
             }
         }
     }
@@ -90,11 +93,11 @@ class AuthRepositoryImp @Inject constructor(
                 e.toRemoteFailure()
             }
         ) {
-            authDataSource.provideCurrentUser().uid
+            firebaseAuthService.provideCurrentUser().uid
         }
     }
 
     override fun isUserLogged(): Boolean {
-        return authDataSource.isUserLogged()
+        return firebaseAuthService.isUserLogged()
     }
 }

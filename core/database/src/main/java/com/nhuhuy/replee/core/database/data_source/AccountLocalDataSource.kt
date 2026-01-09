@@ -18,8 +18,11 @@ class AccountLocalDataSource @Inject constructor(
         return dao.getAccountWithUid(uid)
     }
 
+    suspend fun setLogOut(uid: String) {
+        dao.setLogOut(uid)
+    }
+
     suspend fun deleteAccount(accountEntity: AccountEntity) {
         dao.delete(accountEntity)
-
     }
 }

@@ -30,6 +30,7 @@ fun AccountDTO.toAccountEntity() = AccountEntity(
     uid = id,
     name = name,
     email = email,
-    createAt = createAt?.toMilliseconds()
+    createAt = createAt?.toMilliseconds(),
+    logOut = false
 )
 

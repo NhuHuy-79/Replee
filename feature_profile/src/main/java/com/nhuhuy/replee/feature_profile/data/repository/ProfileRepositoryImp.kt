@@ -4,7 +4,7 @@ import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.safeCall
 import com.nhuhuy.replee.core.common.toRemoteFailure
-import com.nhuhuy.replee.core.firebase.data_source.AuthDataSource
+import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthService
 import com.nhuhuy.replee.feature_profile.domain.repository.ProfileRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 class ProfileRepositoryImp @Inject constructor(
     private val dispatcher: CoroutineDispatcher,
-    private val authDataSource: AuthDataSource,
+    private val firebaseAuthService: FirebaseAuthService,
 ) : ProfileRepository{
     override suspend fun updatePassword(
         old: String,
@@ -22,13 +22,13 @@ class ProfileRepositoryImp @Inject constructor(
             safeCall(
                 throwable = { e -> e.toRemoteFailure()}
             ){
-                authDataSource.updateNewPassword(old, new)
+                firebaseAuthService.updateNewPassword(old, new)
             }
         }
     }
 
     override fun logOut() {
-        authDataSource.logOut()
+        firebaseAuthService.logOut()
     }
 
 }

@@ -5,7 +5,7 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class AuthDataSource @Inject constructor(
+class FirebaseAuthService @Inject constructor(
     private val auth: FirebaseAuth
 ) {
     class CurrentUserNotFound(msg : String = "Firebase User not found") : Exception(msg)
