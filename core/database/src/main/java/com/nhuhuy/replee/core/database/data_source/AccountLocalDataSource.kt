@@ -18,6 +18,10 @@ class AccountLocalDataSource @Inject constructor(
         return dao.getAccountWithUid(uid)
     }
 
+    suspend fun saveAccountList(list: List<AccountEntity>){
+        dao.upsertAll(list)
+    }
+
     suspend fun setLogOut(uid: String) {
         dao.setLogOut(uid)
     }

@@ -2,6 +2,7 @@ package com.nhuhuy.replee.core.common.repository
 
 import com.nhuhuy.replee.core.common.data.model.Account
 import com.nhuhuy.replee.core.common.data.model.toAccount
+import com.nhuhuy.replee.core.common.data.model.toAccountEntity
 import com.nhuhuy.replee.core.common.error_handling.Failure
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
@@ -53,11 +54,11 @@ class AccountRepositoryImp @Inject constructor(
             safeCall(
                 throwable = { e -> e.toRemoteFailure() }
             ) {
-                accountNetworkDataSource.searchUserByEmail(query).map { accountDTO ->
-                    accountDTO.toAccount()
-                }
+                val accountDTOs = accountNetworkDataSource.searchUserByEmail(query)
+                val entities = accountDTOs.map { accountDTO -> accountDTO.toAccountEntity() }
+                accountLocalDataSource.saveAccountList(entities)
+                accountDTOs.map { accountDTOs -> accountDTOs.toAccount() }
             }
         }
     }
-
 }

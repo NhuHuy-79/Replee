@@ -11,5 +11,5 @@ interface ProfileRepository {
         old: String,
         new: String
     ) : Resource<Unit, RemoteFailure>
-    fun logOut()
+    suspend fun logOut()
 }
