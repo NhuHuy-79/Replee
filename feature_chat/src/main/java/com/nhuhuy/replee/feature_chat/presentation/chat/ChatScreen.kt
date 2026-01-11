@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -27,14 +28,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,6 +72,9 @@ fun ChatScreen(
     messageList: ScreenState<List<Message>>,
     onAction: (ChatAction) -> Unit,
 ) {
+    var openInput by remember{ mutableStateOf(false) }
+    if (openInput) WindowInsets(bottom = 0) else ScaffoldDefaults.contentWindowInsets
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -84,14 +91,15 @@ fun ChatScreen(
                 },
             )
         },
-        contentWindowInsets = WindowInsets(bottom = 8.dp)
 
     ) { innerPadding ->
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
+                .imePadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -181,9 +189,9 @@ fun ChatScreen(
                 onSendMessage = {
                     onAction(ChatAction.OnSendMessageClicked)
                 },
+                onFocusChange = {focus -> openInput = focus},
                 modifier = Modifier
                     .fillMaxWidth()
-                    .imePadding()
             )
         }
     }

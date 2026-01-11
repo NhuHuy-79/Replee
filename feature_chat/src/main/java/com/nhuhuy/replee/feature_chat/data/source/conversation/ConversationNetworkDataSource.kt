@@ -48,7 +48,7 @@ class ConversationNetworkDataSource @Inject constructor(
 
     }
 
-    suspend fun createNewConversation(user1: Account, user2: Account) : String{
+    suspend fun getOrCreateConversation(user1: Account, user2: Account) : String{
         val conversationId = generateConversationId(user1.id, user2.id)
         val firstUser = ConversationDTOUser(
             uid = user1.id,
@@ -66,9 +66,15 @@ class ConversationNetworkDataSource @Inject constructor(
             memberIds = listOf(firstUser.uid, secondUser.uid)
         )
 
-        collection.document(conversationId)
-            .set(conversationDTO)
+        val snapshot = collection.document(conversationId)
+            .get()
             .await()
+
+        if (!snapshot.exists()) {
+            collection.document(conversationId)
+                .set(conversationDTO)
+                .await()
+        }
 
         return  conversationId
     }

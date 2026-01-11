@@ -1,6 +1,7 @@
 package com.nhuhuy.replee.feature_chat.presentation.chat.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,6 +34,7 @@ import com.nhuhuy.replee.feature_chat.R
 fun MessageInput(
     value: String,
     onValueChange: (value: String) -> Unit,
+    onFocusChange: (focus: Boolean) -> Unit,
     onCameraClick:() -> Unit,
     onImageClick: () -> Unit,
     onSendMessage: () -> Unit,
@@ -41,31 +44,28 @@ fun MessageInput(
         modifier = modifier.padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(
-            onClick = onCameraClick
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.CameraAlt,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
+        Icon(
+            imageVector = Icons.Rounded.CameraAlt,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(8.dp)
+                .clickable(onClick = onCameraClick)
+        )
 
-        IconButton(
-            onClick = onImageClick
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Image,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
+        Icon(
+            imageVector = Icons.Rounded.Image,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(8.dp)
+                .clickable(onClick = onImageClick)
+        )
 
         Spacer(Modifier.width(8.dp))
 
         MessageTextField(
             value = value,
             onValueChange = onValueChange,
+            onFocusChange = onFocusChange,
             modifier = Modifier.weight(1f)
         )
 
@@ -88,6 +88,7 @@ fun MessageInput(
 fun MessageTextField(
     value: String,
     onValueChange: (value: String) -> Unit,
+    onFocusChange: (value: Boolean) -> Unit,
     modifier: Modifier = Modifier){
     BasicTextField(
         value = value,
@@ -96,6 +97,9 @@ fun MessageTextField(
             color = MaterialTheme.colorScheme.surfaceVariant,
             shape = RoundedCornerShape(32.dp)
         ).padding(horizontal = 16.dp, vertical = 14.dp)
+            .onFocusChanged{ focusState ->
+                onFocusChange(focusState.isFocused)
+            }
         ,
         textStyle = MaterialTheme.typography.bodyLarge.copy(
             color = MaterialTheme.colorScheme.onSurfaceVariant

@@ -48,7 +48,7 @@ class ConversationRepositoryImp @Inject constructor(
                 val currentUserId = firebaseAuthService.provideCurrentUser().uid
                 val currentAccount = accountDataSource.getAccountById(currentUserId).toAccount()
 
-                conversationNetworkDataSource.createNewConversation(user1 = currentAccount, user2 = otherUser)
+                conversationNetworkDataSource.getOrCreateConversation(user1 = currentAccount, user2 = otherUser)
             }
         }
     }
