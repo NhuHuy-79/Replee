@@ -15,6 +15,13 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                // với KSP, vẫn dùng đây để export schema
+                argument("room.schemaLocation", "$projectDir/schemas")
+            }
+        }
     }
 
     buildFeatures {
