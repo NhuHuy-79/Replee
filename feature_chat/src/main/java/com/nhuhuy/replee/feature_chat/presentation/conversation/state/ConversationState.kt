@@ -10,6 +10,7 @@ data class ConversationState(
     val searchState: ScreenState<List<Account>> = ScreenState.Success(emptyList()),
     val currentUser: Account = Account(),
     val userList: List<Account> = emptyList(),
+    val syncing: Boolean = false,
     val expandSearchBar: Boolean = false,
     val searchQuery: String = "",
     val bottomSheet: BottomSheet = BottomSheet.CLOSE

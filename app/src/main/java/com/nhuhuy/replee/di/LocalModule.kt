@@ -2,9 +2,8 @@ package com.nhuhuy.replee.di
 
 import android.content.Context
 import androidx.room.Room
-import com.nhuhuy.replee.core.firebase.Constant
+import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.database.entity.account.AccountDao
-import com.nhuhuy.replee.core.database.entity.account.AccountDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,17 +16,27 @@ import javax.inject.Singleton
 class LocalModule {
     @Provides
     @Singleton
-    fun provideDatabase(@ApplicationContext context: Context) : AccountDatabase {
+    fun provideDatabase(@ApplicationContext context: Context) : CoreDatabase {
         return Room.databaseBuilder(
-            context = context,
-            klass = AccountDatabase::class.java,
-            name = "account_db"
-        ).build()
+                context = context,
+                klass = CoreDatabase::class.java,
+                name = "replee_db"
+            ).fallbackToDestructiveMigration(false)
+            .build()
     }
+
 
     @Provides
     @Singleton
-    fun provideAccountDao(database: AccountDatabase) : AccountDao {
-        return database.provideDao()
+    fun provideConversationDao(database: CoreDatabase) = database.provideConversationDao()
+
+    @Provides
+    @Singleton
+    fun provideMessageDao(database: CoreDatabase) = database.provideMessageDao()
+
+    @Provides
+    @Singleton
+    fun provideAccountDao(database: CoreDatabase) : AccountDao {
+        return database.provideAccountDao()
     }
 }

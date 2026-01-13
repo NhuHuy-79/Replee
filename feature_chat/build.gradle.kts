@@ -12,16 +12,9 @@ android {
 
     defaultConfig {
         minSdk = 30
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
 
-        javaCompileOptions {
-            annotationProcessorOptions {
-                // với KSP, vẫn dùng đây để export schema
-                argument("room.schemaLocation", "$projectDir/schemas")
-            }
-        }
     }
 
     buildFeatures {
@@ -56,6 +49,9 @@ dependencies {
     implementation(libs.dagger.hilt.android)
     debugImplementation(libs.ui.tooling)
     ksp(libs.hilt.android.compiler)
+
+    //Room
+    ksp(libs.androidx.room.compiler)
 
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))

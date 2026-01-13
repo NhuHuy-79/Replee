@@ -22,8 +22,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,30 +33,34 @@ class ConversationViewModel @Inject constructor(
     private val conversationRepository: ConversationRepository,
     private val accountRepository: AccountRepository
 ) : BaseViewModel<ConversationAction, ConversationEvent, ConversationState>() {
+    private val _state = MutableStateFlow(ConversationState())
+    override val state: StateFlow<ConversationState>
+        get() = _state.asStateFlow()
 
     init {
         viewModelScope.launch {
+            _state.reduce {
+                copy(syncing = true)
+            }
+            conversationRepository.fetchConversations().onFailure {
+                //TODO("Add to sync manager")
+            }
             accountRepository.getCurrentAccount()
                 .onSuccess { account ->
                     _state.reduce {
                         copy(currentUser = account)
                     }
                 }
+
+            _state.reduce {
+                copy(syncing = false)
+            }
         }
     }
+    val conversationState: StateFlow<List<Conversation>> =
+        conversationRepository.observeConversationList()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    private val _state = MutableStateFlow(ConversationState())
-    override val state: StateFlow<ConversationState>
-        get() = _state.asStateFlow()
-
-    private val _conversationState: RestartableStateFlow<ScreenState<List<Conversation>>> =
-        conversationRepository.observeConversationList().map { resource ->
-            resource.toScreenState()
-        }.restartableStateIn(
-            viewModelScope, SharingStarted.WhileSubscribed(5000), ScreenState.Loading
-        )
-
-    val conversationState: StateFlow<ScreenState<List<Conversation>>> = _conversationState
 
     override fun onAction(action: ConversationAction) {
         viewModelScope.launch {
@@ -101,7 +106,7 @@ class ConversationViewModel @Inject constructor(
                 }
 
                 ConversationAction.Retry -> {
-                    _conversationState.restart()
+
                 }
 
                 is ConversationAction.OnQueryChange -> {
@@ -117,7 +122,7 @@ class ConversationViewModel @Inject constructor(
                 }
 
                 is ConversationAction.OnAvatarClick -> {
-                    conversationRepository.addConversation(action.account)
+                    conversationRepository.getOrCreateConversation(action.account)
                         .onSuccess { id ->
                             _state.reduce {
                                 copy(expandSearchBar = false, searchQuery = "")

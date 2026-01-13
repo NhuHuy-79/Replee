@@ -1,79 +1,49 @@
+@file:OptIn(ExperimentalLayoutApi::class)
+
 package com.nhuhuy.replee.feature_chat.presentation.chat
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nhuhuy.replee.core.common.data.model.Account
-import com.nhuhuy.replee.core.design_system.component.BoxContainer
-import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.ScreenStateHost
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.Message
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.ChatContent
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.MessageInput
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.MyMessageItem
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.OtherMessageItem
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
 import com.nhuhuy.replee.feature_chat.presentation.shared.Banner
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChatScreen(
     state: ChatState,
-    messageList: ScreenState<List<Message>>,
+    messages: List<Message>,
     onAction: (ChatAction) -> Unit,
 ) {
-    var openInput by remember{ mutableStateOf(false) }
-    if (openInput) WindowInsets(bottom = 0) else ScaffoldDefaults.contentWindowInsets
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -93,7 +63,6 @@ fun ChatScreen(
         },
 
     ) { innerPadding ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -125,54 +94,18 @@ fun ChatScreen(
                 loading = {
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 },
-                idle = {
-
-                }
             )
 
-            ScreenStateHost(
-                modifier = Modifier.weight(1f),
-                state = messageList,
-                success = { list ->
-                    ChatContent(
-                        otherUser = state.otherUser,
-                        currentUserId = state.currentUserId,
-                        messageList = list,
-                        markMessagesRead = { ids ->
-                            onAction(ChatAction.OnReadMessage(ids))
-                        },
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp)
-                    )
+            ChatContent(
+                otherUserName = state.otherUserName,
+                currentUserId = state.currentUserId,
+                messageList = messages,
+                markMessagesRead = { ids ->
+                    onAction(ChatAction.OnReadMessage(ids))
                 },
-                failure = {
-                    Column(
-                        modifier = Modifier.wrapContentSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.bg_retry),
-                            contentDescription = null,
-                        )
-
-                        Text(
-                            text = "Something went wrong! Please retry!",
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-
-                    }
-
-                },
-                loading = {
-                    Box(
-                        modifier = Modifier.weight(1f),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(16.dp)
             )
 
             MessageInput(
@@ -189,105 +122,9 @@ fun ChatScreen(
                 onSendMessage = {
                     onAction(ChatAction.OnSendMessageClicked)
                 },
-                onFocusChange = {focus -> openInput = focus},
+                onFocusChange = {},
                 modifier = Modifier
                     .fillMaxWidth()
-            )
-        }
-    }
-}
-
-@OptIn(FlowPreview::class)
-@Composable
-fun ChatContent(
-    otherUser: Account,
-    modifier: Modifier = Modifier,
-    currentUserId: String,
-    messageList: List<Message>,
-    markMessagesRead: (ids: Set<String>) -> Unit,
-) = BoxContainer {
-    val lazyListState = rememberLazyListState()
-    val scope = rememberCoroutineScope()
-
-    val isInBottom by remember(lazyListState) {
-        derivedStateOf {
-            val layoutInfos = lazyListState.layoutInfo
-            val lastVisible = layoutInfos.visibleItemsInfo.lastOrNull()?.index
-            val total = layoutInfos.totalItemsCount
-
-            lastVisible != null && lastVisible == total - 1
-        }
-    }
-
-    LaunchedEffect(lazyListState) {
-        snapshotFlow {
-            lazyListState.layoutInfo.visibleItemsInfo
-                .mapNotNull { it.key as? String }
-                .toSet()
-        }
-            .first { set -> set.isNotEmpty() }
-            .let { set ->
-                Timber.d("Set: $set")
-                markMessagesRead(set)
-            }
-    }
-
-
-    LaunchedEffect(lazyListState) {
-        snapshotFlow {
-            lazyListState.layoutInfo.visibleItemsInfo.mapNotNull { info ->
-                info.key as? String
-            }.toSet()
-        }.distinctUntilChanged()
-            .debounce(300)
-            .collect { visibleIds ->
-                Timber.d("visibleId: $visibleIds")
-                markMessagesRead(visibleIds)
-            }
-    }
-
-    LaunchedEffect(messageList.size) {
-        lazyListState.animateScrollToItem(0)
-    }
-
-    LazyColumn(
-        modifier = modifier,
-        state = lazyListState,
-        reverseLayout = true,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(
-            items = messageList,
-            key = { message -> message.messageId },
-        ) { message ->
-            if (message.senderId == currentUserId) {
-               MyMessageItem(
-                   isLast = messageList.indexOf(message) == 0,
-                   message = message,
-               )
-            } else {
-                OtherMessageItem(
-                    userName = otherUser.name,
-                    message = message
-                )
-            }
-        }
-    }
-
-    if (!isInBottom) {
-        FilledIconButton(
-            onClick = {
-                scope.launch {
-                    lazyListState.animateScrollToItem(0)
-                }
-            },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 16.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.ArrowDownward,
-                contentDescription = null,
             )
         }
     }

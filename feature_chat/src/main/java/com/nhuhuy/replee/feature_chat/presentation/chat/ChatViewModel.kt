@@ -12,7 +12,6 @@ import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
-import com.skydoves.flow.operators.restartable.restartableStateIn
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -22,7 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -42,19 +41,16 @@ class ChatViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch {
-            accountRepository.getAccountById(uid = otherUserId).onSuccess { account ->
-                _state.reduce { copy(otherUser = account) }
+            messageRepository.fetchMessages(conversationId)
+            val otherUser = accountRepository.getAccountById(uid = otherUserId)
+            _state.reduce {
+                copy(otherUser = otherUser)
             }
         }
     }
 
-    private val _messages = messageRepository.observeMessageList(conversationId)
-        .map { resource -> resource.toScreenState() }
-        .restartableStateIn(
-            viewModelScope, SharingStarted.WhileSubscribed(5000),
-            ScreenState.Loading
-        )
-    val messages: StateFlow<ScreenState<List<Message>>> = _messages
+    val messageList: StateFlow<List<Message>> = messageRepository.observeConversationMessages(conversationId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     override fun onAction(action: ChatAction) {
         viewModelScope.launch {

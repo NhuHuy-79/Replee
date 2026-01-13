@@ -11,5 +11,6 @@ data class ChatState(
     val currentUserId: String = "",
     val messageInput: String = "",
     val otherUser: Account = Account(),
+    val otherUserName: String = "",
     val sendMessageState: ScreenState<Message> = ScreenState.Idle
 ) : UiState

@@ -43,7 +43,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
 ) {
     entry<HomeDestination.ConversationList> {
         val viewModel: ConversationViewModel = hiltViewModel()
-        val conversationState by viewModel.conversationState.collectAsStateWithLifecycle()
+        val conversationList by viewModel.conversationState.collectAsStateWithLifecycle()
         val state by viewModel.state.collectAsStateWithLifecycle()
         val event = viewModel.event
         val onAction = viewModel::onAction
@@ -72,7 +72,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
 
         ConversationScreen(
             state = state,
-            conversationsScreenState = conversationState,
+            conversationList = conversationList,
             onAction = onAction
         )
     }
@@ -90,7 +90,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
         )
 
         val state by viewModel.state.collectAsStateWithLifecycle()
-        val message by viewModel.messages.collectAsStateWithLifecycle()
+        val message by viewModel.messageList.collectAsStateWithLifecycle()
 
         ObserveEffect(viewModel.event) { event ->
             when (event) {
@@ -109,7 +109,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
 
         ChatScreen(
             state = state,
-            messageList = message,
+            messages = message,
             onAction = viewModel::onAction
         )
     }
