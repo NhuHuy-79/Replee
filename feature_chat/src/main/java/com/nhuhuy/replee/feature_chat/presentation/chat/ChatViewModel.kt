@@ -3,6 +3,7 @@ package com.nhuhuy.replee.feature_chat.presentation.chat
 import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
+import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.core.common.repository.AccountRepository
 import com.nhuhuy.replee.core.design_system.state.ScreenState
@@ -21,6 +22,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -41,12 +46,23 @@ class ChatViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch {
-            messageRepository.fetchMessages(conversationId)
             val otherUser = accountRepository.getAccountById(uid = otherUserId)
             _state.reduce {
                 copy(otherUser = otherUser)
             }
         }
+        observeMessageFromNetwork()
+    }
+
+    private fun observeMessageFromNetwork(){
+       viewModelScope.launch {
+           messageRepository.listenFromNetwork(conversationId)
+               .collect { resource ->
+                   if (resource is Resource.Success){
+                       messageRepository.saveMessageToLocal(resource.data)
+                   }
+               }
+       }
     }
 
     val messageList: StateFlow<List<Message>> = messageRepository.observeConversationMessages(conversationId)

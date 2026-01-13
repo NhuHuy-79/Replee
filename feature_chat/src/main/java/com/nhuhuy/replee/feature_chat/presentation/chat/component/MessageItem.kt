@@ -81,12 +81,13 @@ fun MyMessageItem(
                         color = MaterialTheme.colorScheme.primary,
                         shape = RoundedCornerShape(24.dp)
                     )
-                    .padding(horizontal = 16.dp, vertical = 10.dp)
+                    .padding(horizontal = 14.dp, vertical = 8.dp)
             ) {
                 Text(
                     text = message.content,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    softWrap = true
                 )
             }
         }
@@ -126,12 +127,13 @@ fun OtherMessageItem(
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = RoundedCornerShape(24.dp)
                 )
-                .padding(horizontal = 16.dp, vertical = 10.dp)
+                .padding(horizontal = 14.dp, vertical = 8.dp)
         ) {
             Text(
                 text = message.content,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                softWrap = true
             )
         }
     }

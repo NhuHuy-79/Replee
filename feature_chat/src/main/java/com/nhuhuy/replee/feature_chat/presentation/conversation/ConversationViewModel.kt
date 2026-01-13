@@ -3,6 +3,7 @@ package com.nhuhuy.replee.feature_chat.presentation.conversation
 import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
+import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.onFailure
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.core.common.repository.AccountRepository
@@ -13,16 +14,14 @@ import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.BottomSheet
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationAction
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent
-import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent.*
+import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent.Error
+import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent.GoToProfile
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent.NavigateToChatRoom
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationState
-import com.skydoves.flow.operators.restartable.RestartableStateFlow
-import com.skydoves.flow.operators.restartable.restartableStateIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -38,12 +37,10 @@ class ConversationViewModel @Inject constructor(
         get() = _state.asStateFlow()
 
     init {
+        observeConversationFromNetwork()
         viewModelScope.launch {
             _state.reduce {
                 copy(syncing = true)
-            }
-            conversationRepository.fetchConversations().onFailure {
-                //TODO("Add to sync manager")
             }
             accountRepository.getCurrentAccount()
                 .onSuccess { account ->
@@ -57,6 +54,17 @@ class ConversationViewModel @Inject constructor(
             }
         }
     }
+
+    private fun observeConversationFromNetwork(){
+        viewModelScope.launch {
+            conversationRepository.listenFromNetwork().collect { resource ->
+                if (resource is Resource.Success){
+                    conversationRepository.saveConversationToLocal(resource.data)
+                }
+            }
+        }
+    }
+
     val conversationState: StateFlow<List<Conversation>> =
         conversationRepository.observeConversationList()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())

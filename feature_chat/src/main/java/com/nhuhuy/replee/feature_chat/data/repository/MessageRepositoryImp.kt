@@ -17,7 +17,9 @@ import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
@@ -29,7 +31,7 @@ class MessageRepositoryImp @Inject constructor(
     private val messageLocalDataSource: MessageLocalDataSource,
     private val dispatcher: CoroutineDispatcher,
 ) : MessageRepository {
-    override fun observeMessageList(conversationId: String): Flow<Resource<List<Message>, RemoteFailure>> {
+    override fun listenFromNetwork(conversationId: String): Flow<Resource<List<Message>, RemoteFailure>> {
         return messageNetworkDataSource.observeMessageList(conversationId)
             .mapResource { messageList ->
                 messageList.map(mapper::fromRemoteToDomain)
@@ -115,6 +117,13 @@ class MessageRepositoryImp @Inject constructor(
                     count = count
                 )
             }
+        }
+    }
+
+    override suspend fun saveMessageToLocal(messages: List<Message>) {
+        withContext(dispatcher){
+            val entities = messages.map { message -> message.toMessageEntity() }
+            messageLocalDataSource.saveAllMessages(entities)
         }
     }
 }

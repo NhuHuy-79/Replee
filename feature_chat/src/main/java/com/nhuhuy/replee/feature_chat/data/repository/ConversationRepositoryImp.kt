@@ -3,6 +3,7 @@ package com.nhuhuy.replee.feature_chat.data.repository
 import com.nhuhuy.replee.core.common.data.model.Account
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
+import com.nhuhuy.replee.core.common.error_handling.mapResource
 import com.nhuhuy.replee.core.common.error_handling.safeCall
 import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthService
@@ -33,6 +34,23 @@ class ConversationRepositoryImp @Inject constructor(
         return conversationLocalDataSource.observeConversationAndUsers(uid).map { entities ->
             entities.map { entity -> entity.toConversation() }
         }.flowOn(dispatcher)
+    }
+
+    override suspend fun saveConversationToLocal(conversations: List<Conversation>) {
+        val entities = conversations.map { conversation ->
+            conversation.toConversationEntity()
+        }
+        conversationLocalDataSource.addConversationList(entities)
+    }
+
+    override fun listenFromNetwork(): Flow<Resource<List<Conversation>, RemoteFailure>> {
+        val uid = firebaseAuthService.provideCurrentUser().uid
+        return conversationNetworkDataSource.observeConversationList(uid).mapResource { conversationDTOS ->
+            conversationDTOS.map { conversationDTO ->
+                Timber.d("list: $conversationDTO")
+                conversationDTO.toConversation(uid)
+            }
+        }
     }
 
     override suspend fun getOrCreateConversation(otherUser: Account): Resource<String, RemoteFailure> {

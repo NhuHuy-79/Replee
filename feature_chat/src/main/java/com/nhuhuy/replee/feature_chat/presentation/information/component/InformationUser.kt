@@ -34,16 +34,16 @@ fun InformationUser(
 
         Text(
             text = userName,
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(Modifier.height(8.dp))
 
         Text(
             text = email,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.outlineVariant,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

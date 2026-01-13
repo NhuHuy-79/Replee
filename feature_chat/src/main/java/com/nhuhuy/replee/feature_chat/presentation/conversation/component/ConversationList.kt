@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.common.utils.formatToString
 import com.nhuhuy.replee.core.design_system.component.UserImage
@@ -104,7 +105,8 @@ fun ConversationItem(
             Text(
                 text = conversation.lastMessageTime?.formatToString().orEmpty(),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline
+                color = MaterialTheme.colorScheme.outline,
+
             )
 
             if (conversation.unreadMessageCount > 0) {
@@ -141,7 +143,9 @@ fun ConversationLastMessage(
         Text(
             text = if (isLastSender) "You: $messageContent" else messageContent,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.outline
+            color = MaterialTheme.colorScheme.outline,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

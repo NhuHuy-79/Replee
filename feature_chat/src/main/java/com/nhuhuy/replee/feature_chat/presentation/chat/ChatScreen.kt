@@ -97,7 +97,7 @@ fun ChatScreen(
             )
 
             ChatContent(
-                otherUserName = state.otherUserName,
+                otherUserName = state.otherUser.name,
                 currentUserId = state.currentUserId,
                 messageList = messages,
                 markMessagesRead = { ids ->

@@ -25,7 +25,7 @@ fun CommonButton(
     ) {
         Text(
             text = stringResource(res),
-            style = MaterialTheme.typography.labelLarge
+            style = MaterialTheme.typography.titleMedium
         )
     }
 }
