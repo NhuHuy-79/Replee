@@ -16,7 +16,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 interface AccountRepository {
-    suspend fun getAccountById(uid: String) : Resource<Account, Failure>
+    suspend fun getAccountById(uid: String) : Account
     suspend fun getCurrentAccount(): Resource<Account, Failure>
     suspend fun getAccountListWithEmail(query: String): Resource<List<Account>, RemoteFailure>
 }
@@ -27,14 +27,10 @@ class AccountRepositoryImp @Inject constructor(
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val accountLocalDataSource: AccountLocalDataSource,
 ) : AccountRepository {
-    override suspend fun getAccountById(uid: String): Resource<Account, Failure> {
+    override suspend fun getAccountById(uid: String): Account {
         return withContext(dispatcher){
-            safeCall(
-                throwable = { e -> e.toRemoteFailure() }
-            ){
-                accountLocalDataSource.getAccountWithId(uid).toAccount()
-            }
-
+            accountLocalDataSource.getAccountWithId(uid)
+                .toAccount()
         }
     }
 

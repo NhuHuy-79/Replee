@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.data.model
+package com.nhuhuy.replee.feature_chat.data.model.network
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.ServerTimestamp

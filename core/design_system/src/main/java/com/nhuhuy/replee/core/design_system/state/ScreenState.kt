@@ -4,7 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.with
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
@@ -36,17 +36,21 @@ fun <T>ScreenStateHost(
     loading: @Composable () -> Unit,
     idle: @Composable () -> Unit = {},
 ){
-    AnimatedContent(
+    Box(
         modifier = modifier,
-        targetState = state,
-        contentKey = { it::class },
-        transitionSpec = { fadeIn() togetherWith fadeOut()}
-    ) { state ->
-        when (state) {
-            ScreenState.Loading -> loading()
-            is ScreenState.Success -> success(state.data)
-            is ScreenState.Error -> failure()
-            ScreenState.Idle -> idle()
+    ){
+        AnimatedContent(
+            modifier = Modifier,
+            targetState = state,
+            contentKey = { it::class },
+            transitionSpec = { fadeIn() togetherWith fadeOut()}
+        ) { state ->
+            when (state) {
+                ScreenState.Loading -> loading()
+                is ScreenState.Success -> success(state.data)
+                is ScreenState.Error -> failure()
+                ScreenState.Idle -> idle()
+            }
         }
     }
 }

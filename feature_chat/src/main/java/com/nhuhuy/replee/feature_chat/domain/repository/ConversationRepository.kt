@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 
 interface ConversationRepository {
-    fun observeConversationList() : Flow<Resource<List<Conversation>, RemoteFailure>>
-    suspend fun addConversation(otherUser: Account) : Resource<String, RemoteFailure>
+    fun observeConversationList() : Flow<List<Conversation>>
+    suspend fun getOrCreateConversation(otherUser: Account) : Resource<String, RemoteFailure>
+    suspend fun fetchConversations() : Resource<Unit, RemoteFailure>
 }

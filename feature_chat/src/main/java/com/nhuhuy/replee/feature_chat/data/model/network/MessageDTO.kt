@@ -1,6 +1,4 @@
-package com.nhuhuy.replee.feature_chat.data.model
-
-import com.google.firebase.Timestamp
+package com.nhuhuy.replee.feature_chat.data.model.network
 
 data class MessageDTO(
     val conversationId: String = "",

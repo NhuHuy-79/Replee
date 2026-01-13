@@ -10,9 +10,9 @@ import com.nhuhuy.replee.core.firebase.Constant
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.toRemoteFailure
-import com.nhuhuy.replee.feature_chat.data.model.ConversationDTO
-import com.nhuhuy.replee.feature_chat.data.model.ConversationDTOUser
-import com.nhuhuy.replee.feature_chat.data.model.MessageDTO
+import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTO
+import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTOUser
+import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -38,6 +38,28 @@ class ConversationNetworkDataSource @Inject constructor(
         collection.document(conversationId)
             .update("unreadMessageCount.$receiverField", count)
             .await()
+    }
+
+    suspend fun addConversation(conversationDTO: ConversationDTO){
+        val snapshot = collection.document(conversationDTO.id)
+            .get()
+            .await()
+
+        if (!snapshot.exists()) {
+            collection.document(conversationDTO.id)
+                .set(conversationDTO)
+                .await()
+        }
+
+    }
+
+    suspend fun getConversationWithUids(uid: String) : List<ConversationDTO>{
+        val snapshot = collection.whereArrayContains("memberIds", uid)
+            .get()
+            .await()
+
+        return snapshot.toObjects<ConversationDTO>()
+
     }
 
     suspend fun getConversationById(conversationId: String) : ConversationDTO{
@@ -78,6 +100,7 @@ class ConversationNetworkDataSource @Inject constructor(
 
         return  conversationId
     }
+
 
 
     suspend fun updateLastMessage(message: MessageDTO, conversation: ConversationDTO){

@@ -1,10 +1,57 @@
 package com.nhuhuy.replee.feature_chat.data.mapper
 
-import com.google.firebase.messaging.remoteMessage
-import com.nhuhuy.replee.core.firebase.utils.toMilliseconds
-import com.nhuhuy.replee.feature_chat.data.model.MessageDTO
-import com.nhuhuy.replee.feature_chat.data.model.local.MessageEntity
+import com.nhuhuy.replee.core.database.entity.message.MessageEntity
+import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
 import com.nhuhuy.replee.feature_chat.domain.model.Message
+
+fun MessageEntity.toMessage() : Message{
+    return Message(
+        conversationId = conversationId,
+        messageId = messageId,
+        senderId = senderId,
+        receiverId = receiverId,
+        content = content,
+        seen = seen,
+        sentAt = sentAt,
+    )
+}
+
+fun MessageDTO.toMessage() : Message{
+    return Message(
+        conversationId = conversationId,
+        messageId = messageId,
+        senderId = senderId,
+        receiverId = receiverId,
+        content = content,
+        seen = seen,
+        sentAt = sendAt,
+    )
+}
+
+fun Message.toMessageDTO() : MessageDTO {
+    return MessageDTO(
+        conversationId = conversationId,
+        messageId = messageId,
+        senderId = senderId,
+        receiverId = receiverId,
+        content = content,
+        seen = seen,
+        sendAt = sentAt
+    )
+}
+
+fun Message.toMessageEntity() : MessageEntity{
+    return MessageEntity(
+        conversationId = conversationId,
+        messageId = messageId,
+        senderId = senderId,
+        receiverId = receiverId,
+        content = content,
+        seen = seen,
+        sentAt = sentAt
+    )
+}
+
 
 class MessageMapper : BaseMapper<MessageDTO, Message, MessageEntity>{
     override fun fromRemoteToDomain(remote: MessageDTO): Message {

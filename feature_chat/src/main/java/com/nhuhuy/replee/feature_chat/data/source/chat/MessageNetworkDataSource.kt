@@ -8,7 +8,7 @@ import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.firebase.Constant
-import com.nhuhuy.replee.feature_chat.data.model.MessageDTO
+import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -34,6 +34,23 @@ MessageNetworkDataSource @Inject constructor(
                 .document(message.messageId)
                 .set(message).await()
         }
+
+    }
+
+    suspend fun getMessagesByConversationId(conversationId: String) : List<MessageDTO>{
+        val snapshot = collection.document(conversationId)
+            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            .get()
+            .await()
+
+        return snapshot.toObjects<MessageDTO>()
+    }
+
+    suspend fun deleteMessage(conversationId: String, messageId: String){
+        collection.document(conversationId)
+            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            .document(messageId)
+            .delete()
 
     }
 
