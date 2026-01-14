@@ -1,20 +1,40 @@
 package com.nhuhuy.replee.feature_chat.presentation.chat.component
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.replee.core.common.data.model.Account
 import com.nhuhuy.replee.feature_chat.domain.model.Message
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @OptIn(FlowPreview::class)
@@ -25,8 +45,20 @@ fun ChatContent(
     currentUserId: String,
     messageList: List<Message>,
     markMessagesRead: (ids: Set<String>) -> Unit,
-){
+) {
     val lazyListState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+    val bottom by remember(lazyListState, messageList) {
+        derivedStateOf {
+            val layoutInfos = lazyListState.layoutInfo.visibleItemsInfo
+            //Because reverseLayout = true, the first item is the last message
+            val lastItemKey = layoutInfos.firstOrNull()?.key as? String
+            //Newest Message(by Query in Room)
+            val lastMessageKey = messageList.firstOrNull()?.messageId
+
+            lastItemKey == lastMessageKey
+        }
+    }
 
     LaunchedEffect(lazyListState) {
         snapshotFlow {
@@ -58,25 +90,62 @@ fun ChatContent(
         lazyListState.animateScrollToItem(0)
     }
 
-    LazyColumn(
-        modifier = modifier,
-        state = lazyListState,
-        reverseLayout = true,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+    Box(
+        modifier = Modifier.wrapContentSize(),
+        contentAlignment = Alignment.Center
     ) {
-        items(
-            items = messageList,
-            key = { message -> message.messageId },
-        ) { message ->
-            if (message.senderId == currentUserId) {
-                MyMessageItem(
-                    isLast = messageList.indexOf(message) == 0,
-                    message = message,
-                )
-            } else {
-                OtherMessageItem(
-                    userName = otherUserName,
-                    message = message
+        LazyColumn(
+            modifier = modifier,
+            state = lazyListState,
+            reverseLayout = true,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(
+                items = messageList,
+                key = { message -> message.messageId },
+            ) { message ->
+                if (message.senderId == currentUserId) {
+                    MyMessageItem(
+                        isLast = messageList.indexOf(message) == 0,
+                        message = message,
+                    )
+                } else {
+                    OtherMessageItem(
+                        userName = otherUserName,
+                        message = message
+                    )
+                }
+            }
+
+        }
+
+        AnimatedVisibility(
+            visible = !bottom,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(16.dp),
+            enter = fadeIn() + expandIn(
+                expandFrom = Alignment.BottomCenter
+            ),
+            exit = fadeOut() + shrinkOut(
+                shrinkTowards = Alignment.BottomCenter
+            )
+        ) {
+            FilledTonalIconButton(
+                onClick = {
+                    scope.launch {
+                        lazyListState.animateScrollToItem(0)
+                    }
+                },
+                colors = IconButtonDefaults.iconButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                ),
+                modifier = Modifier.align(Alignment.BottomCenter)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.ArrowDownward,
+                    contentDescription = null
                 )
             }
         }

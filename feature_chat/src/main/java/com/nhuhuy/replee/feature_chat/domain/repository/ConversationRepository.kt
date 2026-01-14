@@ -12,5 +12,4 @@ interface ConversationRepository {
     suspend fun saveConversationToLocal(conversations: List<Conversation>)
     fun listenFromNetwork() : Flow<Resource<List<Conversation>, RemoteFailure>>
     suspend fun getOrCreateConversation(otherUser: Account) : Resource<String, RemoteFailure>
-    suspend fun fetchConversations() : Resource<Unit, RemoteFailure>
 }

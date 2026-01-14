@@ -75,21 +75,4 @@ class ConversationRepositoryImp @Inject constructor(
         }
     }
 
-    override suspend fun fetchConversations(): Resource<Unit, RemoteFailure> {
-        return withContext(dispatcher){
-            safeCall(
-                throwable = { e ->
-                    Timber.e(e)
-                    e.toRemoteFailure()
-                }
-            ){
-                val currentUserId = firebaseAuthService.provideCurrentUser().uid
-                val conversationEntities = conversationNetworkDataSource.getConversationWithUids(currentUserId).map { conversationDTO ->
-                    conversationDTO.toConversation(currentUserId)
-                        .toConversationEntity()
-                }
-                conversationLocalDataSource.addConversationList(conversationEntities)
-            }
-        }
-    }
 }
