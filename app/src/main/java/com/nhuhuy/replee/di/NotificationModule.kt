@@ -4,6 +4,8 @@ import com.nhuhuy.replee.core.firebase.network.mapper.NetworkMapper
 import com.nhuhuy.replee.notification.ConversationNotificationFactory
 import com.nhuhuy.replee.notification.NotificationFactory
 import com.nhuhuy.replee.notification.NotificationParser
+import com.nhuhuy.replee.receiver.ReceiverHandler
+import com.nhuhuy.replee.receiver.ReceiverHandlerImp
 import com.nhuhuy.replee.service.PushNotificationHandler
 import com.nhuhuy.replee.service.PushNotificationHandlerImp
 import dagger.Binds
@@ -17,6 +19,9 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class NotificationModule {
+    @Binds
+    abstract fun bindReplyHandler(handler: ReceiverHandlerImp): ReceiverHandler
+
     @Binds
     abstract fun bindPushNotificationHandler(handler: PushNotificationHandlerImp): PushNotificationHandler
 

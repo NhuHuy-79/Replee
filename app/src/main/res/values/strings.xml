@@ -2,4 +2,9 @@
     <string name="app_name">Replee</string>
     <!--Notification-->
     <string name="notification_channel">Conversation Channel</string>
+    <string name="action_open_chat">Open chat</string>
+    <string name="action_reply">Reply</string>
+
+    <string name="notification_failure">Cannot send your message!</string>
+    <string name="notification_success">Send message successfully</string>
 </resources>
