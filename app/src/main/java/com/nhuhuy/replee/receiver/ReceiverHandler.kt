@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
+import com.nhuhuy.replee.core.common.error_handling.onSuccessSuspend
 import com.nhuhuy.replee.feature_chat.data.SendMessageService
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
@@ -41,7 +42,7 @@ class ReceiverHandlerImp @Inject constructor(
             seen = false
         )
         messageRepository.addNewMessage(conversationId = conversationId, message = newMessage)
-            .onSuccess { message ->
+            .onSuccessSuspend { message ->
                 sendMessageService.sendMessage(message)
             }
     }

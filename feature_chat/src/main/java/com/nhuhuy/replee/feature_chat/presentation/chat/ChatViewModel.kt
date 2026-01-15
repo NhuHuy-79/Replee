@@ -5,6 +5,7 @@ import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
+import com.nhuhuy.replee.core.common.error_handling.onSuccessSuspend
 import com.nhuhuy.replee.core.common.repository.AccountRepository
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
@@ -92,7 +93,7 @@ class ChatViewModel @AssistedInject constructor(
                         conversationId = conversationId,
                         message = message
                     )
-                        .onSuccess { message -> 
+                        .onSuccessSuspend { message ->
                             _state.reduce { copy(messageInput = "") }
                             sendMessageServiceImp.sendMessage(message)
                         }
