@@ -2,8 +2,8 @@ package com.nhuhuy.replee.core.firebase.data_source
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObjects
-import com.nhuhuy.replee.core.firebase.AccountDTO
-import com.nhuhuy.replee.core.firebase.Constant
+import com.nhuhuy.replee.core.firebase.data.AccountDTO
+import com.nhuhuy.replee.core.firebase.data.Constant
 import com.nhuhuy.replee.core.firebase.utils.FirestoreCannotConvertObjectException
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -15,6 +15,12 @@ class AccountNetworkDataSource @Inject constructor(
 
     suspend fun addAccount(account: AccountDTO){
         collection.document(account.id).set(account).await()
+    }
+
+    suspend fun updateNewToken(uid: String, token: String){
+        collection.document(uid)
+            .update("currentToken", token)
+            .await()
     }
 
     suspend fun getAccountById(id: String) : AccountDTO {

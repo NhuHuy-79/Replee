@@ -1,8 +1,7 @@
 package com.nhuhuy.replee.core.common.data.model
 
-import com.nhuhuy.replee.core.database.entity.account.AccountDao
 import com.nhuhuy.replee.core.database.entity.account.AccountEntity
-import com.nhuhuy.replee.core.firebase.AccountDTO
+import com.nhuhuy.replee.core.firebase.data.AccountDTO
 import com.nhuhuy.replee.core.firebase.utils.toMilliseconds
 
 data class Account(

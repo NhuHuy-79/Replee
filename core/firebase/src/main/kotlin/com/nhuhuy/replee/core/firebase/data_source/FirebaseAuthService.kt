@@ -2,17 +2,22 @@ package com.nhuhuy.replee.core.firebase.data_source
 
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class FirebaseAuthService @Inject constructor(
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    private val messaging: FirebaseMessaging
 ) {
     class CurrentUserNotFound(msg : String = "Firebase User not found") : Exception(msg)
 
     fun provideCurrentUser() = auth.currentUser ?: throw CurrentUserNotFound()
 
+
     fun isUserLogged() = auth.currentUser != null
+
+    suspend fun provideToken() : String = messaging.token.await()
 
     suspend fun loginWithEmail(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password).await()

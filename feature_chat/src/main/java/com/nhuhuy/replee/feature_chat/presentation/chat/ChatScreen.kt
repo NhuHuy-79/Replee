@@ -105,7 +105,7 @@ fun ChatScreen(
                 },
                 modifier = Modifier
                     .weight(1f)
-                    .padding(16.dp)
+                    .padding(horizontal = 16.dp)
             )
 
             MessageInput(

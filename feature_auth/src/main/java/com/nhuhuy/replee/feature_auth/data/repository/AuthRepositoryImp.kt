@@ -4,11 +4,11 @@ import com.nhuhuy.replee.core.common.data.model.toAccountEntity
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.safeCall
+import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
-import com.nhuhuy.replee.core.firebase.AccountDTO
+import com.nhuhuy.replee.core.firebase.data.AccountDTO
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthService
-import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -33,9 +33,14 @@ class AuthRepositoryImp @Inject constructor(
                 }
             ) {
                 firebaseAuthService.loginWithEmail(email, password)
+
                 val userId = firebaseAuthService.provideCurrentUser().uid
                 val account = accountNetworkDataSource.getAccountById(userId).toAccountEntity()
                 accountLocalDataSource.saveAccount(account.copy(logOut = false))
+
+                val token = firebaseAuthService.provideToken()
+                accountNetworkDataSource.updateNewToken(userId,token)
+
                 userId
             }
         }
@@ -54,6 +59,7 @@ class AuthRepositoryImp @Inject constructor(
                 },
             ) {
                 firebaseAuthService.signUpWithEmail(email, password)
+
                 val id = firebaseAuthService.provideCurrentUser().uid
                 try {
                     val account = AccountDTO(

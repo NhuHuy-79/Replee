@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.feature_chat.domain.model.Message
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -91,11 +91,11 @@ fun ChatContent(
     }
 
     Box(
-        modifier = Modifier.wrapContentSize(),
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
         LazyColumn(
-            modifier = modifier,
+            modifier = Modifier.fillMaxSize(),
             state = lazyListState,
             reverseLayout = true,
             verticalArrangement = Arrangement.spacedBy(8.dp)

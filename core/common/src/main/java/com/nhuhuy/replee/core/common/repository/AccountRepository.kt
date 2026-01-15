@@ -16,6 +16,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 interface AccountRepository {
+    suspend fun updateNewestToken(token: String) : Resource<Unit, Failure>
     suspend fun getAccountById(uid: String) : Account
     suspend fun getCurrentAccount(): Resource<Account, Failure>
     suspend fun getAccountListWithEmail(query: String): Resource<List<Account>, RemoteFailure>
@@ -27,6 +28,17 @@ class AccountRepositoryImp @Inject constructor(
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val accountLocalDataSource: AccountLocalDataSource,
 ) : AccountRepository {
+    override suspend fun updateNewestToken(token: String): Resource<Unit, Failure> {
+        return withContext(dispatcher){
+            safeCall(
+                throwable = { e -> e.toRemoteFailure()}
+            ){
+                val uid = firebaseAuthService.provideCurrentUser().uid
+                accountNetworkDataSource.updateNewToken(uid, token)
+            }
+        }
+    }
+
     override suspend fun getAccountById(uid: String): Account {
         return withContext(dispatcher){
             accountLocalDataSource.getAccountWithId(uid)

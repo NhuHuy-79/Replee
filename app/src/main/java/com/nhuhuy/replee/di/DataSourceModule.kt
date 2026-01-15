@@ -3,6 +3,7 @@ package com.nhuhuy.replee.di
 import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.database.entity.account.AccountDao
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationDao
@@ -41,7 +42,7 @@ class DataSourceModule {
 
     @Provides
     @Singleton
-    fun provideAuthDataSource(firebaseAuth: FirebaseAuth) : FirebaseAuthService = FirebaseAuthService(firebaseAuth)
+    fun provideAuthDataSource(firebaseAuth: FirebaseAuth, firebaseMessaging: FirebaseMessaging) : FirebaseAuthService = FirebaseAuthService(firebaseAuth, firebaseMessaging)
 
     @Provides
     @Singleton

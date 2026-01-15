@@ -8,6 +8,8 @@ import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.core.common.repository.AccountRepository
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
+import com.nhuhuy.replee.core.firebase.network.model.ConversationMessage
+import com.nhuhuy.replee.feature_chat.data.SendMessageServiceImp
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
@@ -22,10 +24,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -35,6 +33,7 @@ class ChatViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
     @Assisted("conversationId") private val conversationId: String,
+    private val sendMessageServiceImp: SendMessageServiceImp,
     private val accountRepository: AccountRepository,
     private val messageRepository: MessageRepository,
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
@@ -93,8 +92,9 @@ class ChatViewModel @AssistedInject constructor(
                         conversationId = conversationId,
                         message = message
                     )
-                        .onSuccess {
+                        .onSuccess { message -> 
                             _state.reduce { copy(messageInput = "") }
+                            sendMessageServiceImp.sendMessage(message)
                         }
                         .toScreenState()
 

@@ -6,7 +6,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.toObjects
 import com.nhuhuy.replee.core.common.data.model.Account
-import com.nhuhuy.replee.core.firebase.Constant
+import com.nhuhuy.replee.core.firebase.data.Constant
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.toRemoteFailure

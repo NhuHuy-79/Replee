@@ -1,8 +1,7 @@
-package com.nhuhuy.replee.core.firebase
+package com.nhuhuy.replee.core.firebase.data
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.ServerTimestamp
-import com.nhuhuy.replee.core.firebase.utils.toMilliseconds
 
 data class AccountDTO(
     val id: String = "",
@@ -10,7 +9,7 @@ data class AccountDTO(
     val email: String = "",
     @ServerTimestamp
     val createAt: Timestamp? = null,
-    val currentToken: String = ""
+    val currentToken: String = "",
 )
 
 

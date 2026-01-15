@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Replee</string>
+    <!--Notification-->
+    <string name="notification_channel">Conversation Channel</string>
 </resources>
