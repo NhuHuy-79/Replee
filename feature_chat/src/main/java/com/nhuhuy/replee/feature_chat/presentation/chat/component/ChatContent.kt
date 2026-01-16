@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -33,7 +32,7 @@ import com.nhuhuy.replee.feature_chat.domain.model.Message
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -62,23 +61,12 @@ fun ChatContent(
 
     LaunchedEffect(lazyListState) {
         snapshotFlow {
-            lazyListState.layoutInfo.visibleItemsInfo
-                .mapNotNull { it.key as? String }
-                .toSet()
-        }
-            .first { set -> set.isNotEmpty() }
-            .let { set ->
-                Timber.Forest.d("Set: $set")
-                markMessagesRead(set)
-            }
-    }
-
-    LaunchedEffect(lazyListState) {
-        snapshotFlow {
             lazyListState.layoutInfo.visibleItemsInfo.mapNotNull { info ->
                 info.key as? String
             }.toSet()
-        }.distinctUntilChanged()
+        }
+            .filter { set -> set.isNotEmpty() }
+            .distinctUntilChanged()
             .debounce(300)
             .collect { visibleIds ->
                 Timber.Forest.d("visibleId: $visibleIds")
@@ -150,5 +138,4 @@ fun ChatContent(
             }
         }
     }
-
 }
