@@ -20,15 +20,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val viewModel: MainViewModel = hiltViewModel()
-            val state by viewModel.state.collectAsStateWithLifecycle()
+            val logged by viewModel.loggedFlow.collectAsStateWithLifecycle()
+            val theme by viewModel.theme.collectAsStateWithLifecycle()
             RepleeTheme(
-                darkTheme = when (state.themeMode) {
+                darkTheme = when (theme) {
                     ThemeMode.DEFAULT -> isSystemInDarkTheme()
                     ThemeMode.DARK -> true
                     ThemeMode.LIGHT -> false
                 }
             ) {
-                MainGraph(isLogged = state.isLogged)
+                MainGraph(isLogged = logged)
             }
         }
     }
