@@ -11,7 +11,9 @@ import com.nhuhuy.replee.feature_profile.data.data_store.ThemeMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
@@ -28,26 +30,11 @@ class MainViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val settingDataStore: SettingDataStore,
 ) : ViewModel(){
-    private val isLogged = authRepository.isUserLogged()
-    private val _logged: Flow<Boolean> = flow {
-        authRepository.provideCurrentUser().onSuccess {
-            emit(true)
-        }.onFailure {
-            emit(false)
-        }
-    }
-    val logged = _logged.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), isLogged)
+
+    val logged = authRepository.isUserLogged()
+    private val _loggedFlow = MutableStateFlow(logged)
+    val loggedFlow = _loggedFlow.asStateFlow()
 
     val theme = settingDataStore.observeTheme().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ThemeMode.DEFAULT)
-
-    val state = combine(
-        logged,
-        theme
-    ){ logged, theme ->
-        MainState(
-            isLogged = logged,
-            themeMode = theme
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MainState())
 
 }

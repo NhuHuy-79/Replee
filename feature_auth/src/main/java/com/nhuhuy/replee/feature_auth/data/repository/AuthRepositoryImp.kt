@@ -1,6 +1,7 @@
 package com.nhuhuy.replee.feature_auth.data.repository
 
 import com.nhuhuy.replee.core.common.data.model.toAccountEntity
+import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.safeCall
@@ -20,6 +21,7 @@ class AuthRepositoryImp @Inject constructor(
     private val firebaseAuthService: FirebaseAuthService,
     private val dispatcher: CoroutineDispatcher,
     private val accountLocalDataSource: AccountLocalDataSource,
+    private val appPreferences: AppPreferences
     ) : AuthRepository {
     override suspend fun loginWithEmail(
         email: String,
@@ -41,6 +43,7 @@ class AuthRepositoryImp @Inject constructor(
                 val token = firebaseAuthService.provideToken()
                 accountNetworkDataSource.updateNewToken(userId,token)
 
+                appPreferences.setLoggedStatus(true)
                 userId
             }
         }
@@ -74,6 +77,7 @@ class AuthRepositoryImp @Inject constructor(
                     firebaseAuthService.deleteCurrentUser()
                 }
 
+                appPreferences.setLoggedStatus(true)
                 id
             }
         }
@@ -104,6 +108,6 @@ class AuthRepositoryImp @Inject constructor(
     }
 
     override fun isUserLogged(): Boolean {
-        return firebaseAuthService.isUserLogged()
+        return appPreferences.getLoggedStatus()
     }
 }

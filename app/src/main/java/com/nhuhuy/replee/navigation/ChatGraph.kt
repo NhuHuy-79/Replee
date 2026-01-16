@@ -3,10 +3,14 @@ package com.nhuhuy.replee.navigation
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDeepLinkRequest
+import androidx.navigation.NavDestination
+import androidx.navigation.navDeepLink
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.nhuhuy.replee.core.design_system.ObserveEffect
+import com.nhuhuy.replee.deeplink.DOMAIN_URI
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatScreen
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatViewModel
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
@@ -77,7 +81,13 @@ fun EntryProviderScope<NavKey>.chatGraph(
         )
     }
 
-    entry<HomeDestination.Chat> { screen ->
+    entry<HomeDestination.Chat>(
+        /*{
+            navDeepLink {
+                uriPattern = "$DOMAIN_URI/{conversationId}?senderId={otherUserId}&receiverId={ownerId}"
+            }
+        }*/
+    ) { screen ->
         val viewModel: ChatViewModel = hiltViewModel(
             key = screen.conversationId,
             creationCallback = { factory: ChatViewModel.Factory ->

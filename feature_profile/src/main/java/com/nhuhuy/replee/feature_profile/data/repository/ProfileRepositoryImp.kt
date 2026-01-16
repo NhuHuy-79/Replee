@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.feature_profile.data.repository
 
+import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.safeCall
@@ -17,6 +18,7 @@ class ProfileRepositoryImp @Inject constructor(
     private val dispatcher: CoroutineDispatcher,
     private val accountLocalDataSource: AccountLocalDataSource,
     private val firebaseAuthService: FirebaseAuthService,
+    private val appPreferences: AppPreferences
 ) : ProfileRepository{
     override suspend fun updatePassword(
         old: String,
@@ -39,7 +41,11 @@ class ProfileRepositoryImp @Inject constructor(
             null
         }
         firebaseAuthService.logOut()
-        uid?.let { uid -> accountLocalDataSource.setLogOut(uid) }
+        appPreferences.setLoggedStatus(false)
+
+        uid?.let {
+            uid -> accountLocalDataSource.setLogOut(uid)
+        }
     }
 
 }
