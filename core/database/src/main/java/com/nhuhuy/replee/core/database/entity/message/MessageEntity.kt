@@ -29,4 +29,5 @@ data class MessageEntity(
     val content: String,
     val seen: Boolean,
     val sentAt: Long? = null,
+    val status: String = "PENDING",
 )

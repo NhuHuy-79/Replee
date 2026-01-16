@@ -17,6 +17,7 @@ data class ConversationEntity(
     val lastMessageContent: String = "",
     val lastSenderId: String = "",
     val lastMessageTime: Long? = null,
+    val lastTimeSyncs: Long? = null
 )
 
 data class ConversationAndUser(

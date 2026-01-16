@@ -17,7 +17,8 @@ interface ConversationDao : BaseDao<ConversationEntity> {
     @Query("SELECT * FROM conversation WHERE ownerId = :ownerId ORDER BY lastMessageTime DESC")
     fun observeConversations(ownerId: String): Flow<List<ConversationAndUser>>
 
-
+    @Query("UPDATE conversation SET lastMessageTime = :lastMessageTime WHERE id in (:conversationIds)")
+    suspend fun updateSyncedTime(conversationIds: List<String>, lastMessageTime: Long)
     @Transaction
     @Query("SELECT * FROM conversation WHERE id = :id")
     suspend fun getConversationAndUserById(id: String): ConversationAndUser?
