@@ -9,6 +9,8 @@ import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.firebase.data.Constant
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
+import com.nhuhuy.replee.feature_chat.domain.model.Conversation
+import com.nhuhuy.replee.feature_chat.domain.model.Message
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -34,7 +36,24 @@ MessageNetworkDataSource @Inject constructor(
                 .document(message.messageId)
                 .set(message).await()
         }
+    }
 
+    suspend fun uploadMessages(list: List<MessageDTO>) : List<String>{
+        val messageMap: Map<String, List<MessageDTO>> = list.groupBy { messageDTO -> messageDTO.conversationId }
+        val conversationIds: MutableList<String> = mutableListOf()
+        firestore.runBatch { batch ->
+            messageMap.forEach { conversationId, messages ->
+                for (message in messages) {
+                    val ref = collection.document(conversationId)
+                        .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+                        .document(message.messageId)
+                    batch.set(ref, message)
+                    conversationIds.add(conversationId)
+                }
+            }
+        }.await()
+
+        return conversationIds
     }
 
     suspend fun getMessagesByConversationId(conversationId: String) : List<MessageDTO>{
@@ -51,7 +70,7 @@ MessageNetworkDataSource @Inject constructor(
             .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
             .document(messageId)
             .delete()
-
+            .await()
     }
 
     suspend fun markMessagesRead(conversationId: String, messageIds: List<String>, receiverId: String) : Int{

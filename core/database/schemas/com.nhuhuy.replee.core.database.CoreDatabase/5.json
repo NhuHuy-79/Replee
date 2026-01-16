@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 3,
-    "identityHash": "e9de836cb16d1aaa6f9e385b14ef2733",
+    "version": 5,
+    "identityHash": "1224a5d88fe30b820d1e9055be6fedbb",
     "entities": [
       {
         "tableName": "accounts",
@@ -47,7 +47,7 @@
       },
       {
         "tableName": "conversation",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `ownerId` TEXT NOT NULL, `otherUserId` TEXT NOT NULL, `unreadMessageCount` INTEGER NOT NULL, `createdAt` INTEGER, `lastMessageContent` TEXT NOT NULL, `lastSenderId` TEXT NOT NULL, `lastMessageTime` INTEGER, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `ownerId` TEXT NOT NULL, `otherUserId` TEXT NOT NULL, `unreadMessageCount` INTEGER NOT NULL, `createdAt` INTEGER, `lastMessageContent` TEXT NOT NULL, `lastSenderId` TEXT NOT NULL, `lastMessageTime` INTEGER, `lastTimeSyncs` INTEGER, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -94,6 +94,11 @@
             "fieldPath": "lastMessageTime",
             "columnName": "lastMessageTime",
             "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastTimeSyncs",
+            "columnName": "lastTimeSyncs",
+            "affinity": "INTEGER"
           }
         ],
         "primaryKey": {
@@ -105,7 +110,7 @@
       },
       {
         "tableName": "message",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`conversationId` TEXT NOT NULL, `messageId` TEXT NOT NULL, `senderId` TEXT NOT NULL, `receiverId` TEXT NOT NULL, `content` TEXT NOT NULL, `seen` INTEGER NOT NULL, `sentAt` INTEGER, PRIMARY KEY(`messageId`), FOREIGN KEY(`conversationId`) REFERENCES `conversation`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`conversationId` TEXT NOT NULL, `messageId` TEXT NOT NULL, `senderId` TEXT NOT NULL, `receiverId` TEXT NOT NULL, `content` TEXT NOT NULL, `seen` INTEGER NOT NULL, `sentAt` INTEGER, `status` TEXT NOT NULL, PRIMARY KEY(`messageId`), FOREIGN KEY(`conversationId`) REFERENCES `conversation`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "conversationId",
@@ -147,6 +152,12 @@
             "fieldPath": "sentAt",
             "columnName": "sentAt",
             "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -183,7 +194,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e9de836cb16d1aaa6f9e385b14ef2733')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1224a5d88fe30b820d1e9055be6fedbb')"
     ]
   }
 }

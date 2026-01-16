@@ -4,6 +4,8 @@ import com.nhuhuy.replee.core.common.repository.AccountRepository
 import com.nhuhuy.replee.core.common.repository.AccountRepositoryImp
 import com.nhuhuy.replee.feature_auth.data.repository.AuthRepositoryImp
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
+import com.nhuhuy.replee.feature_chat.data.SyncManager
+import com.nhuhuy.replee.feature_chat.data.SyncManagerImp
 import com.nhuhuy.replee.feature_chat.data.repository.ConversationRepositoryImp
 import com.nhuhuy.replee.feature_chat.data.repository.MessageRepositoryImp
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
@@ -19,6 +21,9 @@ import dagger.hilt.components.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
+    @Binds
+    abstract fun bindSyncManager(syncManagerImp: SyncManagerImp): SyncManager
+
     @Binds
     abstract fun bindAuthRepository(authRepositoryImp: AuthRepositoryImp): AuthRepository
 

@@ -8,7 +8,7 @@ import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTOUser
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.domain.model.ConversationOtherUser
 
-fun ConversationDTOUser.UserInConversation() : ConversationOtherUser {
+fun ConversationDTOUser.toUserInConversation() : ConversationOtherUser {
     return ConversationOtherUser(
         uid = uid,
         name = name
@@ -55,8 +55,8 @@ fun ConversationDTO.toConversation(
 
     return Conversation(
         id = id,
-        owner =  owner.UserInConversation(),
-        otherUser = otherUser.UserInConversation(),
+        owner =  owner.toUserInConversation(),
+        otherUser = otherUser.toUserInConversation(),
         createdAt = createdAt?.toMilliseconds(),
         lastSenderId = lastSenderId,
         lastMessageTime = lastMessageTime,

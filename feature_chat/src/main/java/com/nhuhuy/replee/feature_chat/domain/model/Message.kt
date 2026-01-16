@@ -7,5 +7,12 @@ data class Message(
     val receiverId: String,
     val content: String,
     val seen: Boolean,
-    val sentAt: Long? = null
+    val sentAt: Long? = null,
+    val status: MessageStatus
 )
+
+enum class MessageStatus{
+    SYNCED,
+    PENDING,
+    FAILED,
+}

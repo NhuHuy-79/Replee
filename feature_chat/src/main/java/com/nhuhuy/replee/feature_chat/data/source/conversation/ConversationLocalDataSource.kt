@@ -39,6 +39,10 @@ class ConversationLocalDataSource @Inject constructor(
         return conversationDao.observeConversations(uid)
     }
 
+    suspend fun updateSyncedTime(conversationIds: List<String>, lastMessageTime: Long) {
+        conversationDao.updateSyncedTime(conversationIds, lastMessageTime)
+    }
+
     private fun generateConversationId(uid1: String, uid2: String): String {
         return listOf(uid1, uid2).sorted().joinToString(separator = "_")
     }

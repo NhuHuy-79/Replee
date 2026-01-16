@@ -10,7 +10,6 @@ import com.nhuhuy.replee.core.database.entity.conversation.ConversationDao
 import com.nhuhuy.replee.core.database.entity.message.MessageDao
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthService
-import com.nhuhuy.replee.feature_chat.data.mapper.MessageMapper
 import com.nhuhuy.replee.feature_chat.data.source.chat.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
@@ -26,11 +25,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class DataSourceModule {
-
-    @Provides
-    @Singleton
-    fun provideMessageMapper() = MessageMapper()
-
     @Provides
     @Singleton
     fun provideAccountDataSource(firestore: FirebaseFirestore): AccountNetworkDataSource = AccountNetworkDataSource(firestore = firestore)

@@ -5,7 +5,6 @@ import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.mapResource
 import com.nhuhuy.replee.core.common.error_handling.safeCall
 import com.nhuhuy.replee.core.common.toRemoteFailure
-import com.nhuhuy.replee.feature_chat.data.mapper.MessageMapper
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
@@ -13,6 +12,7 @@ import com.nhuhuy.replee.feature_chat.data.source.chat.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.chat.MessageNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.domain.model.Message
+import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -23,7 +23,6 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class MessageRepositoryImp @Inject constructor(
-    private val mapper: MessageMapper,
     private val messageNetworkDataSource: MessageNetworkDataSource,
     private val conversationDataSource: ConversationNetworkDataSource,
     private val messageLocalDataSource: MessageLocalDataSource,
@@ -32,7 +31,7 @@ class MessageRepositoryImp @Inject constructor(
     override fun listenFromNetwork(conversationId: String): Flow<Resource<List<Message>, RemoteFailure>> {
         return messageNetworkDataSource.observeMessageList(conversationId)
             .mapResource { messageList ->
-                messageList.map(mapper::fromRemoteToDomain)
+                messageList.map { messageDTO -> messageDTO.toMessage() }
             }.flowOn(dispatcher)
     }
 

@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.error_handling.Resource
+import com.nhuhuy.replee.core.common.error_handling.onFailureSuspend
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.core.common.error_handling.onSuccessSuspend
 import com.nhuhuy.replee.core.common.repository.AccountRepository
@@ -11,7 +12,9 @@ import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
 import com.nhuhuy.replee.core.firebase.network.model.ConversationMessage
 import com.nhuhuy.replee.feature_chat.data.SendMessageServiceImp
+import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.domain.model.Message
+import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
@@ -37,6 +40,7 @@ class ChatViewModel @AssistedInject constructor(
     private val sendMessageServiceImp: SendMessageServiceImp,
     private val accountRepository: AccountRepository,
     private val messageRepository: MessageRepository,
+    private val syncManager: SyncManager,
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
 
     private val _state = MutableStateFlow(ChatState(currentUserId = currentUserId))
@@ -86,7 +90,8 @@ class ChatViewModel @AssistedInject constructor(
                         receiverId = otherUserId,
                         content = _state.value.messageInput,
                         seen = false,
-                        sentAt = System.currentTimeMillis()
+                        sentAt = System.currentTimeMillis(),
+                        status = MessageStatus.PENDING
                     )
 
                     val screenState = messageRepository.addNewMessage(
@@ -95,7 +100,17 @@ class ChatViewModel @AssistedInject constructor(
                     )
                         .onSuccessSuspend { message ->
                             _state.reduce { copy(messageInput = "") }
+                            syncManager.updateMessageStatusInLocal(
+                                messageId = message.messageId,
+                                status = MessageStatus.SYNCED
+                            )
                             sendMessageServiceImp.sendMessage(message)
+                        }
+                        .onFailureSuspend {
+                            syncManager.updateMessageStatusInLocal(
+                                messageId = message.messageId,
+                                status = MessageStatus.FAILED
+                            )
                         }
                         .toScreenState()
 

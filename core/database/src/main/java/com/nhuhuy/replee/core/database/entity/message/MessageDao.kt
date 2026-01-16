@@ -20,7 +20,7 @@ interface MessageDao : BaseDao<MessageEntity> {
     @Query("SELECT * FROM message WHERE status = 'FAILED'")
     suspend fun getFailedMessages() : List<MessageEntity>
 
-    @Query("UPDATE message SET status = status WHERE messageId in (:messages)")
+    @Query("UPDATE message SET status = :status WHERE messageId in (:messageIds)")
     suspend fun updateStatusOfMessages(messageIds: List<String>, status: String)
 
     //MarkMessageRead
