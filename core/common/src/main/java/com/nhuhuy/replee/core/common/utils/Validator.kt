@@ -6,9 +6,10 @@ class Validator() {
     private val passwordMinLength: Int = 8
 
     fun validateEmail(email: String): ValidateResult {
+        val emailRegex = "^[A-Za-z](.*)([@]{1})(.{1,})(\\.)(.{1,})"
         return when {
             email.isEmpty() -> ValidateResult.Empty
-            Patterns.EMAIL_ADDRESS.matcher(email).matches() -> ValidateResult.Valid
+            emailRegex.toRegex().matches(email) -> ValidateResult.Valid
             else -> ValidateResult.EmailError.INVALID
         }
     }
