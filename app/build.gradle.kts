@@ -52,6 +52,12 @@ dependencies {
     implementation(project(":feature_auth"))
     implementation(project(":feature_profile"))
 
+    //Work Manager
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
+
+
     //Hilt
     implementation(libs.dagger.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)

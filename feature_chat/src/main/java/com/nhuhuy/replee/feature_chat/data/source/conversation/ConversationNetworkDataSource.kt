@@ -6,10 +6,10 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.toObjects
 import com.nhuhuy.replee.core.common.data.model.Account
-import com.nhuhuy.replee.core.firebase.data.Constant
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.toRemoteFailure
+import com.nhuhuy.replee.core.firebase.data.Constant
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTO
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTOUser
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO

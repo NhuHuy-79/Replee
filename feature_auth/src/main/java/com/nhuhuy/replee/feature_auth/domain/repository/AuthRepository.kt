@@ -1,6 +1,5 @@
 package com.nhuhuy.replee.feature_auth.domain.repository
 
-import com.google.firebase.auth.FirebaseUser
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 

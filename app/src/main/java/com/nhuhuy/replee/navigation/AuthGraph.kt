@@ -6,7 +6,6 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalResources
@@ -16,6 +15,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.ui.NavDisplay
+import com.nhuhuy.replee.core.design_system.ObserveEffect
 import com.nhuhuy.replee.feature_auth.R
 import com.nhuhuy.replee.feature_auth.presentation.login.LoginEvent
 import com.nhuhuy.replee.feature_auth.presentation.login.LoginScreen
@@ -23,12 +23,10 @@ import com.nhuhuy.replee.feature_auth.presentation.login.LoginViewModel
 import com.nhuhuy.replee.feature_auth.presentation.recover_password.RecoverPasswordEvent
 import com.nhuhuy.replee.feature_auth.presentation.recover_password.RecoverPasswordScreen
 import com.nhuhuy.replee.feature_auth.presentation.recover_password.RecoverPasswordViewModel
-import com.nhuhuy.replee.core.design_system.ObserveEffect
 import com.nhuhuy.replee.feature_auth.presentation.sign_up.SignUpEvent
 import com.nhuhuy.replee.feature_auth.presentation.sign_up.SignUpScreen
 import com.nhuhuy.replee.feature_auth.presentation.sign_up.SignUpViewModel
 import com.nhuhuy.replee.feature_auth.utils.toUiText
-import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction
 import kotlinx.serialization.Serializable
 
 @Serializable

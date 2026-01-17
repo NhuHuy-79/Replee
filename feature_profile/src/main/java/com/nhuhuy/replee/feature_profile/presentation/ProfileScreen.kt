@@ -29,13 +29,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.feature_profile.R
-import com.nhuhuy.replee.feature_profile.presentation.profile.component.ProfileUserCard
 import com.nhuhuy.replee.feature_profile.presentation.profile.component.NotificationDialog
+import com.nhuhuy.replee.feature_profile.presentation.profile.component.ProfileUserCard
 import com.nhuhuy.replee.feature_profile.presentation.profile.component.SelectThemeDialog
+import com.nhuhuy.replee.feature_profile.presentation.profile.component.UpdateAccountSheet
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.Overlay
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileState
-import com.nhuhuy.replee.feature_profile.presentation.profile.component.UpdateAccountSheet
 
 @Composable
 fun ProfileScreen(

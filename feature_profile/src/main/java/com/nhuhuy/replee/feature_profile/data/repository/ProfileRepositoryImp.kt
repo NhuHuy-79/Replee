@@ -11,7 +11,6 @@ import com.nhuhuy.replee.feature_profile.domain.repository.ProfileRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.lang.Exception
 import javax.inject.Inject
 
 class ProfileRepositoryImp @Inject constructor(

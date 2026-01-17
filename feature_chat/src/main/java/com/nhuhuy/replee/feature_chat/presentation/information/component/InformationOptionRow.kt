@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Message
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Message
 import androidx.compose.material.icons.rounded.NotificationsOff
@@ -22,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.feature_chat.R
 
@@ -83,7 +83,7 @@ fun InformationOption(
 }
 
 enum class Option(@StringRes val label: Int, val icon: ImageVector){
-    MESSAGE(R.string.information_screen_message, Icons.Rounded.Message),
+    MESSAGE(R.string.information_screen_message, Icons.AutoMirrored.Rounded.Message),
     CALL(R.string.information_screen_call, Icons.Rounded.Call),
     MUTE(R.string.information_screen_mute, Icons.Rounded.NotificationsOff)
 }

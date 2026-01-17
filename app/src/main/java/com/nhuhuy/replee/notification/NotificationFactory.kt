@@ -7,10 +7,9 @@ import android.content.Context
 import android.content.Intent
 import com.nhuhuy.replee.R
 import com.nhuhuy.replee.deeplink.DOMAIN_URI
+import com.nhuhuy.replee.receiver.ReplyReceiver
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
-import com.nhuhuy.replee.receiver.ReplyReceiver
-import kotlin.jvm.java
 
 interface NotificationFactory {
     fun execute(notificationBody: NotificationBody): Notification

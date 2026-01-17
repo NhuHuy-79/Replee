@@ -2,11 +2,7 @@ package com.nhuhuy.replee.service
 
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.nhuhuy.replee.core.common.error_handling.onFailure
 import com.nhuhuy.replee.core.common.repository.AccountRepository
-import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthService
-import com.nhuhuy.replee.notification.ConversationNotificationFactory
 import com.nhuhuy.replee.notification.NotificationParser
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope

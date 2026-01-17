@@ -15,12 +15,12 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.replee.feature_auth.R
 import com.nhuhuy.replee.core.design_system.component.CommonButton
-import com.nhuhuy.replee.feature_auth.presentation.shared.AuthLayout
-import com.nhuhuy.replee.core.design_system.component.VisibleLoadingScreen
 import com.nhuhuy.replee.core.design_system.component.NormalTextField
 import com.nhuhuy.replee.core.design_system.component.SecureTextField
+import com.nhuhuy.replee.core.design_system.component.VisibleLoadingScreen
+import com.nhuhuy.replee.feature_auth.R
+import com.nhuhuy.replee.feature_auth.presentation.shared.AuthLayout
 import com.nhuhuy.replee.feature_auth.utils.toUiText
 
 @Composable

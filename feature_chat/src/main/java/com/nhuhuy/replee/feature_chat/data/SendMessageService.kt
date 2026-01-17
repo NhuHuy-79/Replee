@@ -8,7 +8,6 @@ import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.firebase.network.KtorService
 import com.nhuhuy.replee.core.firebase.network.model.ConversationMessage
-import com.nhuhuy.replee.core.firebase.network.model.NetworkMessage
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

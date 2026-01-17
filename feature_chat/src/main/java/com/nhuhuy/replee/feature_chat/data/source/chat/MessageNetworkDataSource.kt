@@ -9,8 +9,6 @@ import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.firebase.data.Constant
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
-import com.nhuhuy.replee.feature_chat.domain.model.Conversation
-import com.nhuhuy.replee.feature_chat.domain.model.Message
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow

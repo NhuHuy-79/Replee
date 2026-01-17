@@ -1,17 +1,13 @@
 package com.nhuhuy.replee.receiver
 
-import android.app.NotificationManager
 import android.app.RemoteInput
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.widget.Toast
 import androidx.core.app.NotificationManagerCompat
-import com.nhuhuy.replee.R
 import com.nhuhuy.replee.notification.EXTRA_NOTIFICATION_ID
 import com.nhuhuy.replee.notification.EXTRA_RECEIVER_ID
 import com.nhuhuy.replee.notification.EXTRA_SENDER_ID
-import com.nhuhuy.replee.notification.NotificationFactory
 import com.nhuhuy.replee.notification.REMOTE_INPUT_KEY
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
