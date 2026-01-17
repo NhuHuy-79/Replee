@@ -10,7 +10,6 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.lang.Exception
 
 @HiltWorker
 class CleanUpDatabaseWorker @AssistedInject constructor(

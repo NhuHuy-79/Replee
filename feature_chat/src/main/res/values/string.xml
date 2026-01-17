@@ -3,6 +3,9 @@
     <!--Conversation Screen-->
     <string name="conversation_screen_empty">You haven\'t opened any conversation yet.\nlease add someone to message.</string>
     <string name="conversation_screen_search_empty">No result.</string>
+
+    <!--Synchronizing Screen-->
+    <string name="sync_screen">Synchronizing…</string>
     <!--Retry Screen-->
     <string name="retry_btn">Retry</string>
     <string name="retry_content">No connection was found.\nPlease check your connection or try again.</string>

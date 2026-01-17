@@ -43,11 +43,7 @@ class ProfileViewModel @Inject constructor(
     private val dialogState = _overlayState.asStateFlow()
 
     private val account = flow {
-        accountRepository.getCurrentAccount().onSuccess { account ->
-            emit(account)
-        }.onFailure {
-            emit(Account())
-        }
+        emit(accountRepository.getCurrentAccount())
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Account())
 
 

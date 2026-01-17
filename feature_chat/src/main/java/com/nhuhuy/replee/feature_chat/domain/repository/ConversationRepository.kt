@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.Flow
 
 
 interface ConversationRepository {
+    suspend fun fetchConversationList() : Resource<List<Conversation>, RemoteFailure>
+    suspend fun getConversationListCount() : Int
     fun observeConversationList() : Flow<List<Conversation>>
     suspend fun saveConversationToLocal(conversations: List<Conversation>)
     fun listenFromNetwork() : Flow<Resource<List<Conversation>, RemoteFailure>>

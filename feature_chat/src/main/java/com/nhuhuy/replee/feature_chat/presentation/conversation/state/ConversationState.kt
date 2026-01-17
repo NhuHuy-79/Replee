@@ -9,13 +9,17 @@ import com.nhuhuy.replee.core.design_system.state.ScreenState
 data class ConversationState(
     val searchState: ScreenState<List<Account>> = ScreenState.Success(emptyList()),
     val currentUser: Account = Account(),
-    val userList: List<Account> = emptyList(),
-    val syncing: Boolean = false,
+    val synchronizingState: SynchronizingState = SynchronizingState.NONE,
     val expandSearchBar: Boolean = false,
     val searchQuery: String = "",
     val bottomSheet: BottomSheet = BottomSheet.CLOSE
 ) : UiState
 
+enum class SynchronizingState{
+    NONE,
+    SYNC,
+    FAILURE
+}
 
 enum class BottomSheet{
     CLOSE,

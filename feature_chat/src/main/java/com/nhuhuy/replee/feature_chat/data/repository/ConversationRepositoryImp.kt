@@ -28,6 +28,26 @@ class ConversationRepositoryImp @Inject constructor(
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource
 ) : ConversationRepository {
+    override suspend fun fetchConversationList(): Resource<List<Conversation>, RemoteFailure> {
+        return withContext(dispatcher){
+            safeCall(
+                throwable = { e ->
+                    Timber.e(e)
+                    e.toRemoteFailure()
+                }
+            ){
+                val uid = firebaseAuthService.provideCurrentUser().uid
+                conversationNetworkDataSource.getConversationWithUids(uid).map { conversationDTO ->
+                    conversationDTO.toConversation(uid)
+                }
+            }
+        }
+    }
+
+    override suspend fun getConversationListCount(): Int {
+        val uid = firebaseAuthService.provideCurrentUser().uid
+        return conversationLocalDataSource.getConversationListCount(uid)
+    }
 
     override fun observeConversationList(): Flow<List<Conversation>> {
         val uid = firebaseAuthService.provideCurrentUser().uid

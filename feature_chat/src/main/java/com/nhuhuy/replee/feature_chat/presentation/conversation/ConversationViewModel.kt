@@ -18,6 +18,7 @@ import com.nhuhuy.replee.feature_chat.presentation.conversation.state.Conversati
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent.GoToProfile
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent.NavigateToChatRoom
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationState
+import com.nhuhuy.replee.feature_chat.presentation.conversation.state.SynchronizingState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -37,28 +38,25 @@ class ConversationViewModel @Inject constructor(
         get() = _state.asStateFlow()
 
     init {
-        observeConversationFromNetwork()
         viewModelScope.launch {
+            val currentUser = accountRepository.getCurrentAccount()
             _state.reduce {
-                copy(syncing = true)
+                copy(currentUser = currentUser)
             }
-            accountRepository.getCurrentAccount()
-                .onSuccess { account ->
-                    _state.reduce {
-                        copy(currentUser = account)
-                    }
-                }
+            val initialListCount = conversationRepository.getConversationListCount()
 
-            _state.reduce {
-                copy(syncing = false)
+            if (initialListCount == 0) {
+                synchronizeInitialData()
             }
+
+            observeConversationFromNetwork()
         }
     }
 
-    private fun observeConversationFromNetwork(){
+    private fun observeConversationFromNetwork() {
         viewModelScope.launch {
             conversationRepository.listenFromNetwork().collect { resource ->
-                if (resource is Resource.Success){
+                if (resource is Resource.Success) {
                     conversationRepository.saveConversationToLocal(resource.data)
                 }
             }
@@ -68,7 +66,6 @@ class ConversationViewModel @Inject constructor(
     val conversationState: StateFlow<List<Conversation>> =
         conversationRepository.observeConversationList()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
 
     override fun onAction(action: ConversationAction) {
         viewModelScope.launch {
@@ -114,7 +111,10 @@ class ConversationViewModel @Inject constructor(
                 }
 
                 ConversationAction.Retry -> {
-
+                    //Avoid spamming retry button
+                    val synchronizingState = state.value.synchronizingState
+                    if (synchronizingState == SynchronizingState.SYNC) return@launch
+                    synchronizeInitialData()
                 }
 
                 is ConversationAction.OnQueryChange -> {
@@ -153,5 +153,29 @@ class ConversationViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private suspend fun synchronizeInitialData() {
+        _state.reduce {
+            copy(
+                synchronizingState = SynchronizingState.SYNC
+            )
+        }
+        conversationRepository.fetchConversationList()
+            .onSuccess {
+                _state.reduce {
+                    copy(
+                        synchronizingState = SynchronizingState.NONE
+                    )
+                }
+            }
+            .onFailure { error ->
+                _state.reduce {
+                    copy(
+                        synchronizingState = SynchronizingState.FAILURE
+                    )
+                }
+            }
+
     }
 }

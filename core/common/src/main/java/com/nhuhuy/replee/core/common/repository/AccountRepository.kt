@@ -18,7 +18,7 @@ import javax.inject.Inject
 interface AccountRepository {
     suspend fun updateNewestToken(token: String) : Resource<Unit, Failure>
     suspend fun getAccountById(uid: String) : Account
-    suspend fun getCurrentAccount(): Resource<Account, Failure>
+    suspend fun getCurrentAccount(): Account
     suspend fun getAccountListWithEmail(query: String): Resource<List<Account>, RemoteFailure>
 }
 
@@ -46,14 +46,10 @@ class AccountRepositoryImp @Inject constructor(
         }
     }
 
-    override suspend fun getCurrentAccount(): Resource<Account, Failure> {
+    override suspend fun getCurrentAccount(): Account {
         return withContext(dispatcher) {
-            safeCall(
-                throwable = { e -> e.toRemoteFailure() }
-            ) {
-                val id = firebaseAuthService.provideCurrentUser().uid
-                accountLocalDataSource.getAccountWithId(uid = id).toAccount()
-            }
+            val id = firebaseAuthService.provideCurrentUser().uid
+            accountLocalDataSource.getAccountWithId(uid = id).toAccount()
         }
     }
 

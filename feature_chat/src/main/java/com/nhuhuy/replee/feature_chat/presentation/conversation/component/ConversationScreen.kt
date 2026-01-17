@@ -1,5 +1,9 @@
 package com.nhuhuy.replee.feature_chat.presentation.conversation.component
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.feature_chat.R
@@ -20,6 +25,8 @@ import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.presentation.conversation.ConversationContent
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationAction
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationState
+import com.nhuhuy.replee.feature_chat.presentation.conversation.state.SynchronizingState
+import com.nhuhuy.replee.feature_chat.presentation.shared.RetryScreen
 
 @Composable
 fun ConversationScreen(
@@ -27,19 +34,28 @@ fun ConversationScreen(
     conversationList: List<Conversation>,
     onAction: (ConversationAction) -> Unit,
 ){
-    if (state.syncing && conversationList.isEmpty()){
-        SyncingScreen(
-            modifier = Modifier.fillMaxSize()
-        )
+    AnimatedContent(
+        targetState = state.synchronizingState,
+        transitionSpec = {
+            fadeIn() togetherWith fadeOut()
+        }
+    ) { synchronizingState ->
+        when (synchronizingState) {
+            SynchronizingState.NONE -> ConversationContent(
+                converationList = conversationList,
+                state = state,
+                onAction = onAction
+            )
+            SynchronizingState.SYNC -> SyncingScreen(modifier = Modifier.fillMaxSize())
+            SynchronizingState.FAILURE -> RetryScreen(
+                modifier = Modifier.fillMaxSize(),
+                onRetry = {
+                    onAction(ConversationAction.Retry)
+                }
+            )
+        }
     }
 
-    else {
-        ConversationContent(
-            converationList = conversationList,
-            state = state,
-            onAction = onAction
-        )
-    }
 }
 
 @Preview
@@ -63,7 +79,7 @@ fun SyncingScreen(
         Spacer(Modifier.height(8.dp))
 
         Text(
-            text = "Syncing...",
+            text = stringResource(R.string.sync_screen),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onBackground
         )

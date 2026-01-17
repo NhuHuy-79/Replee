@@ -47,4 +47,9 @@ class ConversationLocalDataSource @Inject constructor(
         return listOf(uid1, uid2).sorted().joinToString(separator = "_")
     }
 
+    suspend fun getConversationListCount(ownerId: String): Int{
+        return conversationDao.getConversationListCount(ownerId)
+
+    }
+
 }
