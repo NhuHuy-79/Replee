@@ -2,6 +2,7 @@ package com.nhuhuy.replee.feature_auth.repository
 
 import com.google.common.truth.Truth
 import com.nhuhuy.replee.core.common.data.model.toAccountEntity
+import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
@@ -23,6 +24,7 @@ class AuthRepositoryImpTest {
     private lateinit var authRepository: AuthRepository
     private lateinit var accountNetworkDataSource: AccountNetworkDataSource
     private lateinit var firebaseAuthService: FirebaseAuthService
+    private lateinit var appPreferences: AppPreferences
     private lateinit var accountLocalDataSource: AccountLocalDataSource
 
     @Before
@@ -30,7 +32,8 @@ class AuthRepositoryImpTest {
         firebaseAuthService = mockk()
         accountNetworkDataSource = mockk()
         accountLocalDataSource = mockk()
-        authRepository = AuthRepositoryImp(accountNetworkDataSource,firebaseAuthService, dispatcher = Dispatchers.IO, accountLocalDataSource)
+        appPreferences = mockk()
+        authRepository = AuthRepositoryImp(accountNetworkDataSource,firebaseAuthService, dispatcher = Dispatchers.IO, accountLocalDataSource, appPreferences)
     }
 
     private val fakeAccount = AccountDTO(
@@ -45,17 +48,32 @@ class AuthRepositoryImpTest {
         coEvery {
             firebaseAuthService.loginWithEmail("email", "password")
         } returns Unit
+
         coEvery {
             accountNetworkDataSource.getAccountById("id")
         } returns fakeAccount
+
         coEvery {
             val account = fakeAccount.toAccountEntity()
-            accountLocalDataSource.saveAccount(account)
+            accountLocalDataSource.saveAccount(account.copy(logOut = false))
         } returns Unit
+
+        coEvery {
+            firebaseAuthService.provideToken()
+        } returns "token"
+
+        coEvery {
+            accountNetworkDataSource.updateNewToken("id", "token")
+        } returns Unit
+
+        coEvery {
+            appPreferences.setLoggedStatus(true)
+        } returns Unit
+
         val expected : Resource<String, RemoteFailure> = Resource.Success("id")
         val actual = authRepository.loginWithEmail("email", "password")
 
-        assert(expected == actual)
+        Truth.assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -82,7 +100,20 @@ class AuthRepositoryImpTest {
         } returns Unit
 
         coEvery {
-            accountLocalDataSource.saveAccount(fakeAccount.toAccountEntity())
+            val account = fakeAccount.toAccountEntity()
+            accountLocalDataSource.saveAccount(account.copy(logOut = false))
+        } returns Unit
+
+        coEvery {
+            firebaseAuthService.provideToken()
+        } returns "token"
+
+        coEvery {
+            accountNetworkDataSource.updateNewToken("id", "token")
+        } returns Unit
+
+        coEvery {
+            appPreferences.setLoggedStatus(true)
         } returns Unit
 
         val expected : Resource<String, RemoteFailure> = Resource.Success("id")

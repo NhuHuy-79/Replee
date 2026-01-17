@@ -65,7 +65,7 @@ class ProfileViewModelTest {
     fun returnSuccessEvent_whenUpdatePassword() = runTest {
         coEvery {
             accountRepository.getCurrentAccount()
-        } returns Resource.Success(Account())
+        } returns Account()
 
         every {
             validator.validatePassword("old")

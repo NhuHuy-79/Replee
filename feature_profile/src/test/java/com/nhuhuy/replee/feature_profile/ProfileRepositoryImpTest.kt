@@ -1,7 +1,9 @@
 package com.nhuhuy.replee.feature_profile
 
+import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
+import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthService
 import com.nhuhuy.replee.core.test.DispatcherRuleTest
 import com.nhuhuy.replee.feature_profile.data.repository.ProfileRepositoryImp
@@ -19,15 +21,44 @@ class ProfileRepositoryImpTest {
     val main = DispatcherRuleTest()
 
     private lateinit var firebaseAuthService: FirebaseAuthService
+    private lateinit var accountLocalDataSource: AccountLocalDataSource
     private lateinit var repositoryImp: ProfileRepository
+
+    private lateinit var appPreferences: AppPreferences
 
     @Before
     fun setUp(){
+        accountLocalDataSource = mockk(relaxed = true)
         firebaseAuthService = mockk(relaxed = true)
+        appPreferences = mockk(relaxed = true)
         repositoryImp = ProfileRepositoryImp(
             dispatcher = Dispatchers.IO,
-            firebaseAuthService = firebaseAuthService
+            firebaseAuthService = firebaseAuthService,
+            accountLocalDataSource = accountLocalDataSource,
+            appPreferences = appPreferences
         )
+    }
+
+    @Test
+    fun returnSuccess_whenLogOut() = runTest {
+        coEvery {
+            firebaseAuthService.provideCurrentUser().uid
+        } returns "uid"
+
+        coEvery {
+            firebaseAuthService.logOut()
+        } returns Unit
+
+        coEvery {
+            appPreferences.setLoggedStatus(false)
+        } returns Unit
+
+        coEvery {
+            accountLocalDataSource.setLogOut("uid")
+        } returns Unit
+
+        val actual = repositoryImp.logOut()
+        assert(actual == Unit)
     }
 
     @Test

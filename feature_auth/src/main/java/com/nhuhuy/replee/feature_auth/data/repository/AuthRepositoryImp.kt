@@ -71,7 +71,11 @@ class AuthRepositoryImp @Inject constructor(
                         email = email,
                     )
                     accountNetworkDataSource.addAccount(account)
-                    accountLocalDataSource.saveAccount(account.toAccountEntity())
+                    accountLocalDataSource.saveAccount(account.toAccountEntity().copy(logOut = false))
+
+                    val token = firebaseAuthService.provideToken()
+                    accountNetworkDataSource.updateNewToken(id,token)
+
                 } catch (e: Exception) {
                     Timber.e(e)
                     firebaseAuthService.deleteCurrentUser()
