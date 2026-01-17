@@ -38,4 +38,6 @@ class MessageLocalDataSource @Inject constructor(
 
     fun observeMessages(conversationId: String) = messageDao.observeMessageByConversationId(conversationId)
 
+    suspend fun deleteMessageWithConversationId(limit: Int) = messageDao.deleteMessageByConversationId(limit)
+
 }

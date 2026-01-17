@@ -28,5 +28,21 @@ interface MessageDao : BaseDao<MessageEntity> {
             "AND receiverId = :receiverId")
     suspend fun markMessageAsRead(messageIds: List<String>, conversationId: String, receiverId: String)
 
+    @Query("DELETE\n" +
+            "    FROM message\n" +
+            "    WHERE messageId IN (\n" +
+            "    SELECT messageId FROM (\n" +
+            "    SELECT messageId,\n" +
+            "    ROW_NUMBER() OVER (\n" +
+            "    PARTITION BY conversationId\n" +
+            "    ORDER BY sentAt DESC\n" +
+            "    ) AS rn\n" +
+            "    FROM message\n" +
+            "    )\n" +
+            "    WHERE rn > :limit\n" +
+            "    )\n"
+    )
+    suspend fun deleteMessageByConversationId(limit: Int)
+
 }
 

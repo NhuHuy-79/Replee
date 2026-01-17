@@ -19,7 +19,10 @@ import javax.inject.Inject
 interface SyncManager {
     suspend fun updateMessageStatusInLocal(messageId: String, status: MessageStatus)
     suspend fun syncMessage() : Resource<Unit, RemoteFailure>
+    suspend fun cleanUpDatabase()
 }
+
+private const val CLEAN_UP_LIMIT : Int = 15
 
 class SyncManagerImp @Inject constructor(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
@@ -53,6 +56,12 @@ class SyncManagerImp @Inject constructor(
                 messageLocalDataSource.updateSyncStatus(messageIds, MessageStatus.SYNCED)
                 conversationLocalDataSource.updateSyncedTime(conversationIds, System.currentTimeMillis())
             }
+        }
+    }
+
+    override suspend fun cleanUpDatabase() {
+        return withContext(dispatcher){
+            messageLocalDataSource.deleteMessageWithConversationId(CLEAN_UP_LIMIT)
         }
     }
 }

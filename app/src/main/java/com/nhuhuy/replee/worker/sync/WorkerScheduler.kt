@@ -12,11 +12,10 @@ import javax.inject.Inject
 
 interface WorkerScheduler {
      fun scheduleMessageSyncWorker()
-
 }
 
 const val REPEAT_TIME: Long = 15
-const val WORKER_KEY = "sync_worker"
+const val SYNC_WORKER_KEY = "sync_worker"
 
 class WorkerSchedulerImp @Inject constructor(
     @ApplicationContext private val context: Context
@@ -34,9 +33,9 @@ class WorkerSchedulerImp @Inject constructor(
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
             )
+            .addTag(SYNC_WORKER_KEY)
             .build()
 
-        workManager.enqueueUniquePeriodicWork(WORKER_KEY, ExistingPeriodicWorkPolicy.KEEP, request)
+        workManager.enqueueUniquePeriodicWork(SYNC_WORKER_KEY, ExistingPeriodicWorkPolicy.KEEP, request)
     }
-
 }

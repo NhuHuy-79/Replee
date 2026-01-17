@@ -3,11 +3,15 @@ package com.nhuhuy.replee.worker.sync
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.feature_chat.data.SyncManager
+import com.nhuhuy.replee.worker.clean_up.CleanUpDatabaseWorker
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -16,7 +20,9 @@ import timber.log.Timber
 
 object SyncKey {
     const val FAILURE = "Sync Failure"
+    const val SUCCESS = "Sync Success"
 }
+private const val CLEAN_UP_WORKER_KEY = "clean_up_worker"
 
 @HiltWorker
 class MessageSyncWork @AssistedInject constructor(
@@ -27,7 +33,6 @@ class MessageSyncWork @AssistedInject constructor(
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         return withContext(dispatcher) {
-            //Start worker
             Timber.d("Start Sync Message To Firestore!")
 
             val resource = syncManager.syncMessage()
@@ -35,7 +40,21 @@ class MessageSyncWork @AssistedInject constructor(
                 is Resource.Success -> {
                     Timber.d("Sync Message To Firestore Success!")
 
-                    Result.success()
+                    val request = OneTimeWorkRequestBuilder<CleanUpDatabaseWorker>().build()
+                    WorkManager.getInstance(context)
+                        .enqueueUniqueWork(
+                            CLEAN_UP_WORKER_KEY,
+                            ExistingWorkPolicy.REPLACE,
+                            request
+                        )
+                    Timber.d("Start Clean Up Worker!")
+
+                    Result.success(
+                        workDataOf(
+                            SyncKey.SUCCESS to "Sync Success"
+                        )
+                    )
+
                 }
 
                 is Resource.Error -> {
