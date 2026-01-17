@@ -24,7 +24,6 @@ fun FirebaseAuthException.toRemoteFailure() : RemoteFailure {
         is FirebaseAuthInvalidCredentialsException -> RemoteFailure.Auth.INVALID_CREDENTIAL
         is FirebaseAuthEmailException -> RemoteFailure.Auth.CANNOT_SEND_EMAIL
         is FirebaseAuthUserCollisionException -> RemoteFailure.Auth.USER_ALREADY_EXIST
-
         else -> RemoteFailure.Unknown
     }
 }

@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.common.repository
+package com.nhuhuy.replee.core.common.data.repository
 
 import com.nhuhuy.replee.core.common.data.model.Account
 import com.nhuhuy.replee.core.common.data.model.toAccount
