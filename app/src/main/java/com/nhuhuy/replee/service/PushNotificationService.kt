@@ -15,7 +15,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class PushNotificationService() : FirebaseMessagingService() {
-
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     @Inject

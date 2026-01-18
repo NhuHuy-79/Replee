@@ -25,7 +25,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class FirebaseModule {
+class NetworkModule{
     @Provides
     @Singleton
     fun provideFirebaseAuth() = Firebase.auth
@@ -37,12 +37,6 @@ class FirebaseModule {
     @Provides
     @Singleton
     fun provideFirebaseMessaging() = Firebase.messaging
-
-}
-
-@Module
-@InstallIn(SingletonComponent::class)
-class NetworkModule{
     @Provides
     @Singleton
     fun provideKtorClient() = HttpClient(OkHttp){
