@@ -29,8 +29,8 @@ class MessageRepositoryImp @Inject constructor(
     private val messageLocalDataSource: MessageLocalDataSource,
     private val dispatcher: CoroutineDispatcher,
 ) : MessageRepository {
-    override fun listenFromNetwork(conversationId: String): Flow<Resource<List<Message>, RemoteFailure>> {
-        return messageNetworkDataSource.observeMessageList(conversationId)
+    override fun observeNetworkMessages(conversationId: String): Flow<Resource<List<Message>, RemoteFailure>> {
+        return messageNetworkDataSource.streamMessagesByConversationId(conversationId)
             .mapResource { messageList ->
                 messageList.map { messageDTO -> messageDTO.toMessage() }
             }.flowOn(dispatcher)
@@ -44,16 +44,16 @@ class MessageRepositoryImp @Inject constructor(
                     e.toRemoteFailure()
                 }
             ) {
-                val messages = messageNetworkDataSource.getMessagesByConversationId(conversationId)
+                val messages = messageNetworkDataSource.fetchMessagesByConversationId(conversationId)
                     .map { dTO ->
                         dTO.toMessage().toMessageEntity()
                     }
-                messageLocalDataSource.saveAllMessages(messages)
+                messageLocalDataSource.upsertMessages(messages)
             }
         }
     }
 
-    override fun observeConversationMessages(conversationId: String): Flow<List<Message>> {
+    override fun observeLocalMessages(conversationId: String): Flow<List<Message>> {
         return messageLocalDataSource.observeMessages(conversationId).map { entities ->
             entities.map { entity ->
                 entity.toMessage()
@@ -61,13 +61,13 @@ class MessageRepositoryImp @Inject constructor(
         }.flowOn(dispatcher)
     }
 
-    override suspend fun addNewMessage(
+    override suspend fun sendMessage(
         message: Message,
         conversationId: String
     ): Resource<Message, RemoteFailure> {
         return withContext(dispatcher) {
             val entity = message.toMessageEntity()
-            messageLocalDataSource.saveMessage(entity)
+            messageLocalDataSource.upsertMessage(entity)
             conversationLocalDataSource.updateLastMessage(entity)
             safeCall(
                 throwable = { e ->
@@ -76,8 +76,8 @@ class MessageRepositoryImp @Inject constructor(
                 },
             ) {
                 val messageDTO = message.toMessageDTO()
-                messageNetworkDataSource.addNewMessage(messageDTO, conversationId)
-                val conversationDTO = conversationNetworkDataSource.getConversationById(conversationId)
+                messageNetworkDataSource.sendMessage(messageDTO, conversationId)
+                val conversationDTO = conversationNetworkDataSource.fetchConversationById(conversationId)
                 conversationNetworkDataSource.updateLastMessage(messageDTO, conversationDTO)
                 //LOCAL
                 message
@@ -97,22 +97,22 @@ class MessageRepositoryImp @Inject constructor(
                     e.toRemoteFailure()
                 },
             ) {
-                messageLocalDataSource.markMessageAsRead(
+                messageLocalDataSource.updateMessageSeenStatus(
                     messageIds = messageIds,
                     conversationId = conversationId,
                     receiverId = receiverId
                 )
 
 
-                val conversationDTO = conversationNetworkDataSource.getConversationById(conversationId)
+                val conversationDTO = conversationNetworkDataSource.fetchConversationById(conversationId)
                 val receiverField =
                     if (conversationDTO.user1.uid == receiverId) "user1" else "user2"
-                val count = messageNetworkDataSource.markMessagesRead(
+                val count = messageNetworkDataSource.updateMessageSeenStatus(
                     conversationId = conversationId,
                     messageIds = messageIds,
                     receiverId = receiverId
                 )
-                conversationNetworkDataSource.updateUnReadMessageCount(
+                conversationNetworkDataSource.updateUnreadMessageCount(
                     conversationId = conversationId,
                     receiverField = receiverField,
                     count = count
@@ -121,10 +121,10 @@ class MessageRepositoryImp @Inject constructor(
         }
     }
 
-    override suspend fun saveMessageToLocal(messages: List<Message>) {
+    override suspend fun saveMessages(messages: List<Message>) {
         withContext(dispatcher){
             val entities = messages.map { message -> message.toMessageEntity() }
-            messageLocalDataSource.saveAllMessages(entities)
+            messageLocalDataSource.upsertMessages(entities)
         }
     }
 }

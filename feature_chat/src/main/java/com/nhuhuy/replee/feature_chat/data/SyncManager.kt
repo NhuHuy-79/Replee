@@ -17,7 +17,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 interface SyncManager {
-    suspend fun updateMessageStatusInLocal(messageId: String, status: MessageStatus)
+    suspend fun updateMessageStatus(messageId: String, status: MessageStatus)
     suspend fun syncMessage() : Resource<Unit, RemoteFailure>
     suspend fun cleanUpDatabase()
 }
@@ -30,7 +30,7 @@ class SyncManagerImp @Inject constructor(
     private val messageNetworkDataSource: MessageNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource
 ) : SyncManager{
-    override suspend fun updateMessageStatusInLocal(
+    override suspend fun updateMessageStatus(
         messageId: String,
         status: MessageStatus
     ) {
@@ -48,20 +48,20 @@ class SyncManagerImp @Inject constructor(
                     e.toRemoteFailure()
                 }
             ){
-                val unSyncedMessages = messageLocalDataSource.getFailedMessages().map { entity ->
+                val unSyncedMessages = messageLocalDataSource.getUnsyncedMessages().map { entity ->
                     entity.toMessage().toMessageDTO()
                 }
                 val messageIds = unSyncedMessages.map { messageDTO -> messageDTO.messageId }
-                val conversationIds = messageNetworkDataSource.uploadMessages(unSyncedMessages)
+                val conversationIds = messageNetworkDataSource.sendMessages(unSyncedMessages)
                 messageLocalDataSource.updateSyncStatus(messageIds, MessageStatus.SYNCED)
-                conversationLocalDataSource.updateSyncedTime(conversationIds, System.currentTimeMillis())
+                conversationLocalDataSource.updateLastSyncedTime(conversationIds, System.currentTimeMillis())
             }
         }
     }
 
     override suspend fun cleanUpDatabase() {
         return withContext(dispatcher){
-            messageLocalDataSource.deleteMessageWithConversationId(CLEAN_UP_LIMIT)
+            messageLocalDataSource.deleteMessageByConversationId(CLEAN_UP_LIMIT)
         }
     }
 }

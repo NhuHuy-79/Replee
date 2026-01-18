@@ -30,13 +30,13 @@ class SettingDataStoreTest {
     }
 
     @Test
-    fun updateNotification_shouldReturnSuccess() = runTest {
+    fun saveNotification_Mode_shouldReturnSuccess() = runTest {
         coEvery {
             context.applicationContext
 
         } returns context
         val mode: NotificationMode = NotificationMode.PRIVATE
-        settingDataStore.updateNotification(mode)
+        settingDataStore.saveNotificationMode(mode)
 
         settingDataStore.observeNotification().test {
             val actual = awaitItem()

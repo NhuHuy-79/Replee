@@ -76,7 +76,7 @@ class ProfileViewModelTest {
         } returns mockk(relaxed = true)
 
         coEvery {
-            profileRepository.updatePassword("old", "new")
+            profileRepository.updateNewPassword("old", "new")
         } returns Resource.Success(Unit)
 
         viewModel.onAction(ProfileAction.OnOldPasswordChange("old"))

@@ -12,12 +12,9 @@ class FirebaseAuthService @Inject constructor(
 ) {
     class CurrentUserNotFound(msg : String = "Firebase User not found") : Exception(msg)
 
-    fun provideCurrentUser() = auth.currentUser ?: throw CurrentUserNotFound()
+    fun getCurrentUser() = auth.currentUser ?: throw CurrentUserNotFound()
 
-
-    fun isUserLogged() = auth.currentUser != null
-
-    suspend fun provideToken() : String = messaging.token.await()
+    suspend fun getDeviceToken() : String = messaging.token.await()
 
     suspend fun loginWithEmail(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password).await()
@@ -31,12 +28,8 @@ class FirebaseAuthService @Inject constructor(
         auth.sendPasswordResetEmail(email).await()
     }
 
-    suspend fun searchUserWithEmail(query: String){
-
-    }
-
     suspend fun updateNewPassword(old: String, new: String){
-        val user = provideCurrentUser()
+        val user = getCurrentUser()
         val email = user.email ?: throw IllegalStateException("Missing email")
         val credential = EmailAuthProvider.getCredential(email, old)
         user.reauthenticate(credential).await()

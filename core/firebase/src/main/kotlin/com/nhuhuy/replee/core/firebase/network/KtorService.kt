@@ -18,13 +18,13 @@ object Route{
 
 
 interface KtorService{
-    suspend fun sendMessage(token: String, body: ConversationMessage)
+    suspend fun sendConversationMessage(token: String, body: ConversationMessage)
 }
 
 class KtorServiceImp @Inject constructor(
     private val client: HttpClient
 ): KtorService{
-    override suspend fun sendMessage(token: String, body: ConversationMessage) {
+    override suspend fun sendConversationMessage(token: String, body: ConversationMessage) {
         client.post(Route.POST) {
             header(Route.HEADER, token)
             contentType(ContentType.Application.Json)

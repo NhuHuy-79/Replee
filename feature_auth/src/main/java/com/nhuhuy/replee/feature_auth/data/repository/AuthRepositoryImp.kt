@@ -36,14 +36,14 @@ class AuthRepositoryImp @Inject constructor(
             ) {
                 firebaseAuthService.loginWithEmail(email, password)
 
-                val userId = firebaseAuthService.provideCurrentUser().uid
-                val account = accountNetworkDataSource.getAccountById(userId).toAccountEntity()
-                accountLocalDataSource.saveAccount(account.copy(logOut = false))
+                val userId = firebaseAuthService.getCurrentUser().uid
+                val account = accountNetworkDataSource.fetchAccountById(userId).toAccountEntity()
+                accountLocalDataSource.upsertAccount(account.copy(logOut = false))
 
-                val token = firebaseAuthService.provideToken()
-                accountNetworkDataSource.updateNewToken(userId,token)
+                val token = firebaseAuthService.getDeviceToken()
+                accountNetworkDataSource.updateDeviceToken(userId,token)
 
-                appPreferences.setLoggedStatus(true)
+                appPreferences.saveLoggedStatus(true)
                 userId
             }
         }
@@ -63,25 +63,25 @@ class AuthRepositoryImp @Inject constructor(
             ) {
                 firebaseAuthService.signUpWithEmail(email, password)
 
-                val id = firebaseAuthService.provideCurrentUser().uid
+                val id = firebaseAuthService.getCurrentUser().uid
                 try {
                     val account = AccountDTO(
                         id = id,
                         name = name,
                         email = email,
                     )
-                    accountNetworkDataSource.addAccount(account)
-                    accountLocalDataSource.saveAccount(account.toAccountEntity().copy(logOut = false))
+                    accountNetworkDataSource.sendAccount(account)
+                    accountLocalDataSource.upsertAccount(account.toAccountEntity().copy(logOut = false))
 
-                    val token = firebaseAuthService.provideToken()
-                    accountNetworkDataSource.updateNewToken(id,token)
+                    val token = firebaseAuthService.getDeviceToken()
+                    accountNetworkDataSource.updateDeviceToken(id,token)
 
                 } catch (e: Exception) {
                     Timber.e(e)
                     firebaseAuthService.deleteCurrentUser()
                 }
 
-                appPreferences.setLoggedStatus(true)
+                appPreferences.saveLoggedStatus(true)
                 id
             }
         }
@@ -107,7 +107,7 @@ class AuthRepositoryImp @Inject constructor(
                 e.toRemoteFailure()
             }
         ) {
-            firebaseAuthService.provideCurrentUser().uid
+            firebaseAuthService.getCurrentUser().uid
         }
     }
 

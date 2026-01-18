@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 interface SettingDataStore {
-    suspend fun updateNotification(mode: NotificationMode)
-    suspend fun updateTheme(mode: ThemeMode)
+    suspend fun saveNotificationMode(mode: NotificationMode)
+    suspend fun saveThemeMode(mode: ThemeMode)
     fun observeNotification() : Flow<NotificationMode>
     fun observeTheme() : Flow<ThemeMode>
 }
@@ -25,13 +25,13 @@ class SettingDataStoreImp @Inject constructor(
         val THEME_KEY = stringPreferencesKey("theme_key")
     }
 
-    override suspend fun updateNotification(mode: NotificationMode) {
+    override suspend fun saveNotificationMode(mode: NotificationMode) {
         context.dataStore.edit { preferences ->
             preferences[NOTIFICATION_KEY] = mode.name
         }
     }
 
-    override suspend fun updateTheme(mode: ThemeMode) {
+    override suspend fun saveThemeMode(mode: ThemeMode) {
         context.dataStore.edit { preferences ->
             preferences[THEME_KEY] = mode.name
         }

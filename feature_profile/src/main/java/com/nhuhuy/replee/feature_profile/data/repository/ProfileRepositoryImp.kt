@@ -19,7 +19,7 @@ class ProfileRepositoryImp @Inject constructor(
     private val firebaseAuthService: FirebaseAuthService,
     private val appPreferences: AppPreferences
 ) : ProfileRepository{
-    override suspend fun updatePassword(
+    override suspend fun updateNewPassword(
         old: String,
         new: String
     ): Resource<Unit, RemoteFailure> {
@@ -34,16 +34,16 @@ class ProfileRepositoryImp @Inject constructor(
 
     override suspend fun logOut() {
         val uid = try {
-            firebaseAuthService.provideCurrentUser().uid
+            firebaseAuthService.getCurrentUser().uid
         } catch (e: Exception) {
             Timber.e(e)
             null
         }
         firebaseAuthService.logOut()
-        appPreferences.setLoggedStatus(false)
+        appPreferences.saveLoggedStatus(false)
 
         uid?.let {
-            uid -> accountLocalDataSource.setLogOut(uid)
+            uid -> accountLocalDataSource.updateLogoutStatus(uid)
         }
     }
 

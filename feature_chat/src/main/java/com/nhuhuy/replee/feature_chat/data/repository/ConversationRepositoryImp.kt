@@ -28,7 +28,7 @@ class ConversationRepositoryImp @Inject constructor(
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource
 ) : ConversationRepository {
-    override suspend fun fetchConversationList(): Resource<List<Conversation>, RemoteFailure> {
+    override suspend fun fetchConversations(): Resource<List<Conversation>, RemoteFailure> {
         return withContext(dispatcher){
             safeCall(
                 throwable = { e ->
@@ -36,36 +36,36 @@ class ConversationRepositoryImp @Inject constructor(
                     e.toRemoteFailure()
                 }
             ){
-                val uid = firebaseAuthService.provideCurrentUser().uid
-                conversationNetworkDataSource.getConversationWithUids(uid).map { conversationDTO ->
+                val uid = firebaseAuthService.getCurrentUser().uid
+                conversationNetworkDataSource.fetchConversationsByUser(uid).map { conversationDTO ->
                     conversationDTO.toConversation(uid)
                 }
             }
         }
     }
 
-    override suspend fun getConversationListCount(): Int {
-        val uid = firebaseAuthService.provideCurrentUser().uid
-        return conversationLocalDataSource.getConversationListCount(uid)
+    override suspend fun getConversationCount(): Int {
+        val uid = firebaseAuthService.getCurrentUser().uid
+        return conversationLocalDataSource.getConversationsCount(uid)
     }
 
-    override fun observeConversationList(): Flow<List<Conversation>> {
-        val uid = firebaseAuthService.provideCurrentUser().uid
+    override fun observeLocalConversations(): Flow<List<Conversation>> {
+        val uid = firebaseAuthService.getCurrentUser().uid
         return conversationLocalDataSource.observeConversationAndUsers(uid).map { entities ->
             entities.map { entity -> entity.toConversation() }
         }.flowOn(dispatcher)
     }
 
-    override suspend fun saveConversationToLocal(conversations: List<Conversation>) {
+    override suspend fun saveConversations(conversations: List<Conversation>) {
         val entities = conversations.map { conversation ->
             conversation.toConversationEntity()
         }
-        conversationLocalDataSource.addConversationList(entities)
+        conversationLocalDataSource.upsertConversations(entities)
     }
 
-    override fun listenFromNetwork(): Flow<Resource<List<Conversation>, RemoteFailure>> {
-        val uid = firebaseAuthService.provideCurrentUser().uid
-        return conversationNetworkDataSource.observeConversationList(uid).mapResource { conversationDTOS ->
+    override fun observeNetworkConversations(): Flow<Resource<List<Conversation>, RemoteFailure>> {
+        val uid = firebaseAuthService.getCurrentUser().uid
+        return conversationNetworkDataSource.streamConversationsByUser(uid).mapResource { conversationDTOS ->
             conversationDTOS.map { conversationDTO ->
                 Timber.d("list: $conversationDTO")
                 conversationDTO.toConversation(uid)
@@ -81,11 +81,11 @@ class ConversationRepositoryImp @Inject constructor(
                     e.toRemoteFailure()
                 }
             ) {
-                val currentUserId = firebaseAuthService.provideCurrentUser().uid
-                val entity = conversationLocalDataSource.getOrCreateConversation(ownerId = currentUserId, otherUserId = otherUser.id)
+                val currentUserId = firebaseAuthService.getCurrentUser().uid
+                val entity = conversationLocalDataSource.getConversationAndUserById(ownerId = currentUserId, otherUserId = otherUser.id)
                 try {
                     val dto = entity.toConversationDTO()
-                    conversationNetworkDataSource.addConversation(dto)
+                    conversationNetworkDataSource.sendConversation(dto)
                 } catch (e: Exception) {
                     Timber.e(e)
                 }

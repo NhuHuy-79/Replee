@@ -13,24 +13,24 @@ class AccountNetworkDataSource @Inject constructor(
 ){
     private val collection = firestore.collection(Constant.Firestore.USER_COLLECTION)
 
-    suspend fun addAccount(account: AccountDTO){
+    suspend fun sendAccount(account: AccountDTO){
         collection.document(account.id).set(account).await()
     }
 
-    suspend fun updateNewToken(uid: String, token: String){
+    suspend fun updateDeviceToken(uid: String, token: String){
         collection.document(uid)
             .update("currentToken", token)
             .await()
     }
 
-    suspend fun getAccountById(id: String) : AccountDTO {
+    suspend fun fetchAccountById(id: String) : AccountDTO {
         return collection.document(id)
             .get()
             .await()
             .toObject(AccountDTO::class.java) ?: throw FirestoreCannotConvertObjectException()
     }
 
-    suspend fun searchUserByEmail(query: String): List<AccountDTO> {
+    suspend fun fetchAccountsByEmail(query: String): List<AccountDTO> {
         return collection
             .orderBy("email")
             .startAt(query.lowercase())

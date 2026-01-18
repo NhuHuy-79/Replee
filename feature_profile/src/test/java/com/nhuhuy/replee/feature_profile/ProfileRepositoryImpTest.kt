@@ -42,7 +42,7 @@ class ProfileRepositoryImpTest {
     @Test
     fun returnSuccess_whenLogOut() = runTest {
         coEvery {
-            firebaseAuthService.provideCurrentUser().uid
+            firebaseAuthService.getCurrentUser().uid
         } returns "uid"
 
         coEvery {
@@ -50,11 +50,11 @@ class ProfileRepositoryImpTest {
         } returns Unit
 
         coEvery {
-            appPreferences.setLoggedStatus(false)
+            appPreferences.saveLoggedStatus(false)
         } returns Unit
 
         coEvery {
-            accountLocalDataSource.setLogOut("uid")
+            accountLocalDataSource.updateLogoutStatus("uid")
         } returns Unit
 
         val actual = repositoryImp.logOut()
@@ -62,14 +62,14 @@ class ProfileRepositoryImpTest {
     }
 
     @Test
-    fun returnSuccess_whenUpdatePassword() = runTest {
+    fun returnSuccess_whenUpdateNewPassword() = runTest {
         val expected : Resource<Unit, RemoteFailure> = Resource.Success(Unit)
 
         coEvery {
             firebaseAuthService.updateNewPassword("old", "new")
         } returns Unit
 
-        val actual = repositoryImp.updatePassword("old", "new")
+        val actual = repositoryImp.updateNewPassword("old", "new")
 
         assert(expected == actual)
     }

@@ -8,9 +8,7 @@ import javax.inject.Inject
 class AccountLocalDataSource @Inject constructor(
     private val dao: AccountDao
 ) {
-    suspend fun saveAccount(
-        accountEntity: AccountEntity
-    ){
+    suspend fun upsertAccount(accountEntity: AccountEntity){
         dao.upsert(accountEntity)
     }
 
@@ -18,12 +16,12 @@ class AccountLocalDataSource @Inject constructor(
         return dao.getAccountWithUid(uid)
     }
 
-    suspend fun saveAccountList(list: List<AccountEntity>){
+    suspend fun upsertAccounts(list: List<AccountEntity>){
         dao.upsertAll(list)
     }
 
-    suspend fun setLogOut(uid: String) {
-        dao.setLogOut(uid)
+    suspend fun updateLogoutStatus(uid: String) {
+        dao.updateLogoutStatus(uid)
     }
 
     suspend fun deleteAccount(accountEntity: AccountEntity) {

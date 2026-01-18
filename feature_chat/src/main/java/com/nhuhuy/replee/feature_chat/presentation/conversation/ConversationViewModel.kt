@@ -3,14 +3,11 @@ package com.nhuhuy.replee.feature_chat.presentation.conversation
 import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.onFailure
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.core.common.data.repository.AccountRepository
-import com.nhuhuy.replee.core.common.error_handling.onFailureSuspend
 import com.nhuhuy.replee.core.common.error_handling.onSuccessSuspend
 import com.nhuhuy.replee.core.design_system.state.ScreenState
-import com.nhuhuy.replee.core.design_system.state.ScreenStateHost
 import com.nhuhuy.replee.core.design_system.state.toScreenState
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
@@ -28,7 +25,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -55,7 +51,7 @@ class ConversationViewModel @Inject constructor(
 
     private fun observeConversationFromNetwork() {
         viewModelScope.launch {
-            conversationRepository.listenFromNetwork().collect { resource ->
+            conversationRepository.observeNetworkConversations().collect { resource ->
                 if (firstSync) {
                     _state.reduce {
                         copy(synchronizingState = SynchronizingState.SYNC)
@@ -63,7 +59,7 @@ class ConversationViewModel @Inject constructor(
                     firstSync = false
                 }
                 resource.onSuccessSuspend { conversation ->
-                    conversationRepository.saveConversationToLocal(conversation)
+                    conversationRepository.saveConversations(conversation)
                     _state.reduce {
                         copy(
                             synchronizingState = SynchronizingState.NONE
@@ -81,7 +77,7 @@ class ConversationViewModel @Inject constructor(
     }
 
     val conversationState: StateFlow<ScreenState<List<Conversation>>> =
-        conversationRepository.observeConversationList().map { list ->
+        conversationRepository.observeLocalConversations().map { list ->
             ScreenState.Success(list)
         }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ScreenState.Loading)
@@ -117,7 +113,7 @@ class ConversationViewModel @Inject constructor(
                         copy(searchState = ScreenState.Loading)
                     }
                     val query = state.value.searchQuery
-                    val result = accountRepository.getAccountListWithEmail(query)
+                    val result = accountRepository.searchAccountsByEmail(query)
                     _state.reduce {
                         copy(searchState = result.toScreenState())
                     }
@@ -180,7 +176,7 @@ class ConversationViewModel @Inject constructor(
                 synchronizingState = SynchronizingState.SYNC
             )
         }
-        conversationRepository.fetchConversationList()
+        conversationRepository.fetchConversations()
             .onSuccess {
                 _state.reduce {
                     copy(

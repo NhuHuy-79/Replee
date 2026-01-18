@@ -50,24 +50,24 @@ class AuthRepositoryImpTest {
         } returns Unit
 
         coEvery {
-            accountNetworkDataSource.getAccountById("id")
+            accountNetworkDataSource.fetchAccountById("id")
         } returns fakeAccount
 
         coEvery {
             val account = fakeAccount.toAccountEntity()
-            accountLocalDataSource.saveAccount(account.copy(logOut = false))
+            accountLocalDataSource.upsertAccount(account.copy(logOut = false))
         } returns Unit
 
         coEvery {
-            firebaseAuthService.provideToken()
+            firebaseAuthService.getDeviceToken()
         } returns "token"
 
         coEvery {
-            accountNetworkDataSource.updateNewToken("id", "token")
+            accountNetworkDataSource.updateDeviceToken("id", "token")
         } returns Unit
 
         coEvery {
-            appPreferences.setLoggedStatus(true)
+            appPreferences.saveLoggedStatus(true)
         } returns Unit
 
         val expected : Resource<String, RemoteFailure> = Resource.Success("id")
@@ -96,24 +96,24 @@ class AuthRepositoryImpTest {
             firebaseAuthService.signUpWithEmail("email", "password")
         } returns Unit
         coEvery {
-            accountNetworkDataSource.addAccount(fakeAccount)
+            accountNetworkDataSource.sendAccount(fakeAccount)
         } returns Unit
 
         coEvery {
             val account = fakeAccount.toAccountEntity()
-            accountLocalDataSource.saveAccount(account.copy(logOut = false))
+            accountLocalDataSource.upsertAccount(account.copy(logOut = false))
         } returns Unit
 
         coEvery {
-            firebaseAuthService.provideToken()
+            firebaseAuthService.getDeviceToken()
         } returns "token"
 
         coEvery {
-            accountNetworkDataSource.updateNewToken("id", "token")
+            accountNetworkDataSource.updateDeviceToken("id", "token")
         } returns Unit
 
         coEvery {
-            appPreferences.setLoggedStatus(true)
+            appPreferences.saveLoggedStatus(true)
         } returns Unit
 
         val expected : Resource<String, RemoteFailure> = Resource.Success("id")
@@ -129,7 +129,7 @@ class AuthRepositoryImpTest {
             firebaseAuthService.signUpWithEmail("email", "password")
         } returns Unit
         coEvery {
-            accountNetworkDataSource.addAccount(fakeAccount)
+            accountNetworkDataSource.sendAccount(fakeAccount)
         } throws FirestoreDataNotFoundException()
 
         val expected: Resource<String, RemoteFailure> = Resource.Error(RemoteFailure.Unknown)
@@ -157,7 +157,7 @@ class AuthRepositoryImpTest {
 
     fun fakeCurrentUserId(){
         coEvery {
-            firebaseAuthService.provideCurrentUser().uid
+            firebaseAuthService.getCurrentUser().uid
         } returns "id"
     }
 }

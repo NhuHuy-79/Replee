@@ -16,22 +16,22 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
-interface SendMessageService{
-    suspend fun provideNewestToken() : String
-    suspend fun sendMessage(message: Message) : Resource<Unit, RemoteFailure>
+interface NotifyService{
+    suspend fun getDeviceToken() : String
+    suspend fun sendNotification(message: Message) : Resource<Unit, RemoteFailure>
 }
 
-class SendMessageServiceImp @Inject constructor(
+class NotifyServiceImp @Inject constructor(
     private val messaging: FirebaseMessaging,
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val service: KtorService,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
-) : SendMessageService {
-    override suspend fun provideNewestToken(): String {
+) : NotifyService {
+    override suspend fun getDeviceToken(): String {
         return messaging.token.await()
     }
 
-    override suspend fun sendMessage(message: Message) : Resource<Unit, RemoteFailure> {
+    override suspend fun sendNotification(message: Message) : Resource<Unit, RemoteFailure> {
         return withContext(dispatcher){
             safeCall(
                 throwable = { e ->
@@ -39,7 +39,7 @@ class SendMessageServiceImp @Inject constructor(
                     e.toRemoteFailure()
                 }
             ){
-                val otherUser = accountNetworkDataSource.getAccountById(message.senderId)
+                val otherUser = accountNetworkDataSource.fetchAccountById(message.senderId)
                 val conversationMessage = ConversationMessage(
                     senderId = message.senderId,
                     senderName = otherUser.name,
@@ -47,7 +47,7 @@ class SendMessageServiceImp @Inject constructor(
                     content = message.content,
                     conversationId = message.conversationId
                 )
-                service.sendMessage(otherUser.currentToken, conversationMessage)
+                service.sendConversationMessage(otherUser.currentToken, conversationMessage)
             }
         }
     }

@@ -4,23 +4,21 @@ import com.nhuhuy.replee.core.database.entity.conversation.ConversationAndUser
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationDao
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationEntity
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
-import com.nhuhuy.replee.feature_chat.domain.model.Message
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class ConversationLocalDataSource @Inject constructor(
     private val conversationDao: ConversationDao
 ) {
-
-    suspend fun addConversationList(entities: List<ConversationEntity>){
+    suspend fun upsertConversations(entities: List<ConversationEntity>){
         conversationDao.upsertAll(entities)
     }
 
-    suspend fun getOrCreateConversation(
+    suspend fun getConversationAndUserById(
         ownerId: String,
         otherUserId: String
     ): ConversationAndUser {
-        val conversationId = generateConversationId(ownerId, otherUserId)
+        val conversationId = createConversationId(ownerId, otherUserId)
 
         conversationDao.getConversationById(conversationId)
             ?: conversationDao.upsert(
@@ -41,15 +39,15 @@ class ConversationLocalDataSource @Inject constructor(
         return conversationDao.observeConversations(uid)
     }
 
-    suspend fun updateSyncedTime(conversationIds: List<String>, lastMessageTime: Long) {
+    suspend fun updateLastSyncedTime(conversationIds: List<String>, lastMessageTime: Long) {
         conversationDao.updateSyncedTime(conversationIds, lastMessageTime)
     }
 
-    private fun generateConversationId(uid1: String, uid2: String): String {
+    private fun createConversationId(uid1: String, uid2: String): String {
         return listOf(uid1, uid2).sorted().joinToString(separator = "_")
     }
 
-    suspend fun getConversationListCount(ownerId: String): Int{
+    suspend fun getConversationsCount(ownerId: String): Int{
         return conversationDao.getConversationListCount(ownerId)
 
     }

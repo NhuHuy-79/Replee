@@ -5,7 +5,7 @@ import com.nhuhuy.replee.core.common.error_handling.Resource
 
 interface ProfileRepository {
 
-    suspend fun updatePassword(
+    suspend fun updateNewPassword(
         old: String,
         new: String
     ) : Resource<Unit, RemoteFailure>

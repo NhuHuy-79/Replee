@@ -16,10 +16,10 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 interface AccountRepository {
-    suspend fun updateNewestToken(token: String) : Resource<Unit, Failure>
+    suspend fun updateDeviceToken(token: String) : Resource<Unit, Failure>
     suspend fun getAccountById(uid: String) : Account
     suspend fun getCurrentAccount(): Account
-    suspend fun getAccountListWithEmail(query: String): Resource<List<Account>, RemoteFailure>
+    suspend fun searchAccountsByEmail(query: String): Resource<List<Account>, RemoteFailure>
 }
 
 class AccountRepositoryImp @Inject constructor(
@@ -28,13 +28,13 @@ class AccountRepositoryImp @Inject constructor(
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val accountLocalDataSource: AccountLocalDataSource,
 ) : AccountRepository {
-    override suspend fun updateNewestToken(token: String): Resource<Unit, Failure> {
+    override suspend fun updateDeviceToken(token: String): Resource<Unit, Failure> {
         return withContext(dispatcher){
             safeCall(
                 throwable = { e -> e.toRemoteFailure()}
             ){
-                val uid = firebaseAuthService.provideCurrentUser().uid
-                accountNetworkDataSource.updateNewToken(uid, token)
+                val uid = firebaseAuthService.getCurrentUser().uid
+                accountNetworkDataSource.updateDeviceToken(uid, token)
             }
         }
     }
@@ -48,19 +48,19 @@ class AccountRepositoryImp @Inject constructor(
 
     override suspend fun getCurrentAccount(): Account {
         return withContext(dispatcher) {
-            val id = firebaseAuthService.provideCurrentUser().uid
+            val id = firebaseAuthService.getCurrentUser().uid
             accountLocalDataSource.getAccountWithId(uid = id).toAccount()
         }
     }
 
-    override suspend fun getAccountListWithEmail(query: String): Resource<List<Account>, RemoteFailure> {
+    override suspend fun searchAccountsByEmail(query: String): Resource<List<Account>, RemoteFailure> {
         return withContext(dispatcher) {
             safeCall(
                 throwable = { e -> e.toRemoteFailure() }
             ) {
-                val accountDTOs = accountNetworkDataSource.searchUserByEmail(query)
+                val accountDTOs = accountNetworkDataSource.fetchAccountsByEmail(query)
                 val entities = accountDTOs.map { accountDTO -> accountDTO.toAccountEntity() }
-                accountLocalDataSource.saveAccountList(entities)
+                accountLocalDataSource.upsertAccounts(entities)
                 accountDTOs.map { accountDTOs -> accountDTOs.toAccount() }
             }
         }

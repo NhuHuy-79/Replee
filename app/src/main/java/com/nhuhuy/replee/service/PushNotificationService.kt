@@ -29,7 +29,7 @@ class PushNotificationService() : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         scope.launch {
-            accountRepository.updateNewestToken(token)
+            accountRepository.updateDeviceToken(token)
         }
         super.onNewToken(token)
     }

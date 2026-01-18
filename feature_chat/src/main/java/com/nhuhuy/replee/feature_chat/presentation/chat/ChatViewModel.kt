@@ -9,7 +9,7 @@ import com.nhuhuy.replee.core.common.error_handling.onSuccessSuspend
 import com.nhuhuy.replee.core.common.data.repository.AccountRepository
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
-import com.nhuhuy.replee.feature_chat.data.SendMessageServiceImp
+import com.nhuhuy.replee.feature_chat.data.NotifyServiceImp
 import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
@@ -35,7 +35,7 @@ class ChatViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
     @Assisted("conversationId") private val conversationId: String,
-    private val sendMessageServiceImp: SendMessageServiceImp,
+    private val sendMessageServiceImp: NotifyServiceImp,
     private val accountRepository: AccountRepository,
     private val messageRepository: MessageRepository,
     private val syncManager: SyncManager,
@@ -58,16 +58,16 @@ class ChatViewModel @AssistedInject constructor(
 
     private fun observeMessageFromNetwork(){
        viewModelScope.launch {
-           messageRepository.listenFromNetwork(conversationId)
+           messageRepository.observeNetworkMessages(conversationId)
                .collect { resource ->
                    if (resource is Resource.Success){
-                       messageRepository.saveMessageToLocal(resource.data)
+                       messageRepository.saveMessages(resource.data)
                    }
                }
        }
     }
 
-    val messageList: StateFlow<List<Message>> = messageRepository.observeConversationMessages(conversationId)
+    val messageList: StateFlow<List<Message>> = messageRepository.observeLocalMessages(conversationId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     override fun onAction(action: ChatAction) {
@@ -92,20 +92,20 @@ class ChatViewModel @AssistedInject constructor(
                         status = MessageStatus.PENDING
                     )
 
-                    val screenState = messageRepository.addNewMessage(
+                    val screenState = messageRepository.sendMessage(
                         conversationId = conversationId,
                         message = message
                     )
                         .onSuccessSuspend { message ->
                             _state.reduce { copy(messageInput = "") }
-                            syncManager.updateMessageStatusInLocal(
+                            syncManager.updateMessageStatus(
                                 messageId = message.messageId,
                                 status = MessageStatus.SYNCED
                             )
-                            sendMessageServiceImp.sendMessage(message)
+                            sendMessageServiceImp.sendNotification(message)
                         }
                         .onFailureSuspend {
-                            syncManager.updateMessageStatusInLocal(
+                            syncManager.updateMessageStatus(
                                 messageId = message.messageId,
                                 status = MessageStatus.FAILED
                             )

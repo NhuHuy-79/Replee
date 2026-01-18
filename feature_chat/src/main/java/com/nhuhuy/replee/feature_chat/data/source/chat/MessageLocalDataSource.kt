@@ -8,15 +8,15 @@ import javax.inject.Inject
 class MessageLocalDataSource @Inject constructor(
     private val messageDao: MessageDao
 ) {
-    suspend fun saveMessage(message: MessageEntity) {
+    suspend fun upsertMessage(message: MessageEntity) {
         messageDao.upsert(message)
     }
 
-    suspend fun saveAllMessages(messages: List<MessageEntity>){
+    suspend fun upsertMessages(messages: List<MessageEntity>){
         messageDao.upsertAll(messages)
     }
 
-    suspend fun markMessageAsRead(
+    suspend fun updateMessageSeenStatus(
         messageIds: List<String>,
         conversationId: String,
         receiverId: String
@@ -32,12 +32,12 @@ class MessageLocalDataSource @Inject constructor(
         messageDao.updateStatusOfMessages(messageIds = messageIds, status = status.name)
     }
 
-    suspend fun getFailedMessages() : List<MessageEntity>{
+    suspend fun getUnsyncedMessages() : List<MessageEntity>{
         return messageDao.getFailedMessages()
     }
 
     fun observeMessages(conversationId: String) = messageDao.observeMessageByConversationId(conversationId)
 
-    suspend fun deleteMessageWithConversationId(limit: Int) = messageDao.deleteMessageByConversationId(limit)
+    suspend fun deleteMessageByConversationId(limit: Int) = messageDao.deleteMessageByConversationId(limit)
 
 }

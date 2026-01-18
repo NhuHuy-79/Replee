@@ -75,14 +75,14 @@ class ProfileViewModel @Inject constructor(
                     _overlayState.update { Overlay.THEME }
                 }
                 is ProfileAction.OnDarkModeClick.Select -> {
-                    dataStore.updateTheme(action.option)
+                    dataStore.saveThemeMode(action.option)
                     _overlayState.update { Overlay.NONE }
                 }
                 ProfileAction.OnNotificationClick.Dialog -> {
                     _overlayState.update { Overlay.NOTIFICATION }
                 }
                 is ProfileAction.OnNotificationClick.Select -> {
-                    dataStore.updateNotification(action.option)
+                    dataStore.saveNotificationMode(action.option)
                     _overlayState.update { Overlay.NONE }
                 }
 
@@ -125,7 +125,7 @@ class ProfileViewModel @Inject constructor(
                 ProfileAction.OnUpdatePassword.Confirm -> {
                     val old = inputState.value.oldPassword.text
                     val new = inputState.value.newPassword.text
-                    profileRepository.updatePassword(old = old, new = new)
+                    profileRepository.updateNewPassword(old = old, new = new)
                         .onSuccess {
                             onEvent(ProfileEvent.UpdatePassword.Success)
                             _overlayState.update { Overlay.NONE }

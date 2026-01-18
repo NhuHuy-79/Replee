@@ -15,7 +15,7 @@ class AppPreferences @Inject constructor(
         return pref.getBoolean(loggedStatus, false)
     }
 
-    fun setLoggedStatus(status: Boolean) {
+    fun saveLoggedStatus(status: Boolean) {
         pref.edit {
             putBoolean(loggedStatus, status)
         }

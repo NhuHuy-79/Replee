@@ -22,7 +22,7 @@ MessageNetworkDataSource @Inject constructor(
 ){
     private val collection = firestore.collection(Constant.Firestore.CONVERSATION_COLLECTION)
 
-    suspend fun addNewMessage(message: MessageDTO, conversationId: String) {
+    suspend fun sendMessage(message: MessageDTO, conversationId: String) {
         val data = mapOf(
             "lastMessageTime" to message.sendAt,
             "lastMessageContent" to message.content,
@@ -36,7 +36,7 @@ MessageNetworkDataSource @Inject constructor(
         }
     }
 
-    suspend fun uploadMessages(list: List<MessageDTO>) : List<String>{
+    suspend fun sendMessages(list: List<MessageDTO>) : List<String>{
         val messageMap: Map<String, List<MessageDTO>> = list.groupBy { messageDTO -> messageDTO.conversationId }
         val conversationIds: MutableList<String> = mutableListOf()
         firestore.runBatch { batch ->
@@ -54,7 +54,7 @@ MessageNetworkDataSource @Inject constructor(
         return conversationIds
     }
 
-    suspend fun getMessagesByConversationId(conversationId: String) : List<MessageDTO>{
+    suspend fun fetchMessagesByConversationId(conversationId: String) : List<MessageDTO>{
         val snapshot = collection.document(conversationId)
             .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
             .get()
@@ -71,7 +71,7 @@ MessageNetworkDataSource @Inject constructor(
             .await()
     }
 
-    suspend fun markMessagesRead(conversationId: String, messageIds: List<String>, receiverId: String) : Int{
+    suspend fun updateMessageSeenStatus(conversationId: String, messageIds: List<String>, receiverId: String) : Int{
         if (messageIds.isEmpty()) return 0
 
         Timber.d("messages: $messageIds")
@@ -99,7 +99,7 @@ MessageNetworkDataSource @Inject constructor(
         return snapshots.size()
     }
 
-    fun observeMessageList(conversationId: String): Flow<Resource<List<MessageDTO>, RemoteFailure>>{
+    fun streamMessagesByConversationId(conversationId: String): Flow<Resource<List<MessageDTO>, RemoteFailure>>{
         return callbackFlow {
             val listener = collection
                 .document(conversationId)

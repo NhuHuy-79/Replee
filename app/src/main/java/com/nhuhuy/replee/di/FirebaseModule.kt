@@ -8,8 +8,8 @@ import com.google.firebase.messaging.messaging
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.firebase.network.KtorService
 import com.nhuhuy.replee.core.firebase.network.KtorServiceImp
-import com.nhuhuy.replee.feature_chat.data.SendMessageService
-import com.nhuhuy.replee.feature_chat.data.SendMessageServiceImp
+import com.nhuhuy.replee.feature_chat.data.NotifyService
+import com.nhuhuy.replee.feature_chat.data.NotifyServiceImp
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -68,5 +68,5 @@ class NetworkModule{
         messaging: FirebaseMessaging,
         accountNetworkDataSource: AccountNetworkDataSource,
         service: KtorServiceImp
-    ) : SendMessageService = SendMessageServiceImp(messaging,accountNetworkDataSource, service)
+    ) : NotifyService = NotifyServiceImp(messaging,accountNetworkDataSource, service)
 }

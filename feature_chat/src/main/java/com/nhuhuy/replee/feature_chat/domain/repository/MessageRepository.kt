@@ -6,10 +6,10 @@ import com.nhuhuy.replee.feature_chat.domain.model.Message
 import kotlinx.coroutines.flow.Flow
 
 interface MessageRepository {
-    fun listenFromNetwork(conversationId: String): Flow<Resource<List<Message>, RemoteFailure>>
+    fun observeNetworkMessages(conversationId: String): Flow<Resource<List<Message>, RemoteFailure>>
     suspend fun fetchMessages(conversationId: String) : Resource<Unit, RemoteFailure>
-    fun observeConversationMessages(conversationId: String) : Flow<List<Message>>
-    suspend fun addNewMessage(message: Message, conversationId: String) : Resource<Message, RemoteFailure>
+    fun observeLocalMessages(conversationId: String) : Flow<List<Message>>
+    suspend fun sendMessage(message: Message, conversationId: String) : Resource<Message, RemoteFailure>
     suspend fun markMessageAsRead(messageIds: List<String>, conversationId: String, receiverId: String) : Resource<Unit, RemoteFailure>
-    suspend fun saveMessageToLocal(messages: List<Message>)
+    suspend fun saveMessages(messages: List<Message>)
 }

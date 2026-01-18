@@ -10,5 +10,5 @@ interface AccountDao : BaseDao<AccountEntity>{
     suspend fun getAccountWithUid(uid: String) : AccountEntity
 
     @Query("UPDATE accounts SET logOut = true WHERE uid = :uid")
-    suspend fun setLogOut(uid: String)
+    suspend fun updateLogoutStatus(uid: String)
 }

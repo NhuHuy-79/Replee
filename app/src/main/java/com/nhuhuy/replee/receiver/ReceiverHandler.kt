@@ -7,7 +7,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import com.nhuhuy.replee.core.common.error_handling.onFailureSuspend
 import com.nhuhuy.replee.core.common.error_handling.onSuccessSuspend
-import com.nhuhuy.replee.feature_chat.data.SendMessageService
+import com.nhuhuy.replee.feature_chat.data.NotifyService
 import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
@@ -27,7 +27,7 @@ interface ReceiverHandler {
 class ReceiverHandlerImp @Inject constructor(
     private val syncManager: SyncManager,
     private val messageRepository: MessageRepository,
-    private val sendMessageService: SendMessageService,
+    private val notifyService: NotifyService,
     private val notificationFactory: ConversationNotificationFactory,
     @ApplicationContext private val context: Context
 ) : ReceiverHandler{
@@ -46,16 +46,16 @@ class ReceiverHandlerImp @Inject constructor(
             seen = false,
             status = MessageStatus.PENDING,
         )
-        messageRepository.addNewMessage(conversationId = conversationId, message = newMessage)
+        messageRepository.sendMessage(conversationId = conversationId, message = newMessage)
             .onSuccessSuspend { message ->
-                syncManager.updateMessageStatusInLocal(
+                syncManager.updateMessageStatus(
                     messageId = message.messageId,
                     status = MessageStatus.SYNCED
                 )
-                sendMessageService.sendMessage(message)
+                notifyService.sendNotification(message)
             }
             .onFailureSuspend {
-                syncManager.updateMessageStatusInLocal(
+                syncManager.updateMessageStatus(
                     messageId = newMessage.messageId,
                     status = MessageStatus.FAILED
                 )
