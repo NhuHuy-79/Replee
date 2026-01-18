@@ -31,7 +31,7 @@ fun <D, F : Failure> Resource<D, F>.toScreenState(): ScreenState<D> {
 fun <T>ScreenStateHost(
     modifier: Modifier= Modifier,
     state: ScreenState<T>,
-    success: @Composable (T) -> Unit,
+    success: @Composable (data: T) -> Unit,
     failure: @Composable () -> Unit,
     loading: @Composable () -> Unit,
     idle: @Composable () -> Unit = {},

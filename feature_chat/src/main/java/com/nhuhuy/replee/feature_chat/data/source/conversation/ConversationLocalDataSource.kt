@@ -3,6 +3,8 @@ package com.nhuhuy.replee.feature_chat.data.source.conversation
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationAndUser
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationDao
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationEntity
+import com.nhuhuy.replee.core.database.entity.message.MessageEntity
+import com.nhuhuy.replee.feature_chat.domain.model.Message
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -50,6 +52,15 @@ class ConversationLocalDataSource @Inject constructor(
     suspend fun getConversationListCount(ownerId: String): Int{
         return conversationDao.getConversationListCount(ownerId)
 
+    }
+
+    suspend fun updateLastMessage(message: MessageEntity){
+        conversationDao.updateLastMessage(
+            conversationId = message.conversationId,
+            lastMessageTime = message.sentAt ?: -1L,
+            lastMessageContent = message.content,
+            lastSenderId = message.senderId
+        )
     }
 
 }

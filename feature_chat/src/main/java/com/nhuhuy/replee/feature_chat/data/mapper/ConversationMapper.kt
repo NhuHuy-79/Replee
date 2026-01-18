@@ -25,7 +25,7 @@ fun Conversation.toConversationEntity(): ConversationEntity {
         lastSenderId = this.lastSenderId,
         lastMessageTime = this.lastMessageTime,
         lastMessageContent = this.lastMessageContent,
-        unreadMessageCount = this.unreadMessageCount
+        unreadMessageCount = this.unreadMessageCount,
     )
 }
 
@@ -43,6 +43,7 @@ fun ConversationAndUser.toConversationDTO() : ConversationDTO {
         id = conversation.id,
         user1 = user1,
         user2 = user2,
+        memberIds = listOf(user1.uid, user2.uid)
     )
 }
 

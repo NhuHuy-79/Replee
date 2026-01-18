@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +21,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.nhuhuy.replee.core.design_system.state.ScreenState
+import com.nhuhuy.replee.core.design_system.state.ScreenStateHost
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.presentation.conversation.ConversationContent
@@ -31,31 +34,45 @@ import com.nhuhuy.replee.feature_chat.presentation.shared.RetryScreen
 @Composable
 fun ConversationScreen(
     state: ConversationState,
-    conversationList: List<Conversation>,
+    conversationList: ScreenState<List<Conversation>>,
     onAction: (ConversationAction) -> Unit,
 ){
-    AnimatedContent(
-        targetState = state.synchronizingState,
-        transitionSpec = {
-            fadeIn() togetherWith fadeOut()
-        }
-    ) { synchronizingState ->
-        when (synchronizingState) {
-            SynchronizingState.NONE -> ConversationContent(
-                converationList = conversationList,
-                state = state,
-                onAction = onAction
-            )
-            SynchronizingState.SYNC -> SyncingScreen(modifier = Modifier.fillMaxSize())
-            SynchronizingState.FAILURE -> RetryScreen(
+    ScreenStateHost(
+        state = conversationList,
+        success = { data ->
+            if (data.isEmpty() && state.synchronizingState == SynchronizingState.FAILURE){
+                RetryScreen(
+                    modifier = Modifier.fillMaxSize(),
+                    onRetry = {
+                        onAction(ConversationAction.Retry)
+                    }
+                )
+            }
+
+            else if (data.isEmpty() && state.synchronizingState == SynchronizingState.SYNC){
+                SyncingScreen(Modifier.fillMaxSize())
+            }
+
+            else {
+                ConversationContent(
+                    converationList = data,
+                    state = state,
+                    onAction = onAction
+                )
+            }
+        },
+        failure = {
+            RetryScreen(
                 modifier = Modifier.fillMaxSize(),
                 onRetry = {
                     onAction(ConversationAction.Retry)
                 }
             )
+        },
+        loading = {
+            SyncingScreen(Modifier.fillMaxSize())
         }
-    }
-
+    )
 }
 
 @Preview
@@ -83,5 +100,9 @@ fun SyncingScreen(
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onBackground
         )
+
+        Spacer(Modifier.height(8.dp))
+
+        LinearProgressIndicator()
     }
 }

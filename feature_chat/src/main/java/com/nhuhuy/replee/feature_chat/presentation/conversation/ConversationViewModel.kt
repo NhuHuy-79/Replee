@@ -7,7 +7,10 @@ import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.onFailure
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.core.common.data.repository.AccountRepository
+import com.nhuhuy.replee.core.common.error_handling.onFailureSuspend
+import com.nhuhuy.replee.core.common.error_handling.onSuccessSuspend
 import com.nhuhuy.replee.core.design_system.state.ScreenState
+import com.nhuhuy.replee.core.design_system.state.ScreenStateHost
 import com.nhuhuy.replee.core.design_system.state.toScreenState
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
@@ -24,6 +27,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,39 +38,53 @@ class ConversationViewModel @Inject constructor(
     private val conversationRepository: ConversationRepository,
     private val accountRepository: AccountRepository
 ) : BaseViewModel<ConversationAction, ConversationEvent, ConversationState>() {
+    private var firstSync = false
     private val _state = MutableStateFlow(ConversationState())
     override val state: StateFlow<ConversationState>
         get() = _state.asStateFlow()
 
     init {
         viewModelScope.launch {
+            observeConversationFromNetwork()
             val currentUser = accountRepository.getCurrentAccount()
             _state.reduce {
                 copy(currentUser = currentUser)
             }
-            val initialListCount = conversationRepository.getConversationListCount()
-
-            if (initialListCount == 0) {
-                synchronizeInitialData()
-            }
-
-            observeConversationFromNetwork()
         }
     }
 
     private fun observeConversationFromNetwork() {
         viewModelScope.launch {
             conversationRepository.listenFromNetwork().collect { resource ->
-                if (resource is Resource.Success) {
-                    conversationRepository.saveConversationToLocal(resource.data)
+                if (firstSync) {
+                    _state.reduce {
+                        copy(synchronizingState = SynchronizingState.SYNC)
+                    }
+                    firstSync = false
+                }
+                resource.onSuccessSuspend { conversation ->
+                    conversationRepository.saveConversationToLocal(conversation)
+                    _state.reduce {
+                        copy(
+                            synchronizingState = SynchronizingState.NONE
+                        )
+                    }
+                }.onFailure {
+                    _state.reduce {
+                        copy(
+                            synchronizingState = SynchronizingState.FAILURE
+                        )
+                    }
                 }
             }
         }
     }
 
-    val conversationState: StateFlow<List<Conversation>> =
-        conversationRepository.observeConversationList()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val conversationState: StateFlow<ScreenState<List<Conversation>>> =
+        conversationRepository.observeConversationList().map { list ->
+            ScreenState.Success(list)
+        }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ScreenState.Loading)
 
     override fun onAction(action: ConversationAction) {
         viewModelScope.launch {

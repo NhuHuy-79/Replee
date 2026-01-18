@@ -10,6 +10,7 @@ import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
 import com.nhuhuy.replee.feature_chat.data.source.chat.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.chat.MessageNetworkDataSource
+import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
@@ -23,7 +24,8 @@ import javax.inject.Inject
 
 class MessageRepositoryImp @Inject constructor(
     private val messageNetworkDataSource: MessageNetworkDataSource,
-    private val conversationDataSource: ConversationNetworkDataSource,
+    private val conversationNetworkDataSource: ConversationNetworkDataSource,
+    private val conversationLocalDataSource: ConversationLocalDataSource,
     private val messageLocalDataSource: MessageLocalDataSource,
     private val dispatcher: CoroutineDispatcher,
 ) : MessageRepository {
@@ -64,7 +66,9 @@ class MessageRepositoryImp @Inject constructor(
         conversationId: String
     ): Resource<Message, RemoteFailure> {
         return withContext(dispatcher) {
-            messageLocalDataSource.saveMessage(message.toMessageEntity())
+            val entity = message.toMessageEntity()
+            messageLocalDataSource.saveMessage(entity)
+            conversationLocalDataSource.updateLastMessage(entity)
             safeCall(
                 throwable = { e ->
                     Timber.e(e)
@@ -73,8 +77,9 @@ class MessageRepositoryImp @Inject constructor(
             ) {
                 val messageDTO = message.toMessageDTO()
                 messageNetworkDataSource.addNewMessage(messageDTO, conversationId)
-                val conversationDTO = conversationDataSource.getConversationById(conversationId)
-                conversationDataSource.updateLastMessage(messageDTO, conversationDTO)
+                val conversationDTO = conversationNetworkDataSource.getConversationById(conversationId)
+                conversationNetworkDataSource.updateLastMessage(messageDTO, conversationDTO)
+                //LOCAL
                 message
             }
         }
@@ -99,7 +104,7 @@ class MessageRepositoryImp @Inject constructor(
                 )
 
 
-                val conversationDTO = conversationDataSource.getConversationById(conversationId)
+                val conversationDTO = conversationNetworkDataSource.getConversationById(conversationId)
                 val receiverField =
                     if (conversationDTO.user1.uid == receiverId) "user1" else "user2"
                 val count = messageNetworkDataSource.markMessagesRead(
@@ -107,7 +112,7 @@ class MessageRepositoryImp @Inject constructor(
                     messageIds = messageIds,
                     receiverId = receiverId
                 )
-                conversationDataSource.updateUnReadMessageCount(
+                conversationNetworkDataSource.updateUnReadMessageCount(
                     conversationId = conversationId,
                     receiverField = receiverField,
                     count = count
