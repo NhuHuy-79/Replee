@@ -6,8 +6,8 @@ import com.nhuhuy.replee.core.common.error_handling.safeCall
 import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
-import com.nhuhuy.replee.feature_chat.data.source.chat.MessageLocalDataSource
-import com.nhuhuy.replee.feature_chat.data.source.chat.MessageNetworkDataSource
+import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
+import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
 import kotlinx.coroutines.CoroutineDispatcher

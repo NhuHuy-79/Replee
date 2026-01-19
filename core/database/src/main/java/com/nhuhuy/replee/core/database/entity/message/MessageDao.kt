@@ -44,5 +44,7 @@ interface MessageDao : BaseDao<MessageEntity> {
     )
     suspend fun deleteMessageByConversationId(limit: Int)
 
+    @Query("SELECT * FROM message WHERE conversationId = :conversationId AND content LIKE :query")
+    suspend fun getMessageByQuery(conversationId: String, query: String): List<MessageEntity>
 }
 

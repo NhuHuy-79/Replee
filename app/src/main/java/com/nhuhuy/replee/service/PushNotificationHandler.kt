@@ -3,21 +3,32 @@ package com.nhuhuy.replee.service
 import android.content.Context
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
+import com.nhuhuy.replee.feature_profile.data.data_store.NotificationMode
+import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStore
 import com.nhuhuy.replee.notification.NotificationBody
 import com.nhuhuy.replee.notification.NotificationFactory
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.first
 import timber.log.Timber
 import javax.inject.Inject
 
 interface PushNotificationHandler {
-    fun showConversationNotification(body: NotificationBody)
+    suspend fun showConversationNotification(body: NotificationBody)
 }
 
 class PushNotificationHandlerImp @Inject constructor(
+    private val settingDataStore: SettingDataStore,
     private val notificationFactory: NotificationFactory,
     @ApplicationContext private val context: Context,
 ) : PushNotificationHandler{
-    override fun showConversationNotification(body: NotificationBody) {
+    override suspend fun showConversationNotification(body: NotificationBody) {
+        val notificationMode = settingDataStore.observeNotification().first()
+
+        if (notificationMode == NotificationMode.NONE){
+            Timber.d("User turn off notification!")
+            return
+        }
+
         val notification = notificationFactory.execute(body)
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED){
             NotificationManagerCompat.from(context)

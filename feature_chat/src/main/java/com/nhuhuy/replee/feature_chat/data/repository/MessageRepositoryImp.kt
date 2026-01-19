@@ -8,8 +8,8 @@ import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
-import com.nhuhuy.replee.feature_chat.data.source.chat.MessageLocalDataSource
-import com.nhuhuy.replee.feature_chat.data.source.chat.MessageNetworkDataSource
+import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
+import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.domain.model.Message
@@ -125,6 +125,18 @@ class MessageRepositoryImp @Inject constructor(
         withContext(dispatcher){
             val entities = messages.map { message -> message.toMessageEntity() }
             messageLocalDataSource.upsertMessages(entities)
+        }
+    }
+
+    override suspend fun searchMessageWithQuery(
+        conversationId: String,
+        query: String
+    ): List<Message> {
+        return withContext(dispatcher){
+            messageLocalDataSource.getMessagesByQuery(
+                conversationId = conversationId,
+                query = query
+            ).map { entity -> entity.toMessage() }
         }
     }
 }

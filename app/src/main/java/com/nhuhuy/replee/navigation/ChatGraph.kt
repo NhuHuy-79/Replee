@@ -1,21 +1,23 @@
 package com.nhuhuy.replee.navigation
 
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.nhuhuy.replee.core.design_system.ObserveEffect
+import com.nhuhuy.replee.core.design_system.theme.DynamicRepleeTheme
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatScreen
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatViewModel
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.conversation.ConversationViewModel
 import com.nhuhuy.replee.feature_chat.presentation.conversation.component.ConversationScreen
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent
-import com.nhuhuy.replee.feature_chat.presentation.information.InformationScreen
-import com.nhuhuy.replee.feature_chat.presentation.information.InformationViewModel
-import com.nhuhuy.replee.feature_chat.presentation.information.state.InformationEvent
+import com.nhuhuy.replee.feature_chat.presentation.setting.OptionScreen
+import com.nhuhuy.replee.feature_chat.presentation.setting.OptionViewModel
+import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionEvent
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -121,8 +123,8 @@ fun EntryProviderScope<NavKey>.chatGraph(
     }
 
     entry<HomeDestination.Information> { screen ->
-        val viewModel: InformationViewModel = hiltViewModel(
-            creationCallback = { factory: InformationViewModel.Factory ->
+        val viewModel: OptionViewModel = hiltViewModel(
+            creationCallback = { factory: OptionViewModel.Factory ->
                 factory.create(
                     otherUserId = screen.otherUserId,
                     otherUserName = screen.otherUserName,
@@ -135,11 +137,11 @@ fun EntryProviderScope<NavKey>.chatGraph(
 
         ObserveEffect(viewModel.event) { event ->
             when (event) {
-                InformationEvent.NavigateBack -> backstack.removeLastOrNull()
+                OptionEvent.NavigateBack -> backstack.removeLastOrNull()
             }
         }
 
-        InformationScreen(
+        OptionScreen(
             state = state,
             onAction = viewModel::onAction
         )

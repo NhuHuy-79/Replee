@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.information.component
+package com.nhuhuy.replee.feature_chat.presentation.setting.component
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,7 +26,7 @@ fun InformationUser(
     ) {
         UserImage(
             userName = userName,
-            modifier = Modifier.size(120.dp)
+            modifier = Modifier.size(100.dp)
         )
 
         Spacer(Modifier.height(24.dp))

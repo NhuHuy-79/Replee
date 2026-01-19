@@ -3,10 +3,10 @@ package com.nhuhuy.replee.feature_chat.presentation.chat
 import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
+import com.nhuhuy.replee.core.common.data.repository.AccountRepository
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.onFailureSuspend
 import com.nhuhuy.replee.core.common.error_handling.onSuccessSuspend
-import com.nhuhuy.replee.core.common.data.repository.AccountRepository
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
 import com.nhuhuy.replee.feature_chat.data.NotifyServiceImp
@@ -16,6 +16,7 @@ import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.*
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -134,13 +135,16 @@ class ChatViewModel @AssistedInject constructor(
                 ChatAction.OnMoreClick -> {
                     val otherUser = state.value.otherUser
                     onEvent(
-                        ChatEvent.NavigateToInformation(
+                        NavigateToInformation(
                             otherUserId = otherUserId,
                             otherUserName = otherUser.name,
                             otherUserEmail = otherUser.email
                         )
                     )
                 }
+
+                is ChatAction.OnMessageDelete -> TODO()
+                is ChatAction.OnMessagePin -> TODO()
             }
         }
     }

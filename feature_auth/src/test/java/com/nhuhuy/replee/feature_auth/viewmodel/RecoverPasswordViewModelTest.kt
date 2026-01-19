@@ -3,7 +3,7 @@ package com.nhuhuy.replee.feature_auth.viewmodel
 import app.cash.turbine.test
 import com.google.common.truth.Truth
 import com.nhuhuy.replee.core.common.error_handling.Resource
-import com.nhuhuy.replee.core.common.utils.ValidateResult
+import com.nhuhuy.replee.core.common.data.model.ValidateResult
 import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.test.DispatcherRuleTest
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository

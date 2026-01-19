@@ -14,9 +14,16 @@ data class ConversationDTO(
     val lastMessageContent: String = "",
     val lastSenderId: String = "",
     val lastMessageTime: Long? = null,
+    //Add field
+    val muted: List<String> = emptyList(),
+    val pinnedBy: List<String> = emptyList(),
+    val deletedBy: List<String> = emptyList(),
+    val blockedBy: List<String> = emptyList(),
+    val seedColor: Long = 0xFF1C6586
 )
 
 data class ConversationDTOUser(
+    val nick: String = "",
     val uid: String = "404",
     val name: String = "No one",
 )

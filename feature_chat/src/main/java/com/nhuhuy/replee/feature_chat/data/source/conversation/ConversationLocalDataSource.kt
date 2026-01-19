@@ -14,6 +14,8 @@ class ConversationLocalDataSource @Inject constructor(
         conversationDao.upsertAll(entities)
     }
 
+
+
     suspend fun getConversationAndUserById(
         ownerId: String,
         otherUserId: String
@@ -49,7 +51,6 @@ class ConversationLocalDataSource @Inject constructor(
 
     suspend fun getConversationsCount(ownerId: String): Int{
         return conversationDao.getConversationListCount(ownerId)
-
     }
 
     suspend fun updateLastMessage(message: MessageEntity){

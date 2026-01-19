@@ -9,4 +9,8 @@ sealed interface ChatAction : UiAction{
     data class OnReadMessage(val ids: Set<String>) : ChatAction
 
     data object OnMoreClick: ChatAction
+
+    data class OnMessageDelete(val id: String) : ChatAction
+    data class OnMessagePin(val id: String) : ChatAction
+
 }

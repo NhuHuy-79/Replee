@@ -22,5 +22,25 @@
     <string name="information_screen_call">Call</string>
     <string name="information_screen_mute">Mute</string>
 
+    <!-- Pin message -->
+    <string name="setting_pin_conversation">Pin conversation</string>
+    <string name="setting_pin_conversation_sub">Keep important conversation at the top</string>
+
+    <!-- Choose theme -->
+    <string name="setting_choose_theme">Choose theme</string>
+    <string name="setting_choose_theme_sub">Customize the appearance of the app</string>
+
+    <!-- Block user -->
+    <string name="setting_block">Block</string>
+    <string name="setting_block_sub">Stop receiving messages from this user</string>
+
+    <!-- Delete chat -->
+    <string name="setting_delete_chat">Delete chat</string>
+    <string name="setting_delete_chat_sub">Remove this conversation from your chat list</string>
+
+    <!-- Set nickname -->
+    <string name="setting_set_nickname">Set nickname</string>
+    <string name="setting_set_nickname_sub">Give this contact a custom name</string>
+
 
 </resources>

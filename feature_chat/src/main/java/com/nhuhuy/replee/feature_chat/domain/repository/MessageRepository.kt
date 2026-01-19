@@ -12,4 +12,5 @@ interface MessageRepository {
     suspend fun sendMessage(message: Message, conversationId: String) : Resource<Message, RemoteFailure>
     suspend fun markMessageAsRead(messageIds: List<String>, conversationId: String, receiverId: String) : Resource<Unit, RemoteFailure>
     suspend fun saveMessages(messages: List<Message>)
+    suspend fun searchMessageWithQuery(conversationId: String, query: String) : List<Message>
 }

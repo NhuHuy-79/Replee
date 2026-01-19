@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.data.source.chat
+package com.nhuhuy.replee.feature_chat.data.source.message
 
 import com.nhuhuy.replee.core.database.entity.message.MessageDao
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
@@ -25,6 +25,13 @@ class MessageLocalDataSource @Inject constructor(
             messageIds = messageIds,
             conversationId = conversationId,
             receiverId = receiverId
+        )
+    }
+
+    suspend fun getMessagesByQuery(conversationId: String, query: String) : List<MessageEntity>{
+        return messageDao.getMessageByQuery(
+            conversationId = conversationId,
+            query = query
         )
     }
 

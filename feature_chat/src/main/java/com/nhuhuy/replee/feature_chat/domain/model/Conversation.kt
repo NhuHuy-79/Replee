@@ -9,9 +9,16 @@ data class Conversation(
     val lastMessageContent: String = "",
     val lastSenderId: String = "",
     val lastMessageTime: Long? = null,
+    //Add field
+    val seedColor: Long = 0xFF1C6586,
+    val muted: Boolean = false,
+    val pinned: Boolean = false,
+    val blocked: Boolean = false,
+    val deleted: Boolean = false
 )
 
 data class ConversationOtherUser(
+    val nick: String = "",
     val uid: String = "404",
     val name: String = "No one",
 )

@@ -11,6 +11,8 @@ import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.firebase.data.Constant
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTO
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
+import com.nhuhuy.replee.feature_chat.utils.updateFieldValue
+import com.nhuhuy.replee.feature_chat.utils.updateFieldValueInArray
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -82,6 +84,21 @@ class ConversationNetworkDataSource @Inject constructor(
         collection.document(message.conversationId)
             .update(data)
             .await()
+    }
+
+    suspend fun updateSeedColor(conversationId: String, seedColor: Long){
+        val documentRef = collection.document(conversationId)
+        documentRef.updateFieldValue("seedColor", seedColor)
+    }
+
+    suspend fun updateMutedStatus(conversationId: String, uid: String){
+        val documentRef = collection.document(conversationId)
+        documentRef.updateFieldValueInArray("muted", uid)
+    }
+
+    suspend fun updatePinnedStatus(conversationId: String, uid: String){
+        val documentRef = collection.document(conversationId)
+        documentRef.updateFieldValueInArray("pinnedBy", uid)
     }
 
     fun streamConversationsByUser(uid: String) : Flow<Resource<List<ConversationDTO>, RemoteFailure>> = callbackFlow{

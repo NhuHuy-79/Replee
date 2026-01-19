@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.data.source.chat
+package com.nhuhuy.replee.feature_chat.data.source.message
 
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore

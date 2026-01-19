@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.information.component
+package com.nhuhuy.replee.feature_chat.presentation.setting.component
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.feature_chat.R
 
 @Composable
-fun InformationOptionRow(
+fun MainOptionRow(
     modifier: Modifier = Modifier,
     onOptionSelect: (option: Option) -> Unit,
 ) {
@@ -82,7 +82,7 @@ fun InformationOption(
 }
 
 enum class Option(@StringRes val label: Int, val icon: ImageVector){
-    MESSAGE(R.string.information_screen_message, Icons.AutoMirrored.Rounded.Message),
+    MESSAGE(R.string.information_screen_message,Icons.AutoMirrored.Rounded.Message),
     CALL(R.string.information_screen_call, Icons.Rounded.Call),
     MUTE(R.string.information_screen_mute, Icons.Rounded.NotificationsOff)
 }

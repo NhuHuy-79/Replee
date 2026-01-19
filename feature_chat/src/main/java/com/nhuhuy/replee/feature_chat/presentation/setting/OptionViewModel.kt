@@ -1,11 +1,11 @@
-package com.nhuhuy.replee.feature_chat.presentation.information
+package com.nhuhuy.replee.feature_chat.presentation.setting
 
 import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
-import com.nhuhuy.replee.feature_chat.presentation.information.component.Option
-import com.nhuhuy.replee.feature_chat.presentation.information.state.InformationAction
-import com.nhuhuy.replee.feature_chat.presentation.information.state.InformationEvent
-import com.nhuhuy.replee.feature_chat.presentation.information.state.InformationState
+import com.nhuhuy.replee.feature_chat.presentation.setting.component.Option
+import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionAction
+import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionEvent
+import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -15,29 +15,29 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = InformationViewModel.Factory::class)
-class InformationViewModel @AssistedInject constructor(
+@HiltViewModel(assistedFactory = OptionViewModel.Factory::class)
+class OptionViewModel @AssistedInject constructor(
     @Assisted("uid") private val otherUserId: String,
     @Assisted("name") private val otherUserName: String,
     @Assisted("email") private val otherUserEmail: String
-) : BaseViewModel<InformationAction, InformationEvent, InformationState>(){
+) : BaseViewModel<OptionAction, OptionEvent, OptionState>(){
     private val _state = MutableStateFlow(
-        InformationState(
+        OptionState(
             otherUserId = otherUserId,
             otherUserName = otherUserName,
             otherUserEmail = otherUserEmail
         )
     )
-    override val state: StateFlow<InformationState>
+    override val state: StateFlow<OptionState>
         get() = _state.asStateFlow()
 
-    override fun onAction(action: InformationAction) {
+    override fun onAction(action: OptionAction) {
         viewModelScope.launch {
             when (action) {
-                InformationAction.OnBackPressed -> {
-                    onEvent(InformationEvent.NavigateBack)
+                OptionAction.OnBackPressed -> {
+                    onEvent(OptionEvent.NavigateBack)
                 }
-                is InformationAction.OnOptionSelect -> {
+                is OptionAction.OnMainOptionSelect -> {
                     when (action.option) {
                         Option.MESSAGE -> {
                             TODO("Back to message")
@@ -50,6 +50,8 @@ class InformationViewModel @AssistedInject constructor(
                         }
                     }
                 }
+
+                is OptionAction.OnSecondaryOptionSelect -> {}
             }
         }
     }
@@ -60,7 +62,7 @@ class InformationViewModel @AssistedInject constructor(
             @Assisted("uid") otherUserId: String,
             @Assisted("name") otherUserName: String,
             @Assisted("email") otherUserEmail: String
-        ) : InformationViewModel
+        ) : OptionViewModel
     }
 
 }
