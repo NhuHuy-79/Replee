@@ -15,7 +15,7 @@ data class ConversationDTO(
     val lastSenderId: String = "",
     val lastMessageTime: Long? = null,
     //Add field
-    val muted: List<String> = emptyList(),
+    val mutedBy: List<String> = emptyList(),
     val pinnedBy: List<String> = emptyList(),
     val deletedBy: List<String> = emptyList(),
     val blockedBy: List<String> = emptyList(),

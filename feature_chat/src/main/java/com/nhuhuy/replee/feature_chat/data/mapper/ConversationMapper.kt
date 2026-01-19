@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.feature_chat.data.mapper
 
+import com.google.firebase.firestore.FieldValue
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationAndUser
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationEntity
 import com.nhuhuy.replee.core.firebase.utils.toMilliseconds
@@ -43,7 +44,23 @@ fun ConversationAndUser.toConversationDTO() : ConversationDTO {
         id = conversation.id,
         user1 = user1,
         user2 = user2,
-        memberIds = listOf(user1.uid, user2.uid)
+        memberIds = listOf(user1.uid, user2.uid),
+        lastSenderId = conversation.lastSenderId,
+        lastMessageTime = conversation.lastMessageTime,
+        lastMessageContent = conversation.lastMessageContent
+    )
+}
+
+fun ConversationAndUser.toMap(): Map<String, FieldValue> {
+    val mutedList = unionOrRemoveArray(conversation.muted, conversation.ownerId)
+    val pinnedList = unionOrRemoveArray(conversation.pinned, conversation.ownerId)
+    val blockedList = unionOrRemoveArray(conversation.blocked, conversation.ownerId)
+    val deletedList = unionOrRemoveArray(conversation.deleted, conversation.ownerId)
+    return mapOf(
+        "mutedBy" to mutedList,
+        "pinnedBy" to pinnedList,
+        "blockedBy" to blockedList,
+        "deletedBy" to deletedList
     )
 }
 
@@ -63,6 +80,11 @@ fun ConversationDTO.toConversation(
         lastMessageTime = lastMessageTime,
         lastMessageContent = lastMessageContent,
         unreadMessageCount = unreadMessageCount,
+        seedColor = seedColor,
+        muted = owner.uid in mutedBy,
+        pinned = owner.uid in pinnedBy,
+        blocked = owner.uid in blockedBy,
+        deleted = owner.uid in deletedBy
     )
 }
 
@@ -85,7 +107,15 @@ fun ConversationAndUser.toConversation(): Conversation {
         createdAt = conversation.createdAt,
         lastMessageContent = conversation.lastMessageContent,
         lastSenderId = conversation.lastSenderId,
-        lastMessageTime = conversation.lastMessageTime
+        lastMessageTime = conversation.lastMessageTime,
+        muted = conversation.muted,
+        pinned = conversation.pinned,
+        blocked = conversation.blocked,
+        deleted = conversation.deleted
     )
 }
 
+
+private fun unionOrRemoveArray(union: Boolean, element: String) : FieldValue {
+    return if (union) FieldValue.arrayUnion(element) else FieldValue.arrayRemove(element)
+}

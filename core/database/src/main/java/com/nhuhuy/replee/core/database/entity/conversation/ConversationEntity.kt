@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.core.database.entity.conversation
 
+import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -17,7 +18,16 @@ data class ConversationEntity(
     val lastMessageContent: String = "",
     val lastSenderId: String = "",
     val lastMessageTime: Long? = null,
-    val lastTimeSyncs: Long? = null
+    val lastTimeSyncs: Long? = null,
+    //Add field
+    @ColumnInfo(name = "muted", defaultValue = "false")
+    val muted: Boolean = false,
+    @ColumnInfo(name = "pinned", defaultValue = "false")
+    val pinned: Boolean = false,
+    @ColumnInfo(name = "blocked", defaultValue = "false")
+    val blocked: Boolean = false,
+    @ColumnInfo(name = "deleted", defaultValue = "false")
+    val deleted: Boolean = false
 )
 
 data class ConversationAndUser(
