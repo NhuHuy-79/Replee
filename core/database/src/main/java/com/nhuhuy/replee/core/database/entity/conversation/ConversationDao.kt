@@ -37,5 +37,16 @@ interface ConversationDao : BaseDao<ConversationEntity> {
         lastSenderId: String,
         lastMessageTime: Long,
     )
+    @Query("UPDATE conversation SET muted = NOT (muted) WHERE id = :conversationId")
+    suspend fun updateMutedStatus(conversationId: String)
+
+    @Query("UPDATE conversation SET pinned = NOT (pinned) WHERE id = :conversationId")
+    suspend fun updateDeleteStatus(conversationId: String)
+
+    @Query("UPDATE conversation SET blocked = NOT (blocked) WHERE id = :conversationId")
+    suspend fun updateBlockStatus(conversationId: String)
+
+    @Query("UPDATE conversation SET deleted = NOT (deleted) WHERE id = :conversationId")
+    suspend fun updatePinnedStatus(conversationId: String)
 
 }
