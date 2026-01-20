@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -22,15 +21,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.replee.feature_chat.presentation.setting.component.MainOptionRow
+import com.nhuhuy.replee.feature_chat.R
+import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.presentation.setting.component.InformationUser
 import com.nhuhuy.replee.feature_chat.presentation.setting.component.SecondaryOption
 import com.nhuhuy.replee.feature_chat.presentation.setting.component.SecondaryOptionItem
+import com.nhuhuy.replee.feature_chat.presentation.setting.component.ToggleableItem
 import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionAction
 import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionState
 
 @Composable
 fun OptionScreen(
+    conversation: Conversation,
     state: OptionState,
     onAction: (OptionAction) -> Unit
 ) {
@@ -46,7 +48,8 @@ fun OptionScreen(
         }
     ) { innerPadding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -61,10 +64,38 @@ fun OptionScreen(
             }
 
             item {
-                MainOptionRow(
-                    onOptionSelect = { option ->
-                        onAction(OptionAction.OnMainOptionSelect(option))
-                    }
+                ToggleableItem(
+                    res = R.string.setting_pin_conversation,
+                    subRes = R.string.setting_pin_conversation_sub,
+                    checked = conversation.pinned,
+                    onCheckedChange = {
+                        onAction(OptionAction.OnPin)
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(
+                        topEnd = 16.dp,
+                        topStart = 16.dp,
+                        bottomStart = 8.dp,
+                        bottomEnd = 8.dp
+                    )
+                )
+            }
+
+            item {
+                ToggleableItem(
+                    res = R.string.setting_mute_conversation,
+                    subRes = R.string.setting_mute_conversation_sub,
+                    checked = conversation.muted,
+                    onCheckedChange = {
+                        onAction(OptionAction.OnMute)
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(
+                        bottomEnd = 16.dp,
+                        bottomStart = 16.dp,
+                        topStart = 8.dp,
+                        topEnd = 8.dp
+                    )
                 )
             }
 
@@ -76,30 +107,26 @@ fun OptionScreen(
 
             items(
                 count = secondaryOptionList.size,
-                key = { index -> index}
-            ){ index ->
-                val firstItem = index == 0
+                key = { index -> index }
+            ) { index ->
                 val lastItem = index == secondaryOptionList.lastIndex
+                val firstItem = index == 0
                 SecondaryOptionItem(
                     res = secondaryOptionList[index].label,
                     icon = secondaryOptionList[index].icon,
                     sub = secondaryOptionList[index].content,
-                    shape = if (firstItem){
-                        RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp,
-                            bottomEnd = 4.dp, bottomStart = 4.dp)
-                    } else if (lastItem){
-                        RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp,
-                            topStart = 4.dp, topEnd = 4.dp)
-                    } else {
-                        RoundedCornerShape(8.dp)
-                    },
+                    shape = if (lastItem) RoundedCornerShape(
+                        bottomEnd = 16.dp, bottomStart = 16.dp, topStart = 8.dp, topEnd = 8.dp
+                    ) else if (firstItem) RoundedCornerShape(
+                        topEnd = 16.dp, topStart = 16.dp, bottomEnd = 8.dp, bottomStart = 8.dp
+                    )
+                    else RoundedCornerShape(8.dp),
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.clickable{
-                        //TODO(")
+                    modifier = Modifier.clickable {
+                        onAction(OptionAction.OnSecondaryOptionSelect(secondaryOptionList[index]))
                     }
                 )
-
             }
         }
     }
@@ -110,7 +137,7 @@ fun OptionScreen(
 fun InformationTopBar(
     onBackPressed: () -> Unit,
     modifier: Modifier = Modifier,
-){
+) {
     TopAppBar(
         modifier = modifier,
         navigationIcon = {

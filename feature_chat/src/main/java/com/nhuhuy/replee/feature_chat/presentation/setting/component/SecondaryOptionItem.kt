@@ -8,7 +8,6 @@ import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.ColorLens
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -70,11 +69,6 @@ enum class SecondaryOption(
     @StringRes val content: Int,
     val icon: ImageVector
 ) {
-    PIN_CONVERSATION(
-        R.string.setting_pin_conversation,
-        R.string.setting_pin_conversation_sub,
-        Icons.Rounded.PushPin
-    ),
     SET_NICK(
         R.string.setting_set_nickname,
         R.string.setting_set_nickname_sub,

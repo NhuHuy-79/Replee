@@ -5,6 +5,7 @@ import com.nhuhuy.replee.core.common.base.UiEvent
 sealed interface ChatEvent : UiEvent{
     data object NavigateBack : ChatEvent
     data class NavigateToInformation(
+        val conversationId: String,
         val otherUserId: String,
         val otherUserName: String,
         val otherUserEmail: String

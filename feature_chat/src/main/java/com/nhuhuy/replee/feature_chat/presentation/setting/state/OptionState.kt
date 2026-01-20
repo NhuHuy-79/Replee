@@ -1,12 +1,21 @@
 package com.nhuhuy.replee.feature_chat.presentation.setting.state
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.graphics.Color
 import com.nhuhuy.replee.core.common.base.UiState
+import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 
 @Immutable
 data class OptionState(
+    val currentConversation: Conversation = Conversation(),
     val otherUserName: String = "",
     val otherUserId: String = "",
     val otherUserEmail: String = "",
+    val overlay: OptionOverlay = OptionOverlay.NONE
 ) : UiState
+
+enum class OptionOverlay {
+    NONE,
+    SET_NICK_NAME,
+    BLOCK,
+    DELETE_CHAT,
+}

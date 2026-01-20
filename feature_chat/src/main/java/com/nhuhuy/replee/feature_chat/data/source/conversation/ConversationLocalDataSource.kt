@@ -14,7 +14,13 @@ class ConversationLocalDataSource @Inject constructor(
         conversationDao.upsertAll(entities)
     }
 
+    fun observeConversationById(conversationId: String): Flow<ConversationAndUser?> {
+        return conversationDao.observeConversationById(conversationId)
+    }
 
+    suspend fun getConversationById(conversationId: String): ConversationAndUser? {
+        return conversationDao.getConversationById(conversationId)
+    }
 
     suspend fun getConversationAndUserById(
         ownerId: String,
@@ -51,6 +57,22 @@ class ConversationLocalDataSource @Inject constructor(
 
     suspend fun getConversationsCount(ownerId: String): Int{
         return conversationDao.getConversationListCount(ownerId)
+    }
+
+    suspend fun updateMutedStatus(conversationId: String) {
+        conversationDao.updateMutedStatus(conversationId)
+    }
+
+    suspend fun updateDeleteStatus(conversationId: String) {
+        conversationDao.updateDeleteStatus(conversationId)
+    }
+
+    suspend fun updateBlockStatus(conversationId: String) {
+        conversationDao.updateBlockStatus(conversationId)
+    }
+
+    suspend fun updatePinnedStatus(conversationId: String) {
+        conversationDao.updatePinnedStatus(conversationId)
     }
 
     suspend fun updateLastMessage(message: MessageEntity){

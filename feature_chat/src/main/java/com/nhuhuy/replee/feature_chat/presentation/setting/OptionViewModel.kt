@@ -2,25 +2,37 @@ package com.nhuhuy.replee.feature_chat.presentation.setting
 
 import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
-import com.nhuhuy.replee.feature_chat.presentation.setting.component.Option
+import com.nhuhuy.replee.core.common.base.reduce
+import com.nhuhuy.replee.feature_chat.domain.model.Conversation
+import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
+import com.nhuhuy.replee.feature_chat.domain.repository.ConversationSettingRepository
+import com.nhuhuy.replee.feature_chat.presentation.setting.component.SecondaryOption
 import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionAction
 import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionEvent
+import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionOverlay
 import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = OptionViewModel.Factory::class)
 class OptionViewModel @AssistedInject constructor(
+    @Assisted("conversationId") private val conversationId: String,
     @Assisted("uid") private val otherUserId: String,
     @Assisted("name") private val otherUserName: String,
-    @Assisted("email") private val otherUserEmail: String
-) : BaseViewModel<OptionAction, OptionEvent, OptionState>(){
+    @Assisted("email") private val otherUserEmail: String,
+    private val conversationRepository: ConversationRepository,
+    private val conversationSettingRepository: ConversationSettingRepository
+) : BaseViewModel<OptionAction, OptionEvent, OptionState>() {
+    val conversation = conversationRepository.observeConversationById(conversationId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Conversation())
     private val _state = MutableStateFlow(
         OptionState(
             otherUserId = otherUserId,
@@ -37,32 +49,62 @@ class OptionViewModel @AssistedInject constructor(
                 OptionAction.OnBackPressed -> {
                     onEvent(OptionEvent.NavigateBack)
                 }
-                is OptionAction.OnMainOptionSelect -> {
-                    when (action.option) {
-                        Option.MESSAGE -> {
-                            TODO("Back to message")
+
+                is OptionAction.OnSecondaryOptionSelect -> {
+                    when (action.secondaryOption) {
+                        SecondaryOption.SET_NICK -> {
+                            //TODO("set nick name for user)
+                            _state.reduce { copy(overlay = OptionOverlay.NONE) }
                         }
-                        Option.CALL -> {
-                            TODO("Back to call")
+
+                        SecondaryOption.BLOCK -> {
+                            //TODO("block user, update in account-db")
+                            _state.reduce { copy(overlay = OptionOverlay.NONE) }
                         }
-                        Option.MUTE -> {
-                            TODO("Mute user")
+
+                        SecondaryOption.SET_THEME -> {
+                            //TODO("update seed color")
+                        }
+
+                        SecondaryOption.DELETE_CONVERSATION -> {
+                            conversationSettingRepository.deleteConversation(conversationId)
+                            _state.reduce { copy(overlay = OptionOverlay.NONE) }
+                            onEvent(OptionEvent.NavigateToConversation)
                         }
                     }
                 }
 
-                is OptionAction.OnSecondaryOptionSelect -> {}
+                OptionAction.ShowOverlay.Block -> _state.reduce {
+                    copy(overlay = OptionOverlay.BLOCK)
+                }
+
+                OptionAction.ShowOverlay.DeleteChat -> _state.reduce {
+                    copy(overlay = OptionOverlay.SET_NICK_NAME)
+                }
+
+                is OptionAction.ShowOverlay.SetNickName -> _state.reduce {
+                    copy(overlay = OptionOverlay.SET_NICK_NAME)
+                }
+
+                is OptionAction.OnMute -> {
+                    conversationSettingRepository.muteOtherUser(conversationId)
+                }
+
+                is OptionAction.OnPin -> {
+                    conversationSettingRepository.pinConversation(conversationId)
+                }
             }
         }
     }
 
     @AssistedFactory
-    interface Factory{
+    interface Factory {
         fun create(
+            @Assisted("conversationId") conversationId: String,
             @Assisted("uid") otherUserId: String,
             @Assisted("name") otherUserName: String,
             @Assisted("email") otherUserEmail: String
-        ) : OptionViewModel
+        ): OptionViewModel
     }
 
 }

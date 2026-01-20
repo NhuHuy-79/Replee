@@ -1,29 +1,44 @@
 package com.nhuhuy.replee.feature_chat.data.repository
 
 import com.nhuhuy.replee.feature_chat.data.data_store.SeedColor
+import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationSettingRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class ConversationSettingRepositoryImp @Inject constructor(
-
+    private val dispatcher: CoroutineDispatcher,
+    private val conversationLocalDataSource: ConversationLocalDataSource
 ) : ConversationSettingRepository {
-    override fun updateSeedColor(seedColor: SeedColor) {
-        TODO("Not yet implemented")
+    override suspend fun updateSeedColor(seedColor: SeedColor) {
+        return withContext(dispatcher) {
+            TODO("Update seed color")
+        }
     }
 
-    override fun muteOtherUser(otherUserId: String, conversationId: String) {
-        TODO("Not yet implemented")
+    override suspend fun muteOtherUser(conversationId: String) {
+        return withContext(dispatcher) {
+            conversationLocalDataSource.updateMutedStatus(conversationId)
+        }
     }
 
-    override fun pinConversation(conversationId: String) {
-        TODO("Not yet implemented")
+    override suspend fun pinConversation(conversationId: String) {
+        return withContext(dispatcher) {
+            conversationLocalDataSource.updatePinnedStatus(conversationId)
+        }
     }
 
-    override fun blockOtherUser(otherUserId: String, conversationId: String) {
-        TODO("Not yet implemented")
+    override suspend fun blockOtherUser(conversationId: String) {
+        return withContext(dispatcher) {
+            conversationLocalDataSource.updateBlockStatus(conversationId)
+        }
     }
 
-    override fun deleteConversation(conversationId: String) {
-        TODO("Not yet implemented")
+    override suspend fun deleteConversation(conversationId: String) {
+        return withContext(dispatcher) {
+            conversationLocalDataSource.updateMutedStatus(conversationId)
+        }
     }
+
 }

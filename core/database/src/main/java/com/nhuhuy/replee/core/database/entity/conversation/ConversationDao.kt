@@ -9,10 +9,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ConversationDao : BaseDao<ConversationEntity> {
 
+    @Transaction
     @Query("SELECT * FROM conversation WHERE id = :id")
-    suspend fun getConversationById(id: String): ConversationEntity?
+    suspend fun getConversationById(id: String): ConversationAndUser?
 
-
+    @Transaction
+    @Query("SELECT * FROM conversation WHERE id = :id")
+    fun observeConversationById(id: String): Flow<ConversationAndUser?>
     @Transaction
     @Query("SELECT * FROM conversation WHERE ownerId = :ownerId ORDER BY lastMessageTime DESC")
     fun observeConversations(ownerId: String): Flow<List<ConversationAndUser>>
@@ -40,13 +43,13 @@ interface ConversationDao : BaseDao<ConversationEntity> {
     @Query("UPDATE conversation SET muted = NOT (muted) WHERE id = :conversationId")
     suspend fun updateMutedStatus(conversationId: String)
 
-    @Query("UPDATE conversation SET pinned = NOT (pinned) WHERE id = :conversationId")
+    @Query("UPDATE conversation SET deleted = NOT (deleted) WHERE id = :conversationId")
     suspend fun updateDeleteStatus(conversationId: String)
 
     @Query("UPDATE conversation SET blocked = NOT (blocked) WHERE id = :conversationId")
     suspend fun updateBlockStatus(conversationId: String)
 
-    @Query("UPDATE conversation SET deleted = NOT (deleted) WHERE id = :conversationId")
+    @Query("UPDATE conversation SET pinned = NOT (pinned) WHERE id = :conversationId")
     suspend fun updatePinnedStatus(conversationId: String)
 
 }

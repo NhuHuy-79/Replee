@@ -16,7 +16,7 @@ import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.*
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToInformation
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -136,6 +136,7 @@ class ChatViewModel @AssistedInject constructor(
                     val otherUser = state.value.otherUser
                     onEvent(
                         NavigateToInformation(
+                            conversationId = conversationId,
                             otherUserId = otherUserId,
                             otherUserName = otherUser.name,
                             otherUserEmail = otherUser.email

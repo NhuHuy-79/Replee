@@ -18,13 +18,19 @@
     <string name="message_status_sent">Sent</string>
 
     <!--Information Screen-->
-    <string name="information_screen_message">Message</string>
+    <string name="information_screen_pin">Pin</string>
+    <string name="information_screen_unpin">Unpin</string>
     <string name="information_screen_call">Call</string>
     <string name="information_screen_mute">Mute</string>
+    <string name="information_screen_unmute">Unmute</string>
 
     <!-- Pin message -->
     <string name="setting_pin_conversation">Pin conversation</string>
     <string name="setting_pin_conversation_sub">Keep important conversation at the top</string>
+
+    <string name="setting_mute_conversation">Mute conversation</string>
+    <string name="setting_mute_conversation_sub">Messages will arrive silently</string>
+
 
     <!-- Choose theme -->
     <string name="setting_choose_theme">Choose theme</string>

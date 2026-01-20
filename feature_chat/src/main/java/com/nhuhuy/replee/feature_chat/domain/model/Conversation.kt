@@ -1,9 +1,9 @@
 package com.nhuhuy.replee.feature_chat.domain.model
 
 data class Conversation(
-    val id: String,
-    val owner: ConversationOtherUser,
-    val otherUser: ConversationOtherUser,
+    val id: String = "",
+    val owner: ConversationOtherUser = ConversationOtherUser(),
+    val otherUser: ConversationOtherUser = ConversationOtherUser(),
     val unreadMessageCount: Int = 0,
     val createdAt: Long? = null,
     val lastMessageContent: String = "",

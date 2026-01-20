@@ -13,7 +13,6 @@ import com.nhuhuy.replee.feature_chat.data.mapper.toConversationEntity
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
-import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -62,6 +61,13 @@ class ConversationRepositoryImp @Inject constructor(
             conversation.toConversationEntity()
         }
         conversationLocalDataSource.upsertConversations(entities)
+    }
+
+    override fun observeConversationById(conversationId: String): Flow<Conversation> {
+        return conversationLocalDataSource.observeConversationById(conversationId)
+            .map { conversation ->
+                conversation?.toConversation() ?: Conversation()
+            }
     }
 
     override fun observeNetworkConversations(): Flow<Resource<List<Conversation>, RemoteFailure>> {

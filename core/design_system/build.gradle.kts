@@ -38,7 +38,9 @@ android {
 
 dependencies {
     implementation(project(":core:common"))
-
+    /*
+        implementation("com.materialkolor:material-kolor:4.0.3")
+    */
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)

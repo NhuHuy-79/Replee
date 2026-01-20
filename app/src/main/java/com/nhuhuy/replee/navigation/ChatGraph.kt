@@ -1,14 +1,12 @@
 package com.nhuhuy.replee.navigation
 
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.graphics.Color
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.nhuhuy.replee.core.design_system.ObserveEffect
-import com.nhuhuy.replee.core.design_system.theme.DynamicRepleeTheme
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatScreen
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatViewModel
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
@@ -34,6 +32,7 @@ sealed interface HomeDestination : NavKey {
 
     @Serializable
     data class Information(
+        val conversationId: String,
         val otherUserName: String,
         val otherUserId: String,
         val otherUserEmail: String
@@ -108,7 +107,8 @@ fun EntryProviderScope<NavKey>.chatGraph(
                         HomeDestination.Information(
                             otherUserId = event.otherUserId,
                             otherUserName = event.otherUserName,
-                            otherUserEmail = event.otherUserEmail
+                            otherUserEmail = event.otherUserEmail,
+                            conversationId = event.conversationId
                         )
                     )
                 }
@@ -128,20 +128,26 @@ fun EntryProviderScope<NavKey>.chatGraph(
                 factory.create(
                     otherUserId = screen.otherUserId,
                     otherUserName = screen.otherUserName,
-                    otherUserEmail = screen.otherUserEmail
+                    otherUserEmail = screen.otherUserEmail,
+                    conversationId = screen.conversationId
                 )
             }
         )
 
         val state by viewModel.state.collectAsStateWithLifecycle()
+        val conversation by viewModel.conversation.collectAsStateWithLifecycle()
 
         ObserveEffect(viewModel.event) { event ->
             when (event) {
                 OptionEvent.NavigateBack -> backstack.removeLastOrNull()
+                OptionEvent.NavigateToConversation -> {
+                    //TODO("navigate to conversation")
+                }
             }
         }
 
         OptionScreen(
+            conversation = conversation,
             state = state,
             onAction = viewModel::onAction
         )

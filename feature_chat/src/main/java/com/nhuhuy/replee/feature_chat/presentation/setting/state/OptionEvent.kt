@@ -4,4 +4,5 @@ import com.nhuhuy.replee.core.common.base.UiEvent
 
 sealed interface OptionEvent : UiEvent {
     data object NavigateBack : OptionEvent
+    data object NavigateToConversation : OptionEvent
 }
