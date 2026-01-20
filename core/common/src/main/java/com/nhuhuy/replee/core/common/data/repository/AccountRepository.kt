@@ -13,6 +13,7 @@ import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthService
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 interface AccountRepository {
@@ -20,6 +21,7 @@ interface AccountRepository {
     suspend fun getAccountById(uid: String) : Account
     suspend fun getCurrentAccount(): Account
     suspend fun searchAccountsByEmail(query: String): Resource<List<Account>, RemoteFailure>
+    suspend fun updateBlockedUsers(list: List<String>): Resource<Unit, RemoteFailure>
 }
 
 class AccountRepositoryImp @Inject constructor(
@@ -62,6 +64,21 @@ class AccountRepositoryImp @Inject constructor(
                 val entities = accountDTOs.map { accountDTO -> accountDTO.toAccountEntity() }
                 accountLocalDataSource.upsertAccounts(entities)
                 accountDTOs.map { accountDTOs -> accountDTOs.toAccount() }
+            }
+        }
+    }
+
+    override suspend fun updateBlockedUsers(list: List<String>): Resource<Unit, RemoteFailure> {
+        return withContext(dispatcher) {
+            safeCall(
+                throwable = { e ->
+                    Timber.e(e)
+                    e.toRemoteFailure()
+                }
+            ) {
+                val uid = firebaseAuthService.getCurrentUser().uid
+                accountLocalDataSource.updateBlockedList(list = list, owner = uid)
+                accountNetworkDataSource.updateBlockedList(list = list, owner = uid)
             }
         }
     }

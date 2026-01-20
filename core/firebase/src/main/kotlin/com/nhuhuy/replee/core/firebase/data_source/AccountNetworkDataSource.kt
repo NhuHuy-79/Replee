@@ -1,6 +1,5 @@
 package com.nhuhuy.replee.core.firebase.data_source
 
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObjects
 import com.nhuhuy.replee.core.firebase.data.AccountDTO
@@ -18,15 +17,9 @@ class AccountNetworkDataSource @Inject constructor(
         collection.document(account.id).set(account).await()
     }
 
-    suspend fun addBlockedUser(uid: String) {
-        collection.document(uid)
-            .update("blockedList", FieldValue.arrayUnion(uid))
-            .await()
-    }
-
-    suspend fun removeBlockedUser(uid: String) {
-        collection.document(uid)
-            .update("blockedList", FieldValue.arrayRemove(uid))
+    suspend fun updateBlockedList(list: List<String>, owner: String) {
+        collection.document(owner)
+            .update("blockedList", list)
             .await()
     }
 

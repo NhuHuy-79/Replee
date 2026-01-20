@@ -24,6 +24,10 @@ class AccountLocalDataSource @Inject constructor(
         dao.updateLogoutStatus(uid)
     }
 
+    suspend fun updateBlockedList(owner: String, list: List<String>) {
+        dao.updateBlockedList(owner, list)
+    }
+
     suspend fun deleteAccount(accountEntity: AccountEntity) {
         dao.delete(accountEntity)
     }
