@@ -35,6 +35,14 @@ class Validator() {
         return if (password == confirmedPassword) ValidateResult.Valid else ValidateResult.PasswordError.NOT_MATCH
     }
 
+    fun validateNickName(name: String): ValidateResult {
+        return when {
+            name.isBlank() -> ValidateResult.Empty
+            name.length > 100 -> ValidateResult.NameError.TOO_LONG
+            else -> ValidateResult.Valid
+        }
+    }
+
     fun validateNewPassword(old: String, new: String): ValidateResult {
         return when {
             new.isEmpty() -> ValidateResult.Empty

@@ -2,6 +2,7 @@ package com.nhuhuy.replee.feature_chat.presentation.setting.state
 
 import androidx.compose.runtime.Immutable
 import com.nhuhuy.replee.core.common.base.UiState
+import com.nhuhuy.replee.core.design_system.component.DynamicInput
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 
 @Immutable
@@ -10,7 +11,8 @@ data class OptionState(
     val otherUserName: String = "",
     val otherUserId: String = "",
     val otherUserEmail: String = "",
-    val overlay: OptionOverlay = OptionOverlay.NONE
+    val overlay: OptionOverlay = OptionOverlay.NONE,
+    val nickName: DynamicInput = DynamicInput()
 ) : UiState
 
 enum class OptionOverlay {

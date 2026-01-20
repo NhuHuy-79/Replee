@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -21,13 +22,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.nhuhuy.replee.core.design_system.component.AlertDialogContainer
+import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.presentation.setting.component.InformationUser
 import com.nhuhuy.replee.feature_chat.presentation.setting.component.SecondaryOption
 import com.nhuhuy.replee.feature_chat.presentation.setting.component.SecondaryOptionItem
+import com.nhuhuy.replee.feature_chat.presentation.setting.component.SetNickNameSheet
 import com.nhuhuy.replee.feature_chat.presentation.setting.component.ToggleableItem
 import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionAction
+import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionOverlay
 import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionState
 
 @Composable
@@ -35,7 +40,7 @@ fun OptionScreen(
     conversation: Conversation,
     state: OptionState,
     onAction: (OptionAction) -> Unit
-) {
+) = BoxContainer {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -128,6 +133,41 @@ fun OptionScreen(
                     }
                 )
             }
+        }
+    }
+
+    when (state.overlay) {
+        OptionOverlay.NONE -> Unit
+        OptionOverlay.SET_NICK_NAME -> {
+            SetNickNameSheet(
+                input = state.nickName,
+                onValueChange = { name -> onAction(OptionAction.OnNameChange(name)) },
+                onDismiss = { onAction(OptionAction.ShowOverlay.Dismiss) },
+                onConfirm = { onAction(OptionAction.OnNameSet) }
+            )
+        }
+
+        OptionOverlay.BLOCK -> {
+
+        }
+
+        OptionOverlay.DELETE_CHAT -> {
+            AlertDialogContainer(
+                onDismiss = {
+                    onAction(OptionAction.ShowOverlay.Dismiss)
+                },
+                onConfirm = {
+                    onAction(OptionAction.OnConversationDelete)
+                },
+                title = R.string.dialog_delete_conversation,
+                content = R.string.dialog_delete_conversation_content,
+                icon = {
+                    Icon(
+                        imageVector = Icons.Rounded.DeleteOutline,
+                        contentDescription = null
+                    )
+                }
+            )
         }
     }
 }

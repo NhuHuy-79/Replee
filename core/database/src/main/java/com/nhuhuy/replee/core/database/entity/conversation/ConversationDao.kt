@@ -17,7 +17,13 @@ interface ConversationDao : BaseDao<ConversationEntity> {
     @Query("SELECT * FROM conversation WHERE id = :id")
     fun observeConversationById(id: String): Flow<ConversationAndUser?>
     @Transaction
-    @Query("SELECT * FROM conversation WHERE ownerId = :ownerId ORDER BY lastMessageTime DESC")
+    @Query(
+        """
+    SELECT * FROM conversation
+    WHERE ownerId = :ownerId
+    ORDER BY pinned DESC, lastMessageTime DESC
+"""
+    )
     fun observeConversations(ownerId: String): Flow<List<ConversationAndUser>>
 
     @Query("SELECT COUNT(*) FROM conversation WHERE ownerId = :ownerId")

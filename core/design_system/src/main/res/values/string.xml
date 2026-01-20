@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Dialog Container-->
+    <string name="dialog_dismiss_btn">Dismiss</string>
+    <string name="dialog_confirm_btn">Confirm</string>
+
+    <!--Validate result-->
+    <string name="error_name_too_long">Name\'s length must be less than 100</string>
+</resources>

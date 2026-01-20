@@ -8,6 +8,11 @@ sealed interface ValidateResult {
         INVALID,
     }
 
+    enum class NameError : ValidateResult {
+        TOO_LONG,
+    }
+
+
     enum class PasswordError : ValidateResult {
         INVALID,
         NOT_MATCH,

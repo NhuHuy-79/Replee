@@ -37,7 +37,7 @@ class ConversationSettingRepositoryImp @Inject constructor(
 
     override suspend fun deleteConversation(conversationId: String) {
         return withContext(dispatcher) {
-            conversationLocalDataSource.updateMutedStatus(conversationId)
+            conversationLocalDataSource.updateDeleteStatus(conversationId)
         }
     }
 

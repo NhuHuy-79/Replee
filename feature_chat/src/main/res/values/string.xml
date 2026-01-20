@@ -44,9 +44,20 @@
     <string name="setting_delete_chat">Delete chat</string>
     <string name="setting_delete_chat_sub">Remove this conversation from your chat list</string>
 
-    <!-- Set nickname -->
+    <!-- Set nickname & Bottom Sheet-->
     <string name="setting_set_nickname">Set nickname</string>
     <string name="setting_set_nickname_sub">Give this contact a custom name</string>
+
+    <string name="sheet_title_set_nick_name">Set Nickname</string>
+    <string name="sheet_title_text_field_label">Name</string>
+    <string name="sheet_title_set_nick_name_btn">Confirm</string>
+    <string name="dialog_delete_conversation">Delete Conversation</string>
+    <string name="dialog_delete_conversation_content">
+        This action cannot be undone. The conversation will be removed from your account.
+    </string>
+
+    <!--Validate Nick name-->
+    <string name="validate_result_nick_name">Nick name is too long!</string>
 
 
 </resources>

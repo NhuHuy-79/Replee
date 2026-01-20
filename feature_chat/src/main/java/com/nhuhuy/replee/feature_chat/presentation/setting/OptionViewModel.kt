@@ -3,6 +3,8 @@ package com.nhuhuy.replee.feature_chat.presentation.setting
 import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
+import com.nhuhuy.replee.core.common.utils.Validator
+import com.nhuhuy.replee.core.design_system.component.DynamicInput
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationSettingRepository
@@ -28,6 +30,7 @@ class OptionViewModel @AssistedInject constructor(
     @Assisted("uid") private val otherUserId: String,
     @Assisted("name") private val otherUserName: String,
     @Assisted("email") private val otherUserEmail: String,
+    private val validator: Validator,
     private val conversationRepository: ConversationRepository,
     private val conversationSettingRepository: ConversationSettingRepository
 ) : BaseViewModel<OptionAction, OptionEvent, OptionState>() {
@@ -54,7 +57,7 @@ class OptionViewModel @AssistedInject constructor(
                     when (action.secondaryOption) {
                         SecondaryOption.SET_NICK -> {
                             //TODO("set nick name for user)
-                            _state.reduce { copy(overlay = OptionOverlay.NONE) }
+                            _state.reduce { copy(overlay = OptionOverlay.SET_NICK_NAME) }
                         }
 
                         SecondaryOption.BLOCK -> {
@@ -79,7 +82,7 @@ class OptionViewModel @AssistedInject constructor(
                 }
 
                 OptionAction.ShowOverlay.DeleteChat -> _state.reduce {
-                    copy(overlay = OptionOverlay.SET_NICK_NAME)
+                    copy(overlay = OptionOverlay.DELETE_CHAT)
                 }
 
                 is OptionAction.ShowOverlay.SetNickName -> _state.reduce {
@@ -92,6 +95,34 @@ class OptionViewModel @AssistedInject constructor(
 
                 is OptionAction.OnPin -> {
                     conversationSettingRepository.pinConversation(conversationId)
+                }
+
+                OptionAction.OnConversationDelete -> {
+
+                }
+
+                is OptionAction.OnNameSet -> {
+                    //TODO("set nick name for user")
+                    _state.reduce {
+                        copy(overlay = OptionOverlay.NONE)
+                    }
+                }
+
+                OptionAction.ShowOverlay.Dismiss -> {
+                    _state.reduce {
+                        copy(overlay = OptionOverlay.NONE)
+                    }
+                }
+
+                is OptionAction.OnNameChange -> {
+                    _state.reduce {
+                        copy(
+                            nickName = DynamicInput(
+                                text = action.name,
+                                validateResult = validator.validateNickName(action.name)
+                            )
+                        )
+                    }
                 }
             }
         }
