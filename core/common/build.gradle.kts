@@ -42,10 +42,12 @@ dependencies {
     implementation(libs.dagger.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
     ksp(libs.hilt.android.compiler)
+
     api( libs.androidx.datastore.preferences)
     api(libs.flow.operators)
     api(libs.androidx.material.icons.extended)
     api(libs.timber)
+
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

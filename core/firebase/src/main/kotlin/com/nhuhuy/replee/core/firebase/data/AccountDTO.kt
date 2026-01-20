@@ -10,6 +10,8 @@ data class AccountDTO(
     @ServerTimestamp
     val createAt: Timestamp? = null,
     val currentToken: String = "",
+    //add field
+    val blockedList: List<String> = emptyList()
 )
 
 

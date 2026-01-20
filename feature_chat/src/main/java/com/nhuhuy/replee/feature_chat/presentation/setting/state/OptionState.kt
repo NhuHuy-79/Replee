@@ -18,6 +18,5 @@ data class OptionState(
 enum class OptionOverlay {
     NONE,
     SET_NICK_NAME,
-    BLOCK,
     DELETE_CHAT,
 }

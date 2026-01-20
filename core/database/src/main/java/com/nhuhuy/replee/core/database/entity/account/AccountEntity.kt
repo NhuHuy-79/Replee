@@ -1,8 +1,8 @@
 package com.nhuhuy.replee.core.database.entity.account
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-
 
 @Entity(tableName = "accounts")
 data class AccountEntity(
@@ -11,5 +11,7 @@ data class AccountEntity(
     val name: String = "",
     val email: String = "",
     val createAt: Long? = null,
+    @ColumnInfo(name = "blockedUserList", defaultValue = "[]")
+    val blockedUserList: List<String> = emptyList(),
     val logOut: Boolean = false,
 )

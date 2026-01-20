@@ -142,19 +142,14 @@ fun OptionScreen(
             SetNickNameSheet(
                 input = state.nickName,
                 onValueChange = { name -> onAction(OptionAction.OnNameChange(name)) },
-                onDismiss = { onAction(OptionAction.ShowOverlay.Dismiss) },
+                onDismiss = { onAction(OptionAction.OnDismiss) },
                 onConfirm = { onAction(OptionAction.OnNameSet) }
             )
         }
-
-        OptionOverlay.BLOCK -> {
-
-        }
-
         OptionOverlay.DELETE_CHAT -> {
             AlertDialogContainer(
                 onDismiss = {
-                    onAction(OptionAction.ShowOverlay.Dismiss)
+                    onAction(OptionAction.OnDismiss)
                 },
                 onConfirm = {
                     onAction(OptionAction.OnConversationDelete)

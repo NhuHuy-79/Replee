@@ -11,12 +11,6 @@ sealed interface OptionAction : UiAction {
     data object OnMute : OptionAction
     data object OnConversationDelete : OptionAction
     data object OnNameSet : OptionAction
-
-    sealed interface ShowOverlay : OptionAction {
-        data object Dismiss : OptionAction
-        data class SetNickName(val user1: String, val user2: String) : ShowOverlay
-        data object Block : ShowOverlay
-        data object DeleteChat : ShowOverlay
-    }
+    data object OnDismiss : OptionAction
 }
 

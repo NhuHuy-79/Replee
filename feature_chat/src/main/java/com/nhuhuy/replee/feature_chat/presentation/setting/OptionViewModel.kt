@@ -3,6 +3,7 @@ package com.nhuhuy.replee.feature_chat.presentation.setting
 import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
+import com.nhuhuy.replee.core.common.data.repository.AccountRepository
 import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.design_system.component.DynamicInput
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
@@ -31,6 +32,7 @@ class OptionViewModel @AssistedInject constructor(
     @Assisted("name") private val otherUserName: String,
     @Assisted("email") private val otherUserEmail: String,
     private val validator: Validator,
+    private val accountRepository: AccountRepository,
     private val conversationRepository: ConversationRepository,
     private val conversationSettingRepository: ConversationSettingRepository
 ) : BaseViewModel<OptionAction, OptionEvent, OptionState>() {
@@ -52,7 +54,6 @@ class OptionViewModel @AssistedInject constructor(
                 OptionAction.OnBackPressed -> {
                     onEvent(OptionEvent.NavigateBack)
                 }
-
                 is OptionAction.OnSecondaryOptionSelect -> {
                     when (action.secondaryOption) {
                         SecondaryOption.SET_NICK -> {
@@ -62,31 +63,17 @@ class OptionViewModel @AssistedInject constructor(
 
                         SecondaryOption.BLOCK -> {
                             //TODO("block user, update in account-db")
-                            _state.reduce { copy(overlay = OptionOverlay.NONE) }
+                            onEvent(OptionEvent.NavigateToConversation)
                         }
 
                         SecondaryOption.SET_THEME -> {
-                            //TODO("update seed color")
+                            //TODO("Set theme"
                         }
 
                         SecondaryOption.DELETE_CONVERSATION -> {
-                            conversationSettingRepository.deleteConversation(conversationId)
-                            _state.reduce { copy(overlay = OptionOverlay.NONE) }
-                            onEvent(OptionEvent.NavigateToConversation)
+                            _state.reduce { copy(overlay = OptionOverlay.DELETE_CHAT) }
                         }
                     }
-                }
-
-                OptionAction.ShowOverlay.Block -> _state.reduce {
-                    copy(overlay = OptionOverlay.BLOCK)
-                }
-
-                OptionAction.ShowOverlay.DeleteChat -> _state.reduce {
-                    copy(overlay = OptionOverlay.DELETE_CHAT)
-                }
-
-                is OptionAction.ShowOverlay.SetNickName -> _state.reduce {
-                    copy(overlay = OptionOverlay.SET_NICK_NAME)
                 }
 
                 is OptionAction.OnMute -> {
@@ -98,20 +85,15 @@ class OptionViewModel @AssistedInject constructor(
                 }
 
                 OptionAction.OnConversationDelete -> {
-
+                    conversationSettingRepository.deleteConversation(conversationId)
+                    _state.reduce {
+                        copy(overlay = OptionOverlay.NONE)
+                    }
                 }
 
                 is OptionAction.OnNameSet -> {
                     //TODO("set nick name for user")
-                    _state.reduce {
-                        copy(overlay = OptionOverlay.NONE)
-                    }
-                }
-
-                OptionAction.ShowOverlay.Dismiss -> {
-                    _state.reduce {
-                        copy(overlay = OptionOverlay.NONE)
-                    }
+                    _state.reduce { copy(overlay = OptionOverlay.NONE) }
                 }
 
                 is OptionAction.OnNameChange -> {
@@ -123,6 +105,10 @@ class OptionViewModel @AssistedInject constructor(
                             )
                         )
                     }
+                }
+
+                OptionAction.OnDismiss -> {
+                    _state.reduce { copy(overlay = OptionOverlay.NONE) }
                 }
             }
         }
@@ -137,5 +123,4 @@ class OptionViewModel @AssistedInject constructor(
             @Assisted("email") otherUserEmail: String
         ): OptionViewModel
     }
-
 }

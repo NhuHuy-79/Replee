@@ -9,20 +9,23 @@ data class Account(
     val name: String = "",
     val email: String = "",
     val createAt: Long? = null,
-    val currentToken: String = ""
+    val currentToken: String = "",
+    val blockedList: List<String> = emptyList()
 )
 
 fun AccountEntity.toAccount() = Account(
     id = uid,
     name = name,
     email = email,
+    blockedList = blockedUserList
 )
 
 fun AccountDTO.toAccount() = Account(
     id = id,
     name = name,
     email = email,
-    createAt = createAt?.toMilliseconds()
+    createAt = createAt?.toMilliseconds(),
+    blockedList = blockedList
 )
 
 fun AccountDTO.toAccountEntity() = AccountEntity(
@@ -30,6 +33,7 @@ fun AccountDTO.toAccountEntity() = AccountEntity(
     name = name,
     email = email,
     createAt = createAt?.toMilliseconds(),
+    blockedUserList = blockedList,
     logOut = false
 )
 
