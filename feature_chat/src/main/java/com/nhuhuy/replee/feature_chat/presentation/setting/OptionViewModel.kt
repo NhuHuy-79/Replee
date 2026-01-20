@@ -38,6 +38,9 @@ class OptionViewModel @AssistedInject constructor(
 ) : BaseViewModel<OptionAction, OptionEvent, OptionState>() {
     val conversation = conversationRepository.observeConversationById(conversationId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Conversation())
+
+    val blocked = accountRepository.observeBlockStatus(conversationId, otherUserId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
     private val _state = MutableStateFlow(
         OptionState(
             otherUserId = otherUserId,
@@ -62,8 +65,8 @@ class OptionViewModel @AssistedInject constructor(
                         }
 
                         SecondaryOption.BLOCK -> {
-                            //TODO("block user, update in account-db")
-                            onEvent(OptionEvent.NavigateToConversation)
+                            accountRepository.updateBlockedUsers(otherUser = otherUserId)
+                            onEvent(OptionEvent.NavigateBack)
                         }
 
                         SecondaryOption.SET_THEME -> {

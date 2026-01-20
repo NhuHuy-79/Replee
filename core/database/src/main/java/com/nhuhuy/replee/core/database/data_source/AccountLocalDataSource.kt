@@ -3,6 +3,7 @@ package com.nhuhuy.replee.core.database.data_source
 
 import com.nhuhuy.replee.core.database.entity.account.AccountDao
 import com.nhuhuy.replee.core.database.entity.account.AccountEntity
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class AccountLocalDataSource @Inject constructor(
@@ -22,6 +23,10 @@ class AccountLocalDataSource @Inject constructor(
 
     suspend fun updateLogoutStatus(uid: String) {
         dao.updateLogoutStatus(uid)
+    }
+
+    fun observeBlockStatus(owner: String): Flow<List<String>> {
+        return dao.observeBlockStatus(owner)
     }
 
     suspend fun updateBlockedList(owner: String, list: List<String>) {

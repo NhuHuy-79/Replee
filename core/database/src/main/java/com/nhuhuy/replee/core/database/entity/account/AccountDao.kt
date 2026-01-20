@@ -3,6 +3,7 @@ package com.nhuhuy.replee.core.database.entity.account
 import androidx.room.Dao
 import androidx.room.Query
 import com.nhuhuy.replee.core.database.base.BaseDao
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AccountDao : BaseDao<AccountEntity>{
@@ -14,4 +15,8 @@ interface AccountDao : BaseDao<AccountEntity>{
 
     @Query("UPDATE accounts SET blockedUserList = :list WHERE uid = :uid")
     suspend fun updateBlockedList(uid: String, list: List<String>)
+
+    @Query("SELECT blockedUserList FROM accounts WHERE uid = :uid")
+    fun observeBlockStatus(uid: String): Flow<List<String>>
+
 }

@@ -12,6 +12,8 @@ import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthService
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
@@ -21,7 +23,8 @@ interface AccountRepository {
     suspend fun getAccountById(uid: String) : Account
     suspend fun getCurrentAccount(): Account
     suspend fun searchAccountsByEmail(query: String): Resource<List<Account>, RemoteFailure>
-    suspend fun updateBlockedUsers(list: List<String>): Resource<Unit, RemoteFailure>
+    suspend fun updateBlockedUsers(otherUser: String): Resource<Unit, RemoteFailure>
+    fun observeBlockStatus(owner: String, otherUser: String): Flow<Boolean>
 }
 
 class AccountRepositoryImp @Inject constructor(
@@ -68,7 +71,7 @@ class AccountRepositoryImp @Inject constructor(
         }
     }
 
-    override suspend fun updateBlockedUsers(list: List<String>): Resource<Unit, RemoteFailure> {
+    override suspend fun updateBlockedUsers(otherUser: String): Resource<Unit, RemoteFailure> {
         return withContext(dispatcher) {
             safeCall(
                 throwable = { e ->
@@ -76,10 +79,20 @@ class AccountRepositoryImp @Inject constructor(
                     e.toRemoteFailure()
                 }
             ) {
-                val uid = firebaseAuthService.getCurrentUser().uid
-                accountLocalDataSource.updateBlockedList(list = list, owner = uid)
-                accountNetworkDataSource.updateBlockedList(list = list, owner = uid)
+                val ownerId = firebaseAuthService.getCurrentUser().uid
+                val owner = accountLocalDataSource.getAccountWithId(ownerId)
+                val newList = owner.blockedUserList + otherUser
+                accountLocalDataSource.updateBlockedList(list = newList, owner = ownerId)
+                accountNetworkDataSource.updateBlockedList(list = newList, owner = ownerId)
             }
         }
+    }
+
+    override fun observeBlockStatus(
+        owner: String,
+        otherUser: String
+    ): Flow<Boolean> {
+        return accountLocalDataSource.observeBlockStatus(owner)
+            .map { list -> list.contains(otherUser) }
     }
 }
