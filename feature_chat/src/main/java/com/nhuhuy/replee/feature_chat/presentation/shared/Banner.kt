@@ -21,10 +21,12 @@ fun Banner(
     contentColor: Color,
 ) {
     Box(
-        modifier = modifier.background(
-            color = containerColor,
-            shape = RoundedCornerShape(8.dp)
-        ).padding(16.dp)
+        modifier = modifier
+            .background(
+                color = containerColor,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .padding(8.dp)
     ){
         Text(
             text = label,

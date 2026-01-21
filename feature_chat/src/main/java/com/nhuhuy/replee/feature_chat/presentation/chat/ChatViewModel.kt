@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package com.nhuhuy.replee.feature_chat.presentation.chat
 
 import androidx.lifecycle.viewModelScope
@@ -22,11 +24,16 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -41,7 +48,9 @@ class ChatViewModel @AssistedInject constructor(
     private val messageRepository: MessageRepository,
     private val syncManager: SyncManager,
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
-
+    val blocked =
+        accountRepository.observeBlockStatus(owner = currentUserId, otherUser = otherUserId)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
     private val _state = MutableStateFlow(ChatState(currentUserId = currentUserId))
 
     override val state: StateFlow<ChatState>
@@ -58,14 +67,19 @@ class ChatViewModel @AssistedInject constructor(
     }
 
     private fun observeMessageFromNetwork(){
-       viewModelScope.launch {
-           messageRepository.observeNetworkMessages(conversationId)
-               .collect { resource ->
-                   if (resource is Resource.Success){
-                       messageRepository.saveMessages(resource.data)
-                   }
-               }
-       }
+        blocked.flatMapLatest { blocked ->
+            if (blocked) {
+                emptyFlow()
+            } else {
+                messageRepository.observeNetworkMessages(conversationId)
+            }
+        }
+            .onEach { resource ->
+                if (resource is Resource.Success) {
+                    messageRepository.saveMessages(resource.data)
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
     val messageList: StateFlow<List<Message>> = messageRepository.observeLocalMessages(conversationId)

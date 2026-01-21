@@ -16,7 +16,7 @@ interface AccountDao : BaseDao<AccountEntity>{
     @Query("UPDATE accounts SET blockedUserList = :list WHERE uid = :uid")
     suspend fun updateBlockedList(uid: String, list: List<String>)
 
-    @Query("SELECT blockedUserList FROM accounts WHERE uid = :uid")
-    fun observeBlockStatus(uid: String): Flow<List<String>>
+    @Query("SELECT * FROM accounts WHERE uid = :uid")
+    fun observeBlockStatus(uid: String): Flow<AccountEntity?>
 
 }

@@ -1,9 +1,10 @@
 package com.nhuhuy.replee.core.database.data_source
 
-
+import android.util.Log
 import com.nhuhuy.replee.core.database.entity.account.AccountDao
 import com.nhuhuy.replee.core.database.entity.account.AccountEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class AccountLocalDataSource @Inject constructor(
@@ -26,7 +27,10 @@ class AccountLocalDataSource @Inject constructor(
     }
 
     fun observeBlockStatus(owner: String): Flow<List<String>> {
-        return dao.observeBlockStatus(owner)
+        return dao.observeBlockStatus(owner).map { accountEntity ->
+            Log.d("AccountLocalSource", "observeBlockStatus: $accountEntity")
+            accountEntity?.blockedUserList ?: emptyList()
+        }
     }
 
     suspend fun updateBlockedList(owner: String, list: List<String>) {

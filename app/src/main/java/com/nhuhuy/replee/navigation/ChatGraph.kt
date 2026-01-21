@@ -95,7 +95,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
                 )
             }
         )
-
+        val blocked by viewModel.blocked.collectAsStateWithLifecycle()
         val state by viewModel.state.collectAsStateWithLifecycle()
         val message by viewModel.messageList.collectAsStateWithLifecycle()
 
@@ -116,6 +116,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
         }
 
         ChatScreen(
+            blocked = blocked,
             state = state,
             messages = message,
             onAction = viewModel::onAction

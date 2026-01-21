@@ -56,6 +56,9 @@
         This action cannot be undone. The conversation will be removed from your account.
     </string>
 
+    <!--Blocked-->
+    <string name="banner_blocked_user">You have blocked this user. If you want to contact to them, please
+    unblock them in Setting.</string>
     <!--Validate Nick name-->
     <string name="validate_result_nick_name">Nick name is too long!</string>
 

@@ -93,6 +93,9 @@ class AccountRepositoryImp @Inject constructor(
         otherUser: String
     ): Flow<Boolean> {
         return accountLocalDataSource.observeBlockStatus(owner)
-            .map { list -> list.contains(otherUser) }
+            .map { list ->
+                Timber.d("$list")
+                list.contains(otherUser)
+            }
     }
 }

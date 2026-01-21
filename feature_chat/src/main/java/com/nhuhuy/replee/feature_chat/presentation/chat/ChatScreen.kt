@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.nhuhuy.replee.core.design_system.state.ScreenStateHost
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.Message
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.BlockedWarning
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.ChatContent
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.MessageInput
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
@@ -40,6 +41,7 @@ import com.nhuhuy.replee.feature_chat.presentation.shared.Banner
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChatScreen(
+    blocked: Boolean,
     state: ChatState,
     messages: List<Message>,
     onAction: (ChatAction) -> Unit,
@@ -71,7 +73,11 @@ fun ChatScreen(
                 .imePadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
+            if (blocked) {
+                BlockedWarning(
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             ScreenStateHost(
                 modifier = Modifier.fillMaxWidth(),
                 state = state.sendMessageState,
@@ -108,24 +114,26 @@ fun ChatScreen(
                     .padding(horizontal = 16.dp)
             )
 
-            MessageInput(
-                value = state.messageInput,
-                onValueChange = { value ->
-                    onAction(ChatAction.OnMessageInputChanged(value))
-                },
-                onCameraClick = {
-                    //TODO("camera clicked")
-                },
-                onImageClick = {
-                    //TODO("image clicked")
-                },
-                onSendMessage = {
-                    onAction(ChatAction.OnSendMessageClicked)
-                },
-                onFocusChange = {},
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
+            if (!blocked) {
+                MessageInput(
+                    value = state.messageInput,
+                    onValueChange = { value ->
+                        onAction(ChatAction.OnMessageInputChanged(value))
+                    },
+                    onCameraClick = {
+                        //TODO("camera clicked")
+                    },
+                    onImageClick = {
+                        //TODO("image clicked")
+                    },
+                    onSendMessage = {
+                        onAction(ChatAction.OnSendMessageClicked)
+                    },
+                    onFocusChange = {},
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+            }
         }
     }
 }
