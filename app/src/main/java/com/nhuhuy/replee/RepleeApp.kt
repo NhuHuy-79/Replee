@@ -29,6 +29,7 @@ class RepleeApp() : Application(), Configuration.Provider{
         createNotificationChannel(this)
         Timber.plant(Timber.DebugTree())
         workerScheduler.scheduleMessageSyncWorker()
+        workerScheduler.scheduleConversationSyncWorker()
     }
 
     private fun createNotificationChannel(context: Context) {

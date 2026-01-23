@@ -12,10 +12,12 @@ import javax.inject.Inject
 
 interface WorkerScheduler {
      fun scheduleMessageSyncWorker()
+    fun scheduleConversationSyncWorker()
 }
 
-const val REPEAT_TIME: Long = 15
-const val SYNC_WORKER_KEY = "sync_worker"
+const val REPEAT_TIME: Long = 15L
+const val MESSAGE_SYNC_WORKER = "message_sync_worker"
+const val CONVERSATION_SYNC_WORKER = "conversation_sync_worker"
 
 class WorkerSchedulerImp @Inject constructor(
     @ApplicationContext private val context: Context
@@ -33,9 +35,33 @@ class WorkerSchedulerImp @Inject constructor(
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
             )
-            .addTag(SYNC_WORKER_KEY)
+            .addTag(MESSAGE_SYNC_WORKER)
             .build()
 
-        workManager.enqueueUniquePeriodicWork(SYNC_WORKER_KEY, ExistingPeriodicWorkPolicy.KEEP, request)
+        workManager.enqueueUniquePeriodicWork(
+            MESSAGE_SYNC_WORKER,
+            ExistingPeriodicWorkPolicy.KEEP,
+            request
+        )
+    }
+
+    override fun scheduleConversationSyncWorker() {
+        val request = PeriodicWorkRequestBuilder<ConversationSyncWorker>(
+            repeatInterval = REPEAT_TIME,
+            repeatIntervalTimeUnit = TimeUnit.MINUTES
+        )
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
+            )
+            .addTag(CONVERSATION_SYNC_WORKER)
+            .build()
+
+        workManager.enqueueUniquePeriodicWork(
+            MESSAGE_SYNC_WORKER,
+            ExistingPeriodicWorkPolicy.KEEP,
+            request
+        )
     }
 }
