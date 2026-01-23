@@ -59,20 +59,28 @@ class ConversationLocalDataSource @Inject constructor(
         return conversationDao.getConversationListCount(ownerId)
     }
 
-    suspend fun updateMutedStatus(conversationId: String) {
-        conversationDao.updateMutedStatus(conversationId)
+    suspend fun updateMutedStatus(conversationId: String, muted: Boolean) {
+        conversationDao.updateMutedStatus(conversationId, muted)
     }
 
-    suspend fun updateDeleteStatus(conversationId: String) {
-        conversationDao.updateDeleteStatus(conversationId)
+    suspend fun updateDeleteStatus(conversationId: String, deleted: Boolean) {
+        conversationDao.updateDeleteStatus(conversationId, deleted)
     }
 
-    suspend fun updateBlockStatus(conversationId: String) {
-        conversationDao.updateBlockStatus(conversationId)
+    suspend fun updateBlockStatus(conversationId: String, blocked: Boolean) {
+        conversationDao.updateBlockStatus(conversationId, blocked)
     }
 
-    suspend fun updatePinnedStatus(conversationId: String) {
-        conversationDao.updatePinnedStatus(conversationId)
+    suspend fun updateConversationSyncedStatus(conversationId: String, synced: Boolean) {
+        conversationDao.updateSyncedStatus(conversationId, synced)
+    }
+
+    suspend fun updateSyncStatusOfConversations(conversationIds: List<String>, synced: Boolean) {
+        conversationDao.updateSyncedStatusOfConversations(conversationIds, synced)
+    }
+
+    suspend fun updatePinnedStatus(conversationId: String, pinned: Boolean) {
+        conversationDao.updatePinnedStatus(conversationId, pinned)
     }
 
     suspend fun updateLastMessage(message: MessageEntity){
@@ -82,6 +90,10 @@ class ConversationLocalDataSource @Inject constructor(
             lastMessageContent = message.content,
             lastSenderId = message.senderId
         )
+    }
+
+    suspend fun getUnSyncedConversations(): List<ConversationAndUser> {
+        return conversationDao.getUnSyncedConversation()
     }
 
 }

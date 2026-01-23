@@ -66,6 +66,7 @@ class ConversationRepositoryImp @Inject constructor(
     override fun observeConversationById(conversationId: String): Flow<Conversation> {
         return conversationLocalDataSource.observeConversationById(conversationId)
             .map { conversation ->
+                Timber.d("$conversation")
                 conversation?.toConversation() ?: Conversation()
             }
     }

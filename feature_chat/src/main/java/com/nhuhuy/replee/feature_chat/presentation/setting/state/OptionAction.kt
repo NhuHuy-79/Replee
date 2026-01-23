@@ -7,8 +7,8 @@ sealed interface OptionAction : UiAction {
     data class OnNameChange(val name: String) : OptionAction
     data object OnBackPressed: OptionAction
     data class OnSecondaryOptionSelect(val secondaryOption: SecondaryOption) : OptionAction
-    data object OnPin : OptionAction
-    data object OnMute : OptionAction
+    data class OnPin(val enable: Boolean) : OptionAction
+    data class OnMute(val enable: Boolean) : OptionAction
     data object OnConversationDelete : OptionAction
     data object OnNameSet : OptionAction
     data object OnDismiss : OptionAction

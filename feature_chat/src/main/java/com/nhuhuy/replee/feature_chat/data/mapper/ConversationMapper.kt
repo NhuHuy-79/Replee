@@ -6,6 +6,7 @@ import com.nhuhuy.replee.core.database.entity.conversation.ConversationEntity
 import com.nhuhuy.replee.core.firebase.utils.toMilliseconds
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTO
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTOUser
+import com.nhuhuy.replee.feature_chat.data.model.network.ConversationPatch
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.domain.model.ConversationOtherUser
 
@@ -27,6 +28,12 @@ fun Conversation.toConversationEntity(): ConversationEntity {
         lastMessageTime = this.lastMessageTime,
         lastMessageContent = this.lastMessageContent,
         unreadMessageCount = this.unreadMessageCount,
+        muted = this.muted,
+        blocked = this.blocked,
+        pinned = this.pinned,
+        deleted = this.deleted,
+        synced = false,
+        lastTimeSyncs = System.currentTimeMillis()
     )
 }
 
@@ -51,7 +58,15 @@ fun ConversationAndUser.toConversationDTO() : ConversationDTO {
     )
 }
 
-fun ConversationAndUser.toMap(): Map<String, FieldValue> {
+fun ConversationAndUser.toConversationPatch(): ConversationPatch {
+    return ConversationPatch(
+        id = this.conversation.id,
+        mapFieldValue = this.toFieldValueMap(),
+        mapLastMessage = this.toLastMessageMap()
+    )
+}
+
+fun ConversationAndUser.toFieldValueMap(): Map<String, FieldValue> {
     val mutedList = unionOrRemoveArray(conversation.muted, conversation.ownerId)
     val pinnedList = unionOrRemoveArray(conversation.pinned, conversation.ownerId)
     val blockedList = unionOrRemoveArray(conversation.blocked, conversation.ownerId)
@@ -61,6 +76,14 @@ fun ConversationAndUser.toMap(): Map<String, FieldValue> {
         "pinnedBy" to pinnedList,
         "blockedBy" to blockedList,
         "deletedBy" to deletedList
+    )
+}
+
+fun ConversationAndUser.toLastMessageMap(): Map<String, Any?> {
+    return mapOf(
+        "lastSenderId" to conversation.lastSenderId,
+        "lastMessageTime" to conversation.lastMessageTime,
+        "lastMessageContent" to conversation.lastMessageContent
     )
 }
 
@@ -81,10 +104,10 @@ fun ConversationDTO.toConversation(
         lastMessageContent = lastMessageContent,
         unreadMessageCount = unreadMessageCount,
         seedColor = seedColor,
-        muted = owner.uid in mutedBy,
-        pinned = owner.uid in pinnedBy,
-        blocked = owner.uid in blockedBy,
-        deleted = owner.uid in deletedBy
+        muted = mutedBy.contains(otherUser.uid),
+        pinned = pinnedBy.contains(otherUser.uid),
+        blocked = blockedBy.contains(otherUser.uid),
+        deleted = deletedBy.contains(otherUser.uid)
     )
 }
 

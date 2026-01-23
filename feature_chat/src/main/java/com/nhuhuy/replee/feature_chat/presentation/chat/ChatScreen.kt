@@ -4,9 +4,11 @@ package com.nhuhuy.replee.feature_chat.presentation.chat
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -51,6 +53,7 @@ fun ChatScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             ChatTopBar(
+                enable = !blocked,
                 otherUserName = state.otherUser.name,
                 onBackClick = {
                     onAction(ChatAction.OnBackClick)
@@ -64,7 +67,7 @@ fun ChatScreen(
             )
         },
 
-    ) { innerPadding ->
+        ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -77,7 +80,10 @@ fun ChatScreen(
                 BlockedWarning(
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                Spacer(Modifier.height(16.dp))
             }
+
             ScreenStateHost(
                 modifier = Modifier.fillMaxWidth(),
                 state = state.sendMessageState,
@@ -142,6 +148,7 @@ fun ChatScreen(
 @Composable
 fun ChatTopBar(
     otherUserName: String,
+    enable: Boolean = true,
     onBackClick: () -> Unit,
     onSearchClick: () -> Unit,
     onMoreClick: () -> Unit,
@@ -168,6 +175,7 @@ fun ChatTopBar(
         },
         actions = {
             IconButton(
+                enabled = enable,
                 onClick = onSearchClick
             ) {
                 Icon(
@@ -176,6 +184,7 @@ fun ChatTopBar(
                 )
             }
             IconButton(
+                enabled = enable,
                 onClick = onMoreClick
             ) {
                 Icon(

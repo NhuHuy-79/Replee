@@ -79,8 +79,9 @@ class ConversationViewModel @Inject constructor(
     val conversationState: StateFlow<ScreenState<List<Conversation>>> =
         conversationRepository.observeLocalConversations().map { list ->
             ScreenState.Success(list)
-        }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ScreenState.Loading)
+        }.stateIn(
+            viewModelScope, SharingStarted.WhileSubscribed(5000), ScreenState.Loading
+        )
 
     override fun onAction(action: ConversationAction) {
         viewModelScope.launch {

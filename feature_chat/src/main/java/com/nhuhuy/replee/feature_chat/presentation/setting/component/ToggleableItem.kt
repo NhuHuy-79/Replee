@@ -19,7 +19,7 @@ fun ToggleableItem(
     @StringRes res: Int,
     @StringRes subRes: Int,
     checked: Boolean,
-    onCheckedChange: () -> Unit,
+    onCheckedChange: (enable: Boolean) -> Unit,
     modifier: Modifier = Modifier,
     shape: RoundedCornerShape,
     containerColor: Color = MaterialTheme.colorScheme.surfaceVariant,
@@ -48,9 +48,7 @@ fun ToggleableItem(
             trailingContent = {
                 Switch(
                     checked = checked,
-                    onCheckedChange = {
-                        onCheckedChange()
-                    }
+                    onCheckedChange = onCheckedChange
                 )
             }
         )

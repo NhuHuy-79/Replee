@@ -4,11 +4,13 @@ import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.safeCall
 import com.nhuhuy.replee.core.common.toRemoteFailure
+import com.nhuhuy.replee.feature_chat.data.mapper.toConversationPatch
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
+import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
+import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
-import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +20,9 @@ import javax.inject.Inject
 
 interface SyncManager {
     suspend fun updateMessageStatus(messageId: String, status: MessageStatus)
+    suspend fun updateConversationStatus(conversationId: String, synced: Boolean)
     suspend fun syncMessage() : Resource<Unit, RemoteFailure>
+    suspend fun syncConversation(): Resource<Unit, RemoteFailure>
     suspend fun cleanUpDatabase()
 }
 
@@ -28,7 +32,8 @@ class SyncManagerImp @Inject constructor(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val messageLocalDataSource: MessageLocalDataSource,
     private val messageNetworkDataSource: MessageNetworkDataSource,
-    private val conversationLocalDataSource: ConversationLocalDataSource
+    private val conversationLocalDataSource: ConversationLocalDataSource,
+    private val conversationNetworkDataSource: ConversationNetworkDataSource
 ) : SyncManager{
     override suspend fun updateMessageStatus(
         messageId: String,
@@ -37,6 +42,15 @@ class SyncManagerImp @Inject constructor(
        return withContext(dispatcher){
             messageLocalDataSource.updateSyncStatus(
                 listOf(messageId), status)
+        }
+    }
+
+    override suspend fun updateConversationStatus(
+        conversationId: String,
+        synced: Boolean
+    ) {
+        return withContext(dispatcher) {
+            conversationLocalDataSource.updateConversationSyncedStatus(conversationId, synced)
         }
     }
 
@@ -55,6 +69,25 @@ class SyncManagerImp @Inject constructor(
                 val conversationIds = messageNetworkDataSource.sendMessages(unSyncedMessages)
                 messageLocalDataSource.updateSyncStatus(messageIds, MessageStatus.SYNCED)
                 conversationLocalDataSource.updateLastSyncedTime(conversationIds, System.currentTimeMillis())
+            }
+        }
+    }
+
+    override suspend fun syncConversation(): Resource<Unit, RemoteFailure> {
+        return withContext(dispatcher) {
+            safeCall(
+                throwable = { e -> e.toRemoteFailure() }
+            ) {
+                val conversationAndUsers = conversationLocalDataSource.getUnSyncedConversations()
+                val conversationIds = conversationAndUsers.map { conversationAndUsers ->
+                    conversationAndUsers.conversation.id
+                }
+                val conversationPatchList = conversationAndUsers.map { conversationAndUser ->
+                    conversationAndUser.toConversationPatch()
+                }
+
+                conversationNetworkDataSource.updateConversations(conversationPatchList)
+                conversationLocalDataSource.updateSyncStatusOfConversations(conversationIds, true)
             }
         }
     }

@@ -4,8 +4,11 @@ import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.data.repository.AccountRepository
+import com.nhuhuy.replee.core.common.error_handling.onFailure
+import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.design_system.component.DynamicInput
+import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationSettingRepository
@@ -32,15 +35,14 @@ class OptionViewModel @AssistedInject constructor(
     @Assisted("name") private val otherUserName: String,
     @Assisted("email") private val otherUserEmail: String,
     private val validator: Validator,
+    private val syncManager: SyncManager,
     private val accountRepository: AccountRepository,
     private val conversationRepository: ConversationRepository,
     private val conversationSettingRepository: ConversationSettingRepository
 ) : BaseViewModel<OptionAction, OptionEvent, OptionState>() {
     val conversation = conversationRepository.observeConversationById(conversationId)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Conversation())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Conversation())
 
-    val blocked = accountRepository.observeBlockStatus(conversationId, otherUserId)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
     private val _state = MutableStateFlow(
         OptionState(
             otherUserId = otherUserId,
@@ -80,15 +82,41 @@ class OptionViewModel @AssistedInject constructor(
                 }
 
                 is OptionAction.OnMute -> {
-                    conversationSettingRepository.muteOtherUser(conversationId)
+                    conversationSettingRepository.muteOtherUser(
+                        conversationId,
+                        otherUserId,
+                        action.enable
+                    )
+                        .onSuccess {
+                            syncManager.updateConversationStatus(conversationId, synced = true)
+                        }
+                        .onFailure {
+                            syncManager.updateConversationStatus(conversationId, synced = false)
+                        }
                 }
 
                 is OptionAction.OnPin -> {
-                    conversationSettingRepository.pinConversation(conversationId)
+                    conversationSettingRepository.pinConversation(
+                        conversationId,
+                        otherUserId,
+                        action.enable
+                    )
+                        .onSuccess {
+                            syncManager.updateConversationStatus(conversationId, synced = true)
+                        }
+                        .onFailure {
+                            syncManager.updateConversationStatus(conversationId, synced = false)
+                        }
                 }
 
                 OptionAction.OnConversationDelete -> {
                     conversationSettingRepository.deleteConversation(conversationId)
+                        .onSuccess {
+                            syncManager.updateConversationStatus(conversationId, synced = true)
+                        }
+                        .onFailure {
+                            syncManager.updateConversationStatus(conversationId, synced = false)
+                        }
                     _state.reduce {
                         copy(overlay = OptionOverlay.NONE)
                     }

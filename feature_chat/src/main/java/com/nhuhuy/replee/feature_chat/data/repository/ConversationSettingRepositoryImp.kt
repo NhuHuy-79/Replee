@@ -1,7 +1,12 @@
 package com.nhuhuy.replee.feature_chat.data.repository
 
+import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
+import com.nhuhuy.replee.core.common.error_handling.Resource
+import com.nhuhuy.replee.core.common.error_handling.safeCall
+import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.feature_chat.data.data_store.SeedColor
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
+import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationSettingRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -9,6 +14,7 @@ import javax.inject.Inject
 
 class ConversationSettingRepositoryImp @Inject constructor(
     private val dispatcher: CoroutineDispatcher,
+    private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource
 ) : ConversationSettingRepository {
     override suspend fun updateSeedColor(seedColor: SeedColor) {
@@ -17,27 +23,63 @@ class ConversationSettingRepositoryImp @Inject constructor(
         }
     }
 
-    override suspend fun muteOtherUser(conversationId: String) {
+    override suspend fun muteOtherUser(
+        conversationId: String,
+        otherUser: String,
+        muted: Boolean
+    ): Resource<Unit, RemoteFailure> {
         return withContext(dispatcher) {
-            conversationLocalDataSource.updateMutedStatus(conversationId)
+            conversationLocalDataSource.updateMutedStatus(conversationId, muted)
+            safeCall(
+                throwable = { e -> e.toRemoteFailure() }
+            ) {
+                conversationNetworkDataSource.updateMutedStatus(conversationId, otherUser, muted)
+            }
         }
     }
 
-    override suspend fun pinConversation(conversationId: String) {
+    override suspend fun pinConversation(
+        conversationId: String,
+        currentUser: String,
+        pinned: Boolean
+    ): Resource<Unit, RemoteFailure> {
         return withContext(dispatcher) {
-            conversationLocalDataSource.updatePinnedStatus(conversationId)
+            conversationLocalDataSource.updatePinnedStatus(conversationId, pinned)
+            safeCall(
+                throwable = { e -> e.toRemoteFailure() }
+            ) {
+                conversationNetworkDataSource.updatePinnedStatus(
+                    conversationId,
+                    currentUser,
+                    pinned
+                )
+            }
         }
     }
 
-    override suspend fun blockOtherUser(conversationId: String) {
+    override suspend fun blockOtherUser(
+        conversationId: String,
+        otherUser: String,
+        blocked: Boolean
+    ): Resource<Unit, RemoteFailure> {
         return withContext(dispatcher) {
-            conversationLocalDataSource.updateBlockStatus(conversationId)
+            conversationLocalDataSource.updateBlockStatus(conversationId, blocked)
+            safeCall(
+                throwable = { e -> e.toRemoteFailure() }
+            ) {
+                //
+            }
         }
     }
 
-    override suspend fun deleteConversation(conversationId: String) {
+    override suspend fun deleteConversation(conversationId: String): Resource<Unit, RemoteFailure> {
         return withContext(dispatcher) {
-            conversationLocalDataSource.updateDeleteStatus(conversationId)
+            //Delete conversation
+            safeCall(
+                throwable = { e -> e.toRemoteFailure() }
+            ) {
+                //TODO("delete conversation")
+            }
         }
     }
 

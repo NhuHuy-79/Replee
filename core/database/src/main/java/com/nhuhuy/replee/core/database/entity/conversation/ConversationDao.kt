@@ -46,16 +46,27 @@ interface ConversationDao : BaseDao<ConversationEntity> {
         lastSenderId: String,
         lastMessageTime: Long,
     )
-    @Query("UPDATE conversation SET muted = NOT (muted) WHERE id = :conversationId")
-    suspend fun updateMutedStatus(conversationId: String)
 
-    @Query("UPDATE conversation SET deleted = NOT (deleted) WHERE id = :conversationId")
-    suspend fun updateDeleteStatus(conversationId: String)
+    @Query("UPDATE conversation SET muted = :muted WHERE id = :conversationId")
+    suspend fun updateMutedStatus(conversationId: String, muted: Boolean)
 
-    @Query("UPDATE conversation SET blocked = NOT (blocked) WHERE id = :conversationId")
-    suspend fun updateBlockStatus(conversationId: String)
+    @Query("UPDATE conversation SET deleted = :deleted WHERE id = :conversationId")
+    suspend fun updateDeleteStatus(conversationId: String, deleted: Boolean)
 
-    @Query("UPDATE conversation SET pinned = NOT (pinned) WHERE id = :conversationId")
-    suspend fun updatePinnedStatus(conversationId: String)
+    @Query("UPDATE conversation SET blocked = :blocked WHERE id = :conversationId")
+    suspend fun updateBlockStatus(conversationId: String, blocked: Boolean)
+
+    @Query("UPDATE conversation SET pinned = :pinned WHERE id = :conversationId")
+    suspend fun updatePinnedStatus(conversationId: String, pinned: Boolean)
+
+    @Query("UPDATE conversation SET synced = :synced WHERE id = :conversationId")
+    suspend fun updateSyncedStatus(conversationId: String, synced: Boolean)
+
+    @Transaction
+    @Query("SELECT * from conversation WHERE synced = 0")
+    suspend fun getUnSyncedConversation(): List<ConversationAndUser>
+
+    @Query("UPDATE conversation SET synced = :synced WHERE id in (:conversations)")
+    suspend fun updateSyncedStatusOfConversations(conversations: List<String>, synced: Boolean)
 
 }

@@ -73,8 +73,8 @@ fun OptionScreen(
                     res = R.string.setting_pin_conversation,
                     subRes = R.string.setting_pin_conversation_sub,
                     checked = conversation.pinned,
-                    onCheckedChange = {
-                        onAction(OptionAction.OnPin)
+                    onCheckedChange = { pinned ->
+                        onAction(OptionAction.OnPin(pinned))
                     },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(
@@ -91,8 +91,8 @@ fun OptionScreen(
                     res = R.string.setting_mute_conversation,
                     subRes = R.string.setting_mute_conversation_sub,
                     checked = conversation.muted,
-                    onCheckedChange = {
-                        onAction(OptionAction.OnMute)
+                    onCheckedChange = { muted ->
+                        onAction(OptionAction.OnMute(muted))
                     },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(

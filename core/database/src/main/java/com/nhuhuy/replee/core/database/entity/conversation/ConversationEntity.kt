@@ -27,7 +27,10 @@ data class ConversationEntity(
     @ColumnInfo(name = "blocked", defaultValue = "false")
     val blocked: Boolean = false,
     @ColumnInfo(name = "deleted", defaultValue = "false")
-    val deleted: Boolean = false
+    val deleted: Boolean = false,
+    //Add sync
+    @ColumnInfo(name = "synced", defaultValue = "false")
+    val synced: Boolean = false
 )
 
 data class ConversationAndUser(
