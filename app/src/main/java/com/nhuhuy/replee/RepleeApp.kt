@@ -7,7 +7,7 @@ import android.content.Context
 import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
-import com.nhuhuy.replee.worker.sync.WorkerScheduler
+import com.nhuhuy.replee.worker.WorkerScheduler
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 import javax.inject.Inject

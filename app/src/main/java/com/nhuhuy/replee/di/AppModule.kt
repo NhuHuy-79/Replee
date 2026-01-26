@@ -5,8 +5,8 @@ import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.firebase.network.mapper.NetworkMapper
 import com.nhuhuy.replee.notification.NotificationParser
-import com.nhuhuy.replee.worker.sync.WorkerScheduler
-import com.nhuhuy.replee.worker.sync.WorkerSchedulerImp
+import com.nhuhuy.replee.worker.WorkerScheduler
+import com.nhuhuy.replee.worker.WorkerSchedulerImp
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
