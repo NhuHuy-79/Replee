@@ -12,6 +12,7 @@ import com.nhuhuy.replee.feature_chat.domain.model.ConversationOtherUser
 
 fun ConversationDTOUser.toUserInConversation() : ConversationOtherUser {
     return ConversationOtherUser(
+        nick = nick,
         uid = uid,
         name = name
     )
@@ -28,6 +29,8 @@ fun Conversation.toConversationEntity(): ConversationEntity {
         lastMessageTime = this.lastMessageTime,
         lastMessageContent = this.lastMessageContent,
         unreadMessageCount = this.unreadMessageCount,
+        ownerNick = this.owner.nick,
+        otherUserNick = this.otherUser.nick,
         muted = this.muted,
         blocked = this.blocked,
         pinned = this.pinned,
@@ -39,11 +42,13 @@ fun Conversation.toConversationEntity(): ConversationEntity {
 
 fun ConversationAndUser.toConversationDTO() : ConversationDTO {
     val user1 = ConversationDTOUser(
+        nick = conversation.ownerNick,
         uid = owner?.uid.orEmpty(),
         name = owner?.name.orEmpty()
     )
 
     val user2 = ConversationDTOUser(
+        nick = conversation.otherUserNick,
         uid = otherUser?.uid.orEmpty(),
         name = otherUser?.name.orEmpty()
     )
@@ -114,10 +119,12 @@ fun ConversationDTO.toConversation(
 fun ConversationAndUser.toConversation(): Conversation {
 
     val owner = ConversationOtherUser(
+        nick = conversation.ownerNick,
         uid = owner?.uid.orEmpty(),
         name = owner?.name.orEmpty()
     )
     val otherUser = ConversationOtherUser(
+        nick = conversation.otherUserNick,
         uid = otherUser?.uid.orEmpty(),
         name = otherUser?.name.orEmpty()
     )

@@ -12,7 +12,8 @@ data class OptionState(
     val otherUserId: String = "",
     val otherUserEmail: String = "",
     val overlay: OptionOverlay = OptionOverlay.NONE,
-    val nickName: DynamicInput = DynamicInput()
+    val ownerNickName: DynamicInput = DynamicInput(),
+    val otherUserNickName: DynamicInput = DynamicInput(),
 ) : UiState
 
 enum class OptionOverlay {

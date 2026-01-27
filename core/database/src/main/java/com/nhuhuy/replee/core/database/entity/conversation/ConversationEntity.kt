@@ -19,6 +19,10 @@ data class ConversationEntity(
     val lastSenderId: String = "",
     val lastMessageTime: Long? = null,
     val lastTimeSyncs: Long? = null,
+    @ColumnInfo(name = "ownerNick", defaultValue = "")
+    val ownerNick: String = "",
+    @ColumnInfo(name = "otherUserNick", defaultValue = "")
+    val otherUserNick: String = "",
     //Add field
     @ColumnInfo(name = "muted", defaultValue = "false")
     val muted: Boolean = false,

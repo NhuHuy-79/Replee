@@ -14,7 +14,7 @@ import com.nhuhuy.replee.core.database.entity.message.MessageEntity
 
 @Database(
     entities = [AccountEntity::class, ConversationEntity::class, MessageEntity::class],
-    version = 9,
+    version = 10,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(
@@ -31,6 +31,9 @@ import com.nhuhuy.replee.core.database.entity.message.MessageEntity
         ),
         AutoMigration(
             from = 8, to = 9
+        ),
+        AutoMigration(
+            from = 9, to = 10
         )
     ]
 )

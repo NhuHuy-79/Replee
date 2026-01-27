@@ -6,6 +6,17 @@ import com.nhuhuy.replee.feature_chat.data.data_store.SeedColor
 
 interface ConversationSettingRepository {
     suspend fun updateSeedColor(seedColor: SeedColor)
+    suspend fun updateOwnerNickname(
+        uid: String,
+        conversationId: String,
+        nickName: String
+    ): Resource<Unit, RemoteFailure>
+
+    suspend fun updateOtherUserNickname(
+        uid: String,
+        conversationId: String,
+        nickName: String
+    ): Resource<Unit, RemoteFailure>
     suspend fun muteOtherUser(
         conversationId: String,
         otherUser: String,

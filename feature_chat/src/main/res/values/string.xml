@@ -49,7 +49,8 @@
     <string name="setting_set_nickname_sub">Give this contact a custom name</string>
 
     <string name="sheet_title_set_nick_name">Set Nickname</string>
-    <string name="sheet_title_text_field_label">Name</string>
+    <string name="sheet_field_owner_name">Your Nick name</string>
+    <string name="sheet_field_other_user_name">Other Nick Name</string>
     <string name="sheet_title_set_nick_name_btn">Confirm</string>
     <string name="dialog_delete_conversation">Delete Conversation</string>
     <string name="dialog_delete_conversation_content">

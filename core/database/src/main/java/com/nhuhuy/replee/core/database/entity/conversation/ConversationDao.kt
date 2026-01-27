@@ -69,4 +69,10 @@ interface ConversationDao : BaseDao<ConversationEntity> {
     @Query("UPDATE conversation SET synced = :synced WHERE id in (:conversations)")
     suspend fun updateSyncedStatusOfConversations(conversations: List<String>, synced: Boolean)
 
+    @Query("UPDATE conversation SET ownerNick = :ownerNick WHERE id = :conversationId")
+    suspend fun updateOwnerNickname(conversationId: String, ownerNick: String)
+
+    @Query("UPDATE conversation SET otherUserNick = :otherUserNick WHERE id = :conversationId")
+    suspend fun updateOtherUserNickname(conversationId: String, otherUserNick: String)
+
 }

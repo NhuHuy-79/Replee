@@ -32,6 +32,7 @@ sealed interface HomeDestination : NavKey {
 
     @Serializable
     data class Information(
+        val currentUserId: String,
         val conversationId: String,
         val otherUserName: String,
         val otherUserId: String,
@@ -78,13 +79,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
         )
     }
 
-    entry<HomeDestination.Chat>(
-        /*{
-            navDeepLink {
-                uriPattern = "$DOMAIN_URI/{conversationId}?senderId={otherUserId}&receiverId={ownerId}"
-            }
-        }*/
-    ) { screen ->
+    entry<HomeDestination.Chat> { screen ->
         val viewModel: ChatViewModel = hiltViewModel(
             key = screen.conversationId,
             creationCallback = { factory: ChatViewModel.Factory ->
@@ -108,7 +103,8 @@ fun EntryProviderScope<NavKey>.chatGraph(
                             otherUserId = event.otherUserId,
                             otherUserName = event.otherUserName,
                             otherUserEmail = event.otherUserEmail,
-                            conversationId = event.conversationId
+                            conversationId = event.conversationId,
+                            currentUserId = event.currentUserId
                         )
                     )
                 }
@@ -130,6 +126,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
                     otherUserId = screen.otherUserId,
                     otherUserName = screen.otherUserName,
                     otherUserEmail = screen.otherUserEmail,
+                    currentUserId = screen.currentUserId,
                     conversationId = screen.conversationId
                 )
             }

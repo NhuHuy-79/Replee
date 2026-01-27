@@ -96,4 +96,12 @@ class ConversationLocalDataSource @Inject constructor(
         return conversationDao.getUnSyncedConversation()
     }
 
+    suspend fun updateOwnerNickName(conversationId: String, nickname: String) {
+        return conversationDao.updateOwnerNickname(conversationId = conversationId, nickname)
+    }
+
+    suspend fun updateOtherUserNickname(conversationId: String, nickname: String) {
+        return conversationDao.updateOtherUserNickname(conversationId = conversationId, nickname)
+    }
+
 }

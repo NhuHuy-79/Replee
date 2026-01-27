@@ -54,7 +54,7 @@ fun ChatScreen(
         topBar = {
             ChatTopBar(
                 enable = !blocked,
-                otherUserName = state.otherUser.name,
+                otherUserName = state.otherUserName,
                 onBackClick = {
                     onAction(ChatAction.OnBackClick)
                 },

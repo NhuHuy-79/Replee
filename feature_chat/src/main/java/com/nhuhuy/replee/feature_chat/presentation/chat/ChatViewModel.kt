@@ -150,6 +150,7 @@ class ChatViewModel @AssistedInject constructor(
                     val otherUser = state.value.otherUser
                     onEvent(
                         NavigateToInformation(
+                            currentUserId = currentUserId,
                             conversationId = conversationId,
                             otherUserId = otherUserId,
                             otherUserName = otherUser.name,

@@ -31,7 +31,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = OptionViewModel.Factory::class)
 class OptionViewModel @AssistedInject constructor(
     @Assisted("conversationId") private val conversationId: String,
-    @Assisted("uid") private val otherUserId: String,
+    @Assisted("currentUserId") private val currentUserId: String,
+    @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("name") private val otherUserName: String,
     @Assisted("email") private val otherUserEmail: String,
     private val validator: Validator,
@@ -59,10 +60,10 @@ class OptionViewModel @AssistedInject constructor(
                 OptionAction.OnBackPressed -> {
                     onEvent(OptionEvent.NavigateBack)
                 }
+
                 is OptionAction.OnSecondaryOptionSelect -> {
                     when (action.secondaryOption) {
                         SecondaryOption.SET_NICK -> {
-                            //TODO("set nick name for user)
                             _state.reduce { copy(overlay = OptionOverlay.SET_NICK_NAME) }
                         }
 
@@ -122,15 +123,10 @@ class OptionViewModel @AssistedInject constructor(
                     }
                 }
 
-                is OptionAction.OnNameSet -> {
-                    //TODO("set nick name for user")
-                    _state.reduce { copy(overlay = OptionOverlay.NONE) }
-                }
-
-                is OptionAction.OnNameChange -> {
+                is OptionAction.OnOwnerNickNameChange -> {
                     _state.reduce {
                         copy(
-                            nickName = DynamicInput(
+                            ownerNickName = DynamicInput(
                                 text = action.name,
                                 validateResult = validator.validateNickName(action.name)
                             )
@@ -141,6 +137,38 @@ class OptionViewModel @AssistedInject constructor(
                 OptionAction.OnDismiss -> {
                     _state.reduce { copy(overlay = OptionOverlay.NONE) }
                 }
+
+                is OptionAction.OnOtherNickNameChange -> {
+                    _state.reduce {
+                        copy(
+                            otherUserNickName = DynamicInput(
+                                text = action.name,
+                                validateResult = validator.validateNickName(action.name)
+                            )
+                        )
+                    }
+                }
+
+                OptionAction.OnOtherUserNickNameSet -> {
+                    val otherUserNickname = state.value.otherUserNickName
+                    conversationSettingRepository.updateOwnerNickname(
+                        uid = otherUserId,
+                        conversationId = conversationId,
+                        nickName = otherUserNickname.text
+                    )
+                    _state.reduce { copy(overlay = OptionOverlay.NONE) }
+
+                }
+
+                OptionAction.OnOwnerNickNameSet -> {
+                    val ownerNickname = state.value.ownerNickName
+                    conversationSettingRepository.updateOwnerNickname(
+                        uid = currentUserId,
+                        conversationId = conversationId,
+                        nickName = ownerNickname.text
+                    )
+                    _state.reduce { copy(overlay = OptionOverlay.NONE) }
+                }
             }
         }
     }
@@ -149,7 +177,8 @@ class OptionViewModel @AssistedInject constructor(
     interface Factory {
         fun create(
             @Assisted("conversationId") conversationId: String,
-            @Assisted("uid") otherUserId: String,
+            @Assisted("currentUserId") currentUserId: String,
+            @Assisted("otherUserId") otherUserId: String,
             @Assisted("name") otherUserName: String,
             @Assisted("email") otherUserEmail: String
         ): OptionViewModel

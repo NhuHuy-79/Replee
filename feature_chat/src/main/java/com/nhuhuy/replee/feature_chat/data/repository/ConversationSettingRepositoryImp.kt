@@ -10,6 +10,7 @@ import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetwo
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationSettingRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 class ConversationSettingRepositoryImp @Inject constructor(
@@ -23,6 +24,41 @@ class ConversationSettingRepositoryImp @Inject constructor(
         }
     }
 
+    override suspend fun updateOwnerNickname(
+        uid: String,
+        conversationId: String,
+        nickName: String
+    ): Resource<Unit, RemoteFailure> {
+        return withContext(dispatcher) {
+            conversationLocalDataSource.updateOwnerNickName(conversationId, nickName)
+            safeCall(
+                throwable = { e ->
+                    e.toRemoteFailure()
+                }
+            ) {
+                conversationNetworkDataSource.updateNicknameForUser(uid, conversationId, nickName)
+            }
+        }
+    }
+
+    override suspend fun updateOtherUserNickname(
+        uid: String,
+        conversationId: String,
+        nickName: String
+    ): Resource<Unit, RemoteFailure> {
+        return withContext(dispatcher) {
+            conversationLocalDataSource.updateOwnerNickName(conversationId, nickName)
+            safeCall(
+                throwable = { e ->
+                    Timber.e(e)
+                    e.toRemoteFailure()
+                }
+            ) {
+                conversationNetworkDataSource.updateNicknameForUser(uid, conversationId, nickName)
+            }
+        }
+    }
+
     override suspend fun muteOtherUser(
         conversationId: String,
         otherUser: String,
@@ -31,7 +67,10 @@ class ConversationSettingRepositoryImp @Inject constructor(
         return withContext(dispatcher) {
             conversationLocalDataSource.updateMutedStatus(conversationId, muted)
             safeCall(
-                throwable = { e -> e.toRemoteFailure() }
+                throwable = { e ->
+                    Timber.e(e)
+                    e.toRemoteFailure()
+                }
             ) {
                 conversationNetworkDataSource.updateMutedStatus(conversationId, otherUser, muted)
             }

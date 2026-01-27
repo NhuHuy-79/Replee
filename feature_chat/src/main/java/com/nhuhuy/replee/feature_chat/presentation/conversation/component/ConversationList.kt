@@ -90,7 +90,7 @@ fun ConversationItem(
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         UserImage(
-            userName = conversation.otherUser.name
+            userName = conversation.otherUser.nick.ifEmpty { conversation.otherUser.name },
         )
         ConversationLastMessage(
             isLastSender = conversation.lastSenderId == conversation.owner.uid,

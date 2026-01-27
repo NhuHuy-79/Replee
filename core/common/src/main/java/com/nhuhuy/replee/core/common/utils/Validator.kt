@@ -37,7 +37,6 @@ class Validator() {
 
     fun validateNickName(name: String): ValidateResult {
         return when {
-            name.isBlank() -> ValidateResult.Empty
             name.length > 100 -> ValidateResult.NameError.TOO_LONG
             else -> ValidateResult.Valid
         }

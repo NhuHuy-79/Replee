@@ -21,8 +21,10 @@ import com.nhuhuy.replee.feature_chat.R
 
 @Composable
 fun SetNickNameSheet(
-    input: DynamicInput,
-    onValueChange: (name: String) -> Unit,
+    ownerNickName: DynamicInput,
+    otherUserNickName: DynamicInput,
+    onOtherUserNameChange: (name: String) -> Unit,
+    onOwnerNameChange: (name: String) -> Unit,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
@@ -38,17 +40,34 @@ fun SetNickNameSheet(
 
         NormalTextField(
             modifier = Modifier.fillMaxWidth(),
-            label = R.string.sheet_title_text_field_label,
+            label = R.string.sheet_field_owner_name,
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Rounded.Person,
                     contentDescription = null
                 )
             },
-            dynamicInput = input,
-            onValueChange = onValueChange,
-            errorText = input.validateResult.toUiText(),
+            dynamicInput = ownerNickName,
+            onValueChange = onOwnerNameChange,
+            errorText = ownerNickName.validateResult.toUiText(),
         )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        NormalTextField(
+            modifier = Modifier.fillMaxWidth(),
+            label = R.string.sheet_field_other_user_name,
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Rounded.Person,
+                    contentDescription = null
+                )
+            },
+            dynamicInput = otherUserNickName,
+            onValueChange = onOtherUserNameChange,
+            errorText = ownerNickName.validateResult.toUiText(),
+        )
+
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -57,7 +76,7 @@ fun SetNickNameSheet(
                 .fillMaxWidth()
                 .height(56.dp),
             res = R.string.sheet_title_set_nick_name_btn,
-            enabled = input.valid,
+            enabled = ownerNickName.valid,
             onClick = onConfirm
         )
     }

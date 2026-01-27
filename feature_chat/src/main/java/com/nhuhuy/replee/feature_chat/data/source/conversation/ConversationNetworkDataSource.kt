@@ -83,6 +83,15 @@ class ConversationNetworkDataSource @Inject constructor(
 
     }
 
+    suspend fun updateNicknameForUser(uid: String, nickName: String, conversationId: String) {
+        val dto = collection.document(conversationId).get().await().toObject<ConversationDTO>()
+            ?: throw ConversationNotFoundException()
+        val userKey = if (uid == dto.user1.uid) "user1" else "user2"
+        collection.document(conversationId)
+            .update("${userKey}.nick", nickName)
+            .await()
+    }
+
     suspend fun updateLastMessage(message: MessageDTO, conversation: ConversationDTO) {
 
         val receiverId = if (message.senderId == conversation.user1.uid) {
