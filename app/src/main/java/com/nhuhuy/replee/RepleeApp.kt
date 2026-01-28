@@ -30,7 +30,16 @@ class RepleeApp() : Application(), Configuration.Provider{
         Timber.plant(Timber.DebugTree())
         workerScheduler.scheduleMessageSyncWorker()
         workerScheduler.scheduleConversationSyncWorker()
+
     }
+
+    /* private fun disableFirestoreCacheSetting() {
+         val settings = FirebaseFirestoreSettings.Builder()
+             .setPersistenceEnabled(false)
+             .build()
+
+         FirebaseFirestore.getInstance().firestoreSettings = settings
+     }*/
 
     private fun createNotificationChannel(context: Context) {
         val channel = NotificationChannel(

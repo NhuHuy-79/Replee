@@ -36,6 +36,13 @@ class AccountNetworkDataSource @Inject constructor(
             .toObject(AccountDTO::class.java) ?: throw FirestoreCannotConvertObjectException()
     }
 
+    suspend fun fetchAccountByIdList(ids: List<String>): List<AccountDTO> {
+        return collection.whereIn("id", ids)
+            .get()
+            .await()
+            .toObjects<AccountDTO>()
+    }
+
     suspend fun fetchAccountsByEmail(query: String): List<AccountDTO> {
         return collection
             .orderBy("email")

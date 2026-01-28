@@ -145,7 +145,7 @@ fun OptionScreen(
                 otherUserNickName = state.otherUserNickName,
                 onOtherUserNameChange = { name -> onAction(OptionAction.OnOtherNickNameChange(name)) },
                 onDismiss = { onAction(OptionAction.OnDismiss) },
-                onConfirm = { onAction(OptionAction.OnOwnerNickNameSet) }
+                onConfirm = { onAction(OptionAction.OnNickNameSet) }
             )
         }
 

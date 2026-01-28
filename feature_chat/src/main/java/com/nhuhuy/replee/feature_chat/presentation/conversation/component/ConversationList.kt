@@ -92,9 +92,9 @@ fun ConversationItem(
         UserImage(
             userName = conversation.otherUser.nick.ifEmpty { conversation.otherUser.name },
         )
-        ConversationLastMessage(
+        ConversationBody(
             isLastSender = conversation.lastSenderId == conversation.owner.uid,
-            userName = conversation.otherUser.name,
+            userName = conversation.otherUser.nick.ifEmpty { conversation.otherUser.name },
             messageContent = conversation.lastMessageContent,
         )
 
@@ -153,7 +153,7 @@ fun ConversationItem(
 }
 
 @Composable
-fun ConversationLastMessage(
+fun ConversationBody(
     isLastSender: Boolean,
     userName: String,
     messageContent: String,

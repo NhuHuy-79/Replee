@@ -7,6 +7,7 @@ import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import kotlinx.coroutines.flow.Flow
 
 interface ConversationRepository {
+    suspend fun fetchOtherUserInConversations(ownerId: String)
     suspend fun fetchConversations() : Resource<List<Conversation>, RemoteFailure>
     suspend fun getConversationCount() : Int
     fun observeLocalConversations() : Flow<List<Conversation>>

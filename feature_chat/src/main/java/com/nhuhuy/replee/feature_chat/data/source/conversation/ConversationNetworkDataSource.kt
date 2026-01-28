@@ -55,6 +55,22 @@ class ConversationNetworkDataSource @Inject constructor(
 
     }
 
+    suspend fun getConversationUserIdsWithOwner(ownerId: String): List<String> {
+        val conversationDTO = collection.whereArrayContains("memberIds", ownerId)
+            .get()
+            .await()
+            .toObjects<ConversationDTO>()
+        val userIds = conversationDTO.map { conversationDTO ->
+            if (conversationDTO.user1.uid == ownerId) {
+                conversationDTO.user2.uid
+            } else {
+                conversationDTO.user1.uid
+            }
+        }
+
+        return userIds
+    }
+
     suspend fun fetchConversationsByUser(uid: String): List<ConversationDTO> {
         val snapshot = collection.whereArrayContains("memberIds", uid)
             .get()
@@ -87,8 +103,11 @@ class ConversationNetworkDataSource @Inject constructor(
         val dto = collection.document(conversationId).get().await().toObject<ConversationDTO>()
             ?: throw ConversationNotFoundException()
         val userKey = if (uid == dto.user1.uid) "user1" else "user2"
+        val mapData = mapOf(
+            "$userKey.nick" to nickName
+        )
         collection.document(conversationId)
-            .update("${userKey}.nick", nickName)
+            .update(mapData)
             .await()
     }
 

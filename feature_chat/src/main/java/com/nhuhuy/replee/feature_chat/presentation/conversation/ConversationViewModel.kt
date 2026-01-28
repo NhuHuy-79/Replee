@@ -43,6 +43,7 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch {
             observeConversationFromNetwork()
             val currentUser = accountRepository.getCurrentAccount()
+            conversationRepository.fetchOtherUserInConversations(currentUser.id)
             _state.reduce {
                 copy(currentUser = currentUser)
             }

@@ -11,8 +11,7 @@ sealed interface OptionAction : UiAction {
     data class OnPin(val enable: Boolean) : OptionAction
     data class OnMute(val enable: Boolean) : OptionAction
     data object OnConversationDelete : OptionAction
-    data object OnOwnerNickNameSet : OptionAction
-    data object OnOtherUserNickNameSet : OptionAction
+    data object OnNickNameSet : OptionAction
     data object OnDismiss : OptionAction
 }
 

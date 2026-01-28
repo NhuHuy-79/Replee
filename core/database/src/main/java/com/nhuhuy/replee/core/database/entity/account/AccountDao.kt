@@ -18,5 +18,4 @@ interface AccountDao : BaseDao<AccountEntity>{
 
     @Query("SELECT * FROM accounts WHERE uid = :uid")
     fun observeBlockStatus(uid: String): Flow<AccountEntity?>
-
 }

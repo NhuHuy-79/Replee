@@ -1,11 +1,14 @@
 package com.nhuhuy.replee.feature_chat.data.repository
 
 import com.nhuhuy.replee.core.common.data.model.Account
+import com.nhuhuy.replee.core.common.data.model.toAccountEntity
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.mapResource
 import com.nhuhuy.replee.core.common.error_handling.safeCall
 import com.nhuhuy.replee.core.common.toRemoteFailure
+import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
+import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthService
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversation
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversationDTO
@@ -25,9 +28,21 @@ import javax.inject.Inject
 class ConversationRepositoryImp @Inject constructor(
     private val dispatcher: CoroutineDispatcher,
     private val firebaseAuthService: FirebaseAuthService,
+    private val accountLocalDataSource: AccountLocalDataSource,
+    private val accountNetworkDataSource: AccountNetworkDataSource,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource
 ) : ConversationRepository {
+    override suspend fun fetchOtherUserInConversations(ownerId: String) {
+        return withContext(dispatcher) {
+            val uids = conversationNetworkDataSource.getConversationUserIdsWithOwner(ownerId)
+            val accounts = accountNetworkDataSource.fetchAccountByIdList(uids).map { accountDTO ->
+                accountDTO.toAccountEntity()
+            }
+            accountLocalDataSource.upsertAccounts(accounts)
+        }
+    }
+
     override suspend fun fetchConversations(): Resource<List<Conversation>, RemoteFailure> {
         return withContext(dispatcher){
             safeCall(
@@ -52,7 +67,10 @@ class ConversationRepositoryImp @Inject constructor(
     override fun observeLocalConversations(): Flow<List<Conversation>> {
         val uid = firebaseAuthService.getCurrentUser().uid
         return conversationLocalDataSource.observeConversationAndUsers(uid).map { entities ->
-            entities.map { entity -> entity.toConversation() }
+            entities.map { entity ->
+                Timber.d("${entity.toConversation()}")
+                entity.toConversation()
+            }
         }.flowOn(dispatcher)
     }
 

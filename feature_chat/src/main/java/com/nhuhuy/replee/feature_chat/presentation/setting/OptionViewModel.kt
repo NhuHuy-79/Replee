@@ -149,25 +149,30 @@ class OptionViewModel @AssistedInject constructor(
                     }
                 }
 
-                OptionAction.OnOtherUserNickNameSet -> {
-                    val otherUserNickname = state.value.otherUserNickName
-                    conversationSettingRepository.updateOwnerNickname(
-                        uid = otherUserId,
-                        conversationId = conversationId,
-                        nickName = otherUserNickname.text
-                    )
-                    _state.reduce { copy(overlay = OptionOverlay.NONE) }
-
-                }
-
-                OptionAction.OnOwnerNickNameSet -> {
+                OptionAction.OnNickNameSet -> {
                     val ownerNickname = state.value.ownerNickName
-                    conversationSettingRepository.updateOwnerNickname(
-                        uid = currentUserId,
-                        conversationId = conversationId,
-                        nickName = ownerNickname.text
-                    )
-                    _state.reduce { copy(overlay = OptionOverlay.NONE) }
+                    val otherUserNickname = state.value.otherUserNickName
+                    if (otherUserNickname.text.isNotEmpty()) {
+                        conversationSettingRepository.updateOwnerNickname(
+                            uid = otherUserId,
+                            conversationId = conversationId,
+                            nickName = otherUserNickname.text
+                        )
+                    }
+                    if (ownerNickname.text.isNotEmpty()) {
+                        conversationSettingRepository.updateOwnerNickname(
+                            uid = currentUserId,
+                            conversationId = conversationId,
+                            nickName = ownerNickname.text
+                        )
+                    }
+                    _state.reduce {
+                        copy(
+                            ownerNickName = DynamicInput(),
+                            otherUserNickName = DynamicInput(),
+                            overlay = OptionOverlay.NONE
+                        )
+                    }
                 }
             }
         }
