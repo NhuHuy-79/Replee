@@ -164,6 +164,7 @@ fun ConversationBody(
     ) {
         Text(
             text = userName,
+            maxLines = 1,
             style = MaterialTheme.typography.titleMedium,
         )
 

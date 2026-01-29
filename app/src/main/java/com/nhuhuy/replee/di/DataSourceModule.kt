@@ -9,10 +9,10 @@ import com.nhuhuy.replee.core.database.entity.account.AccountDao
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationDao
 import com.nhuhuy.replee.core.database.entity.message.MessageDao
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthService
-import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
+import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
+import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStore
 import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStoreImp
 import dagger.Module
@@ -36,7 +36,10 @@ class DataSourceModule {
 
     @Provides
     @Singleton
-    fun provideAuthDataSource(firebaseAuth: FirebaseAuth, firebaseMessaging: FirebaseMessaging) : FirebaseAuthService = FirebaseAuthService(firebaseAuth, firebaseMessaging)
+    fun provideAuthDataSource(
+        firebaseAuth: FirebaseAuth,
+        firebaseMessaging: FirebaseMessaging
+    ): FirebaseAuthEmailService = FirebaseAuthEmailService(firebaseAuth, firebaseMessaging)
 
     @Provides
     @Singleton

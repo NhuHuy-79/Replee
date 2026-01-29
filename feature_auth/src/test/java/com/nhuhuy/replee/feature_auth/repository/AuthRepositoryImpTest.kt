@@ -8,7 +8,7 @@ import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.firebase.data.AccountDTO
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthService
+import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.core.firebase.utils.FirestoreDataNotFoundException
 import com.nhuhuy.replee.feature_auth.data.repository.AuthRepositoryImp
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
@@ -23,17 +23,23 @@ import org.junit.Test
 class AuthRepositoryImpTest {
     private lateinit var authRepository: AuthRepository
     private lateinit var accountNetworkDataSource: AccountNetworkDataSource
-    private lateinit var firebaseAuthService: FirebaseAuthService
+    private lateinit var firebaseAuthEmailService: FirebaseAuthEmailService
     private lateinit var appPreferences: AppPreferences
     private lateinit var accountLocalDataSource: AccountLocalDataSource
 
     @Before
     fun setUp() {
-        firebaseAuthService = mockk()
+        firebaseAuthEmailService = mockk()
         accountNetworkDataSource = mockk()
         accountLocalDataSource = mockk()
         appPreferences = mockk()
-        authRepository = AuthRepositoryImp(accountNetworkDataSource,firebaseAuthService, dispatcher = Dispatchers.IO, accountLocalDataSource, appPreferences)
+        authRepository = AuthRepositoryImp(
+            accountNetworkDataSource,
+            firebaseAuthEmailService,
+            dispatcher = Dispatchers.IO,
+            accountLocalDataSource,
+            appPreferences
+        )
     }
 
     private val fakeAccount = AccountDTO(
@@ -46,7 +52,7 @@ class AuthRepositoryImpTest {
     fun loginWithEmail_shouldReturnSuccessWithId() = runTest {
         fakeCurrentUserId()
         coEvery {
-            firebaseAuthService.loginWithEmail("email", "password")
+            firebaseAuthEmailService.loginWithEmail("email", "password")
         } returns Unit
 
         coEvery {
@@ -59,7 +65,7 @@ class AuthRepositoryImpTest {
         } returns Unit
 
         coEvery {
-            firebaseAuthService.getDeviceToken()
+            firebaseAuthEmailService.getDeviceToken()
         } returns "token"
 
         coEvery {
@@ -82,7 +88,7 @@ class AuthRepositoryImpTest {
         val exception = Exception("error")
         val expected: Resource<String, RemoteFailure> = Resource.Error(RemoteFailure.Unknown)
         coEvery {
-            firebaseAuthService.loginWithEmail("email", "password")
+            firebaseAuthEmailService.loginWithEmail("email", "password")
         } throws exception
         val actual = authRepository.loginWithEmail("email", "password")
 
@@ -93,7 +99,7 @@ class AuthRepositoryImpTest {
     fun signUpWithEmail_shouldReturnSuccessWithId() = runTest {
         fakeCurrentUserId()
         coEvery {
-            firebaseAuthService.signUpWithEmail("email", "password")
+            firebaseAuthEmailService.signUpWithEmail("email", "password")
         } returns Unit
         coEvery {
             accountNetworkDataSource.sendAccount(fakeAccount)
@@ -105,7 +111,7 @@ class AuthRepositoryImpTest {
         } returns Unit
 
         coEvery {
-            firebaseAuthService.getDeviceToken()
+            firebaseAuthEmailService.getDeviceToken()
         } returns "token"
 
         coEvery {
@@ -126,7 +132,7 @@ class AuthRepositoryImpTest {
     fun signUpWithEmail_whenThrowException_shouldReturnRemoteFailure() = runTest {
         fakeCurrentUserId()
         coEvery {
-            firebaseAuthService.signUpWithEmail("email", "password")
+            firebaseAuthEmailService.signUpWithEmail("email", "password")
         } returns Unit
         coEvery {
             accountNetworkDataSource.sendAccount(fakeAccount)
@@ -137,7 +143,7 @@ class AuthRepositoryImpTest {
 
         Truth.assertThat(expected).isInstanceOf(actual::class.java)
         coVerify {
-            firebaseAuthService.deleteCurrentUser()
+            firebaseAuthEmailService.deleteCurrentUser()
         }
     }
 
@@ -145,7 +151,7 @@ class AuthRepositoryImpTest {
     @Test
     fun sendRecoverPasswordEmail_shouldReturnSuccess() = runTest {
         coEvery {
-            firebaseAuthService.sendRecoverPasswordEmail("email")
+            firebaseAuthEmailService.sendRecoverPasswordEmail("email")
         } returns Unit
 
         val expected : Resource<Unit, RemoteFailure> = Resource.Success(Unit)
@@ -157,7 +163,7 @@ class AuthRepositoryImpTest {
 
     fun fakeCurrentUserId(){
         coEvery {
-            firebaseAuthService.getCurrentUser().uid
+            firebaseAuthEmailService.getCurrentUser().uid
         } returns "id"
     }
 }

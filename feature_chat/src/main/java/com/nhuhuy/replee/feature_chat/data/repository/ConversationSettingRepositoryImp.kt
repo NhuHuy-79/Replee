@@ -5,6 +5,7 @@ import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.safeCall
 import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.feature_chat.data.data_store.SeedColor
+import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTO
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationSettingRepository
@@ -30,13 +31,20 @@ class ConversationSettingRepositoryImp @Inject constructor(
         nickName: String
     ): Resource<Unit, RemoteFailure> {
         return withContext(dispatcher) {
-            conversationLocalDataSource.updateOwnerNickName(conversationId, nickName)
             safeCall(
                 throwable = { e ->
                     e.toRemoteFailure()
                 }
             ) {
-                conversationNetworkDataSource.updateNicknameForUser(uid, conversationId, nickName)
+                conversationLocalDataSource.updateOwnerNickName(conversationId, nickName)
+                val conversationDTO =
+                    conversationNetworkDataSource.fetchConversationById(conversationId)
+                conversationNetworkDataSource.updateNicknameForUser(
+                    uid,
+                    conversationId,
+                    conversationDTO
+                )
+                Timber.d("Change Nick Name1")
             }
         }
     }
@@ -47,14 +55,19 @@ class ConversationSettingRepositoryImp @Inject constructor(
         nickName: String
     ): Resource<Unit, RemoteFailure> {
         return withContext(dispatcher) {
-            conversationLocalDataSource.updateOwnerNickName(conversationId, nickName)
             safeCall(
                 throwable = { e ->
                     Timber.e(e)
                     e.toRemoteFailure()
                 }
             ) {
-                conversationNetworkDataSource.updateNicknameForUser(uid, conversationId, nickName)
+                /*conversationLocalDataSource.updateOwnerNickName(conversationId, nickName)*/
+                /*val conversationDTO = conversationNetworkDataSource.fetchConversationById(conversationId)*/
+                conversationNetworkDataSource.updateNicknameForUser(
+                    uid, conversationId,
+                    ConversationDTO()
+                )
+                Timber.d("Change Nick Name2")
             }
         }
     }

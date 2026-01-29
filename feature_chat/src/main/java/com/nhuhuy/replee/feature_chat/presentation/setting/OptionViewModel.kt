@@ -153,7 +153,7 @@ class OptionViewModel @AssistedInject constructor(
                     val ownerNickname = state.value.ownerNickName
                     val otherUserNickname = state.value.otherUserNickName
                     if (otherUserNickname.text.isNotEmpty()) {
-                        conversationSettingRepository.updateOwnerNickname(
+                        conversationSettingRepository.updateOtherUserNickname(
                             uid = otherUserId,
                             conversationId = conversationId,
                             nickName = otherUserNickname.text

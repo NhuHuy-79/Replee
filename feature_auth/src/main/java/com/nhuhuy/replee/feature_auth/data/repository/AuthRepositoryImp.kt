@@ -9,7 +9,7 @@ import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.firebase.data.AccountDTO
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthService
+import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 class AuthRepositoryImp @Inject constructor(
     private val accountNetworkDataSource: AccountNetworkDataSource,
-    private val firebaseAuthService: FirebaseAuthService,
+    private val firebaseAuthEmailService: FirebaseAuthEmailService,
     private val dispatcher: CoroutineDispatcher,
     private val accountLocalDataSource: AccountLocalDataSource,
     private val appPreferences: AppPreferences
@@ -34,13 +34,13 @@ class AuthRepositoryImp @Inject constructor(
                     e.toRemoteFailure()
                 }
             ) {
-                firebaseAuthService.loginWithEmail(email, password)
+                firebaseAuthEmailService.loginWithEmail(email, password)
 
-                val userId = firebaseAuthService.getCurrentUser().uid
+                val userId = firebaseAuthEmailService.getCurrentUser().uid
                 val account = accountNetworkDataSource.fetchAccountById(userId).toAccountEntity()
                 accountLocalDataSource.upsertAccount(account.copy(logOut = false))
 
-                val token = firebaseAuthService.getDeviceToken()
+                val token = firebaseAuthEmailService.getDeviceToken()
                 accountNetworkDataSource.updateDeviceToken(userId,token)
 
                 appPreferences.saveLoggedStatus(true)
@@ -61,9 +61,9 @@ class AuthRepositoryImp @Inject constructor(
                     e.toRemoteFailure()
                 },
             ) {
-                firebaseAuthService.signUpWithEmail(email, password)
+                firebaseAuthEmailService.signUpWithEmail(email, password)
 
-                val id = firebaseAuthService.getCurrentUser().uid
+                val id = firebaseAuthEmailService.getCurrentUser().uid
                 try {
                     val account = AccountDTO(
                         id = id,
@@ -73,12 +73,12 @@ class AuthRepositoryImp @Inject constructor(
                     accountNetworkDataSource.sendAccount(account)
                     accountLocalDataSource.upsertAccount(account.toAccountEntity().copy(logOut = false))
 
-                    val token = firebaseAuthService.getDeviceToken()
+                    val token = firebaseAuthEmailService.getDeviceToken()
                     accountNetworkDataSource.updateDeviceToken(id,token)
 
                 } catch (e: Exception) {
                     Timber.e(e)
-                    firebaseAuthService.deleteCurrentUser()
+                    firebaseAuthEmailService.deleteCurrentUser()
                 }
 
                 appPreferences.saveLoggedStatus(true)
@@ -95,7 +95,7 @@ class AuthRepositoryImp @Inject constructor(
                     e.toRemoteFailure()
                 }
             ) {
-                firebaseAuthService.sendRecoverPasswordEmail(email)
+                firebaseAuthEmailService.sendRecoverPasswordEmail(email)
             }
         }
     }
@@ -107,7 +107,7 @@ class AuthRepositoryImp @Inject constructor(
                 e.toRemoteFailure()
             }
         ) {
-            firebaseAuthService.getCurrentUser().uid
+            firebaseAuthEmailService.getCurrentUser().uid
         }
     }
 

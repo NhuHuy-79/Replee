@@ -9,7 +9,7 @@ import com.nhuhuy.replee.core.common.error_handling.safeCall
 import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthService
+import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversation
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversationDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversationEntity
@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 class ConversationRepositoryImp @Inject constructor(
     private val dispatcher: CoroutineDispatcher,
-    private val firebaseAuthService: FirebaseAuthService,
+    private val firebaseAuthEmailService: FirebaseAuthEmailService,
     private val accountLocalDataSource: AccountLocalDataSource,
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
@@ -36,6 +36,9 @@ class ConversationRepositoryImp @Inject constructor(
     override suspend fun fetchOtherUserInConversations(ownerId: String) {
         return withContext(dispatcher) {
             val uids = conversationNetworkDataSource.getConversationUserIdsWithOwner(ownerId)
+
+            if (uids.isEmpty()) return@withContext
+
             val accounts = accountNetworkDataSource.fetchAccountByIdList(uids).map { accountDTO ->
                 accountDTO.toAccountEntity()
             }
@@ -51,7 +54,7 @@ class ConversationRepositoryImp @Inject constructor(
                     e.toRemoteFailure()
                 }
             ){
-                val uid = firebaseAuthService.getCurrentUser().uid
+                val uid = firebaseAuthEmailService.getCurrentUser().uid
                 conversationNetworkDataSource.fetchConversationsByUser(uid).map { conversationDTO ->
                     conversationDTO.toConversation(uid)
                 }
@@ -60,12 +63,12 @@ class ConversationRepositoryImp @Inject constructor(
     }
 
     override suspend fun getConversationCount(): Int {
-        val uid = firebaseAuthService.getCurrentUser().uid
+        val uid = firebaseAuthEmailService.getCurrentUser().uid
         return conversationLocalDataSource.getConversationsCount(uid)
     }
 
     override fun observeLocalConversations(): Flow<List<Conversation>> {
-        val uid = firebaseAuthService.getCurrentUser().uid
+        val uid = firebaseAuthEmailService.getCurrentUser().uid
         return conversationLocalDataSource.observeConversationAndUsers(uid).map { entities ->
             entities.map { entity ->
                 Timber.d("${entity.toConversation()}")
@@ -90,7 +93,7 @@ class ConversationRepositoryImp @Inject constructor(
     }
 
     override fun observeNetworkConversations(): Flow<Resource<List<Conversation>, RemoteFailure>> {
-        val uid = firebaseAuthService.getCurrentUser().uid
+        val uid = firebaseAuthEmailService.getCurrentUser().uid
         return conversationNetworkDataSource.streamConversationsByUser(uid).mapResource { conversationDTOS ->
             conversationDTOS.map { conversationDTO ->
                 Timber.d("list: $conversationDTO")
@@ -107,7 +110,7 @@ class ConversationRepositoryImp @Inject constructor(
                     e.toRemoteFailure()
                 }
             ) {
-                val currentUserId = firebaseAuthService.getCurrentUser().uid
+                val currentUserId = firebaseAuthEmailService.getCurrentUser().uid
                 val entity = conversationLocalDataSource.getConversationAndUserById(ownerId = currentUserId, otherUserId = otherUser.id)
                 try {
                     val dto = entity.toConversationDTO()

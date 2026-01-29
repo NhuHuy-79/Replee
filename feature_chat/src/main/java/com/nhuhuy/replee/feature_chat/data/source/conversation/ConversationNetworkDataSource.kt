@@ -60,6 +60,7 @@ class ConversationNetworkDataSource @Inject constructor(
             .get()
             .await()
             .toObjects<ConversationDTO>()
+        Timber.d("$conversationDTO")
         val userIds = conversationDTO.map { conversationDTO ->
             if (conversationDTO.user1.uid == ownerId) {
                 conversationDTO.user2.uid
@@ -67,6 +68,7 @@ class ConversationNetworkDataSource @Inject constructor(
                 conversationDTO.user1.uid
             }
         }
+        Timber.d("$userIds")
 
         return userIds
     }
@@ -99,14 +101,17 @@ class ConversationNetworkDataSource @Inject constructor(
 
     }
 
-    suspend fun updateNicknameForUser(uid: String, nickName: String, conversationId: String) {
-        val dto = collection.document(conversationId).get().await().toObject<ConversationDTO>()
-            ?: throw ConversationNotFoundException()
-        val userKey = if (uid == dto.user1.uid) "user1" else "user2"
+    suspend fun updateNicknameForUser(
+        uid: String,
+        nickName: String,
+        conversationDTO: ConversationDTO
+    ) {
+        val userKey = if (uid == conversationDTO.user1.uid) "user1" else "user2"
         val mapData = mapOf(
             "$userKey.nick" to nickName
         )
-        collection.document(conversationId)
+        Timber.tag("ChangeNickName").d("Call")
+        collection.document("6TiWg6fNWnMt0o3KguL3y4swFYx1_e4bCNIJhKNXVtY3Kz1cOwDx1OYD2")
             .update(mapData)
             .await()
     }

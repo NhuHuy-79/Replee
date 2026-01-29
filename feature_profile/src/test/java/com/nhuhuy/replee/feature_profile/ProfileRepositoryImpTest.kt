@@ -4,7 +4,7 @@ import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
-import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthService
+import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.core.test.DispatcherRuleTest
 import com.nhuhuy.replee.feature_profile.data.repository.ProfileRepositoryImp
 import com.nhuhuy.replee.feature_profile.domain.repository.ProfileRepository
@@ -20,7 +20,7 @@ class ProfileRepositoryImpTest {
     @get:Rule
     val main = DispatcherRuleTest()
 
-    private lateinit var firebaseAuthService: FirebaseAuthService
+    private lateinit var firebaseAuthEmailService: FirebaseAuthEmailService
     private lateinit var accountLocalDataSource: AccountLocalDataSource
     private lateinit var repositoryImp: ProfileRepository
 
@@ -29,11 +29,11 @@ class ProfileRepositoryImpTest {
     @Before
     fun setUp(){
         accountLocalDataSource = mockk(relaxed = true)
-        firebaseAuthService = mockk(relaxed = true)
+        firebaseAuthEmailService = mockk(relaxed = true)
         appPreferences = mockk(relaxed = true)
         repositoryImp = ProfileRepositoryImp(
             dispatcher = Dispatchers.IO,
-            firebaseAuthService = firebaseAuthService,
+            firebaseAuthEmailService = firebaseAuthEmailService,
             accountLocalDataSource = accountLocalDataSource,
             appPreferences = appPreferences
         )
@@ -42,11 +42,11 @@ class ProfileRepositoryImpTest {
     @Test
     fun returnSuccess_whenLogOut() = runTest {
         coEvery {
-            firebaseAuthService.getCurrentUser().uid
+            firebaseAuthEmailService.getCurrentUser().uid
         } returns "uid"
 
         coEvery {
-            firebaseAuthService.logOut()
+            firebaseAuthEmailService.logOut()
         } returns Unit
 
         coEvery {
@@ -66,7 +66,7 @@ class ProfileRepositoryImpTest {
         val expected : Resource<Unit, RemoteFailure> = Resource.Success(Unit)
 
         coEvery {
-            firebaseAuthService.updateNewPassword("old", "new")
+            firebaseAuthEmailService.updateNewPassword("old", "new")
         } returns Unit
 
         val actual = repositoryImp.updateNewPassword("old", "new")

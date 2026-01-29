@@ -10,7 +10,7 @@ import com.nhuhuy.replee.core.common.error_handling.safeCall
 import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthService
+import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -29,7 +29,7 @@ interface AccountRepository {
 
 class AccountRepositoryImp @Inject constructor(
     private val dispatcher: CoroutineDispatcher,
-    private val firebaseAuthService: FirebaseAuthService,
+    private val firebaseAuthEmailService: FirebaseAuthEmailService,
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val accountLocalDataSource: AccountLocalDataSource,
 ) : AccountRepository {
@@ -38,7 +38,7 @@ class AccountRepositoryImp @Inject constructor(
             safeCall(
                 throwable = { e -> e.toRemoteFailure()}
             ){
-                val uid = firebaseAuthService.getCurrentUser().uid
+                val uid = firebaseAuthEmailService.getCurrentUser().uid
                 accountNetworkDataSource.updateDeviceToken(uid, token)
             }
         }
@@ -53,7 +53,7 @@ class AccountRepositoryImp @Inject constructor(
 
     override suspend fun getCurrentAccount(): Account {
         return withContext(dispatcher) {
-            val id = firebaseAuthService.getCurrentUser().uid
+            val id = firebaseAuthEmailService.getCurrentUser().uid
             accountLocalDataSource.getAccountWithId(uid = id).toAccount()
         }
     }
@@ -79,7 +79,7 @@ class AccountRepositoryImp @Inject constructor(
                     e.toRemoteFailure()
                 }
             ) {
-                val ownerId = firebaseAuthService.getCurrentUser().uid
+                val ownerId = firebaseAuthEmailService.getCurrentUser().uid
                 val owner = accountLocalDataSource.getAccountWithId(ownerId)
                 val newList = owner.blockedUserList + otherUser
                 accountLocalDataSource.updateBlockedList(list = newList, owner = ownerId)

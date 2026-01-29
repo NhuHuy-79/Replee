@@ -6,7 +6,7 @@ import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.safeCall
 import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
-import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthService
+import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.feature_profile.domain.repository.ProfileRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -16,7 +16,7 @@ import javax.inject.Inject
 class ProfileRepositoryImp @Inject constructor(
     private val dispatcher: CoroutineDispatcher,
     private val accountLocalDataSource: AccountLocalDataSource,
-    private val firebaseAuthService: FirebaseAuthService,
+    private val firebaseAuthEmailService: FirebaseAuthEmailService,
     private val appPreferences: AppPreferences
 ) : ProfileRepository{
     override suspend fun updateNewPassword(
@@ -27,19 +27,19 @@ class ProfileRepositoryImp @Inject constructor(
             safeCall(
                 throwable = { e -> e.toRemoteFailure()}
             ){
-                firebaseAuthService.updateNewPassword(old, new)
+                firebaseAuthEmailService.updateNewPassword(old, new)
             }
         }
     }
 
     override suspend fun logOut() {
         val uid = try {
-            firebaseAuthService.getCurrentUser().uid
+            firebaseAuthEmailService.getCurrentUser().uid
         } catch (e: Exception) {
             Timber.e(e)
             null
         }
-        firebaseAuthService.logOut()
+        firebaseAuthEmailService.logOut()
         appPreferences.saveLoggedStatus(false)
 
         uid?.let {
