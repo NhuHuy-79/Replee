@@ -57,7 +57,7 @@ fun SignUpScreen(
                     )
                 },
                 errorText = state.name.validateResult.toUiText(),
-                dynamicInput = state.name,
+                validatableInput = state.name,
                 onValueChange = { value ->
                     onAction(SignUpAction.OnNameChange(value))
                 }
@@ -77,7 +77,7 @@ fun SignUpScreen(
                     )
                 },
                 errorText = state.email.validateResult.toUiText(),
-                dynamicInput = state.email,
+                validatableInput = state.email,
                 onValueChange = { value ->
                     onAction(SignUpAction.OnEmailChange(value))
                 }
@@ -97,7 +97,7 @@ fun SignUpScreen(
                     )
                 },
                 errorText = state.password.validateResult.toUiText(),
-                dynamicInput = state.password,
+                validatableInput = state.password,
                 onValueChange = { value ->
                     onAction(SignUpAction.OnPasswordChange(value))
                 }
@@ -117,7 +117,7 @@ fun SignUpScreen(
                     )
                 },
                 errorText = state.confirmPassword.validateResult.toUiText(),
-                dynamicInput = state.confirmPassword,
+                validatableInput = state.confirmPassword,
                 onValueChange = { value ->
                     onAction(SignUpAction.OnConfirmPasswordChange(value))
                 }

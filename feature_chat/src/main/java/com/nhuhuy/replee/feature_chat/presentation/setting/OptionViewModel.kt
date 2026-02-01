@@ -7,7 +7,7 @@ import com.nhuhuy.replee.core.common.data.repository.AccountRepository
 import com.nhuhuy.replee.core.common.error_handling.onFailure
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.core.common.utils.Validator
-import com.nhuhuy.replee.core.design_system.component.DynamicInput
+import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
@@ -126,7 +126,7 @@ class OptionViewModel @AssistedInject constructor(
                 is OptionAction.OnOwnerNickNameChange -> {
                     _state.reduce {
                         copy(
-                            ownerNickName = DynamicInput(
+                            ownerNickName = ValidatableInput(
                                 text = action.name,
                                 validateResult = validator.validateNickName(action.name)
                             )
@@ -141,7 +141,7 @@ class OptionViewModel @AssistedInject constructor(
                 is OptionAction.OnOtherNickNameChange -> {
                     _state.reduce {
                         copy(
-                            otherUserNickName = DynamicInput(
+                            otherUserNickName = ValidatableInput(
                                 text = action.name,
                                 validateResult = validator.validateNickName(action.name)
                             )
@@ -168,8 +168,8 @@ class OptionViewModel @AssistedInject constructor(
                     }
                     _state.reduce {
                         copy(
-                            ownerNickName = DynamicInput(),
-                            otherUserNickName = DynamicInput(),
+                            ownerNickName = ValidatableInput(),
+                            otherUserNickName = ValidatableInput(),
                             overlay = OptionOverlay.NONE
                         )
                     }

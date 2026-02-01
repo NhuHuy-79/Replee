@@ -82,11 +82,11 @@ class ConversationNetworkDataSource @Inject constructor(
 
     }
 
-    suspend fun fetchConversationById(conversationId: String): ConversationDTO {
+    suspend fun fetchConversationById(conversationId: String): ConversationDTO? {
         return collection.document(conversationId)
             .get()
             .await()
-            .toObject<ConversationDTO>() ?: throw ConversationNotFoundException()
+            .toObject<ConversationDTO>()
 
     }
 

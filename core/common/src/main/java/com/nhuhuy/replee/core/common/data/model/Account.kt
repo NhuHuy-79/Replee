@@ -13,13 +13,24 @@ data class Account(
     val blockedList: List<String> = emptyList()
 )
 
+fun Account.toAccountEntity() = AccountEntity(
+    uid = id,
+    name = name,
+    email = email,
+    createAt = createAt,
+)
+
 fun AccountEntity.toAccount() = Account(
     id = uid,
     name = name,
     email = email,
     blockedList = blockedUserList
 )
-
+fun Account.toAccountDTO() = AccountDTO(
+    id = id,
+    name = name,
+    email = email,
+)
 fun AccountDTO.toAccount() = Account(
     id = id,
     name = name,

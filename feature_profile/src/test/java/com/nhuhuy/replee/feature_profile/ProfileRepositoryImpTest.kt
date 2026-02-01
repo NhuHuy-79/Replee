@@ -32,7 +32,7 @@ class ProfileRepositoryImpTest {
         firebaseAuthEmailService = mockk(relaxed = true)
         appPreferences = mockk(relaxed = true)
         repositoryImp = ProfileRepositoryImp(
-            dispatcher = Dispatchers.IO,
+            ioDispatcher = Dispatchers.IO,
             firebaseAuthEmailService = firebaseAuthEmailService,
             accountLocalDataSource = accountLocalDataSource,
             appPreferences = appPreferences

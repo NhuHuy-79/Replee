@@ -24,7 +24,7 @@ fun NormalTextField(
     @StringRes label: Int,
     leadingIcon: @Composable () -> Unit,
     @StringRes errorText: Int?,
-    dynamicInput: DynamicInput,
+    validatableInput: ValidatableInput,
     onValueChange: (value: String )-> Unit,
 ){
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
@@ -40,10 +40,10 @@ fun NormalTextField(
                     }
 
             },
-        value = dynamicInput.text,
+        value = validatableInput.text,
         onValueChange = onValueChange,
         shape = RoundedCornerShape(12.dp),
-        isError = dynamicInput.error,
+        isError = validatableInput.error,
         label = {
             Text(
                 text = stringResource(label),

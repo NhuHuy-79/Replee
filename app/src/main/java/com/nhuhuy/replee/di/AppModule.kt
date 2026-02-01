@@ -2,6 +2,8 @@ package com.nhuhuy.replee.di
 
 import android.content.Context
 import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
+import com.nhuhuy.replee.core.common.utils.Logger
+import com.nhuhuy.replee.core.common.utils.LoggerImp
 import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.firebase.network.mapper.NetworkMapper
 import com.nhuhuy.replee.notification.NotificationParser
@@ -50,4 +52,8 @@ object AppModule {
     @Singleton
     fun provideSyncScheduler(@ApplicationContext context: Context): WorkerScheduler =
         WorkerSchedulerImp(context)
+
+    @Provides
+    @Singleton
+    fun provideLogger(): Logger = LoggerImp()
 }

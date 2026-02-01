@@ -17,6 +17,14 @@ fun Exception.toRemoteFailure(): RemoteFailure {
     }
 }
 
+fun Throwable.toRemoteFailure(): RemoteFailure {
+    return when (this) {
+        is FirebaseAuthException -> this.toRemoteFailure()
+        is FirebaseNetworkException -> RemoteFailure.Network
+        else -> RemoteFailure.Unknown
+    }
+}
+
 fun FirebaseAuthException.toRemoteFailure() : RemoteFailure {
     return when (this) {
         is FirebaseAuthInvalidUserException -> RemoteFailure.Auth.USER_NOT_FOUND

@@ -4,7 +4,7 @@ import androidx.compose.runtime.Immutable
 import com.nhuhuy.replee.core.common.data.model.ValidateResult
 
 @Immutable
-data class DynamicInput(
+data class ValidatableInput(
     val text: String = "",
     val validateResult: ValidateResult = ValidateResult.Idle,
 ){

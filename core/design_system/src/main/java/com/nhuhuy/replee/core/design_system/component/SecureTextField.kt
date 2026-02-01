@@ -34,7 +34,7 @@ fun SecureTextField(
     @StringRes label: Int,
     leadingIcon: @Composable () -> Unit,
     @StringRes errorText: Int?,
-    dynamicInput: DynamicInput,
+    validatableInput: ValidatableInput,
     onValueChange: (value: String )-> Unit,
 ){
     var visibility by remember { mutableStateOf(false) }
@@ -52,11 +52,11 @@ fun SecureTextField(
 
             },
         singleLine = true,
-        value = dynamicInput.text,
+        value = validatableInput.text,
         shape = RoundedCornerShape(12.dp),
         onValueChange = onValueChange,
         visualTransformation = if (visibility) VisualTransformation.None else PasswordVisualTransformation(),
-        isError = dynamicInput.error,
+        isError = validatableInput.error,
         label = {
             Text(
                 text = stringResource(label),

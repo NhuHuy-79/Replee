@@ -8,9 +8,10 @@ import com.nhuhuy.replee.core.common.base.UiState
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.error_handling.onFailure
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
+import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.common.utils.Validator
-import com.nhuhuy.replee.core.design_system.component.DynamicInput
-import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
+import com.nhuhuy.replee.core.design_system.component.ValidatableInput
+import com.nhuhuy.replee.feature_auth.domain.usecase.LoginWithEmailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,13 +22,14 @@ import javax.inject.Inject
 
 @Immutable
 data class LoginState(
-    val email: DynamicInput = DynamicInput(),
-    val password: DynamicInput = DynamicInput(),
+    val email: ValidatableInput = ValidatableInput(),
+    val password: ValidatableInput = ValidatableInput(),
     val showLoading: Boolean = false
 ) : UiState {
-    val inputValid: Boolean get() {
-        return email.valid && password.valid
-    }
+    val inputValid: Boolean
+        get() {
+            return email.valid && password.valid
+        }
 }
 
 sealed interface LoginAction : UiAction {
@@ -41,7 +43,7 @@ sealed interface LoginAction : UiAction {
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val validator: Validator,
-    private val authRepository: AuthRepository,
+    private val loginWithEmailUseCase: LoginWithEmailUseCase,
 ) : BaseViewModel<LoginAction, LoginEvent, LoginState>() {
     private val _state = MutableStateFlow(LoginState())
     override val state: StateFlow<LoginState>
@@ -53,7 +55,7 @@ class LoginViewModel @Inject constructor(
                 is LoginAction.OnEmailChanged -> {
                     _state.reduce {
                         copy(
-                            email = DynamicInput(
+                            email = ValidatableInput(
                                 text = action.email,
                                 validateResult = validator.validateEmail(action.email)
                             )
@@ -64,7 +66,7 @@ class LoginViewModel @Inject constructor(
                 is LoginAction.OnPasswordChanged -> {
                     _state.reduce {
                         copy(
-                            password = DynamicInput(
+                            password = ValidatableInput(
                                 text = action.password,
                                 validateResult = validator.validatePassword(action.password)
                             )
@@ -75,14 +77,14 @@ class LoginViewModel @Inject constructor(
                 LoginAction.Login -> {
                     val value = state.value
                     _state.reduce { copy(showLoading = true) }
-                    authRepository.loginWithEmail(value.email.text, value.password.text)
+                    loginWithEmailUseCase(value.email.text, value.password.text)
                         .onSuccess {
                             _state.reduce { copy(showLoading = false) }
                             onEvent(LoginEvent.NavigateToHome)
                         }
-                        .onFailure { error ->
+                        .onFailure { throwable ->
                             _state.reduce { copy(showLoading = false) }
-                            onEvent(LoginEvent.Failure(error))
+                            onEvent(LoginEvent.Failure(throwable.toRemoteFailure()))
                         }
                 }
 

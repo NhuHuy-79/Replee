@@ -10,8 +10,6 @@ import com.nhuhuy.replee.core.firebase.data.AccountDTO
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.core.firebase.utils.FirestoreDataNotFoundException
-import com.nhuhuy.replee.feature_auth.data.repository.AuthRepositoryImp
-import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk

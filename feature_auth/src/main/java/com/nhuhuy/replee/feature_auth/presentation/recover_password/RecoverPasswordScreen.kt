@@ -55,7 +55,7 @@ fun RecoverPasswordScreen(
                     )
                 },
                 errorText = state.email.validateResult.toUiText(),
-                dynamicInput = state.email,
+                validatableInput = state.email,
                 onValueChange = { value ->
                     onAction(RecoverPasswordAction.OnEmailChange(value))
                 }

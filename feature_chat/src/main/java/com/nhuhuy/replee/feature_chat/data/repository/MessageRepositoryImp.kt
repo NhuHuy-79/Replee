@@ -1,17 +1,20 @@
 package com.nhuhuy.replee.feature_chat.data.repository
 
+import com.nhuhuy.replee.core.common.base.BaseRepository
+import com.nhuhuy.replee.core.common.error_handling.NetworkResult
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.mapResource
 import com.nhuhuy.replee.core.common.error_handling.safeCall
 import com.nhuhuy.replee.core.common.toRemoteFailure
+import com.nhuhuy.replee.core.common.utils.Logger
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
-import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
-import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
+import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
+import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -23,12 +26,26 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class MessageRepositoryImp @Inject constructor(
+    private val logger: Logger,
     private val messageNetworkDataSource: MessageNetworkDataSource,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource,
     private val messageLocalDataSource: MessageLocalDataSource,
     private val dispatcher: CoroutineDispatcher,
-) : MessageRepository {
+) : MessageRepository,
+    BaseRepository(dispatcher, logger) {
+    override suspend fun sendMessage(
+        message: Message
+    ): NetworkResult<String> {
+        return safeCallWithTimeout {
+            messageLocalDataSource.upsertMessage(message = message.toMessageEntity())
+
+            messageNetworkDataSource.sendMessage(message = message.toMessageDTO())
+
+            message.messageId
+        }
+    }
+
     override fun observeNetworkMessages(conversationId: String): Flow<Resource<List<Message>, RemoteFailure>> {
         return messageNetworkDataSource.streamMessagesByConversationId(conversationId)
             .mapResource { messageList ->
@@ -76,9 +93,11 @@ class MessageRepositoryImp @Inject constructor(
                 },
             ) {
                 val messageDTO = message.toMessageDTO()
-                messageNetworkDataSource.sendMessage(messageDTO, conversationId)
+                messageNetworkDataSource.sendMessage(messageDTO)
                 val conversationDTO = conversationNetworkDataSource.fetchConversationById(conversationId)
-                conversationNetworkDataSource.updateLastMessage(messageDTO, conversationDTO)
+                conversationDTO?.let {
+                    conversationNetworkDataSource.updateLastMessage(messageDTO, conversationDTO)
+                }
                 //LOCAL
                 message
             }
@@ -106,7 +125,7 @@ class MessageRepositoryImp @Inject constructor(
 
                 val conversationDTO = conversationNetworkDataSource.fetchConversationById(conversationId)
                 val receiverField =
-                    if (conversationDTO.user1.uid == receiverId) "user1" else "user2"
+                    if (conversationDTO?.user1?.uid == receiverId) "user1" else "user2"
                 val count = messageNetworkDataSource.updateMessageSeenStatus(
                     conversationId = conversationId,
                     messageIds = messageIds,
@@ -119,6 +138,31 @@ class MessageRepositoryImp @Inject constructor(
                 )
             }
         }
+    }
+
+    override suspend fun markMessagesAsRead(
+        messageIds: List<String>,
+        conversationId: String,
+        receiverId: String
+    ): NetworkResult<Unit> = safeCallWithTimeout {
+        messageLocalDataSource.updateMessageSeenStatus(
+            messageIds = messageIds,
+            conversationId = conversationId,
+            receiverId = receiverId
+        )
+        val conversationDTO = conversationNetworkDataSource.fetchConversationById(conversationId)
+        val receiverField =
+            if (conversationDTO?.user1?.uid == receiverId) "user1" else "user2"
+        val count = messageNetworkDataSource.updateMessageSeenStatus(
+            conversationId = conversationId,
+            messageIds = messageIds,
+            receiverId = receiverId
+        )
+        conversationNetworkDataSource.updateUnreadMessageCount(
+            conversationId = conversationId,
+            receiverField = receiverField,
+            count = count
+        )
     }
 
     override suspend fun saveMessages(messages: List<Message>) {

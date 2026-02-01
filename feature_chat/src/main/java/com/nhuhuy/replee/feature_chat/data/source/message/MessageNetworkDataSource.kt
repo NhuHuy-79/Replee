@@ -22,13 +22,13 @@ MessageNetworkDataSource @Inject constructor(
 ){
     private val collection = firestore.collection(Constant.Firestore.CONVERSATION_COLLECTION)
 
-    suspend fun sendMessage(message: MessageDTO, conversationId: String) {
+    suspend fun sendMessage(message: MessageDTO) {
         val data = mapOf(
             "lastMessageTime" to message.sendAt,
             "lastMessageContent" to message.content,
             "lastSenderId" to message.senderId
         )
-        collection.document(conversationId).apply {
+        collection.document(message.conversationId).apply {
             update(data).await()
             collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
                 .document(message.messageId)

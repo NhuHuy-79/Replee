@@ -55,7 +55,7 @@ fun LoginScreen(
                     )
                 },
                 errorText = state.email.validateResult.toUiText(),
-                dynamicInput = state.email,
+                validatableInput = state.email,
                 onValueChange = { value ->
                     onAction(LoginAction.OnEmailChanged(value))
                 }
@@ -75,7 +75,7 @@ fun LoginScreen(
                     )
                 },
                 errorText = state.password.validateResult.toUiText(),
-                dynamicInput = state.password,
+                validatableInput = state.password,
                 onValueChange = { value ->
                     onAction(LoginAction.OnPasswordChanged(value))
                 }
@@ -86,8 +86,9 @@ fun LoginScreen(
             Text(
                 text = stringResource(R.string.forgot_password),
                 style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.fillMaxWidth()
-                    .clickable{
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
                         onAction(LoginAction.NavigateToRecover)
                     },
                 textAlign = TextAlign.End

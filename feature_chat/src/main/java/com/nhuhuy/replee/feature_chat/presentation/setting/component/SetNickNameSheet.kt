@@ -13,16 +13,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.design_system.component.CommonButton
-import com.nhuhuy.replee.core.design_system.component.DynamicInput
 import com.nhuhuy.replee.core.design_system.component.NormalTextField
 import com.nhuhuy.replee.core.design_system.component.SheetContainer
+import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 import com.nhuhuy.replee.core.design_system.toUiText
 import com.nhuhuy.replee.feature_chat.R
 
 @Composable
 fun SetNickNameSheet(
-    ownerNickName: DynamicInput,
-    otherUserNickName: DynamicInput,
+    ownerNickName: ValidatableInput,
+    otherUserNickName: ValidatableInput,
     onOtherUserNameChange: (name: String) -> Unit,
     onOwnerNameChange: (name: String) -> Unit,
     onDismiss: () -> Unit,
@@ -47,7 +47,7 @@ fun SetNickNameSheet(
                     contentDescription = null
                 )
             },
-            dynamicInput = ownerNickName,
+            validatableInput = ownerNickName,
             onValueChange = onOwnerNameChange,
             errorText = ownerNickName.validateResult.toUiText(),
         )
@@ -63,7 +63,7 @@ fun SetNickNameSheet(
                     contentDescription = null
                 )
             },
-            dynamicInput = otherUserNickName,
+            validatableInput = otherUserNickName,
             onValueChange = onOtherUserNameChange,
             errorText = ownerNickName.validateResult.toUiText(),
         )

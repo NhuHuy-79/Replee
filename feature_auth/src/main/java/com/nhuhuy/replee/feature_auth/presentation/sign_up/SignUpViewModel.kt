@@ -6,12 +6,13 @@ import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.UiAction
 import com.nhuhuy.replee.core.common.base.UiState
 import com.nhuhuy.replee.core.common.base.reduce
+import com.nhuhuy.replee.core.common.data.model.ValidateResult
 import com.nhuhuy.replee.core.common.error_handling.onFailure
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
-import com.nhuhuy.replee.core.common.data.model.ValidateResult
+import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.common.utils.Validator
-import com.nhuhuy.replee.core.design_system.component.DynamicInput
-import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
+import com.nhuhuy.replee.core.design_system.component.ValidatableInput
+import com.nhuhuy.replee.feature_auth.domain.usecase.SignUpWithEmailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,10 +23,10 @@ import javax.inject.Inject
 
 @Immutable
 data class SignUpState(
-    val name: DynamicInput = DynamicInput(),
-    val email: DynamicInput = DynamicInput(),
-    val password: DynamicInput = DynamicInput(),
-    val confirmPassword: DynamicInput = DynamicInput(),
+    val name: ValidatableInput = ValidatableInput(),
+    val email: ValidatableInput = ValidatableInput(),
+    val password: ValidatableInput = ValidatableInput(),
+    val confirmPassword: ValidatableInput = ValidatableInput(),
     val showLoading: Boolean = false,
 ) : UiState {
     val inputValid: Boolean
@@ -46,7 +47,7 @@ sealed interface SignUpAction : UiAction {
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     private val validator: Validator,
-    private val authRepository: AuthRepository
+    private val signUpWithEmailUseCase: SignUpWithEmailUseCase
 ) : BaseViewModel<SignUpAction, SignUpEvent, SignUpState>() {
     private val _state = MutableStateFlow(SignUpState())
     override val state: StateFlow<SignUpState>
@@ -63,7 +64,7 @@ class SignUpViewModel @Inject constructor(
                     val password = state.value.password
                     _state.reduce {
                         copy(
-                            confirmPassword = DynamicInput(
+                            confirmPassword = ValidatableInput(
                                 text = action.confirmPassword,
                                 validateResult = validator.isPasswordConfirmed(
                                     password = password.text,
@@ -77,7 +78,7 @@ class SignUpViewModel @Inject constructor(
                 is SignUpAction.OnEmailChange -> {
                     _state.reduce {
                         copy(
-                            email = DynamicInput(
+                            email = ValidatableInput(
                                 text = action.email,
                                 validateResult = validator.validateEmail(action.email)
                             )
@@ -88,7 +89,7 @@ class SignUpViewModel @Inject constructor(
                 is SignUpAction.OnNameChange -> {
                     _state.reduce {
                         copy(
-                            name = DynamicInput(
+                            name = ValidatableInput(
                                 text = action.name,
                                 validateResult = ValidateResult.Valid
                             )
@@ -99,7 +100,7 @@ class SignUpViewModel @Inject constructor(
                 is SignUpAction.OnPasswordChange -> {
                     _state.reduce {
                         copy(
-                            password = DynamicInput(
+                            password = ValidatableInput(
                                 text = action.password,
                                 validateResult = validator.validatePassword(action.password)
                             ),
@@ -110,7 +111,7 @@ class SignUpViewModel @Inject constructor(
                 SignUpAction.SignUp -> {
                     val value = state.value
                     _state.reduce { copy(showLoading = true) }
-                    authRepository.signUpWithEmail(
+                    signUpWithEmailUseCase(
                         name = value.name.text,
                         email = value.email.text,
                         password = value.password.text
@@ -119,9 +120,9 @@ class SignUpViewModel @Inject constructor(
                             _state.reduce { copy(showLoading = false) }
                             onEvent(SignUpEvent.SignUpSuccessfully)
                         }
-                        .onFailure { error ->
+                        .onFailure { throwable ->
                             _state.reduce { copy(showLoading = false) }
-                            onEvent(SignUpEvent.Failure(error))
+                            onEvent(SignUpEvent.Failure(throwable.toRemoteFailure()))
                         }
                 }
             }

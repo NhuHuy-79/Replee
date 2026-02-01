@@ -50,7 +50,8 @@ fun UpdateAccountSheet(
         modifier = modifier
     ){
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -79,7 +80,7 @@ fun UpdateAccountSheet(
                     )
                 },
                 errorText = state.oldPassword.validateResult.toUiText(),
-                dynamicInput = state.oldPassword,
+                validatableInput = state.oldPassword,
                 onValueChange = onOldPasswordChange
             )
 
@@ -93,7 +94,7 @@ fun UpdateAccountSheet(
                     )
                 },
                 errorText = state.newPassword.validateResult.toUiText(),
-                dynamicInput = state.newPassword,
+                validatableInput = state.newPassword,
                 onValueChange = onNewPasswordChange
             )
 

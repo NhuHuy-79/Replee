@@ -8,9 +8,10 @@ import com.nhuhuy.replee.core.common.base.UiState
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.error_handling.onFailure
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
+import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.common.utils.Validator
-import com.nhuhuy.replee.core.design_system.component.DynamicInput
-import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
+import com.nhuhuy.replee.core.design_system.component.ValidatableInput
+import com.nhuhuy.replee.feature_auth.domain.usecase.SendRecoveryEmailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +22,7 @@ import javax.inject.Inject
 
 @Immutable
 data class RecoveryPasswordState(
-    val email: DynamicInput = DynamicInput(),
+    val email: ValidatableInput = ValidatableInput(),
     val showLoading: Boolean = false,
 ) : UiState {
     val inputValid: Boolean get() = email.valid
@@ -37,7 +38,7 @@ sealed interface RecoverPasswordAction : UiAction {
 @HiltViewModel
 class RecoverPasswordViewModel @Inject constructor(
     private val validator: Validator,
-    private val authRepository: AuthRepository,
+    private val sendRecoveryEmailUseCase: SendRecoveryEmailUseCase,
 ) : BaseViewModel<RecoverPasswordAction, RecoverPasswordEvent, RecoveryPasswordState>() {
     private val _state = MutableStateFlow(RecoveryPasswordState())
     override val state: StateFlow<RecoveryPasswordState>
@@ -49,24 +50,28 @@ class RecoverPasswordViewModel @Inject constructor(
                 RecoverPasswordAction.OnBack -> {
                     onEvent(RecoverPasswordEvent.NavigateBack)
                 }
+
                 RecoverPasswordAction.OnSubmit -> {
                     val email = state.value.email
                     _state.reduce { copy(showLoading = true) }
-                    authRepository.sendRecoverPasswordEmail(email.text)
+
+                    sendRecoveryEmailUseCase(email.text)
                         .onSuccess {
-                            _state.reduce { copy(showLoading = false) }
+                            _state.reduce { copy(showLoading = false, email = ValidatableInput()) }
                             onEvent(RecoverPasswordEvent.SendEmailSuccessfully)
                         }
-                        .onFailure { error ->
+                        .onFailure { throwable ->
                             _state.reduce { copy(showLoading = false) }
-                            onEvent(RecoverPasswordEvent.Failure(error))
+                            onEvent(RecoverPasswordEvent.Failure(throwable.toRemoteFailure()))
 
                         }
+
                 }
+
                 is RecoverPasswordAction.OnEmailChange -> {
                     _state.reduce {
                         copy(
-                            email = DynamicInput(
+                            email = ValidatableInput(
                                 text = action.email,
                                 validateResult = validator.validateEmail(action.email)
                             )

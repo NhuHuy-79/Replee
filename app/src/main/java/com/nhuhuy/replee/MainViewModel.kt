@@ -1,6 +1,5 @@
 package com.nhuhuy.replee
 
-import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
@@ -12,12 +11,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
-
-@Immutable
-data class MainState(
-    val isLogged: Boolean = false,
-    val themeMode: ThemeMode = ThemeMode.DEFAULT
-)
 
 @HiltViewModel
 class MainViewModel @Inject constructor(

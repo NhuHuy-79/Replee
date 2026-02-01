@@ -9,7 +9,7 @@ import com.nhuhuy.replee.core.common.data.repository.AccountRepository
 import com.nhuhuy.replee.core.common.error_handling.onFailure
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.core.common.utils.Validator
-import com.nhuhuy.replee.core.design_system.component.DynamicInput
+import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStore
 import com.nhuhuy.replee.feature_profile.domain.repository.ProfileRepository
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.Overlay
@@ -89,7 +89,7 @@ class ProfileViewModel @Inject constructor(
                 is ProfileAction.OnOldPasswordChange -> {
                     _inputState.reduce {
                         copy(
-                            oldPassword = DynamicInput(
+                            oldPassword = ValidatableInput(
                                 text = action.password,
                                 validateResult = validator.validatePassword(action.password)
                             )
@@ -100,7 +100,7 @@ class ProfileViewModel @Inject constructor(
                     val old = inputState.value.oldPassword.text
                     _inputState.reduce {
                         copy(
-                            newPassword = DynamicInput(
+                            newPassword = ValidatableInput(
                                 action.password,
                                 validateResult = validator.validateNewPassword(
                                     old = old,
@@ -140,7 +140,7 @@ class ProfileViewModel @Inject constructor(
 
     @Immutable
     data class InputState(
-        val newPassword: DynamicInput = DynamicInput(),
-        val oldPassword: DynamicInput = DynamicInput(),
+        val newPassword: ValidatableInput = ValidatableInput(),
+        val oldPassword: ValidatableInput = ValidatableInput(),
     )
 }
