@@ -159,6 +159,27 @@ class ConversationNetworkDataSource @Inject constructor(
         }
     }
 
+    fun streamConversationsByOwner(ownerId: String): Flow<List<ConversationDTO>> {
+        return callbackFlow {
+            val listener = collection
+                .whereArrayContains("memberIds", ownerId)
+                .whereNotEqualTo("lastMessageContent", "")
+                .orderBy("lastMessageContent")
+                .orderBy("lastMessageTime", Query.Direction.DESCENDING)
+                .addSnapshotListener { value, error ->
+                    if (error != null) {
+                        Timber.e(error)
+                        trySend(emptyList())
+                        return@addSnapshotListener
+                    }
+
+                    val conversationList = value?.toObjects<ConversationDTO>() ?: emptyList()
+                    trySend(conversationList)
+                }
+            awaitClose { listener.remove() }
+        }
+    }
+
     fun streamConversationsByUser(uid: String): Flow<Resource<List<ConversationDTO>, RemoteFailure>> =
         callbackFlow {
             val listener = collection

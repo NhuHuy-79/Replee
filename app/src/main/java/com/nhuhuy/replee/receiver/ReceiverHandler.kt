@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
-import com.nhuhuy.replee.core.common.error_handling.onFailureSuspend
-import com.nhuhuy.replee.core.common.error_handling.onSuccessSuspend
+import com.nhuhuy.replee.core.common.error_handling.onFailure
+import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.feature_chat.data.NotifyService
 import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.domain.model.Message
@@ -46,15 +46,15 @@ class ReceiverHandlerImp @Inject constructor(
             seen = false,
             status = MessageStatus.PENDING,
         )
-        messageRepository.sendMessage(conversationId = conversationId, message = newMessage)
-            .onSuccessSuspend { message ->
+        messageRepository.sendMessage(message = newMessage)
+            .onSuccess { messageId ->
                 syncManager.updateMessageStatus(
-                    messageId = message.messageId,
+                    messageId = messageId,
                     status = MessageStatus.SYNCED
                 )
-                notifyService.sendNotification(message)
+                notifyService.sendNotification(newMessage)
             }
-            .onFailureSuspend {
+            .onFailure {
                 syncManager.updateMessageStatus(
                     messageId = newMessage.messageId,
                     status = MessageStatus.FAILED

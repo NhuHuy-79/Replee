@@ -6,16 +6,15 @@ import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.data.repository.AccountRepository
-import com.nhuhuy.replee.core.common.error_handling.Resource
-import com.nhuhuy.replee.core.common.error_handling.onFailureSuspend
-import com.nhuhuy.replee.core.common.error_handling.onSuccessSuspend
+import com.nhuhuy.replee.core.common.error_handling.NetworkResult
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
-import com.nhuhuy.replee.feature_chat.data.NotifyServiceImp
-import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.domain.model.Message
-import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
-import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.LoadMessageUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveMessageUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.ReadMessageUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.SaveMessageUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendMessageUseCase
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToInformation
@@ -36,17 +35,18 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 @HiltViewModel(assistedFactory = ChatViewModel.Factory::class)
 class ChatViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
     @Assisted("conversationId") private val conversationId: String,
-    private val sendMessageServiceImp: NotifyServiceImp,
+    private val readMessageUseCase: ReadMessageUseCase,
+    private val sendMessageUseCase: SendMessageUseCase,
+    private val loadMessageUseCase: LoadMessageUseCase,
+    private val saveMessageUseCase: SaveMessageUseCase,
+    private val observeMessageUseCase: ObserveMessageUseCase,
     private val accountRepository: AccountRepository,
-    private val messageRepository: MessageRepository,
-    private val syncManager: SyncManager,
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
     val blocked =
         accountRepository.observeBlockStatus(owner = currentUserId, otherUser = otherUserId)
@@ -71,18 +71,18 @@ class ChatViewModel @AssistedInject constructor(
             if (blocked) {
                 emptyFlow()
             } else {
-                messageRepository.observeNetworkMessages(conversationId)
+                observeMessageUseCase(conversationId)
             }
         }
-            .onEach { resource ->
-                if (resource is Resource.Success) {
-                    messageRepository.saveMessages(resource.data)
+            .onEach { result ->
+                if (result is NetworkResult.Success) {
+                    saveMessageUseCase(result.data)
                 }
             }
             .launchIn(viewModelScope)
     }
 
-    val messageList: StateFlow<List<Message>> = messageRepository.observeLocalMessages(conversationId)
+    val messageList: StateFlow<List<Message>> = loadMessageUseCase(conversationId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     override fun onAction(action: ChatAction) {
@@ -96,39 +96,16 @@ class ChatViewModel @AssistedInject constructor(
                     _state.reduce {
                         copy(sendMessageState = ScreenState.Loading)
                     }
-                    val message = Message(
-                        conversationId = conversationId,
-                        messageId = UUID.randomUUID().toString(),
+                    val messageInput: String = state.value.messageInput
+                    val screenState = sendMessageUseCase(
                         senderId = currentUserId,
                         receiverId = otherUserId,
-                        content = _state.value.messageInput,
-                        seen = false,
-                        sentAt = System.currentTimeMillis(),
-                        status = MessageStatus.PENDING
-                    )
-
-                    val screenState = messageRepository.sendMessage(
                         conversationId = conversationId,
-                        message = message
-                    )
-                        .onSuccessSuspend { message ->
-                            _state.reduce { copy(messageInput = "") }
-                            syncManager.updateMessageStatus(
-                                messageId = message.messageId,
-                                status = MessageStatus.SYNCED
-                            )
-                            sendMessageServiceImp.sendNotification(message)
-                        }
-                        .onFailureSuspend {
-                            syncManager.updateMessageStatus(
-                                messageId = message.messageId,
-                                status = MessageStatus.FAILED
-                            )
-                        }
-                        .toScreenState()
+                        text = messageInput
+                    ).toScreenState()
 
                     _state.reduce {
-                        copy(sendMessageState = screenState)
+                        copy(sendMessageState = screenState, messageInput = "")
                     }
                     delay(1500)
                     _state.reduce {
@@ -139,10 +116,10 @@ class ChatViewModel @AssistedInject constructor(
 
                 ChatAction.OnBackClick -> onEvent(ChatEvent.NavigateBack)
                 is ChatAction.OnReadMessage -> {
-                    messageRepository.markMessageAsRead(
+                    readMessageUseCase(
                         messageIds = action.ids.toList(),
                         conversationId = conversationId,
-                        receiverId = currentUserId
+                        receiverId = otherUserId
                     )
                 }
 

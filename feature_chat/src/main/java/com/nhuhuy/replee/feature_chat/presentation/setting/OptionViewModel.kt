@@ -10,8 +10,8 @@ import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
-import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationSettingRepository
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.LoadConversationInformationUseCase
 import com.nhuhuy.replee.feature_chat.presentation.setting.component.SecondaryOption
 import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionAction
 import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionEvent
@@ -35,13 +35,13 @@ class OptionViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("name") private val otherUserName: String,
     @Assisted("email") private val otherUserEmail: String,
+    private val loadConversationInformationUseCase: LoadConversationInformationUseCase,
     private val validator: Validator,
     private val syncManager: SyncManager,
     private val accountRepository: AccountRepository,
-    private val conversationRepository: ConversationRepository,
     private val conversationSettingRepository: ConversationSettingRepository
 ) : BaseViewModel<OptionAction, OptionEvent, OptionState>() {
-    val conversation = conversationRepository.observeConversationById(conversationId)
+    val conversation = loadConversationInformationUseCase(conversationId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Conversation())
 
     private val _state = MutableStateFlow(

@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.message
 
+import com.nhuhuy.replee.core.common.error_handling.NetworkResult
 import com.nhuhuy.replee.core.common.error_handling.onFailure
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.feature_chat.data.NotifyService
@@ -20,7 +21,7 @@ class SendMessageUseCase @Inject constructor(
         receiverId: String,
         conversationId: String,
         text: String
-    ) {
+    ): NetworkResult<String> {
         val message = Message(
             messageId = UUID.randomUUID().toString(),
             conversationId = conversationId,
@@ -30,7 +31,7 @@ class SendMessageUseCase @Inject constructor(
             status = MessageStatus.PENDING,
             seen = false
         )
-        messageRepository.sendMessage(message = message)
+        return messageRepository.sendMessage(message = message)
             .onSuccess { messageId ->
                 syncManager.updateMessageStatus(
                     messageId = messageId,

@@ -8,10 +8,12 @@ import com.nhuhuy.replee.core.common.data.model.Account
 import com.nhuhuy.replee.core.common.data.repository.AccountRepository
 import com.nhuhuy.replee.core.common.error_handling.onFailure
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
+import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStore
-import com.nhuhuy.replee.feature_profile.domain.repository.ProfileRepository
+import com.nhuhuy.replee.feature_profile.domain.usecase.LogOutUseCase
+import com.nhuhuy.replee.feature_profile.domain.usecase.UpdatePasswordUseCase
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.Overlay
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileEvent
@@ -31,7 +33,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val validator: Validator,
-    private val profileRepository: ProfileRepository,
+    private val updatePasswordUseCase: UpdatePasswordUseCase,
+    private val logOutUseCase: LogOutUseCase,
     private val accountRepository: AccountRepository,
     private val dataStore: SettingDataStore,
 ) : BaseViewModel<ProfileAction, ProfileEvent, ProfileState>() {
@@ -115,7 +118,7 @@ class ProfileViewModel @Inject constructor(
                     _overlayState.update { Overlay.NONE }
                 }
                 ProfileAction.OnLogOut -> {
-                    profileRepository.logOut()
+                    logOutUseCase()
                     onEvent(ProfileEvent.GoToSignIn)
                 }
 
@@ -125,13 +128,13 @@ class ProfileViewModel @Inject constructor(
                 ProfileAction.OnUpdatePassword.Confirm -> {
                     val old = inputState.value.oldPassword.text
                     val new = inputState.value.newPassword.text
-                    profileRepository.updateNewPassword(old = old, new = new)
+                    updatePasswordUseCase(oldPassword = old, newPassword = new)
                         .onSuccess {
                             onEvent(ProfileEvent.UpdatePassword.Success)
                             _overlayState.update { Overlay.NONE }
                         }
-                        .onFailure { error ->
-                            onEvent(ProfileEvent.UpdatePassword.Failure(error))
+                        .onFailure { throwable ->
+                            onEvent(ProfileEvent.UpdatePassword.Failure(throwable.toRemoteFailure()))
                         }
                 }
             }

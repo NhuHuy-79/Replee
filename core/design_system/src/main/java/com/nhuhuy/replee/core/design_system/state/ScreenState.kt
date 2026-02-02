@@ -9,7 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import com.nhuhuy.replee.core.common.error_handling.Failure
+import com.nhuhuy.replee.core.common.error_handling.NetworkResult
 import com.nhuhuy.replee.core.common.error_handling.Resource
+import com.nhuhuy.replee.core.common.toRemoteFailure
 
 @Stable
 sealed interface ScreenState<out T>{
@@ -19,7 +21,12 @@ sealed interface ScreenState<out T>{
     data class Error(val error: Failure) : ScreenState<Nothing>
 }
 
-
+fun <T> NetworkResult<T>.toScreenState(): ScreenState<T> {
+    return when (this) {
+        is NetworkResult.Failure -> ScreenState.Error(throwable.toRemoteFailure())
+        is NetworkResult.Success -> ScreenState.Success(data)
+    }
+}
 fun <D, F : Failure> Resource<D, F>.toScreenState(): ScreenState<D> {
     return when (this) {
         is Resource.Error<D, F> -> ScreenState.Error(error)

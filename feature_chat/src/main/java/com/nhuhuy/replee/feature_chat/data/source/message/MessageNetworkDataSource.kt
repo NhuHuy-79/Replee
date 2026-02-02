@@ -99,6 +99,26 @@ MessageNetworkDataSource @Inject constructor(
         return snapshots.size()
     }
 
+    fun streamMessageListByConversationId(conversationId: String): Flow<List<MessageDTO>> {
+        return callbackFlow {
+            val listener = collection
+                .document(conversationId)
+                .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+                .orderBy("sendAt", Query.Direction.DESCENDING)
+                .whereEqualTo("conversationId", conversationId)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        trySend(emptyList())
+                        close()
+                    }
+                    val messages = snapshot?.toObjects<MessageDTO>() ?: emptyList()
+                    trySend(messages)
+                }
+
+            awaitClose { listener.remove() }
+        }
+    }
+
     fun streamMessagesByConversationId(conversationId: String): Flow<Resource<List<MessageDTO>, RemoteFailure>>{
         return callbackFlow {
             val listener = collection

@@ -41,7 +41,7 @@ class ProfileViewModelTest {
         profileRepository = mockk(relaxed = true)
         accountRepository = mockk(relaxed = true)
         dataStore = mockk(relaxed = true)
-        viewModel = ProfileViewModel(validator, profileRepository, accountRepository, dataStore)
+        viewModel = ProfileViewModel(validator, accountRepository, dataStore)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

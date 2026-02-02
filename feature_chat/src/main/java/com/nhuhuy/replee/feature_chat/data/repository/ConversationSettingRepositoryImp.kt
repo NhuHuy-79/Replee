@@ -39,11 +39,13 @@ class ConversationSettingRepositoryImp @Inject constructor(
                 conversationLocalDataSource.updateOwnerNickName(conversationId, nickName)
                 val conversationDTO =
                     conversationNetworkDataSource.fetchConversationById(conversationId)
-                conversationNetworkDataSource.updateNicknameForUser(
-                    uid,
-                    conversationId,
-                    conversationDTO
-                )
+                conversationDTO?.let {
+                    conversationNetworkDataSource.updateNicknameForUser(
+                        uid,
+                        conversationId,
+                        conversationDTO
+                    )
+                }
                 Timber.d("Change Nick Name1")
             }
         }

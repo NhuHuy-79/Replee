@@ -5,7 +5,7 @@ import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class ObserveConversationUseCase @Inject constructor(
+class LoadConversationUseCase @Inject constructor(
     private val conversationRepository: ConversationRepository
 ) {
     operator fun invoke(): Flow<List<Conversation>> {

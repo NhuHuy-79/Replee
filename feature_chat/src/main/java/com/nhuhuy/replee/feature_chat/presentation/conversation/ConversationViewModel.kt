@@ -6,15 +6,19 @@ import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.data.repository.AccountRepository
 import com.nhuhuy.replee.core.common.error_handling.onFailure
 import com.nhuhuy.replee.core.common.error_handling.onSuccess
-import com.nhuhuy.replee.core.common.error_handling.onSuccessSuspend
+import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
-import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.LoadConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.ObserveConversationsUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationListUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationUserUseCase
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.BottomSheet
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationAction
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent
-import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent.Error
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent.GoToProfile
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent.NavigateToChatRoom
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationState
@@ -31,7 +35,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
-    private val conversationRepository: ConversationRepository,
+    private val getConversationUseCase: GetConversationUseCase,
+    private val loadConversationUseCase: LoadConversationUseCase,
+    private val saveConversationListUseCase: SaveConversationListUseCase,
+    private val saveConversationUserUseCase: SaveConversationUserUseCase,
+    private val observeConversationsUseCase: ObserveConversationsUseCase,
+    private val saveConversationUseCase: SaveConversationUseCase,
     private val accountRepository: AccountRepository
 ) : BaseViewModel<ConversationAction, ConversationEvent, ConversationState>() {
     private var firstSync = false
@@ -43,7 +52,7 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch {
             observeConversationFromNetwork()
             val currentUser = accountRepository.getCurrentAccount()
-            conversationRepository.fetchOtherUserInConversations(currentUser.id)
+            saveConversationUserUseCase(currentUser.id)
             _state.reduce {
                 copy(currentUser = currentUser)
             }
@@ -52,15 +61,15 @@ class ConversationViewModel @Inject constructor(
 
     private fun observeConversationFromNetwork() {
         viewModelScope.launch {
-            conversationRepository.observeNetworkConversations().collect { resource ->
+            observeConversationsUseCase().collect { resource ->
                 if (firstSync) {
                     _state.reduce {
                         copy(synchronizingState = SynchronizingState.SYNC)
                     }
                     firstSync = false
                 }
-                resource.onSuccessSuspend { conversation ->
-                    conversationRepository.saveConversations(conversation)
+                resource.onSuccess { conversation ->
+                    saveConversationUseCase(conversation)
                     _state.reduce {
                         copy(
                             synchronizingState = SynchronizingState.NONE
@@ -78,7 +87,7 @@ class ConversationViewModel @Inject constructor(
     }
 
     val conversationState: StateFlow<ScreenState<List<Conversation>>> =
-        conversationRepository.observeLocalConversations().map { list ->
+        loadConversationUseCase().map { list ->
             ScreenState.Success(list)
         }.stateIn(
             viewModelScope, SharingStarted.WhileSubscribed(5000), ScreenState.Loading
@@ -147,7 +156,7 @@ class ConversationViewModel @Inject constructor(
                 }
 
                 is ConversationAction.OnAvatarClick -> {
-                    conversationRepository.getOrCreateConversation(action.account)
+                    getConversationUseCase(action.account)
                         .onSuccess { id ->
                             _state.reduce {
                                 copy(expandSearchBar = false, searchQuery = "")
@@ -160,8 +169,10 @@ class ConversationViewModel @Inject constructor(
                                 )
                             )
                         }
-                        .onFailure { error ->
-                            onEvent(Error(error))
+                        .onFailure { throwable ->
+                            onEvent(
+                                ConversationEvent.Error(throwable.toRemoteFailure())
+                            )
                         }
                 }
 
@@ -178,7 +189,7 @@ class ConversationViewModel @Inject constructor(
                 synchronizingState = SynchronizingState.SYNC
             )
         }
-        conversationRepository.fetchConversations()
+        saveConversationListUseCase()
             .onSuccess {
                 _state.reduce {
                     copy(
