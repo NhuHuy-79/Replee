@@ -106,12 +106,13 @@ class ConversationNetworkDataSource @Inject constructor(
         nickName: String,
         conversationDTO: ConversationDTO
     ) {
+        collection.document(conversationDTO.id)
         val userKey = if (uid == conversationDTO.user1.uid) "user1" else "user2"
         val mapData = mapOf(
             "$userKey.nick" to nickName
         )
         Timber.tag("ChangeNickName").d("Call")
-        collection.document("6TiWg6fNWnMt0o3KguL3y4swFYx1_e4bCNIJhKNXVtY3Kz1cOwDx1OYD2")
+        collection.document(conversationDTO.id)
             .update(mapData)
             .await()
     }

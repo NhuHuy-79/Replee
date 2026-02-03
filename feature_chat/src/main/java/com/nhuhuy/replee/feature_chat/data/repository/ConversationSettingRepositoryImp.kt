@@ -1,11 +1,9 @@
 package com.nhuhuy.replee.feature_chat.data.repository
 
-import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
-import com.nhuhuy.replee.core.common.error_handling.Resource
-import com.nhuhuy.replee.core.common.error_handling.safeCall
-import com.nhuhuy.replee.core.common.toRemoteFailure
+import com.nhuhuy.replee.core.common.base.BaseRepository
+import com.nhuhuy.replee.core.common.error_handling.NetworkResult
+import com.nhuhuy.replee.core.common.utils.Logger
 import com.nhuhuy.replee.feature_chat.data.data_store.SeedColor
-import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTO
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationSettingRepository
@@ -15,12 +13,14 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class ConversationSettingRepositoryImp @Inject constructor(
-    private val dispatcher: CoroutineDispatcher,
+    private val logger: Logger,
+    private val ioDispatcher: CoroutineDispatcher,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource
-) : ConversationSettingRepository {
+) : ConversationSettingRepository,
+    BaseRepository(ioDispatcher, logger) {
     override suspend fun updateSeedColor(seedColor: SeedColor) {
-        return withContext(dispatcher) {
+        return withContext(ioDispatcher) {
             TODO("Update seed color")
         }
     }
@@ -29,25 +29,19 @@ class ConversationSettingRepositoryImp @Inject constructor(
         uid: String,
         conversationId: String,
         nickName: String
-    ): Resource<Unit, RemoteFailure> {
-        return withContext(dispatcher) {
-            safeCall(
-                throwable = { e ->
-                    e.toRemoteFailure()
-                }
-            ) {
-                conversationLocalDataSource.updateOwnerNickName(conversationId, nickName)
-                val conversationDTO =
-                    conversationNetworkDataSource.fetchConversationById(conversationId)
-                conversationDTO?.let {
-                    conversationNetworkDataSource.updateNicknameForUser(
-                        uid,
-                        conversationId,
-                        conversationDTO
-                    )
-                }
-                Timber.d("Change Nick Name1")
+    ): NetworkResult<Unit> {
+        return safeCallWithTimeout {
+            conversationLocalDataSource.updateOwnerNickName(conversationId, nickName)
+            val conversationDTO =
+                conversationNetworkDataSource.fetchConversationById(conversationId)
+            conversationDTO?.let {
+                conversationNetworkDataSource.updateNicknameForUser(
+                    uid,
+                    nickName,
+                    conversationDTO
+                )
             }
+            Timber.d("Change Nick Name1")
         }
     }
 
@@ -55,22 +49,17 @@ class ConversationSettingRepositoryImp @Inject constructor(
         uid: String,
         conversationId: String,
         nickName: String
-    ): Resource<Unit, RemoteFailure> {
-        return withContext(dispatcher) {
-            safeCall(
-                throwable = { e ->
-                    Timber.e(e)
-                    e.toRemoteFailure()
-                }
-            ) {
-                /*conversationLocalDataSource.updateOwnerNickName(conversationId, nickName)*/
-                /*val conversationDTO = conversationNetworkDataSource.fetchConversationById(conversationId)*/
+    ): NetworkResult<Unit> {
+        return safeCallWithTimeout {
+            conversationLocalDataSource.updateOwnerNickName(conversationId, nickName)
+            val conversationDTO =
+                conversationNetworkDataSource.fetchConversationById(conversationId)
+            conversationDTO?.let {
                 conversationNetworkDataSource.updateNicknameForUser(
-                    uid, nickName,
-                    ConversationDTO()
+                    uid, nickName, conversationDTO
                 )
-                Timber.d("Change Nick Name2")
             }
+            Timber.d("Change Nick Name2")
         }
     }
 
@@ -78,17 +67,10 @@ class ConversationSettingRepositoryImp @Inject constructor(
         conversationId: String,
         otherUser: String,
         muted: Boolean
-    ): Resource<Unit, RemoteFailure> {
-        return withContext(dispatcher) {
+    ): NetworkResult<Unit> {
+        return safeCallWithTimeout {
             conversationLocalDataSource.updateMutedStatus(conversationId, muted)
-            safeCall(
-                throwable = { e ->
-                    Timber.e(e)
-                    e.toRemoteFailure()
-                }
-            ) {
-                conversationNetworkDataSource.updateMutedStatus(conversationId, otherUser, muted)
-            }
+            conversationNetworkDataSource.updateMutedStatus(conversationId, otherUser, muted)
         }
     }
 
@@ -96,18 +78,14 @@ class ConversationSettingRepositoryImp @Inject constructor(
         conversationId: String,
         currentUser: String,
         pinned: Boolean
-    ): Resource<Unit, RemoteFailure> {
-        return withContext(dispatcher) {
+    ): NetworkResult<Unit> {
+        return safeCallWithTimeout {
             conversationLocalDataSource.updatePinnedStatus(conversationId, pinned)
-            safeCall(
-                throwable = { e -> e.toRemoteFailure() }
-            ) {
-                conversationNetworkDataSource.updatePinnedStatus(
-                    conversationId,
-                    currentUser,
-                    pinned
-                )
-            }
+            conversationNetworkDataSource.updatePinnedStatus(
+                conversationId,
+                currentUser,
+                pinned
+            )
         }
     }
 
@@ -115,26 +93,15 @@ class ConversationSettingRepositoryImp @Inject constructor(
         conversationId: String,
         otherUser: String,
         blocked: Boolean
-    ): Resource<Unit, RemoteFailure> {
-        return withContext(dispatcher) {
+    ): NetworkResult<Unit> {
+        return safeCallWithTimeout {
             conversationLocalDataSource.updateBlockStatus(conversationId, blocked)
-            safeCall(
-                throwable = { e -> e.toRemoteFailure() }
-            ) {
-                //
-            }
         }
     }
 
-    override suspend fun deleteConversation(conversationId: String): Resource<Unit, RemoteFailure> {
-        return withContext(dispatcher) {
-            //Delete conversation
-            safeCall(
-                throwable = { e -> e.toRemoteFailure() }
-            ) {
-                //TODO("delete conversation")
-            }
+    override suspend fun deleteConversation(conversationId: String): NetworkResult<Unit> {
+        return safeCallWithTimeout {
+
         }
     }
-
 }
