@@ -10,6 +10,7 @@ import com.nhuhuy.replee.core.common.error_handling.NetworkResult
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
 import com.nhuhuy.replee.feature_chat.domain.model.Message
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.UnblockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.LoadMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ReadMessageUseCase
@@ -42,6 +43,7 @@ class ChatViewModel @AssistedInject constructor(
     @Assisted("currentUserId") private val currentUserId: String,
     @Assisted("conversationId") private val conversationId: String,
     private val readMessageUseCase: ReadMessageUseCase,
+    private val unblockUserUseCase: UnblockUserUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
     private val loadMessageUseCase: LoadMessageUseCase,
     private val saveMessageUseCase: SaveMessageUseCase,
@@ -138,6 +140,9 @@ class ChatViewModel @AssistedInject constructor(
 
                 is ChatAction.OnMessageDelete -> TODO()
                 is ChatAction.OnMessagePin -> TODO()
+                ChatAction.OnUnblockUser -> {
+                    unblockUserUseCase(otherUserId = otherUserId)
+                }
             }
         }
     }

@@ -7,7 +7,7 @@ sealed interface ChatAction : UiAction{
     object OnSendMessageClicked : ChatAction
     object OnBackClick: ChatAction
     data class OnReadMessage(val ids: Set<String>) : ChatAction
-
+    data object OnUnblockUser : ChatAction
     data object OnMoreClick: ChatAction
 
     data class OnMessageDelete(val id: String) : ChatAction

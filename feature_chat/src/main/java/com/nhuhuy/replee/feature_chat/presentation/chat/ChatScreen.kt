@@ -4,11 +4,9 @@ package com.nhuhuy.replee.feature_chat.presentation.chat
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -33,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.nhuhuy.replee.core.design_system.state.ScreenStateHost
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.Message
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.BlockedWarning
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.BlockOverlay
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.ChatContent
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.MessageInput
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
@@ -48,7 +46,6 @@ fun ChatScreen(
     messages: List<Message>,
     onAction: (ChatAction) -> Unit,
 ) {
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -66,8 +63,7 @@ fun ChatScreen(
                 },
             )
         },
-
-        ) { innerPadding ->
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -76,14 +72,6 @@ fun ChatScreen(
                 .imePadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (blocked) {
-                BlockedWarning(
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(Modifier.height(16.dp))
-            }
-
             ScreenStateHost(
                 modifier = Modifier.fillMaxWidth(),
                 state = state.sendMessageState,
@@ -108,17 +96,28 @@ fun ChatScreen(
                 },
             )
 
-            ChatContent(
-                otherUserName = state.otherUser.name,
-                currentUserId = state.currentUserId,
-                messageList = messages,
-                markMessagesRead = { ids ->
-                    onAction(ChatAction.OnReadMessage(ids))
-                },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 16.dp)
-            )
+            if (blocked) {
+                BlockOverlay(
+                    onUnBlock = {
+                        onAction(ChatAction.OnUnblockUser)
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp)
+                )
+            } else {
+                ChatContent(
+                    otherUserName = state.otherUser.name,
+                    currentUserId = state.currentUserId,
+                    messageList = messages,
+                    markMessagesRead = { ids ->
+                        onAction(ChatAction.OnReadMessage(ids))
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp)
+                )
+            }
 
             if (!blocked) {
                 MessageInput(

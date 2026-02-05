@@ -1,13 +1,16 @@
 package com.nhuhuy.replee.core.common.data.repository
 
+import com.nhuhuy.replee.core.common.base.BaseRepository
 import com.nhuhuy.replee.core.common.data.model.Account
 import com.nhuhuy.replee.core.common.data.model.toAccount
 import com.nhuhuy.replee.core.common.data.model.toAccountEntity
 import com.nhuhuy.replee.core.common.error_handling.Failure
+import com.nhuhuy.replee.core.common.error_handling.NetworkResult
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.safeCall
 import com.nhuhuy.replee.core.common.toRemoteFailure
+import com.nhuhuy.replee.core.common.utils.Logger
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
@@ -24,15 +27,17 @@ interface AccountRepository {
     suspend fun getCurrentAccount(): Account
     suspend fun searchAccountsByEmail(query: String): Resource<List<Account>, RemoteFailure>
     suspend fun updateBlockedUsers(otherUser: String): Resource<Unit, RemoteFailure>
+    suspend fun removeUserFromBlockedList(uid: String): NetworkResult<Unit>
     fun observeBlockStatus(owner: String, otherUser: String): Flow<Boolean>
 }
 
 class AccountRepositoryImp @Inject constructor(
+    private val logger: Logger,
     private val dispatcher: CoroutineDispatcher,
     private val firebaseAuthEmailService: FirebaseAuthEmailService,
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val accountLocalDataSource: AccountLocalDataSource,
-) : AccountRepository {
+) : AccountRepository, BaseRepository(dispatcher, logger) {
     override suspend fun updateDeviceToken(token: String): Resource<Unit, Failure> {
         return withContext(dispatcher){
             safeCall(
@@ -85,6 +90,16 @@ class AccountRepositoryImp @Inject constructor(
                 accountLocalDataSource.updateBlockedList(list = newList, owner = ownerId)
                 accountNetworkDataSource.updateBlockedList(list = newList, owner = ownerId)
             }
+        }
+    }
+
+    override suspend fun removeUserFromBlockedList(uid: String): NetworkResult<Unit> {
+        return safeCall {
+            val ownerId = firebaseAuthEmailService.getCurrentUser().uid
+            val owner = accountLocalDataSource.getAccountWithId(ownerId)
+            val newList = owner.blockedUserList - uid
+            accountLocalDataSource.updateBlockedList(list = newList, owner = ownerId)
+            accountNetworkDataSource.updateBlockedList(list = newList, owner = ownerId)
         }
     }
 

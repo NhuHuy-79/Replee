@@ -52,8 +52,6 @@ fun SetNickNameSheet(
             errorText = ownerNickName.validateResult.toUiText(),
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
         NormalTextField(
             modifier = Modifier.fillMaxWidth(),
             label = R.string.sheet_field_other_user_name,

@@ -3,15 +3,16 @@ package com.nhuhuy.replee.feature_chat.presentation.setting
 import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.core.common.data.repository.AccountRepository
-import com.nhuhuy.replee.core.common.error_handling.onFailure
-import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
-import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
-import com.nhuhuy.replee.feature_chat.domain.repository.ConversationSettingRepository
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.BlockUserUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.DeleteConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.LoadConversationInformationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.MuteUserUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.PinConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.UpdateOtherNickNameUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.UpdateOwnerNicknameUseCase
 import com.nhuhuy.replee.feature_chat.presentation.setting.component.SecondaryOption
 import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionAction
 import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionEvent
@@ -36,10 +37,13 @@ class OptionViewModel @AssistedInject constructor(
     @Assisted("name") private val otherUserName: String,
     @Assisted("email") private val otherUserEmail: String,
     private val loadConversationInformationUseCase: LoadConversationInformationUseCase,
+    private val blockUserUseCase: BlockUserUseCase,
+    private val deleteConversationUseCase: DeleteConversationUseCase,
+    private val pinConversationUseCase: PinConversationUseCase,
+    private val muteUserUseCase: MuteUserUseCase,
+    private val updateOtherNickNameUseCase: UpdateOtherNickNameUseCase,
+    private val updateOwnerNicknameUseCase: UpdateOwnerNicknameUseCase,
     private val validator: Validator,
-    private val syncManager: SyncManager,
-    private val accountRepository: AccountRepository,
-    private val conversationSettingRepository: ConversationSettingRepository
 ) : BaseViewModel<OptionAction, OptionEvent, OptionState>() {
     val conversation = loadConversationInformationUseCase(conversationId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Conversation())
@@ -68,7 +72,7 @@ class OptionViewModel @AssistedInject constructor(
                         }
 
                         SecondaryOption.BLOCK -> {
-                            accountRepository.updateBlockedUsers(otherUser = otherUserId)
+                            blockUserUseCase(otherUserId = otherUserId)
                             onEvent(OptionEvent.NavigateBack)
                         }
 
@@ -83,41 +87,23 @@ class OptionViewModel @AssistedInject constructor(
                 }
 
                 is OptionAction.OnMute -> {
-                    conversationSettingRepository.muteOtherUser(
-                        conversationId,
-                        otherUserId,
-                        action.enable
+                    muteUserUseCase(
+                        conversationId = conversationId,
+                        otherUserId = otherUserId,
+                        muted = action.enable
                     )
-                        .onSuccess {
-                            syncManager.updateConversationStatus(conversationId, synced = true)
-                        }
-                        .onFailure {
-                            syncManager.updateConversationStatus(conversationId, synced = false)
-                        }
                 }
 
                 is OptionAction.OnPin -> {
-                    conversationSettingRepository.pinConversation(
+                    pinConversationUseCase(
                         conversationId,
                         otherUserId,
                         action.enable
                     )
-                        .onSuccess {
-                            syncManager.updateConversationStatus(conversationId, synced = true)
-                        }
-                        .onFailure {
-                            syncManager.updateConversationStatus(conversationId, synced = false)
-                        }
                 }
 
                 OptionAction.OnConversationDelete -> {
-                    conversationSettingRepository.deleteConversation(conversationId)
-                        .onSuccess {
-                            syncManager.updateConversationStatus(conversationId, synced = true)
-                        }
-                        .onFailure {
-                            syncManager.updateConversationStatus(conversationId, synced = false)
-                        }
+                    deleteConversationUseCase(conversationId)
                     _state.reduce {
                         copy(overlay = OptionOverlay.NONE)
                     }
@@ -153,14 +139,14 @@ class OptionViewModel @AssistedInject constructor(
                     val ownerNickname = state.value.ownerNickName
                     val otherUserNickname = state.value.otherUserNickName
                     if (otherUserNickname.text.isNotEmpty()) {
-                        conversationSettingRepository.updateOtherUserNickname(
+                        updateOtherNickNameUseCase(
                             uid = otherUserId,
                             conversationId = conversationId,
                             nickName = otherUserNickname.text
                         )
                     }
                     if (ownerNickname.text.isNotEmpty()) {
-                        conversationSettingRepository.updateOwnerNickname(
+                        updateOwnerNicknameUseCase(
                             uid = currentUserId,
                             conversationId = conversationId,
                             nickName = ownerNickname.text

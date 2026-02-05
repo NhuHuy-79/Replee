@@ -60,6 +60,7 @@
     <!--Blocked-->
     <string name="banner_blocked_user">You have blocked this user. If you want to contact to them, please
     unblock them in Setting.</string>
+    <string name="btn_unblock">Unblock</string>
     <!--Validate Nick name-->
     <string name="validate_result_nick_name">Nick name is too long!</string>
 
