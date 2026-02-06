@@ -1,7 +1,9 @@
 package com.nhuhuy.replee.feature_auth.utils
 
-import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
+import androidx.annotation.StringRes
 import com.nhuhuy.replee.core.common.data.model.ValidateResult
+import com.nhuhuy.replee.core.common.error_handling.GoogleCredentialError
+import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.feature_auth.R
 
 fun ValidateResult.toUiText() : Int? {
@@ -14,6 +16,26 @@ fun ValidateResult.toUiText() : Int? {
     }
 }
 
+@StringRes
+fun GoogleCredentialError.toStringRes(): Int {
+    return when (this) {
+        GoogleCredentialError.Cancelled ->
+            R.string.auth_google_sign_in_cancelled
+
+        GoogleCredentialError.NoCredential ->
+            R.string.auth_google_sign_in_no_credential
+
+        GoogleCredentialError.ProviderUnavailable ->
+            R.string.auth_google_sign_in_provider_unavailable
+
+        GoogleCredentialError.InvalidCredential ->
+            R.string.auth_google_sign_in_invalid_credential
+
+        is GoogleCredentialError.Unknown ->
+            R.string.auth_google_sign_in_unknown_error
+    }
+}
+
 fun RemoteFailure.toUiText() : Int{
     return when (this) {
         RemoteFailure.Auth.WEAK_PASSWORD -> R.string.failure_weak_password
@@ -23,5 +45,6 @@ fun RemoteFailure.toUiText() : Int{
         RemoteFailure.Auth.INVALID_CREDENTIAL -> R.string.failure_invalid_credential
         RemoteFailure.Network -> R.string.failure_network
         RemoteFailure.Unknown -> R.string.failure_unknown
+        is GoogleCredentialError -> this.toStringRes()
     }
 }

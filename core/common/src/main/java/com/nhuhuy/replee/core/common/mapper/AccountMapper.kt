@@ -23,12 +23,14 @@ fun Account.toAccountDTO() = AccountDTO(
     id = id,
     name = name,
     email = email,
+    provider = provider
 )
 
 fun AccountDTO.toAccount() = Account(
     id = id,
     name = name,
     email = email,
+    provider = provider,
     createAt = createAt?.toMilliseconds(),
     blockedList = blockedList
 )

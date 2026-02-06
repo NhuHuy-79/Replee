@@ -28,7 +28,7 @@ class ConversationSyncWorker @AssistedInject constructor(
             resource.onFailure { throwable ->
                 Timber.e("Failed to Sync Conversation To Firestore!")
                 if (throwable is FirebaseNetworkException) {
-                    Timber.e("Network Error!")
+                    Timber.e("Network GoogleCredentialError!")
                     Result.retry()
                 }
                 Result.failure()

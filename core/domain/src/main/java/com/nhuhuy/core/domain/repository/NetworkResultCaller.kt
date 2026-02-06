@@ -8,7 +8,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlin.coroutines.cancellation.CancellationException
 
-abstract class BaseRepository(
+abstract class NetworkResultCaller(
     private val dispatcher: CoroutineDispatcher,
     private val logger: Logger
 ) {

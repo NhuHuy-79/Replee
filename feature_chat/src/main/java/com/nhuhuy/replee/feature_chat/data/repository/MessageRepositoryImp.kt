@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_chat.data.repository
 
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.repository.BaseRepository
+import com.nhuhuy.core.domain.repository.NetworkResultCaller
 import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
@@ -28,7 +28,7 @@ class MessageRepositoryImp @Inject constructor(
     private val messageLocalDataSource: MessageLocalDataSource,
     private val dispatcher: CoroutineDispatcher,
 ) : MessageRepository,
-    BaseRepository(dispatcher, logger) {
+    NetworkResultCaller(dispatcher, logger) {
     override suspend fun sendMessage(
         message: Message
     ): NetworkResult<String> {

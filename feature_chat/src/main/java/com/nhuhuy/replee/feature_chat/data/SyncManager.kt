@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_chat.data
 
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.repository.BaseRepository
+import com.nhuhuy.core.domain.repository.NetworkResultCaller
 import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversationPatch
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
@@ -33,7 +33,7 @@ class SyncManagerImp @Inject constructor(
     private val messageNetworkDataSource: MessageNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource,
     private val conversationNetworkDataSource: ConversationNetworkDataSource
-) : SyncManager, BaseRepository(dispatcher, logger) {
+) : SyncManager, NetworkResultCaller(dispatcher, logger) {
     override suspend fun updateMessageStatus(
         messageId: String,
         status: MessageStatus

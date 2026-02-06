@@ -6,8 +6,8 @@ import android.app.RemoteInput
 import android.content.Context
 import android.content.Intent
 import com.nhuhuy.replee.R
+import com.nhuhuy.replee.broadcast.ReplyReceiver
 import com.nhuhuy.replee.deeplink.DOMAIN_URI
-import com.nhuhuy.replee.receiver.ReplyReceiver
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -27,7 +27,7 @@ class ConversationNotificationFactory @Inject constructor(
     @ApplicationContext private val context: Context
 ) : NotificationFactory {
     override fun execute(notificationBody: NotificationBody): Notification {
-        val uri = "$DOMAIN_URI/${notificationBody.conversationId}?senderId=${notificationBody.senderId}&receiverId=${notificationBody.receiverId}"
+        "$DOMAIN_URI/${notificationBody.conversationId}?senderId=${notificationBody.senderId}&receiverId=${notificationBody.receiverId}"
         /*val intent = Intent(ACTION_VIEW, uri.toUri() ).apply {
 
         }

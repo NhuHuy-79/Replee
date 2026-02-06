@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_profile.data.repository
 
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.repository.BaseRepository
+import com.nhuhuy.core.domain.repository.NetworkResultCaller
 import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
@@ -23,7 +23,7 @@ class ProfileRepositoryImp @Inject constructor(
     private val firebaseAuthEmailService: FirebaseAuthEmailService,
     private val appPreferences: AppPreferences
 ) : ProfileRepository,
-    BaseRepository(ioDispatcher, logger) {
+    NetworkResultCaller(ioDispatcher, logger) {
     override suspend fun updateNewPassword(
         old: String,
         new: String

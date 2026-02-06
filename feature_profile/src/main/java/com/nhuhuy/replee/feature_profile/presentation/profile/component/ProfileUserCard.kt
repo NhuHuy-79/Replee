@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.core.domain.model.Account
+import com.nhuhuy.core.domain.model.AuthServiceProvider
 import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.feature_profile.R
 
@@ -54,6 +55,7 @@ fun ProfileUserCard(
         Spacer(modifier = Modifier.weight(1f))
 
         TextButton(
+            enabled = user.provider == AuthServiceProvider.EMAIL,
             onClick = onEditClick,
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,

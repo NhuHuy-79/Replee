@@ -3,7 +3,7 @@ package com.nhuhuy.replee.core.common.data.repository
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.repository.AccountRepository
-import com.nhuhuy.core.domain.repository.BaseRepository
+import com.nhuhuy.core.domain.repository.NetworkResultCaller
 import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.core.common.mapper.toAccount
 import com.nhuhuy.replee.core.common.mapper.toAccountDTO
@@ -25,7 +25,7 @@ class AccountRepositoryImp @Inject constructor(
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val accountLocalDataSource: AccountLocalDataSource,
 ) : AccountRepository,
-    BaseRepository(dispatcher, logger) {
+    NetworkResultCaller(dispatcher, logger) {
     override suspend fun createAccount(account: Account): NetworkResult<Account> = safeCall {
         val entity = account.toAccountEntity()
         val dto = account.toAccountDTO()

@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.receiver
+package com.nhuhuy.replee.broadcast
 
 import android.Manifest
 import android.content.Context

@@ -46,7 +46,7 @@ class LoginViewModelTest {
 
 
         loginViewModel.event.test {
-            loginViewModel.onAction(LoginAction.Login)
+            loginViewModel.onAction(LoginAction.OnLoginWithEmail)
             val event = awaitItem()
             Truth.assertThat(event).isEqualTo(LoginEvent.NavigateToHome)
         }

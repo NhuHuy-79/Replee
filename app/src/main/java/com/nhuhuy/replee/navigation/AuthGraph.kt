@@ -97,6 +97,13 @@ fun EntryProviderScope<NavKey>.authGraph(
                 LoginEvent.NavigateToSignUp -> {
                     backstack.add(AuthDestination.SignUp)
                 }
+
+                is LoginEvent.GoogleErrorSnackBar -> {
+                    snackBarHostState.showSnackbar(
+                        message = resource.getString(event.error.toUiText()),
+                        duration = SnackbarDuration.Short
+                    )
+                }
             }
         }
         LoginScreen(

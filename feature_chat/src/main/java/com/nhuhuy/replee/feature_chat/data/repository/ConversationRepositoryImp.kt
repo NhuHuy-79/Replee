@@ -2,7 +2,7 @@ package com.nhuhuy.replee.feature_chat.data.repository
 
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.repository.BaseRepository
+import com.nhuhuy.core.domain.repository.NetworkResultCaller
 import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.core.common.mapper.toAccountEntity
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
@@ -32,7 +32,7 @@ class ConversationRepositoryImp @Inject constructor(
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource
-) : ConversationRepository, BaseRepository(ioDispatcher, logger) {
+) : ConversationRepository, NetworkResultCaller(ioDispatcher, logger) {
     override suspend fun fetchOtherUserInConversations(ownerId: String) {
         return withContext(ioDispatcher) {
             val uids = conversationNetworkDataSource.getConversationUserIdsWithOwner(ownerId)

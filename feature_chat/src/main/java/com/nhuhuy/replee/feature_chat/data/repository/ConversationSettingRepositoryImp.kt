@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_chat.data.repository
 
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.repository.BaseRepository
+import com.nhuhuy.core.domain.repository.NetworkResultCaller
 import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.feature_chat.data.data_store.SeedColor
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
@@ -18,7 +18,7 @@ class ConversationSettingRepositoryImp @Inject constructor(
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource
 ) : ConversationSettingRepository,
-    BaseRepository(ioDispatcher, logger) {
+    NetworkResultCaller(ioDispatcher, logger) {
     override suspend fun updateSeedColor(seedColor: SeedColor) {
         return withContext(ioDispatcher) {
             TODO("Update seed color")

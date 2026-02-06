@@ -1,9 +1,9 @@
 package com.nhuhuy.replee.di
 
+import com.nhuhuy.replee.broadcast.ReceiverHandler
+import com.nhuhuy.replee.broadcast.ReceiverHandlerImp
 import com.nhuhuy.replee.notification.ConversationNotificationFactory
 import com.nhuhuy.replee.notification.NotificationFactory
-import com.nhuhuy.replee.receiver.ReceiverHandler
-import com.nhuhuy.replee.receiver.ReceiverHandlerImp
 import com.nhuhuy.replee.service.PushNotificationHandler
 import com.nhuhuy.replee.service.PushNotificationHandlerImp
 import dagger.Binds

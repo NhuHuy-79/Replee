@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.receiver
+package com.nhuhuy.replee.broadcast
 
 import android.app.RemoteInput
 import android.content.BroadcastReceiver

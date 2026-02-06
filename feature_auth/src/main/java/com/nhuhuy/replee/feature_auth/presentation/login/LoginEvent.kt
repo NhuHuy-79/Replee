@@ -8,4 +8,5 @@ sealed interface LoginEvent : UiEvent{
     data object NavigateToSignUp: LoginEvent
     data object NavigateToHome: LoginEvent
     data class Failure(val error: RemoteFailure) : LoginEvent
+    data class GoogleErrorSnackBar(val error: RemoteFailure) : LoginEvent
 }

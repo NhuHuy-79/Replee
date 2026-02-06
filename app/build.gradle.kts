@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -22,12 +24,29 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    val localProperties = Properties()
+    val localPropertiesFile = File(rootDir, "secret.properties")
+    if (localPropertiesFile.exists() && localPropertiesFile.isFile) {
+        localPropertiesFile.inputStream().use {
+            localProperties.load(it)
+        }
+    }
+
+
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
+            )
+        }
+
+        debug {
+            buildConfigField(
+                "String",
+                "GOOGLE_WEB_CLIENT_ID",
+                localProperties.getProperty("GOOGLE_WEB_CLIENT_ID")
             )
         }
     }
@@ -39,7 +58,9 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
+        resValues = true
     }
 }
 

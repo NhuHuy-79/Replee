@@ -12,6 +12,8 @@ import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 import com.nhuhuy.replee.feature_auth.domain.usecase.LoginWithEmailUseCase
+import com.nhuhuy.replee.feature_auth.domain.usecase.SignInWithGoogleUseCase
+import com.nhuhuy.replee.feature_auth.presentation.login.LoginEvent.Failure
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,17 +35,19 @@ data class LoginState(
 }
 
 sealed interface LoginAction : UiAction {
+    data object OnLoginWithGoogle : LoginAction
     data class OnEmailChanged(val email: String) : LoginAction
     data class OnPasswordChanged(val password: String) : LoginAction
     data object NavigateToSignUp : LoginAction
     data object NavigateToRecover : LoginAction
-    data object Login : LoginAction
+    data object OnLoginWithEmail : LoginAction
 }
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val validator: Validator,
     private val loginWithEmailUseCase: LoginWithEmailUseCase,
+    private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
 ) : BaseViewModel<LoginAction, LoginEvent, LoginState>() {
     private val _state = MutableStateFlow(LoginState())
     override val state: StateFlow<LoginState>
@@ -74,7 +78,7 @@ class LoginViewModel @Inject constructor(
                     }
                 }
 
-                LoginAction.Login -> {
+                LoginAction.OnLoginWithEmail -> {
                     val value = state.value
                     _state.reduce { copy(showLoading = true) }
                     loginWithEmailUseCase(value.email.text, value.password.text)
@@ -84,7 +88,7 @@ class LoginViewModel @Inject constructor(
                         }
                         .onFailure { throwable ->
                             _state.reduce { copy(showLoading = false) }
-                            onEvent(LoginEvent.Failure(throwable.toRemoteFailure()))
+                            onEvent(Failure(throwable.toRemoteFailure()))
                         }
                 }
 
@@ -96,6 +100,16 @@ class LoginViewModel @Inject constructor(
                     onEvent(LoginEvent.NavigateToSignUp)
                 }
 
+                is LoginAction.OnLoginWithGoogle -> {
+                    signInWithGoogleUseCase()
+                        .onSuccess {
+                            onEvent(LoginEvent.NavigateToHome)
+                        }
+                        .onFailure { throwable ->
+                            Timber.e(throwable)
+                            onEvent(Failure(throwable.toRemoteFailure()))
+                        }
+                }
             }
         }
     }

@@ -105,7 +105,7 @@ fun LoginScreen(
                 res = R.string.login_screen_button,
                 enabled = state.inputValid,
                 onClick = {
-                    onAction(LoginAction.Login)
+                    onAction(LoginAction.OnLoginWithEmail)
                 }
             )
         }
@@ -130,6 +130,18 @@ fun LoginScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.clickable{
                     onAction(LoginAction.NavigateToSignUp)
+                }
+            )
+        }
+
+        item {
+            Spacer(Modifier.height(12.dp))
+        }
+
+        item {
+            GoogleSignInContent(
+                onClick = {
+                    onAction(LoginAction.OnLoginWithGoogle)
                 }
             )
         }

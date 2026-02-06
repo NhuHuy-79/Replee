@@ -6,5 +6,11 @@ data class Account(
     val email: String = "",
     val createAt: Long? = null,
     val currentToken: String = "",
+    val provider: AuthServiceProvider = AuthServiceProvider.EMAIL,
     val blockedList: List<String> = emptyList()
 )
+
+enum class AuthServiceProvider {
+    GOOGLE,
+    EMAIL
+}

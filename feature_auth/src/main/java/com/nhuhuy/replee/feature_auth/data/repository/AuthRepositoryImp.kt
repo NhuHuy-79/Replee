@@ -2,7 +2,7 @@ package com.nhuhuy.replee.feature_auth.data.repository
 
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.repository.BaseRepository
+import com.nhuhuy.core.domain.repository.NetworkResultCaller
 import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.common.mapper.toAccount
@@ -11,6 +11,7 @@ import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.firebase.data.AccountDTO
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
+import com.nhuhuy.replee.core.firebase.data_source.GoogleAuthService
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -20,11 +21,18 @@ import javax.inject.Inject
 class AuthRepositoryImp @Inject constructor(
     logger: Logger,
     ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val googleAuthService: GoogleAuthService,
     private val firebaseAuthEmailService: FirebaseAuthEmailService,
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val accountLocalDataSource: AccountLocalDataSource,
     private val appPreferences: AppPreferences
-) : AuthRepository, BaseRepository(dispatcher = ioDispatcher, logger = logger) {
+) : AuthRepository, NetworkResultCaller(dispatcher = ioDispatcher, logger = logger) {
+    override suspend fun signInWithGoogle(idToken: String): NetworkResult<Account> {
+        return safeCallWithTimeout {
+            googleAuthService.signIn(idToken).toAccount()
+        }
+    }
+
     override suspend fun loginWithEmail(
         email: String, password: String
     ): NetworkResult<String> = safeCallWithTimeout {

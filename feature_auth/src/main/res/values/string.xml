@@ -7,6 +7,12 @@
     <string name="empty_input">Input cannot be empty</string>
     <string name="password_not_match">Password not match</string>
 
+    <!-- Google Sign-In -->
+    <string name="auth_google_sign_in_cancelled">Google sign-in was cancelled.</string>
+    <string name="auth_google_sign_in_no_credential">No Google account found on this device. Please add one in Settings.</string>
+    <string name="auth_google_sign_in_provider_unavailable">Google sign-in is unavailable. Please update Google Play services.</string>
+    <string name="auth_google_sign_in_invalid_credential">Invalid sign-in credential. Please try again.</string>
+    <string name="auth_google_sign_in_unknown_error">Something went wrong. Please try again.</string>
 
     <!-- Ui Text for remote failure-->]
     <string name="failure_weak_password">Password is too weak!</string>
@@ -22,7 +28,7 @@
     <!--Loading Screen-->
 
 
-    <!--Login Screen-->
+    <!--OnLoginWithEmail Screen-->
     <string name="login_screen_title">Login</string>
     <string name="login_screen_email">Email</string>
     <string name="login_screen_password">Password</string>
