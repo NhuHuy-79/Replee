@@ -1,9 +1,8 @@
 package com.nhuhuy.replee.feature_chat.data
 
-import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
-import com.nhuhuy.replee.core.common.error_handling.Resource
-import com.nhuhuy.replee.core.common.error_handling.safeCall
-import com.nhuhuy.replee.core.common.toRemoteFailure
+import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.core.domain.repository.BaseRepository
+import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversationPatch
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
@@ -15,26 +14,26 @@ import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import javax.inject.Inject
 
 interface SyncManager {
     suspend fun updateMessageStatus(messageId: String, status: MessageStatus)
     suspend fun updateConversationStatus(conversationId: String, synced: Boolean)
-    suspend fun syncMessage() : Resource<Unit, RemoteFailure>
-    suspend fun syncConversation(): Resource<Unit, RemoteFailure>
+    suspend fun syncMessage(): NetworkResult<Unit>
+    suspend fun syncConversation(): NetworkResult<Unit>
     suspend fun cleanUpDatabase()
 }
 
 private const val CLEAN_UP_LIMIT : Int = 15
 
 class SyncManagerImp @Inject constructor(
+    private val logger: Logger,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val messageLocalDataSource: MessageLocalDataSource,
     private val messageNetworkDataSource: MessageNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource,
     private val conversationNetworkDataSource: ConversationNetworkDataSource
-) : SyncManager{
+) : SyncManager, BaseRepository(dispatcher, logger) {
     override suspend fun updateMessageStatus(
         messageId: String,
         status: MessageStatus
@@ -54,41 +53,33 @@ class SyncManagerImp @Inject constructor(
         }
     }
 
-    override suspend fun syncMessage() : Resource<Unit, RemoteFailure> {
-        return withContext(dispatcher){
-            safeCall(
-                throwable = { e ->
-                    Timber.e(e)
-                    e.toRemoteFailure()
-                }
-            ){
-                val unSyncedMessages = messageLocalDataSource.getUnsyncedMessages().map { entity ->
-                    entity.toMessage().toMessageDTO()
-                }
-                val messageIds = unSyncedMessages.map { messageDTO -> messageDTO.messageId }
-                val conversationIds = messageNetworkDataSource.sendMessages(unSyncedMessages)
-                messageLocalDataSource.updateSyncStatus(messageIds, MessageStatus.SYNCED)
-                conversationLocalDataSource.updateLastSyncedTime(conversationIds, System.currentTimeMillis())
+    override suspend fun syncMessage(): NetworkResult<Unit> {
+        return safeCall {
+            val unSyncedMessages = messageLocalDataSource.getUnsyncedMessages().map { entity ->
+                entity.toMessage().toMessageDTO()
             }
+            val messageIds = unSyncedMessages.map { messageDTO -> messageDTO.messageId }
+            val conversationIds = messageNetworkDataSource.sendMessages(unSyncedMessages)
+            messageLocalDataSource.updateSyncStatus(messageIds, MessageStatus.SYNCED)
+            conversationLocalDataSource.updateLastSyncedTime(
+                conversationIds,
+                System.currentTimeMillis()
+            )
         }
     }
 
-    override suspend fun syncConversation(): Resource<Unit, RemoteFailure> {
-        return withContext(dispatcher) {
-            safeCall(
-                throwable = { e -> e.toRemoteFailure() }
-            ) {
-                val conversationAndUsers = conversationLocalDataSource.getUnSyncedConversations()
-                val conversationIds = conversationAndUsers.map { conversationAndUsers ->
-                    conversationAndUsers.conversation.id
-                }
-                val conversationPatchList = conversationAndUsers.map { conversationAndUser ->
-                    conversationAndUser.toConversationPatch()
-                }
-
-                conversationNetworkDataSource.updateConversations(conversationPatchList)
-                conversationLocalDataSource.updateSyncStatusOfConversations(conversationIds, true)
+    override suspend fun syncConversation(): NetworkResult<Unit> {
+        return safeCall {
+            val conversationAndUsers = conversationLocalDataSource.getUnSyncedConversations()
+            val conversationIds = conversationAndUsers.map { conversationAndUsers ->
+                conversationAndUsers.conversation.id
             }
+            val conversationPatchList = conversationAndUsers.map { conversationAndUser ->
+                conversationAndUser.toConversationPatch()
+            }
+
+            conversationNetworkDataSource.updateConversations(conversationPatchList)
+            conversationLocalDataSource.updateSyncStatusOfConversations(conversationIds, true)
         }
     }
 

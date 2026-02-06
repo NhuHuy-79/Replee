@@ -2,12 +2,12 @@ package com.nhuhuy.replee.feature_profile.presentation
 
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
+import com.nhuhuy.core.domain.model.Account
+import com.nhuhuy.core.domain.model.onFailure
+import com.nhuhuy.core.domain.model.onSuccess
+import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.core.common.data.model.Account
-import com.nhuhuy.replee.core.common.data.repository.AccountRepository
-import com.nhuhuy.replee.core.common.error_handling.onFailure
-import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
@@ -35,7 +35,7 @@ class ProfileViewModel @Inject constructor(
     private val validator: Validator,
     private val updatePasswordUseCase: UpdatePasswordUseCase,
     private val logOutUseCase: LogOutUseCase,
-    private val accountRepository: AccountRepository,
+    private val getCurrentAccountUseCase: GetCurrentAccountUseCase,
     private val dataStore: SettingDataStore,
 ) : BaseViewModel<ProfileAction, ProfileEvent, ProfileState>() {
 
@@ -46,7 +46,7 @@ class ProfileViewModel @Inject constructor(
     private val dialogState = _overlayState.asStateFlow()
 
     private val account = flow {
-        emit(accountRepository.getCurrentAccount())
+        emit(getCurrentAccountUseCase())
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Account())
 
 
@@ -112,6 +112,10 @@ class ProfileViewModel @Inject constructor(
                             )
                         )
                     }
+                }
+
+                ProfileAction.OnNavigateBack -> {
+                    onEvent(ProfileEvent.NavigateBack)
                 }
 
                 ProfileAction.OnDismiss -> {

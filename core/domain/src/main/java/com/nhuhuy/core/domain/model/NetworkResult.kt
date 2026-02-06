@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.common.error_handling
+package com.nhuhuy.core.domain.model
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -29,7 +29,9 @@ inline fun <T, R> NetworkResult<T>.map(
 inline fun <T, R> Flow<NetworkResult<T>>.mapNetworkResult(
     crossinline transform: (T) -> R
 ): Flow<NetworkResult<R>> {
-    return this.map { result -> result.map(transform) }
+    return this.map { result ->
+        result.map(transform)
+    }
 }
 
 inline fun <T> NetworkResult<T>.onFailure(

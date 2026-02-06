@@ -8,8 +8,8 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
-import com.nhuhuy.replee.core.common.error_handling.Resource
+import com.google.firebase.FirebaseNetworkException
+import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.worker.clean_up.CleanUpDatabaseWorker
 import dagger.assisted.Assisted
@@ -35,9 +35,9 @@ class MessageSyncWork @AssistedInject constructor(
         return withContext(dispatcher) {
             Timber.d("Start Sync Message To Firestore!")
 
-            val resource = syncManager.syncMessage()
-            when (resource) {
-                is Resource.Success -> {
+            val result = syncManager.syncMessage()
+            when (result) {
+                is NetworkResult.Success -> {
                     Timber.d("Sync Message To Firestore Success!")
 
                     val request = OneTimeWorkRequestBuilder<CleanUpDatabaseWorker>().build()
@@ -57,15 +57,15 @@ class MessageSyncWork @AssistedInject constructor(
 
                 }
 
-                is Resource.Error -> {
+                is NetworkResult.Failure -> {
                     Timber.d("Failed to Sync Message To Firestore!")
 
-                    if (resource.error is RemoteFailure.Network) {
+                    if (result.throwable is FirebaseNetworkException) {
                         Result.retry()
                     } else {
                         Result.failure(
                             workDataOf(
-                                SyncKey.FAILURE to "${resource.error}"
+                                SyncKey.FAILURE to "${result.throwable}"
                             )
                         )
                     }

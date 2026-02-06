@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
-import com.nhuhuy.replee.core.common.error_handling.onFailure
+import com.google.firebase.FirebaseNetworkException
+import com.nhuhuy.core.domain.model.onFailure
 import com.nhuhuy.replee.feature_chat.data.SyncManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -25,9 +25,9 @@ class ConversationSyncWorker @AssistedInject constructor(
             Timber.d("Start Sync Conversation To Firestore!")
             val resource = syncManager.syncConversation()
 
-            resource.onFailure { error ->
+            resource.onFailure { throwable ->
                 Timber.e("Failed to Sync Conversation To Firestore!")
-                if (error is RemoteFailure.Network) {
+                if (throwable is FirebaseNetworkException) {
                     Timber.e("Network Error!")
                     Result.retry()
                 }

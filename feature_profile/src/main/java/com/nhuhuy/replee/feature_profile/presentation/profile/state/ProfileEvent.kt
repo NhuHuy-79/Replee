@@ -7,6 +7,7 @@ sealed interface ProfileEvent : UiEvent{
     data object GoToAbout: ProfileEvent
 
     data object GoToSignIn: ProfileEvent
+    data object NavigateBack : ProfileEvent
 
     sealed interface UpdatePassword : ProfileEvent {
         data object Success : UpdatePassword

@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_auth.domain.repository
 
-import com.nhuhuy.replee.core.common.data.model.Account
-import com.nhuhuy.replee.core.common.error_handling.NetworkResult
+import com.nhuhuy.core.domain.model.Account
+import com.nhuhuy.core.domain.model.NetworkResult
 
 interface AuthRepository {
     suspend fun loginWithEmail(email: String, password: String): NetworkResult<String>

@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.message
 
-import com.nhuhuy.replee.core.common.error_handling.NetworkResult
+import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import kotlinx.coroutines.flow.Flow

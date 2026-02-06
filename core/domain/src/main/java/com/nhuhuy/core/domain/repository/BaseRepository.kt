@@ -1,12 +1,12 @@
-package com.nhuhuy.replee.core.common.base
+package com.nhuhuy.core.domain.repository
 
-import com.nhuhuy.replee.core.common.error_handling.NetworkResult
-import com.nhuhuy.replee.core.common.utils.Logger
-import kotlinx.coroutines.CancellationException
+import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.core.domain.utils.Logger
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import kotlin.coroutines.cancellation.CancellationException
 
 abstract class BaseRepository(
     private val dispatcher: CoroutineDispatcher,
@@ -47,4 +47,3 @@ abstract class BaseRepository(
         }
     }
 }
-

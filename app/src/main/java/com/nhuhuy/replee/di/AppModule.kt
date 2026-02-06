@@ -1,8 +1,8 @@
 package com.nhuhuy.replee.di
 
 import android.content.Context
+import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
-import com.nhuhuy.replee.core.common.utils.Logger
 import com.nhuhuy.replee.core.common.utils.LoggerImp
 import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.firebase.network.mapper.NetworkMapper

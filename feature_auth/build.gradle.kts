@@ -51,6 +51,7 @@ dependencies {
     implementation(project(":core:firebase"))
     testImplementation(project(":core:test"))
     implementation(project(":core:database"))
+    implementation(project(":core:domain"))
 
     //Hilt
     implementation(libs.dagger.hilt.android)

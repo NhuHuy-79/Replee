@@ -2,12 +2,12 @@ package com.nhuhuy.replee.feature_auth.presentation.login
 
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
+import com.nhuhuy.core.domain.model.onFailure
+import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.UiAction
 import com.nhuhuy.replee.core.common.base.UiState
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.core.common.error_handling.onFailure
-import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput

@@ -24,6 +24,7 @@ sealed interface ProfileAction : UiAction {
 
     data object OnLogOut : ProfileAction
 
+    data object OnNavigateBack : ProfileAction
     data class OnNewPasswordChange(val password: String) : ProfileAction
     data class OnOldPasswordChange(val password: String) : ProfileAction
 }

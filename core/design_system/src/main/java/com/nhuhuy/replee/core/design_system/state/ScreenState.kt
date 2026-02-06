@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
+import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.common.error_handling.Failure
-import com.nhuhuy.replee.core.common.error_handling.NetworkResult
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.toRemoteFailure
 

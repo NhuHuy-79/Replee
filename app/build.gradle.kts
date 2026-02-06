@@ -46,6 +46,7 @@ android {
 dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:firebase"))
+    implementation(project(":core:domain"))
     implementation(project(":core:database"))
     implementation(project(":core:design_system"))
     implementation(project(":feature_chat"))

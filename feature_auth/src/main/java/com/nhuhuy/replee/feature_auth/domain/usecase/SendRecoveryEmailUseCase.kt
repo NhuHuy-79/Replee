@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.feature_auth.domain.usecase
 
-import com.nhuhuy.replee.core.common.error_handling.NetworkResult
+import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import javax.inject.Inject
 

@@ -2,13 +2,14 @@ package com.nhuhuy.replee.feature_profile
 
 import app.cash.turbine.test
 import com.google.common.truth.Truth
-import com.nhuhuy.replee.core.common.data.model.Account
-import com.nhuhuy.replee.core.common.data.repository.AccountRepository
-import com.nhuhuy.replee.core.common.error_handling.Resource
+import com.nhuhuy.core.domain.model.Account
+import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
 import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.test.DispatcherRuleTest
 import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStore
-import com.nhuhuy.replee.feature_profile.domain.repository.ProfileRepository
+import com.nhuhuy.replee.feature_profile.domain.usecase.LogOutUseCase
+import com.nhuhuy.replee.feature_profile.domain.usecase.UpdatePasswordUseCase
 import com.nhuhuy.replee.feature_profile.presentation.ProfileViewModel
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.Overlay
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction
@@ -27,8 +28,9 @@ import org.junit.Test
 class ProfileViewModelTest {
 
     private lateinit var validator: Validator
-    private lateinit var profileRepository: ProfileRepository
-    private lateinit var accountRepository: AccountRepository
+    private lateinit var updatePasswordUseCase: UpdatePasswordUseCase
+    private lateinit var logOutUseCase: LogOutUseCase
+    private lateinit var getCurrentAccountUseCase: GetCurrentAccountUseCase
     private lateinit var dataStore: SettingDataStore
     private lateinit var viewModel: ProfileViewModel
 
@@ -38,10 +40,17 @@ class ProfileViewModelTest {
     @Before
     fun setUp(){
         validator = mockk(relaxed = true)
-        profileRepository = mockk(relaxed = true)
-        accountRepository = mockk(relaxed = true)
+        updatePasswordUseCase = mockk(relaxed = true)
+        logOutUseCase = mockk(relaxed = true)
+        getCurrentAccountUseCase = mockk(relaxed = true)
         dataStore = mockk(relaxed = true)
-        viewModel = ProfileViewModel(validator, accountRepository, dataStore)
+        viewModel = ProfileViewModel(
+            validator,
+            updatePasswordUseCase,
+            logOutUseCase,
+            getCurrentAccountUseCase,
+            dataStore
+        )
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -64,7 +73,7 @@ class ProfileViewModelTest {
     @Test
     fun returnSuccessEvent_whenUpdatePassword() = runTest {
         coEvery {
-            accountRepository.getCurrentAccount()
+            getCurrentAccountUseCase()
         } returns Account()
 
         every {
@@ -76,8 +85,8 @@ class ProfileViewModelTest {
         } returns mockk(relaxed = true)
 
         coEvery {
-            profileRepository.updateNewPassword("old", "new")
-        } returns Resource.Success(Unit)
+            updatePasswordUseCase("old", "new")
+        } returns NetworkResult.Success(Unit)
 
         viewModel.onAction(ProfileAction.OnOldPasswordChange("old"))
         viewModel.onAction(ProfileAction.OnNewPasswordChange("new"))

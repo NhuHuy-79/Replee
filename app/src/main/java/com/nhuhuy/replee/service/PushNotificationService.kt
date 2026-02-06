@@ -2,7 +2,7 @@ package com.nhuhuy.replee.service
 
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.nhuhuy.replee.core.common.data.repository.AccountRepository
+import com.nhuhuy.core.domain.usecase.UpdateDeviceTokenUseCase
 import com.nhuhuy.replee.notification.NotificationParser
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -18,7 +18,7 @@ class PushNotificationService() : FirebaseMessagingService() {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     @Inject
-    lateinit var accountRepository: AccountRepository
+    lateinit var updateDeviceTokenUseCase: UpdateDeviceTokenUseCase
 
     @Inject
     lateinit var pushNotificationHandler: PushNotificationHandler
@@ -28,7 +28,7 @@ class PushNotificationService() : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         scope.launch {
-            accountRepository.updateDeviceToken(token)
+            updateDeviceTokenUseCase(token)
         }
         super.onNewToken(token)
     }

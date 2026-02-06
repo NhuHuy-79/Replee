@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_chat.presentation.conversation.state
 
+import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.replee.core.common.base.UiAction
-import com.nhuhuy.replee.core.common.data.model.Account
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 
 sealed interface ConversationAction : UiAction{

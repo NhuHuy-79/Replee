@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.replee.core.common.data.model.Account
+import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.feature_profile.R
 
@@ -26,7 +26,8 @@ fun ProfileUserCard(
     onEditClick: () -> Unit = {},
 ) {
     Row(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)

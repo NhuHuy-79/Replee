@@ -45,6 +45,8 @@ dependencies {
     implementation(project(":core:database"))
     implementation(project(":core:test"))
     implementation(project(":core:design_system"))
+    implementation(project(":core:domain"))
+
 
     implementation(libs.dagger.hilt.android)
     debugImplementation(libs.ui.tooling)

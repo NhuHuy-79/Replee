@@ -1,13 +1,13 @@
 package com.nhuhuy.replee.feature_profile.data.repository
 
-import com.nhuhuy.replee.core.common.base.BaseRepository
+import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.core.domain.repository.BaseRepository
+import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
-import com.nhuhuy.replee.core.common.error_handling.NetworkResult
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 import com.nhuhuy.replee.core.common.error_handling.safeCall
 import com.nhuhuy.replee.core.common.toRemoteFailure
-import com.nhuhuy.replee.core.common.utils.Logger
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.feature_profile.domain.repository.ProfileRepository

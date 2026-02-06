@@ -1,9 +1,6 @@
 package com.nhuhuy.replee.di
 
-import com.nhuhuy.replee.core.common.data.repository.AccountRepository
 import com.nhuhuy.replee.core.common.data.repository.AccountRepositoryImp
-import com.nhuhuy.replee.core.common.data.repository.IAccountRepository
-import com.nhuhuy.replee.core.common.data.repository.IAccountRepositoryImp
 import com.nhuhuy.replee.feature_auth.data.repository.AuthRepositoryImp
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import com.nhuhuy.replee.feature_chat.data.SyncManager
@@ -24,13 +21,12 @@ import dagger.hilt.components.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
-
     //
     @Binds
-    abstract fun bindIAuthRepository(imp: AuthRepositoryImp): AuthRepository
+    abstract fun bindAuthRepository(imp: AuthRepositoryImp): AuthRepository
 
     @Binds
-    abstract fun bindIAccountRepository(imp: IAccountRepositoryImp): IAccountRepository
+    abstract fun bindAccountRepository(imp: AccountRepositoryImp): com.nhuhuy.core.domain.repository.AccountRepository
 
     //
     @Binds
@@ -45,9 +41,6 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindProfileRepository(profileRepositoryImp: ProfileRepositoryImp): ProfileRepository
-
-    @Binds
-    abstract fun bindAccountRepository(accountRepository: AccountRepositoryImp) : AccountRepository
 
     @Binds
     abstract fun bindMessageRepository(messageRepositoryImp: MessageRepositoryImp): MessageRepository

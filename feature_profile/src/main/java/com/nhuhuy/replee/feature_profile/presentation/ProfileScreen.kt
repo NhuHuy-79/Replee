@@ -13,8 +13,10 @@ import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +48,18 @@ fun ProfileScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             MediumTopAppBar(
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            onAction(ProfileAction.OnNavigateBack)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
+                },
                 title = {
                     Text(
                         text = stringResource(R.string.profile_screen_title),
@@ -56,7 +70,8 @@ fun ProfileScreen(
         }
     ) { innerPadding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(innerPadding)
         ) {
             item {
@@ -72,7 +87,8 @@ fun ProfileScreen(
                 Text(
                     text = stringResource(R.string.profile_screen_subtitle),
                     style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(vertical = 18.dp)
+                    modifier = Modifier
+                        .padding(vertical = 18.dp)
                         .padding(horizontal = 16.dp)
                 )
             }

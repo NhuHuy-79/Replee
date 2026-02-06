@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
-import com.nhuhuy.replee.core.common.error_handling.onFailure
-import com.nhuhuy.replee.core.common.error_handling.onSuccess
+import com.nhuhuy.core.domain.model.onFailure
+import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.replee.feature_chat.data.NotifyService
 import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.domain.model.Message

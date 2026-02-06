@@ -1,11 +1,12 @@
 package com.nhuhuy.replee.feature_chat.presentation.conversation
 
 import androidx.lifecycle.viewModelScope
+import com.nhuhuy.core.domain.model.onFailure
+import com.nhuhuy.core.domain.model.onSuccess
+import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
+import com.nhuhuy.core.domain.usecase.SearchAccountByEmailUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.core.common.data.repository.AccountRepository
-import com.nhuhuy.replee.core.common.error_handling.onFailure
-import com.nhuhuy.replee.core.common.error_handling.onSuccess
 import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
@@ -41,7 +42,8 @@ class ConversationViewModel @Inject constructor(
     private val saveConversationUserUseCase: SaveConversationUserUseCase,
     private val observeConversationsUseCase: ObserveConversationsUseCase,
     private val saveConversationUseCase: SaveConversationUseCase,
-    private val accountRepository: AccountRepository
+    private val getCurrentAccountUseCase: GetCurrentAccountUseCase,
+    private val searchAccountByEmailUseCase: SearchAccountByEmailUseCase
 ) : BaseViewModel<ConversationAction, ConversationEvent, ConversationState>() {
     private var firstSync = false
     private val _state = MutableStateFlow(ConversationState())
@@ -51,7 +53,7 @@ class ConversationViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             observeConversationFromNetwork()
-            val currentUser = accountRepository.getCurrentAccount()
+            val currentUser = getCurrentAccountUseCase()
             saveConversationUserUseCase(currentUser.id)
             _state.reduce {
                 copy(currentUser = currentUser)
@@ -61,14 +63,14 @@ class ConversationViewModel @Inject constructor(
 
     private fun observeConversationFromNetwork() {
         viewModelScope.launch {
-            observeConversationsUseCase().collect { resource ->
+            observeConversationsUseCase().collect { result ->
                 if (firstSync) {
                     _state.reduce {
                         copy(synchronizingState = SynchronizingState.SYNC)
                     }
                     firstSync = false
                 }
-                resource.onSuccess { conversation ->
+                result.onSuccess { conversation ->
                     saveConversationUseCase(conversation)
                     _state.reduce {
                         copy(
@@ -124,7 +126,7 @@ class ConversationViewModel @Inject constructor(
                         copy(searchState = ScreenState.Loading)
                     }
                     val query = state.value.searchQuery
-                    val result = accountRepository.searchAccountsByEmail(query)
+                    val result = searchAccountByEmailUseCase(email = query)
                     _state.reduce {
                         copy(searchState = result.toScreenState())
                     }
@@ -197,7 +199,7 @@ class ConversationViewModel @Inject constructor(
                     )
                 }
             }
-            .onFailure { error ->
+            .onFailure {
                 _state.reduce {
                     copy(
                         synchronizingState = SynchronizingState.FAILURE

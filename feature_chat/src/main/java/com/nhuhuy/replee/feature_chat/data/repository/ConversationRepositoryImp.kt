@@ -1,10 +1,10 @@
 package com.nhuhuy.replee.feature_chat.data.repository
 
-import com.nhuhuy.replee.core.common.base.BaseRepository
-import com.nhuhuy.replee.core.common.data.model.Account
-import com.nhuhuy.replee.core.common.data.model.toAccountEntity
-import com.nhuhuy.replee.core.common.error_handling.NetworkResult
-import com.nhuhuy.replee.core.common.utils.Logger
+import com.nhuhuy.core.domain.model.Account
+import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.core.domain.repository.BaseRepository
+import com.nhuhuy.core.domain.utils.Logger
+import com.nhuhuy.replee.core.common.mapper.toAccountEntity
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService

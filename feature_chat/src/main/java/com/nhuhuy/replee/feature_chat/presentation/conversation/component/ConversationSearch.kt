@@ -31,7 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.replee.core.common.data.model.Account
+import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.ScreenStateHost
@@ -79,9 +79,9 @@ fun ConversationSearchBar(
                         userName = currentUser.name,
                         modifier = Modifier
                             .size(36.dp)
-                            .clickable{
+                            .clickable {
                                 goToProfile()
-                        }
+                            }
                     )
                 },
                 leadingIcon = {
@@ -169,9 +169,10 @@ fun SearchResultContent(
             ){ item ->
                 UserItem(
                     userName = item.name,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .animateItem()
-                        .clickable{
+                        .clickable {
                             onUserClick(item)
                         }
 

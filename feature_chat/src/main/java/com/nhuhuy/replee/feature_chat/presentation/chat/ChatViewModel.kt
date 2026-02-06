@@ -3,15 +3,16 @@
 package com.nhuhuy.replee.feature_chat.presentation.chat
 
 import androidx.lifecycle.viewModelScope
+import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.core.domain.usecase.GetAccountByIdUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.core.common.data.repository.AccountRepository
-import com.nhuhuy.replee.core.common.error_handling.NetworkResult
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.UnblockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.LoadMessageUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveBlockStatusUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ReadMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SaveMessageUseCase
@@ -48,10 +49,12 @@ class ChatViewModel @AssistedInject constructor(
     private val loadMessageUseCase: LoadMessageUseCase,
     private val saveMessageUseCase: SaveMessageUseCase,
     private val observeMessageUseCase: ObserveMessageUseCase,
-    private val accountRepository: AccountRepository,
+    private val getAccountByIdUseCase: GetAccountByIdUseCase,
+    private val observeBlockStatusUseCase: ObserveBlockStatusUseCase
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
-    val blocked =
-        accountRepository.observeBlockStatus(owner = currentUserId, otherUser = otherUserId)
+    val
+            blocked =
+        observeBlockStatusUseCase(ownerId = currentUserId, otherUserId = otherUserId)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
     private val _state = MutableStateFlow(ChatState(currentUserId = currentUserId))
 
@@ -60,7 +63,7 @@ class ChatViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch {
-            val otherUser = accountRepository.getAccountById(uid = otherUserId)
+            val otherUser = getAccountByIdUseCase(uid = otherUserId)
             _state.reduce {
                 copy(otherUser = otherUser)
             }
@@ -73,7 +76,7 @@ class ChatViewModel @AssistedInject constructor(
             if (blocked) {
                 emptyFlow()
             } else {
-                observeMessageUseCase(conversationId)
+                observeMessageUseCase(conversationId = conversationId)
             }
         }
             .onEach { result ->

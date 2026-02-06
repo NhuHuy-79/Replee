@@ -35,6 +35,10 @@ fun EntryProviderScope<NavKey>.profileGraph(
                     backstack.clear()
                     backstack.add(AuthDestination.Login)
                 }
+
+                ProfileEvent.NavigateBack -> {
+                    backstack.removeLastOrNull()
+                }
             }
         }
 

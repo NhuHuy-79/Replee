@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.feature_profile.domain.repository
 
-import com.nhuhuy.replee.core.common.error_handling.NetworkResult
+import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 
