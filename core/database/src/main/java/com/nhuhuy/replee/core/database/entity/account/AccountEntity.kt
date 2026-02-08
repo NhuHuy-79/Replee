@@ -11,7 +11,11 @@ data class AccountEntity(
     val name: String = "",
     val email: String = "",
     val createAt: Long? = null,
+    @ColumnInfo(name = "imageUrl", defaultValue = "")
+    val imageUrl: String = "",
     @ColumnInfo(name = "blockedUserList", defaultValue = "[]")
     val blockedUserList: List<String> = emptyList(),
+    @ColumnInfo(name = "provider", defaultValue = "EMAIL")
+    val provider: String = "EMAIL",
     val logOut: Boolean = false,
 )

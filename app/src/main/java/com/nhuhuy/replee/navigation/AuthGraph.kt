@@ -17,6 +17,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.ui.NavDisplay
 import com.nhuhuy.replee.core.design_system.ObserveEffect
 import com.nhuhuy.replee.feature_auth.R
+import com.nhuhuy.replee.feature_auth.data.toStringRes
 import com.nhuhuy.replee.feature_auth.presentation.login.LoginEvent
 import com.nhuhuy.replee.feature_auth.presentation.login.LoginScreen
 import com.nhuhuy.replee.feature_auth.presentation.login.LoginViewModel
@@ -99,10 +100,13 @@ fun EntryProviderScope<NavKey>.authGraph(
                 }
 
                 is LoginEvent.GoogleErrorSnackBar -> {
-                    snackBarHostState.showSnackbar(
-                        message = resource.getString(event.error.toUiText()),
-                        duration = SnackbarDuration.Short
-                    )
+                    val stringRes = event.error.toStringRes()
+                    if (stringRes != null) {
+                        snackBarHostState.showSnackbar(
+                            message = resource.getString(stringRes),
+                            duration = SnackbarDuration.Short
+                        )
+                    }
                 }
             }
         }

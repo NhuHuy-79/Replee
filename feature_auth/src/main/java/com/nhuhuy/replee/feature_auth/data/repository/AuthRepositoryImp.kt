@@ -29,7 +29,9 @@ class AuthRepositoryImp @Inject constructor(
 ) : AuthRepository, NetworkResultCaller(dispatcher = ioDispatcher, logger = logger) {
     override suspend fun signInWithGoogle(idToken: String): NetworkResult<Account> {
         return safeCallWithTimeout {
-            googleAuthService.signIn(idToken).toAccount()
+            val accountDTO = googleAuthService.signIn(idToken)
+            appPreferences.saveLoggedStatus(true)
+            accountDTO.toAccount()
         }
     }
 

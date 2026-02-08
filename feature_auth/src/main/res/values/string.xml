@@ -14,6 +14,9 @@
     <string name="auth_google_sign_in_invalid_credential">Invalid sign-in credential. Please try again.</string>
     <string name="auth_google_sign_in_unknown_error">Something went wrong. Please try again.</string>
 
+    <!--WEB CLIENT ID-->
+    <string name="google_client_id">"314336012464-qp2hf43uodvhla3ockl8jarddoudan63.apps.googleusercontent.com"</string>
+
     <!-- Ui Text for remote failure-->]
     <string name="failure_weak_password">Password is too weak!</string>
     <string name="failure_cannot_send_email">Cannot send email!</string>

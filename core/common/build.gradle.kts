@@ -48,6 +48,8 @@ dependencies {
     api(libs.flow.operators)
     api(libs.androidx.material.icons.extended)
     api(libs.timber)
+    api(libs.coil.compose)
+    api(libs.coil.network.okhttp)
 
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.core.ktx)

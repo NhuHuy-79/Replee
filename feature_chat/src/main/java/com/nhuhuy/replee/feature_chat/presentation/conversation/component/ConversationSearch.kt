@@ -129,7 +129,9 @@ fun ConversationSearchBar(
                 )
             },
             loading = {
-                LinearProgressIndicator()
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         )
     }

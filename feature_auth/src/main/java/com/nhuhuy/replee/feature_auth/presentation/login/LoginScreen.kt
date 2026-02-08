@@ -2,6 +2,7 @@
 
 package com.nhuhuy.replee.feature_auth.presentation.login
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,7 +16,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -28,6 +35,7 @@ import com.nhuhuy.replee.core.design_system.component.NormalTextField
 import com.nhuhuy.replee.core.design_system.component.SecureTextField
 import com.nhuhuy.replee.core.design_system.component.VisibleLoadingScreen
 import com.nhuhuy.replee.feature_auth.R
+import com.nhuhuy.replee.feature_auth.data.repository.GoogleCredentialProvider
 import com.nhuhuy.replee.feature_auth.presentation.shared.AuthLayout
 import com.nhuhuy.replee.feature_auth.presentation.shared.customText
 import com.nhuhuy.replee.feature_auth.utils.toUiText
@@ -39,6 +47,18 @@ fun LoginScreen(
     snackBarHostState: SnackbarHostState,
     onAction: (LoginAction) -> Unit
 ) = BoxContainer {
+    var googleButtonClicked by remember { mutableStateOf(false) }
+    val context: Context = LocalContext.current
+    val googleCredentialProvider = remember { GoogleCredentialProvider() }
+
+    LaunchedEffect(googleButtonClicked) {
+        if (googleButtonClicked) {
+            val result = googleCredentialProvider.provideIdToken(context)
+            onAction(LoginAction.OnLoginWithGoogle(result))
+            googleButtonClicked = false
+        }
+    }
+
     AuthLayout(
         titleRes = R.string.login_screen_title,
         bgRes = R.drawable.bg_sign_in,
@@ -141,7 +161,7 @@ fun LoginScreen(
         item {
             GoogleSignInContent(
                 onClick = {
-                    onAction(LoginAction.OnLoginWithGoogle)
+                    googleButtonClicked = true
                 }
             )
         }

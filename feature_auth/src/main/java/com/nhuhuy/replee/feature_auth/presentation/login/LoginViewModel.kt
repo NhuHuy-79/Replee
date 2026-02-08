@@ -11,6 +11,7 @@ import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
+import com.nhuhuy.replee.feature_auth.data.GoogleCredentialResult
 import com.nhuhuy.replee.feature_auth.domain.usecase.LoginWithEmailUseCase
 import com.nhuhuy.replee.feature_auth.domain.usecase.SignInWithGoogleUseCase
 import com.nhuhuy.replee.feature_auth.presentation.login.LoginEvent.Failure
@@ -35,7 +36,7 @@ data class LoginState(
 }
 
 sealed interface LoginAction : UiAction {
-    data object OnLoginWithGoogle : LoginAction
+    data class OnLoginWithGoogle(val result: GoogleCredentialResult) : LoginAction
     data class OnEmailChanged(val email: String) : LoginAction
     data class OnPasswordChanged(val password: String) : LoginAction
     data object NavigateToSignUp : LoginAction
@@ -101,14 +102,23 @@ class LoginViewModel @Inject constructor(
                 }
 
                 is LoginAction.OnLoginWithGoogle -> {
-                    signInWithGoogleUseCase()
-                        .onSuccess {
-                            onEvent(LoginEvent.NavigateToHome)
+                    val googleCredentialResult = action.result
+                    when (googleCredentialResult) {
+                        is GoogleCredentialResult.Success -> {
+                            signInWithGoogleUseCase(googleCredentialResult.idToken)
+                                .onSuccess {
+                                    onEvent(LoginEvent.NavigateToHome)
+                                }
+                                .onFailure { throwable ->
+                                    Timber.e(throwable)
+                                    onEvent(Failure(throwable.toRemoteFailure()))
+                                }
                         }
-                        .onFailure { throwable ->
-                            Timber.e(throwable)
-                            onEvent(Failure(throwable.toRemoteFailure()))
+
+                        else -> {
+                            onEvent(LoginEvent.GoogleErrorSnackBar(googleCredentialResult))
                         }
+                    }
                 }
             }
         }
