@@ -5,6 +5,7 @@ import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.core.common.error_handling.Resource
 
 interface ProfileRepository {
+    suspend fun updateUserImage(byteArray: ByteArray): NetworkResult<String>
 
     suspend fun updateNewPassword(
         old: String,

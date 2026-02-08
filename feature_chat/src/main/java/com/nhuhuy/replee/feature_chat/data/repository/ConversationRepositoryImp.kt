@@ -61,8 +61,11 @@ class ConversationRepositoryImp @Inject constructor(
             entities.map { entity ->
                 Timber.d("${entity.toConversation()}")
                 entity.toConversation()
+            }.filter { conversation ->
+                conversation.lastMessageContent.isNotEmpty()
             }
-        }.flowOn(ioDispatcher)
+        }
+            .flowOn(ioDispatcher)
     }
 
     override suspend fun saveConversations(conversations: List<Conversation>) {

@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.feature_profile.presentation.profile.state
 
+import android.net.Uri
 import com.nhuhuy.replee.core.common.base.UiAction
 import com.nhuhuy.replee.feature_profile.data.data_store.NotificationMode
 import com.nhuhuy.replee.feature_profile.data.data_store.ThemeMode
@@ -22,9 +23,16 @@ sealed interface ProfileAction : UiAction {
         data object Confirm : OnUpdatePassword
     }
 
+    sealed interface OnPhotoPicker : ProfileAction {
+        data object Launcher : OnPhotoPicker
+        data class Select(val uri: Uri) : OnPhotoPicker
+    }
+
     data object OnLogOut : ProfileAction
 
     data object OnNavigateBack : ProfileAction
     data class OnNewPasswordChange(val password: String) : ProfileAction
     data class OnOldPasswordChange(val password: String) : ProfileAction
+
+    data object OnEditDialogOpen : ProfileAction
 }

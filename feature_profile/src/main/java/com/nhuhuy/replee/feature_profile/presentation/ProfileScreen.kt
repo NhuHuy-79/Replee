@@ -2,6 +2,9 @@
 
 package com.nhuhuy.replee.feature_profile.presentation
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -31,19 +34,36 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.feature_profile.R
+import com.nhuhuy.replee.feature_profile.presentation.profile.component.EditDialog
 import com.nhuhuy.replee.feature_profile.presentation.profile.component.NotificationDialog
 import com.nhuhuy.replee.feature_profile.presentation.profile.component.ProfileUserCard
 import com.nhuhuy.replee.feature_profile.presentation.profile.component.SelectThemeDialog
 import com.nhuhuy.replee.feature_profile.presentation.profile.component.UpdateAccountSheet
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.Overlay
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction
+import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction.OnNewPasswordChange
+import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction.OnOldPasswordChange
+import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction.OnUpdatePassword
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileState
+import timber.log.Timber
 
 @Composable
 fun ProfileScreen(
     state: ProfileState,
     onAction: (ProfileAction) -> Unit
 )= BoxContainer {
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            onAction(ProfileAction.OnPhotoPicker.Select(uri))
+        } else {
+            Timber.e("No media selected")
+        }
+    }
+
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -78,7 +98,7 @@ fun ProfileScreen(
                 ProfileUserCard(
                     user = state.account,
                     onEditClick = {
-                        onAction(ProfileAction.OnUpdatePassword.BottomSheet)
+                        onAction(ProfileAction.OnEditDialogOpen)
                     }
                 )
             }
@@ -178,19 +198,42 @@ fun ProfileScreen(
             Overlay.UPDATE_PASSWORD -> UpdateAccountSheet(
                 state = state,
                 onOldPasswordChange = { value ->
-                    onAction(ProfileAction.OnOldPasswordChange(value))
+                    onAction(OnOldPasswordChange(value))
                 },
                 onNewPasswordChange = { value ->
-                    onAction(ProfileAction.OnNewPasswordChange(value))
+                    onAction(OnNewPasswordChange(value))
 
                 },
                 onConfirm = {
-                    onAction(ProfileAction.OnUpdatePassword.Confirm)
+                    onAction(OnUpdatePassword.Confirm)
                 },
                 onDismiss = {
                     onAction(ProfileAction.OnDismiss)
                 },
             )
+
+            Overlay.OPTIONS -> {
+                EditDialog(
+                    onDismiss = {
+                        onAction(ProfileAction.OnDismiss)
+                    },
+                    onEditPassword = {
+                        onAction(OnUpdatePassword.BottomSheet)
+                    },
+                    onEditAvatar = {
+                        launcher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                        /*
+                                                onAction(ProfileAction.OnPhotoPicker.Launcher)
+                        */
+                    }
+                )
+            }
+
+            Overlay.IMAGE_PICKER -> {
+
+            }
         }
     }
 }

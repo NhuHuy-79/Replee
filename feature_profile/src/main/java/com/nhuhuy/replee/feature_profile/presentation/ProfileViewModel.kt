@@ -8,15 +8,18 @@ import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
+import com.nhuhuy.replee.core.common.data.UriToFileConverter
 import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStore
 import com.nhuhuy.replee.feature_profile.domain.usecase.LogOutUseCase
 import com.nhuhuy.replee.feature_profile.domain.usecase.UpdatePasswordUseCase
+import com.nhuhuy.replee.feature_profile.domain.usecase.UploadAvatarUseCase
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.Overlay
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileEvent
+import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileEvent.UpdatePassword.Failure
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -36,6 +39,8 @@ class ProfileViewModel @Inject constructor(
     private val updatePasswordUseCase: UpdatePasswordUseCase,
     private val logOutUseCase: LogOutUseCase,
     private val getCurrentAccountUseCase: GetCurrentAccountUseCase,
+    private val uploadAvatarUseCase: UploadAvatarUseCase,
+    private val uriToFileConverter: UriToFileConverter,
     private val dataStore: SettingDataStore,
 ) : BaseViewModel<ProfileAction, ProfileEvent, ProfileState>() {
 
@@ -138,8 +143,24 @@ class ProfileViewModel @Inject constructor(
                             _overlayState.update { Overlay.NONE }
                         }
                         .onFailure { throwable ->
-                            onEvent(ProfileEvent.UpdatePassword.Failure(throwable.toRemoteFailure()))
+                            onEvent(Failure(throwable.toRemoteFailure()))
                         }
+                }
+
+                is ProfileAction.OnPhotoPicker.Launcher -> {
+                    _overlayState.update { Overlay.IMAGE_PICKER }
+                }
+
+                is ProfileAction.OnPhotoPicker.Select -> {
+                    val byteArray = uriToFileConverter.toByteArray(action.uri)
+                    byteArray?.let { byteArray ->
+                        uploadAvatarUseCase(byteArray)
+                    }
+
+                }
+
+                ProfileAction.OnEditDialogOpen -> {
+                    _overlayState.update { Overlay.OPTIONS }
                 }
             }
         }

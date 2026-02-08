@@ -15,6 +15,7 @@ import coil3.disk.directory
 import coil3.memory.MemoryCache
 import coil3.request.CachePolicy
 import coil3.util.DebugLogger
+import com.cloudinary.android.MediaManager
 import com.nhuhuy.replee.worker.WorkerScheduler
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
@@ -36,6 +37,7 @@ class RepleeApp() : Application(), Configuration.Provider, SingletonImageLoader.
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel(this)
+        initializeCloudinary()
         Timber.plant(Timber.DebugTree())
         workerScheduler.scheduleMessageSyncWorker()
         workerScheduler.scheduleConversationSyncWorker()
@@ -49,6 +51,14 @@ class RepleeApp() : Application(), Configuration.Provider, SingletonImageLoader.
 
          FirebaseFirestore.getInstance().firestoreSettings = settings
      }*/
+
+    private fun initializeCloudinary() {
+        val config = mapOf(
+            "cloud_name" to "dgq6g8u5h"
+        )
+
+        MediaManager.init(this, config)
+    }
 
     private fun createNotificationChannel(context: Context) {
         val channel = NotificationChannel(

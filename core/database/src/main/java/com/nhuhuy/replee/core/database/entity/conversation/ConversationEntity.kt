@@ -34,7 +34,11 @@ data class ConversationEntity(
     val deleted: Boolean = false,
     //Add sync
     @ColumnInfo(name = "synced", defaultValue = "false")
-    val synced: Boolean = false
+    val synced: Boolean = false,
+    @ColumnInfo(name = "otherUserImg", defaultValue = "")
+    val otherUserImg: String = "",
+    @ColumnInfo(name = "ownerImg", defaultValue = "")
+    val ownerImg: String = "",
 )
 
 data class ConversationAndUser(

@@ -23,6 +23,8 @@ data class ProfileState(
 enum class Overlay {
     NONE,
     THEME,
+    OPTIONS,
+    IMAGE_PICKER,
     NOTIFICATION,
     UPDATE_PASSWORD
 }

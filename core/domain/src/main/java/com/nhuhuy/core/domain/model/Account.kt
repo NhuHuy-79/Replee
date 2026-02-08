@@ -4,6 +4,7 @@ data class Account(
     val id: String = "",
     val name: String = "",
     val email: String = "",
+    val imageUrl: String = "",
     val createAt: Long? = null,
     val currentToken: String = "",
     val provider: AuthServiceProvider = AuthServiceProvider.EMAIL,

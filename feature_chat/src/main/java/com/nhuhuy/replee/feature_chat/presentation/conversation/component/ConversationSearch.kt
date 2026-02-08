@@ -76,6 +76,7 @@ fun ConversationSearchBar(
                 ),
                 trailingIcon = {
                     UserImage(
+                        photoUrl = currentUser.imageUrl,
                         userName = currentUser.name,
                         modifier = Modifier
                             .size(36.dp)

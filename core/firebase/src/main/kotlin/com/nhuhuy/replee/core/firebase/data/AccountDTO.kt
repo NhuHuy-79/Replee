@@ -8,7 +8,7 @@ data class AccountDTO(
     val id: String = "",
     val name: String = "",
     val email: String = "",
-    val imgUrl: String = "",
+    val imageUrl: String = "",
     @ServerTimestamp
     val createAt: Timestamp? = null,
     val currentToken: String = "",

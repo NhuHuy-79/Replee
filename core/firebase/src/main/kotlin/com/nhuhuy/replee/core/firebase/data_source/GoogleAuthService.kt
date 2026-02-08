@@ -19,7 +19,7 @@ class GoogleAuthService @Inject constructor(
                 id = user.uid,
                 email = user.email.orEmpty(),
                 name = user.displayName.orEmpty(),
-                imgUrl = user.photoUrl?.toString().orEmpty(),
+                imageUrl = user.photoUrl?.toString().orEmpty(),
                 provider = AuthServiceProvider.GOOGLE
             )
         } else {

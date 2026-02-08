@@ -34,6 +34,7 @@ fun ProfileUserCard(
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ){
         UserImage(
+            photoUrl = user.imageUrl,
             userName = user.name,
         )
 

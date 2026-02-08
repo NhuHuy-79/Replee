@@ -18,6 +18,7 @@ data class Conversation(
 )
 
 data class ConversationOtherUser(
+    val imgUrl: String = "",
     val nick: String = "",
     val uid: String = "404",
     val name: String = "No one",

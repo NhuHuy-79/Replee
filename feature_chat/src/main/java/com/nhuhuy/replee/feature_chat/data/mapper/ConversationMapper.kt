@@ -12,6 +12,7 @@ import com.nhuhuy.replee.feature_chat.domain.model.ConversationOtherUser
 
 fun ConversationDTOUser.toUserInConversation() : ConversationOtherUser {
     return ConversationOtherUser(
+        imgUrl = imgUrl,
         nick = nick,
         uid = uid,
         name = name
@@ -32,6 +33,8 @@ fun Conversation.toConversationEntity(): ConversationEntity {
         ownerNick = this.owner.nick,
         otherUserNick = this.otherUser.nick,
         muted = this.muted,
+        ownerImg = this.owner.imgUrl,
+        otherUserImg = this.otherUser.imgUrl,
         blocked = this.blocked,
         pinned = this.pinned,
         deleted = this.deleted,
@@ -44,13 +47,15 @@ fun ConversationAndUser.toConversationDTO() : ConversationDTO {
     val user1 = ConversationDTOUser(
         nick = conversation.ownerNick,
         uid = owner?.uid.orEmpty(),
-        name = owner?.name.orEmpty()
+        name = owner?.name.orEmpty(),
+        imgUrl = owner?.imageUrl.orEmpty()
     )
 
     val user2 = ConversationDTOUser(
         nick = conversation.otherUserNick,
         uid = otherUser?.uid.orEmpty(),
-        name = otherUser?.name.orEmpty()
+        name = otherUser?.name.orEmpty(),
+        imgUrl = otherUser?.imageUrl.orEmpty()
     )
     return ConversationDTO(
         id = conversation.id,
@@ -119,11 +124,13 @@ fun ConversationDTO.toConversation(
 fun ConversationAndUser.toConversation(): Conversation {
 
     val owner = ConversationOtherUser(
+        imgUrl = conversation.ownerImg,
         nick = conversation.ownerNick,
         uid = owner?.uid.orEmpty(),
         name = owner?.name.orEmpty()
     )
     val otherUser = ConversationOtherUser(
+        imgUrl = conversation.otherUserImg,
         nick = conversation.otherUserNick,
         uid = otherUser?.uid.orEmpty(),
         name = otherUser?.name.orEmpty()

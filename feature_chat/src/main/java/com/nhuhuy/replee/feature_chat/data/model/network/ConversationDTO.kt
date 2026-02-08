@@ -26,6 +26,7 @@ data class ConversationDTOUser(
     val nick: String = "",
     val uid: String = "404",
     val name: String = "No one",
+    val imgUrl: String = "",
 )
 
 data class UnreadMessageCount(

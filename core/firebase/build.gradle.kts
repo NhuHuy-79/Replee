@@ -50,6 +50,10 @@ dependencies {
     api(libs.kotlinx.serialization.json)
     api(libs.firebase.messaging)
 
+    //CLOUDINARY
+    /*api(libs.kotlin.url.gen)*/
+    api(libs.cloudinary.android)
+
     //KTOR
     api(libs.ktor.okhttp)
     api(libs.ktor.core)

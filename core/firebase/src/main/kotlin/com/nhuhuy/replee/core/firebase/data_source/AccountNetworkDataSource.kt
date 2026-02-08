@@ -17,6 +17,12 @@ class AccountNetworkDataSource @Inject constructor(
         collection.document(account.id).set(account).await()
     }
 
+    suspend fun updateImageUrl(uid: String, imgUrl: String) {
+        collection.document(uid)
+            .update("imageUrl", imgUrl)
+            .await()
+    }
+
     suspend fun updateBlockedList(list: List<String>, owner: String) {
         collection.document(owner)
             .update("blockedList", list)
