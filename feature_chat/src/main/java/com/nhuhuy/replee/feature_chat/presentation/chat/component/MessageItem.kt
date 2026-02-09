@@ -40,7 +40,8 @@ fun MessageContainer(
     modifier: Modifier = Modifier,
 ){
     Column(
-        modifier = modifier.animateContentSize()
+        modifier = modifier
+            .animateContentSize()
             .wrapContentSize(),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -68,11 +69,13 @@ fun MyMessageItem(
 
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = { clicked = !clicked }
-            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = { clicked = !clicked }
+                ),
             horizontalArrangement = Arrangement.End
         ) {
             Box(
@@ -98,7 +101,9 @@ fun MyMessageItem(
                     stringResource(R.string.message_status_sent),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.align(Alignment.End).padding(end = 10.dp)
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(end = 10.dp)
             )
         }
     }
@@ -106,6 +111,7 @@ fun MyMessageItem(
 
 @Composable
 fun OtherMessageItem(
+    imgUrl: String,
     userName: String,
     message: Message,
     modifier: Modifier = Modifier
@@ -116,6 +122,7 @@ fun OtherMessageItem(
     ) {
         UserImage(
             userName = userName,
+            photoUrl = imgUrl,
             modifier = Modifier.size(44.dp)
         )
 

@@ -90,6 +90,7 @@ fun ConversationItem(
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         UserImage(
+            photoUrl = conversation.otherUser.imgUrl,
             userName = conversation.otherUser.nick.ifEmpty { conversation.otherUser.name },
         )
         ConversationBody(

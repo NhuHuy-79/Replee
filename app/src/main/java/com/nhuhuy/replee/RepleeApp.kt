@@ -14,6 +14,7 @@ import coil3.disk.DiskCache
 import coil3.disk.directory
 import coil3.memory.MemoryCache
 import coil3.request.CachePolicy
+import coil3.request.crossfade
 import coil3.util.DebugLogger
 import com.cloudinary.android.MediaManager
 import com.nhuhuy.replee.worker.WorkerScheduler
@@ -79,6 +80,7 @@ class RepleeApp() : Application(), Configuration.Provider, SingletonImageLoader.
             "replee_image"
         )
         return ImageLoader.Builder(context)
+            .crossfade(true)
             .memoryCachePolicy(CachePolicy.ENABLED)
             .memoryCache {
                 MemoryCache.Builder()

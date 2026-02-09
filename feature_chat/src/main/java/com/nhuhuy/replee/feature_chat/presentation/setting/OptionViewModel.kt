@@ -36,6 +36,7 @@ class OptionViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("name") private val otherUserName: String,
     @Assisted("email") private val otherUserEmail: String,
+    @Assisted("otherUserImg") private val otherUserImg: String,
     private val loadConversationInformationUseCase: LoadConversationInformationUseCase,
     private val blockUserUseCase: BlockUserUseCase,
     private val deleteConversationUseCase: DeleteConversationUseCase,
@@ -171,7 +172,8 @@ class OptionViewModel @AssistedInject constructor(
             @Assisted("currentUserId") currentUserId: String,
             @Assisted("otherUserId") otherUserId: String,
             @Assisted("name") otherUserName: String,
-            @Assisted("email") otherUserEmail: String
+            @Assisted("email") otherUserEmail: String,
+            @Assisted("otherUserImg") otherUserImg: String,
         ): OptionViewModel
     }
 }

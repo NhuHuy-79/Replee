@@ -4,17 +4,12 @@ import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.repository.NetworkResultCaller
 import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
-import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
-import com.nhuhuy.replee.core.common.error_handling.Resource
-import com.nhuhuy.replee.core.common.error_handling.safeCall
-import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.firebase.data_source.CloudifyFileUploadService
 import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.feature_profile.domain.repository.ProfileRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -42,19 +37,6 @@ class ProfileRepositoryImp @Inject constructor(
                 imgUrl = url
             )
             url
-        }
-    }
-
-    override suspend fun updateNewPassword(
-        old: String,
-        new: String
-    ): Resource<Unit, RemoteFailure> {
-        return withContext(ioDispatcher) {
-            safeCall(
-                throwable = { e -> e.toRemoteFailure() }
-            ) {
-                firebaseAuthEmailService.updateNewPassword(old, new)
-            }
         }
     }
 

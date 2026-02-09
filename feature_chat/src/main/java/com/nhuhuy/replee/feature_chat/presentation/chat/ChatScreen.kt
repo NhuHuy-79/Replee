@@ -107,6 +107,7 @@ fun ChatScreen(
                 )
             } else {
                 ChatContent(
+                    otherUserImg = state.otherUser.imageUrl,
                     otherUserName = state.otherUser.name,
                     currentUserId = state.currentUserId,
                     messageList = messages,

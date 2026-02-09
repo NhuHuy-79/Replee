@@ -8,7 +8,7 @@ import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.core.common.data.UriToFileConverter
+import com.nhuhuy.replee.core.common.data.UriConverter
 import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
@@ -40,7 +40,7 @@ class ProfileViewModel @Inject constructor(
     private val logOutUseCase: LogOutUseCase,
     private val getCurrentAccountUseCase: GetCurrentAccountUseCase,
     private val uploadAvatarUseCase: UploadAvatarUseCase,
-    private val uriToFileConverter: UriToFileConverter,
+    private val uriConverter: UriConverter,
     private val dataStore: SettingDataStore,
 ) : BaseViewModel<ProfileAction, ProfileEvent, ProfileState>() {
 
@@ -152,7 +152,7 @@ class ProfileViewModel @Inject constructor(
                 }
 
                 is ProfileAction.OnPhotoPicker.Select -> {
-                    val byteArray = uriToFileConverter.toByteArray(action.uri)
+                    val byteArray = uriConverter.toByteArray(action.uri)
                     byteArray?.let { byteArray ->
                         uploadAvatarUseCase(byteArray)
                     }

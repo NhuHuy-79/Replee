@@ -4,9 +4,6 @@ import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObjects
-import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
-import com.nhuhuy.replee.core.common.error_handling.Resource
-import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.firebase.data.Constant
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
 import kotlinx.coroutines.channels.awaitClose
@@ -119,27 +116,4 @@ MessageNetworkDataSource @Inject constructor(
         }
     }
 
-    fun streamMessagesByConversationId(conversationId: String): Flow<Resource<List<MessageDTO>, RemoteFailure>>{
-        return callbackFlow {
-            val listener = collection
-                .document(conversationId)
-                .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
-                .orderBy("sendAt", Query.Direction.DESCENDING)
-                .whereEqualTo("conversationId", conversationId)
-                .addSnapshotListener { snapshot, error ->
-                    if (error != null){
-                        trySend(Resource.Error(error.toRemoteFailure()))
-                        close()
-                    }
-                    if (snapshot == null){
-                        trySend(Resource.Success(emptyList()))
-                    } else {
-                        val messageList = snapshot.toObjects<MessageDTO>()
-                        trySend(Resource.Success(messageList))
-                    }
-                }
-
-            awaitClose { listener.remove() }
-        }
-    }
 }

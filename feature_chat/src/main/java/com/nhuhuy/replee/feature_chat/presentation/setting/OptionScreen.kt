@@ -62,6 +62,7 @@ fun OptionScreen(
         ) {
             item {
                 InformationUser(
+                    imgUrl = state.otherUserImg,
                     userName = state.otherUserName,
                     email = state.otherUserEmail,
                     modifier = Modifier

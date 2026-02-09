@@ -20,6 +20,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.serialization.json.Json
 import javax.inject.Singleton
 
@@ -59,8 +60,16 @@ class NetworkModule{
     @Provides
     @Singleton
     fun provideSendMessageService(
+        logger: com.nhuhuy.core.domain.utils.Logger,
+        ioDispatcher: CoroutineDispatcher,
         messaging: FirebaseMessaging,
         accountNetworkDataSource: AccountNetworkDataSource,
         service: KtorServiceImp
-    ) : NotifyService = NotifyServiceImp(messaging,accountNetworkDataSource, service)
+    ): NotifyService = NotifyServiceImp(
+        logger = logger,
+        dispatcher = ioDispatcher,
+        messaging = messaging,
+        accountNetworkDataSource = accountNetworkDataSource,
+        service = service
+    )
 }

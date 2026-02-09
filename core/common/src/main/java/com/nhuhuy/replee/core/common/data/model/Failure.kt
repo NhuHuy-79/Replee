@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.common.error_handling
+package com.nhuhuy.replee.core.common.data.model
 
 sealed interface Failure
 

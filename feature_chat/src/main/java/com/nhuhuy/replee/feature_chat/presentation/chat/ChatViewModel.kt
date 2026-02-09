@@ -136,7 +136,8 @@ class ChatViewModel @AssistedInject constructor(
                             conversationId = conversationId,
                             otherUserId = otherUserId,
                             otherUserName = otherUser.name,
-                            otherUserEmail = otherUser.email
+                            otherUserEmail = otherUser.email,
+                            otherUserImg = otherUser.imageUrl
                         )
                     )
                 }

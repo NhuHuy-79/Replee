@@ -172,6 +172,7 @@ fun SearchResultContent(
             ){ item ->
                 UserItem(
                     userName = item.name,
+                    imgUrl = item.imageUrl,
                     modifier = Modifier
                         .fillMaxWidth()
                         .animateItem()
@@ -187,6 +188,7 @@ fun SearchResultContent(
 
 @Composable
 fun UserItem(
+    imgUrl: String,
     userName: String,
     modifier: Modifier = Modifier
 ) {
@@ -195,7 +197,10 @@ fun UserItem(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        UserImage(userName = userName)
+        UserImage(
+            userName = userName,
+            photoUrl = imgUrl
+        )
         Spacer(Modifier.height(8.dp))
         Text(
             text = userName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },

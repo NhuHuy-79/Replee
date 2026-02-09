@@ -16,6 +16,9 @@ interface ConversationDao : BaseDao<ConversationEntity> {
     @Transaction
     @Query("SELECT * FROM conversation WHERE id = :id")
     fun observeConversationById(id: String): Flow<ConversationAndUser?>
+
+    @Query("DELETE FROM conversation WHERE id = :id")
+    suspend fun deleteConversationById(id: String)
     @Transaction
     @Query(
         """

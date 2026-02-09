@@ -14,6 +14,14 @@ class ConversationLocalDataSource @Inject constructor(
         conversationDao.upsertAll(entities)
     }
 
+    suspend fun upsertConversation(conversation: ConversationEntity) {
+        conversationDao.upsert(conversation)
+    }
+
+    suspend fun deleteConversation(conversationId: String) {
+        conversationDao.deleteConversationById(conversationId)
+    }
+
     fun observeConversationById(conversationId: String): Flow<ConversationAndUser?> {
         return conversationDao.observeConversationById(conversationId)
     }

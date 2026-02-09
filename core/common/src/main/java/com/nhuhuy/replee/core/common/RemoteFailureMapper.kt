@@ -12,8 +12,8 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
-import com.nhuhuy.replee.core.common.error_handling.GoogleCredentialError
-import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
+import com.nhuhuy.replee.core.common.data.model.GoogleCredentialError
+import com.nhuhuy.replee.core.common.data.model.RemoteFailure
 
 fun Exception.toRemoteFailure(): RemoteFailure {
     return when (this) {

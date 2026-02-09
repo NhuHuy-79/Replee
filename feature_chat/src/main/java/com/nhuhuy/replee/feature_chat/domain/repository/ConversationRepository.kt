@@ -13,4 +13,6 @@ interface ConversationRepository {
     fun observeConversationById(conversationId: String): Flow<Conversation>
     fun observeNetworkConversation(): Flow<NetworkResult<List<Conversation>>>
     suspend fun getOrCreateConversation(otherUser: Account): NetworkResult<String>
+
+    suspend fun listenToNetworkConversation()
 }

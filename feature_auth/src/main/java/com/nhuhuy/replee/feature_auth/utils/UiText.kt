@@ -1,9 +1,9 @@
 package com.nhuhuy.replee.feature_auth.utils
 
 import androidx.annotation.StringRes
+import com.nhuhuy.replee.core.common.data.model.GoogleCredentialError
+import com.nhuhuy.replee.core.common.data.model.RemoteFailure
 import com.nhuhuy.replee.core.common.data.model.ValidateResult
-import com.nhuhuy.replee.core.common.error_handling.GoogleCredentialError
-import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
 import com.nhuhuy.replee.feature_auth.R
 
 fun ValidateResult.toUiText() : Int? {

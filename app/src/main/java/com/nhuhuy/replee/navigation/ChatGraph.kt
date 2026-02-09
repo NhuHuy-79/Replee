@@ -32,6 +32,7 @@ sealed interface HomeDestination : NavKey {
 
     @Serializable
     data class Information(
+        val otherUserImg: String,
         val currentUserId: String,
         val conversationId: String,
         val otherUserName: String,
@@ -104,7 +105,8 @@ fun EntryProviderScope<NavKey>.chatGraph(
                             otherUserName = event.otherUserName,
                             otherUserEmail = event.otherUserEmail,
                             conversationId = event.conversationId,
-                            currentUserId = event.currentUserId
+                            currentUserId = event.currentUserId,
+                            otherUserImg = event.otherUserImg
                         )
                     )
                 }
@@ -127,7 +129,8 @@ fun EntryProviderScope<NavKey>.chatGraph(
                     otherUserName = screen.otherUserName,
                     otherUserEmail = screen.otherUserEmail,
                     currentUserId = screen.currentUserId,
-                    conversationId = screen.conversationId
+                    conversationId = screen.conversationId,
+                    otherUserImg = screen.otherUserImg
                 )
             }
         )

@@ -2,7 +2,7 @@ package com.nhuhuy.replee.di
 
 import android.content.Context
 import com.nhuhuy.core.domain.utils.Logger
-import com.nhuhuy.replee.core.common.data.UriToFileConverter
+import com.nhuhuy.replee.core.common.data.UriConverter
 import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.common.utils.LoggerImp
 import com.nhuhuy.replee.core.common.utils.Validator
@@ -47,7 +47,7 @@ object AppModule {
         @ApplicationContext context: Context,
         ioDispatcher: CoroutineDispatcher
     ) =
-        UriToFileConverter(context, ioDispatcher)
+        UriConverter(context, ioDispatcher)
 
     @Provides
     @Singleton

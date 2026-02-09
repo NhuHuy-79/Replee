@@ -1,13 +1,11 @@
 package com.nhuhuy.replee.feature_chat.data.source.conversation
 
+import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.toObjects
-import com.nhuhuy.replee.core.common.error_handling.RemoteFailure
-import com.nhuhuy.replee.core.common.error_handling.Resource
-import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.firebase.data.Constant
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTO
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationPatch
@@ -21,6 +19,11 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import javax.inject.Inject
+
+sealed interface ConversationDTOChange {
+    data class Upsert(val data: ConversationDTO) : ConversationDTOChange
+    data class Removed(val conversationId: String) : ConversationDTOChange
+}
 
 class ConversationNetworkDataSource @Inject constructor(
     private val firestore: FirebaseFirestore,
@@ -181,29 +184,33 @@ class ConversationNetworkDataSource @Inject constructor(
         }
     }
 
-    fun streamConversationsByUser(uid: String): Flow<Resource<List<ConversationDTO>, RemoteFailure>> =
+    fun listenConversationChangesByOwner(ownerId: String): Flow<List<ConversationDTOChange>> =
         callbackFlow {
             val listener = collection
-                .whereArrayContains("memberIds", uid)
-                .whereNotEqualTo("lastMessageContent", "")
-                .orderBy("lastMessageContent")
-                .orderBy("lastMessageTime", Query.Direction.DESCENDING)
-                .addSnapshotListener { value, error ->
-                    if (error != null) {
-                        Timber.e(error)
-                        trySend(
-                            Resource.Error((error as Exception).toRemoteFailure())
-                        )
-                        return@addSnapshotListener
+                .whereArrayContains("memberIds", ownerId)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null || snapshot == null) return@addSnapshotListener
+
+                    if (snapshot.metadata.hasPendingWrites()) return@addSnapshotListener
+
+                    val changes = snapshot.documentChanges.mapNotNull { change ->
+                        when (change.type) {
+                            DocumentChange.Type.ADDED,
+                            DocumentChange.Type.MODIFIED -> {
+                                val dto = change.document.toObject(ConversationDTO::class.java)
+                                ConversationDTOChange.Upsert(dto.copy(id = change.document.id))
+                            }
+
+                            DocumentChange.Type.REMOVED -> {
+                                ConversationDTOChange.Removed(change.document.id)
+                            }
+                        }
                     }
 
-                    val conversationList =
-                        value?.toObjects<ConversationDTO>() ?: emptyList()
-
-                    trySend(Resource.Success(conversationList))
+                    if (changes.isNotEmpty()) trySend(changes)
                 }
 
             awaitClose { listener.remove() }
-
         }
+
 }

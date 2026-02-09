@@ -39,6 +39,7 @@ import timber.log.Timber
 @OptIn(FlowPreview::class)
 @Composable
 fun ChatContent(
+    otherUserImg: String,
     otherUserName: String,
     modifier: Modifier = Modifier,
     currentUserId: String,
@@ -100,7 +101,8 @@ fun ChatContent(
                 } else {
                     OtherMessageItem(
                         userName = otherUserName,
-                        message = message
+                        message = message,
+                        imgUrl = otherUserImg
                     )
                 }
             }

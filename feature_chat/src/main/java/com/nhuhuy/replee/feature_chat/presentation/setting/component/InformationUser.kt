@@ -15,16 +15,19 @@ import com.nhuhuy.replee.core.design_system.component.UserImage
 
 @Composable
 fun InformationUser(
+    imgUrl: String,
     userName: String,
     email: String,
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.padding(horizontal = 32.dp)
+        modifier = modifier
+            .padding(horizontal = 32.dp)
             .padding(bottom = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         UserImage(
+            photoUrl = imgUrl,
             userName = userName,
             modifier = Modifier.size(100.dp)
         )
