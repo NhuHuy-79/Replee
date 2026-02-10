@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.firebase.data
+package com.nhuhuy.replee.core.firebase.model
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.ServerTimestamp

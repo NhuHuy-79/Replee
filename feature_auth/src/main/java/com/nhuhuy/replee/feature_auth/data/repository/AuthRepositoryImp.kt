@@ -8,13 +8,14 @@ import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.common.mapper.toAccount
 import com.nhuhuy.replee.core.common.mapper.toAccountEntity
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
-import com.nhuhuy.replee.core.firebase.data.AccountDTO
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.core.firebase.data_source.GoogleAuthService
+import com.nhuhuy.replee.core.firebase.model.AccountDTO
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -82,11 +83,11 @@ class AuthRepositoryImp @Inject constructor(
             firebaseAuthEmailService.sendRecoverPasswordEmail(email)
         }
 
-    override suspend fun provideCurrentUser(): NetworkResult<String> = safeCallWithTimeout {
-        firebaseAuthEmailService.getCurrentUser().uid
-    }
-
     override fun isUserLogged(): Boolean {
         return appPreferences.getLoggedStatus()
+    }
+
+    override fun observeAuthState(): Flow<String?> {
+        return firebaseAuthEmailService.observeAuthState()
     }
 }

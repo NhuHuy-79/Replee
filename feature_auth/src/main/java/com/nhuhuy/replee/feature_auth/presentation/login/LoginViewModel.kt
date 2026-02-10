@@ -11,7 +11,7 @@ import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
-import com.nhuhuy.replee.feature_auth.data.GoogleCredentialResult
+import com.nhuhuy.replee.feature_auth.data.model.GoogleCredentialResult
 import com.nhuhuy.replee.feature_auth.domain.usecase.LoginWithEmailUseCase
 import com.nhuhuy.replee.feature_auth.domain.usecase.SignInWithGoogleUseCase
 import com.nhuhuy.replee.feature_auth.presentation.login.LoginEvent.Failure

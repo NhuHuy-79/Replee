@@ -1,11 +1,34 @@
 package com.nhuhuy.core.domain.model
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
+import kotlin.coroutines.cancellation.CancellationException
 
 sealed interface NetworkResult<out T> {
     data class Success<out T>(val data: T) : NetworkResult<T>
     data class Failure(val throwable: Throwable) : NetworkResult<Nothing>
+}
+
+suspend fun <T> safeCallWithTimeOut(
+    timeOut: Long = 10_000L,
+    call: suspend () -> T
+): NetworkResult<T> {
+    return try {
+        withTimeout(timeOut) {
+            withContext(Dispatchers.IO) {
+                NetworkResult.Success(call())
+            }
+        }
+    } catch (e: Exception) {
+        if (e is CancellationException && e !is TimeoutCancellationException) {
+            throw e
+        }
+        NetworkResult.Failure(e)
+    }
 }
 
 inline fun <T> NetworkResult<T>.onSuccess(

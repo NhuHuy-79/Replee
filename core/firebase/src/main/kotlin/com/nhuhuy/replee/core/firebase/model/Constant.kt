@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.firebase.data
+package com.nhuhuy.replee.core.firebase.model
 
 object Constant{
 

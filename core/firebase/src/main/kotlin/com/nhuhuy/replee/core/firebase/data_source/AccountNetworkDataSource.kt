@@ -2,8 +2,8 @@ package com.nhuhuy.replee.core.firebase.data_source
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObjects
-import com.nhuhuy.replee.core.firebase.data.AccountDTO
-import com.nhuhuy.replee.core.firebase.data.Constant
+import com.nhuhuy.replee.core.firebase.model.AccountDTO
+import com.nhuhuy.replee.core.firebase.model.Constant
 import com.nhuhuy.replee.core.firebase.utils.FirestoreCannotConvertObjectException
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject

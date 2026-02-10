@@ -35,13 +35,26 @@ class RepleeApp() : Application(), Configuration.Provider, SingletonImageLoader.
 
     @Inject lateinit var workerScheduler: WorkerScheduler
 
+    @Inject
+    lateinit var listenDataManager: ListenDataManager
+
     override fun onCreate() {
         super.onCreate()
+        //Create notification channel
         createNotificationChannel(this)
+
+        //Initialize cloudinary for file uploading
         initializeCloudinary()
+
+        //Timber for debug logging
         Timber.plant(Timber.DebugTree())
+
+        //Work manager Scheduling
         workerScheduler.scheduleMessageSyncWorker()
         workerScheduler.scheduleConversationSyncWorker()
+
+        //Listen to Network Data Source
+        listenDataManager.start()
 
     }
 

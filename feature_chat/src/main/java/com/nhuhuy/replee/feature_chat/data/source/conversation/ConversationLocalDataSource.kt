@@ -14,6 +14,16 @@ class ConversationLocalDataSource @Inject constructor(
         conversationDao.upsertAll(entities)
     }
 
+    suspend fun upsertAndDeleteConversations(
+        upsert: List<ConversationEntity>,
+        delete: List<String>
+    ) {
+        conversationDao.upsertAndDeleteConversations(
+            upsert = upsert,
+            delete = delete
+        )
+    }
+
     suspend fun upsertConversation(conversation: ConversationEntity) {
         conversationDao.upsert(conversation)
     }

@@ -1,12 +1,13 @@
 package com.nhuhuy.replee.feature_chat.data.source.conversation
 
-import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.toObjects
-import com.nhuhuy.replee.core.firebase.data.Constant
+import com.nhuhuy.replee.core.firebase.model.Constant
+import com.nhuhuy.replee.core.firebase.model.DataChange
+import com.nhuhuy.replee.core.firebase.model.observeDataChange
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTO
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationPatch
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
@@ -184,33 +185,10 @@ class ConversationNetworkDataSource @Inject constructor(
         }
     }
 
-    fun listenConversationChangesByOwner(ownerId: String): Flow<List<ConversationDTOChange>> =
-        callbackFlow {
-            val listener = collection
-                .whereArrayContains("memberIds", ownerId)
-                .addSnapshotListener { snapshot, error ->
-                    if (error != null || snapshot == null) return@addSnapshotListener
-
-                    if (snapshot.metadata.hasPendingWrites()) return@addSnapshotListener
-
-                    val changes = snapshot.documentChanges.mapNotNull { change ->
-                        when (change.type) {
-                            DocumentChange.Type.ADDED,
-                            DocumentChange.Type.MODIFIED -> {
-                                val dto = change.document.toObject(ConversationDTO::class.java)
-                                ConversationDTOChange.Upsert(dto.copy(id = change.document.id))
-                            }
-
-                            DocumentChange.Type.REMOVED -> {
-                                ConversationDTOChange.Removed(change.document.id)
-                            }
-                        }
-                    }
-
-                    if (changes.isNotEmpty()) trySend(changes)
-                }
-
-            awaitClose { listener.remove() }
-        }
+    fun listenConversationChangesByOwner(ownerId: String): Flow<List<DataChange<ConversationDTO>>> {
+        val query = collection
+            .whereArrayContains("memberIds", ownerId)
+        return query.observeDataChange<ConversationDTO>()
+    }
 
 }

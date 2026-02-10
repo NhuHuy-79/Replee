@@ -8,10 +8,11 @@ import com.nhuhuy.replee.core.common.mapper.toAccountEntity
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
+import com.nhuhuy.replee.core.firebase.model.DataChange
+import com.nhuhuy.replee.core.firebase.model.mapData
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversation
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversationDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversationEntity
-import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationDTOChange
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
@@ -107,24 +108,33 @@ class ConversationRepositoryImp @Inject constructor(
         }
     }
 
-    override suspend fun listenToNetworkConversation() {
-        val ownerId = firebaseAuthEmailService.getCurrentUser().uid
-        conversationNetworkDataSource.listenConversationChangesByOwner(ownerId)
-            .collect { dTOChanges ->
-                for (change in dTOChanges) {
-                    when (change) {
-                        is ConversationDTOChange.Upsert -> {
-                            val conversation =
-                                change.data.toConversation(ownerId).toConversationEntity()
-                            conversationLocalDataSource.upsertConversation(conversation = conversation)
-                        }
-
-                        is ConversationDTOChange.Removed -> {
-                            conversationLocalDataSource.deleteConversation(change.conversationId)
-                        }
+    override fun observeNetworkConversationChange(
+        ownerId: String
+    ): Flow<List<DataChange<Conversation>>> {
+        return conversationNetworkDataSource
+            .listenConversationChangesByOwner(ownerId)
+            .map { dataChanges ->
+                dataChanges.map { dataChange ->
+                    dataChange.mapData { dto ->
+                        dto.toConversation(ownerId)
                     }
                 }
             }
-
     }
+
+    override suspend fun updateLocalDataChange(
+        upsert: List<Conversation>,
+        delete: List<String>
+    ) {
+        if (upsert.isEmpty() && delete.isEmpty()) {
+            Timber.d("$upsert - $delete")
+            return
+        }
+        val mappedUpsert = upsert.map { conversation -> conversation.toConversationEntity() }
+        conversationLocalDataSource.upsertAndDeleteConversations(
+            upsert = mappedUpsert,
+            delete = delete
+        )
+    }
+
 }

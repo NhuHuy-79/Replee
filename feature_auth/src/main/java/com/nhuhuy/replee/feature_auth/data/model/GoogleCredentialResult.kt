@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_auth.data
+package com.nhuhuy.replee.feature_auth.data.model
 
 import androidx.annotation.StringRes
 import com.nhuhuy.replee.feature_auth.R

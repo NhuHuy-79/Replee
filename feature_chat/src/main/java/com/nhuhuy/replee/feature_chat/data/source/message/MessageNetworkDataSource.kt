@@ -4,7 +4,7 @@ import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObjects
-import com.nhuhuy.replee.core.firebase.data.Constant
+import com.nhuhuy.replee.core.firebase.model.Constant
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow

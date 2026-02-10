@@ -13,6 +13,18 @@ interface ConversationDao : BaseDao<ConversationEntity> {
     @Query("SELECT * FROM conversation WHERE id = :id")
     suspend fun getConversationById(id: String): ConversationAndUser?
 
+    @Query("DELETE FROM conversation WHERE id in (:list)")
+    suspend fun deleteConversationsById(list: List<String>)
+
+    @Transaction
+    suspend fun upsertAndDeleteConversations(
+        upsert: List<ConversationEntity>,
+        delete: List<String>
+    ) {
+        upsertAll(upsert)
+        deleteConversationsById(delete)
+    }
+
     @Transaction
     @Query("SELECT * FROM conversation WHERE id = :id")
     fun observeConversationById(id: String): Flow<ConversationAndUser?>

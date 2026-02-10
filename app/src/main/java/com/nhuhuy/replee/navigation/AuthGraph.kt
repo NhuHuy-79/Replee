@@ -17,7 +17,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.ui.NavDisplay
 import com.nhuhuy.replee.core.design_system.ObserveEffect
 import com.nhuhuy.replee.feature_auth.R
-import com.nhuhuy.replee.feature_auth.data.toStringRes
+import com.nhuhuy.replee.feature_auth.data.model.toStringRes
 import com.nhuhuy.replee.feature_auth.presentation.login.LoginEvent
 import com.nhuhuy.replee.feature_auth.presentation.login.LoginScreen
 import com.nhuhuy.replee.feature_auth.presentation.login.LoginViewModel

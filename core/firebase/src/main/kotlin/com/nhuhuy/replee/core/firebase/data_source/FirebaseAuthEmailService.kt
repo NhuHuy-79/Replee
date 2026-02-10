@@ -3,6 +3,9 @@ package com.nhuhuy.replee.core.firebase.data_source
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -38,6 +41,20 @@ class FirebaseAuthEmailService @Inject constructor(
 
     suspend fun deleteCurrentUser(){
        auth.currentUser?.delete()?.await()
+    }
+
+    fun observeAuthState(): Flow<String?> = callbackFlow {
+        val listener = FirebaseAuth.AuthStateListener { auth ->
+            trySend(auth.currentUser?.uid)
+        }
+
+        auth.addAuthStateListener(listener)
+
+        trySend(auth.currentUser?.uid)
+
+        awaitClose {
+            auth.removeAuthStateListener(listener)
+        }
     }
 
     fun logOut() = auth.signOut()

@@ -3,7 +3,7 @@ package com.nhuhuy.replee.core.firebase.data_source
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.nhuhuy.core.domain.model.AuthServiceProvider
-import com.nhuhuy.replee.core.firebase.data.AccountDTO
+import com.nhuhuy.replee.core.firebase.model.AccountDTO
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
