@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface AccountDao : BaseDao<AccountEntity>{
     @Query("SELECT * FROM accounts WHERE uid = :uid")
-    suspend fun getAccountWithUid(uid: String) : AccountEntity
+    suspend fun getAccountWithUid(uid: String): AccountEntity?
 
     @Query("UPDATE accounts SET logOut = true WHERE uid = :uid")
     suspend fun updateLogoutStatus(uid: String)

@@ -8,9 +8,15 @@ data class Message(
     val content: String,
     val seen: Boolean,
     val sentAt: Long? = null,
-    val status: MessageStatus
+    val status: MessageStatus,
+    val type: MessageType = MessageType.TEXT
 )
 
+enum class MessageType {
+    TEXT,
+    IMAGE,
+
+}
 enum class MessageStatus{
     SYNCED,
     PENDING,

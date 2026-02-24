@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.setting.component
+package com.nhuhuy.replee.feature_chat.presentation.option.component
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

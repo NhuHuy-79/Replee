@@ -1,61 +1,59 @@
 package com.nhuhuy.replee
 
-import com.nhuhuy.replee.core.common.qualifier.AppCoroutineScope
+import com.nhuhuy.replee.core.firebase.model.DataChange
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
-import com.nhuhuy.replee.feature_chat.data.ConversationListener
+import com.nhuhuy.replee.feature_chat.domain.model.Conversation
+import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.launch
-import timber.log.Timber
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 interface ListenDataManager {
-    val uidFlow: Flow<String?>
-    fun start()
-    fun stop()
+    val listenableConversationFlow: Flow<List<DataChange<Conversation>>>
+    suspend fun updateConversationChange(dataChanges: List<DataChange<Conversation>>)
 }
+
 
 @Singleton
 class ListenDataManagerImp @Inject constructor(
-    @AppCoroutineScope private val appScope: CoroutineScope,
     private val ioDispatcher: CoroutineDispatcher,
     private val authRepository: AuthRepository,
-    private val conversationListener: ConversationListener
+    private val conversationRepository: ConversationRepository,
 ) : ListenDataManager {
-    override val uidFlow: Flow<String?>
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val listenableConversationFlow: Flow<List<DataChange<Conversation>>>
         get() = authRepository.observeAuthState()
-
-    private var listenJob: Job? = null
-
-    override fun start() {
-        if (listenJob?.isActive == true) return
-
-        listenJob = appScope.launch(ioDispatcher) {
-            uidFlow
-                .distinctUntilChanged()
-                .catch { throwable -> Timber.e(throwable) }
-                .collectLatest { uid ->
-                    if (uid == null) {
-                        Timber.e("Uid is null, stop listening!")
-                        conversationListener.stopListening()
-                    } else {
-                        Timber.d("Start listening to data source")
-                        conversationListener.listenToNetworkDataSource(uid)
-                    }
+            .distinctUntilChanged()
+            .flatMapLatest { uid ->
+                if (uid == null) {
+                    emptyFlow()
+                } else {
+                    conversationRepository.observeNetworkConversationChange(uid)
                 }
+            }
+
+    override suspend fun updateConversationChange(dataChanges: List<DataChange<Conversation>>) {
+        withContext(ioDispatcher) {
+            val upsert = mutableListOf<Conversation>()
+            val delete = mutableListOf<String>()
+
+            for (change in dataChanges) {
+                when (change) {
+                    is DataChange.Upsert -> upsert.add(change.data)
+                    is DataChange.Delete -> delete.add(change.id)
+                }
+            }
+
+            conversationRepository.updateLocalDataChange(
+                upsert = upsert,
+                delete = delete
+            )
         }
     }
-
-    override fun stop() {
-        listenJob?.cancel()
-        listenJob = null
-        conversationListener.stopListening()
-    }
-
 }

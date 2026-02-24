@@ -29,6 +29,7 @@ class SendMessageUseCase @Inject constructor(
             receiverId = receiverId,
             content = text,
             status = MessageStatus.PENDING,
+            sentAt = System.currentTimeMillis(),
             seen = false
         )
         return messageRepository.sendMessage(message = message)

@@ -122,15 +122,14 @@ fun ConversationDTO.toConversation(
 }
 
 fun ConversationAndUser.toConversation(): Conversation {
-
     val owner = ConversationOtherUser(
-        imgUrl = conversation.ownerImg,
+        imgUrl = owner?.imageUrl.orEmpty(),
         nick = conversation.ownerNick,
         uid = owner?.uid.orEmpty(),
         name = owner?.name.orEmpty()
     )
     val otherUser = ConversationOtherUser(
-        imgUrl = conversation.otherUserImg,
+        imgUrl = otherUser?.imageUrl.orEmpty(),
         nick = conversation.otherUserNick,
         uid = otherUser?.uid.orEmpty(),
         name = otherUser?.name.orEmpty()

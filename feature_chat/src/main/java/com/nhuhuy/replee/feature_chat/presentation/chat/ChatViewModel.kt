@@ -3,19 +3,18 @@
 package com.nhuhuy.replee.feature_chat.presentation.chat
 
 import androidx.lifecycle.viewModelScope
-import com.nhuhuy.core.domain.model.NetworkResult
+import androidx.paging.cachedIn
 import com.nhuhuy.core.domain.usecase.GetAccountByIdUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
-import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.UnblockUserUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.message.LoadMessageUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.listener.ListenMessageChangeUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.listener.UpdateMessageChangeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveBlockStatusUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveMessageUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.PagingMessagesUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ReadMessageUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.message.SaveMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendMessageUseCase
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
@@ -25,18 +24,17 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @HiltViewModel(assistedFactory = ChatViewModel.Factory::class)
 class ChatViewModel @AssistedInject constructor(
@@ -46,17 +44,20 @@ class ChatViewModel @AssistedInject constructor(
     private val readMessageUseCase: ReadMessageUseCase,
     private val unblockUserUseCase: UnblockUserUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
-    private val loadMessageUseCase: LoadMessageUseCase,
-    private val saveMessageUseCase: SaveMessageUseCase,
-    private val observeMessageUseCase: ObserveMessageUseCase,
     private val getAccountByIdUseCase: GetAccountByIdUseCase,
-    private val observeBlockStatusUseCase: ObserveBlockStatusUseCase
+    private val observeBlockStatusUseCase: ObserveBlockStatusUseCase,
+    private val listenMessageChangeUseCase: ListenMessageChangeUseCase,
+    private val updateMessageChangeUseCase: UpdateMessageChangeUseCase,
+    private val pagingMessagesUseCase: PagingMessagesUseCase,
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
-    val
-            blocked =
-        observeBlockStatusUseCase(ownerId = currentUserId, otherUserId = otherUserId)
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
+    val blocked = observeBlockStatusUseCase(ownerId = currentUserId, otherUserId = otherUserId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
     private val _state = MutableStateFlow(ChatState(currentUserId = currentUserId))
+    private var listenJob: Job? = null
+
+    val pagedMessages = pagingMessagesUseCase(conversationId)
+        .cachedIn(viewModelScope)
+
 
     override val state: StateFlow<ChatState>
         get() = _state.asStateFlow()
@@ -68,27 +69,26 @@ class ChatViewModel @AssistedInject constructor(
                 copy(otherUser = otherUser)
             }
         }
-        observeMessageFromNetwork()
+        /*observeMessageFromNetwork()*/
+
+        //Listen to Message
+        listenToMessageChange()
     }
 
-    private fun observeMessageFromNetwork(){
-        blocked.flatMapLatest { blocked ->
-            if (blocked) {
-                emptyFlow()
-            } else {
-                observeMessageUseCase(conversationId = conversationId)
-            }
-        }
-            .onEach { result ->
-                if (result is NetworkResult.Success) {
-                    saveMessageUseCase(result.data)
+    private fun listenToMessageChange() {
+        listenJob?.cancel()
+        listenJob = viewModelScope.launch(Dispatchers.IO) {
+            Timber.d("Message Listen Thread: ${Thread.currentThread()}")
+            Timber.d("Start Listen to Message")
+
+            listenMessageChangeUseCase(conversationId = conversationId)
+                .collect { dataChanges ->
+                    Timber.d("Message Change: $dataChanges")
+                    updateMessageChangeUseCase(dataChanges)
                 }
-            }
-            .launchIn(viewModelScope)
-    }
+        }
 
-    val messageList: StateFlow<List<Message>> = loadMessageUseCase(conversationId)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    }
 
     override fun onAction(action: ChatAction) {
         viewModelScope.launch {
@@ -158,6 +158,13 @@ class ChatViewModel @AssistedInject constructor(
             @Assisted("currentUserId") currentUserId: String,
             @Assisted("conversationId") conversationId: String
         ): ChatViewModel
+    }
+
+    override fun onCleared() {
+        Timber.e("ViewModel Cancel and Stop Listening")
+        listenJob?.cancel()
+        listenJob = null
+        super.onCleared()
     }
 
 }

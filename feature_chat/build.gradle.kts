@@ -52,6 +52,10 @@ dependencies {
     debugImplementation(libs.ui.tooling)
     ksp(libs.hilt.android.compiler)
 
+    //Paging for Ui
+    implementation("androidx.paging:paging-runtime:3.3.0")
+    implementation("androidx.paging:paging-compose:3.3.0")
+
     //Room
     ksp(libs.androidx.room.compiler)
 

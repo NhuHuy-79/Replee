@@ -48,6 +48,7 @@ fun ChatContent(
 ) {
     val lazyListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+
     val bottom by remember(lazyListState, messageList) {
         derivedStateOf {
             val layoutInfos = lazyListState.layoutInfo.visibleItemsInfo
@@ -58,6 +59,23 @@ fun ChatContent(
 
             lastItemKey == lastMessageKey
         }
+    }
+
+    LaunchedEffect(lazyListState, messageList) {
+        snapshotFlow {
+            val visible = lazyListState.layoutInfo.visibleItemsInfo
+            val oldestVisibleKey = visible.lastOrNull()?.key as? String
+            val oldestMessageKey = messageList.lastOrNull()?.messageId
+
+            oldestVisibleKey != null &&
+                    oldestMessageKey != null &&
+                    oldestVisibleKey == oldestMessageKey
+        }
+            .distinctUntilChanged()
+            .collect {
+                Timber.d("🔥 LOAD MORE triggered : $it")
+                // TODO: gọi loadMore() ở đây
+            }
     }
 
     LaunchedEffect(lazyListState) {

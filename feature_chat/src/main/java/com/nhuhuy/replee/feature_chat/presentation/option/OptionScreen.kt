@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.setting
+package com.nhuhuy.replee.feature_chat.presentation.option
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,14 +26,14 @@ import com.nhuhuy.replee.core.design_system.component.AlertDialogContainer
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
-import com.nhuhuy.replee.feature_chat.presentation.setting.component.InformationUser
-import com.nhuhuy.replee.feature_chat.presentation.setting.component.SecondaryOption
-import com.nhuhuy.replee.feature_chat.presentation.setting.component.SecondaryOptionItem
-import com.nhuhuy.replee.feature_chat.presentation.setting.component.SetNickNameSheet
-import com.nhuhuy.replee.feature_chat.presentation.setting.component.ToggleableItem
-import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionAction
-import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionOverlay
-import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionState
+import com.nhuhuy.replee.feature_chat.presentation.option.component.InformationUser
+import com.nhuhuy.replee.feature_chat.presentation.option.component.SecondaryOption
+import com.nhuhuy.replee.feature_chat.presentation.option.component.SecondaryOptionItem
+import com.nhuhuy.replee.feature_chat.presentation.option.component.SetNickNameSheet
+import com.nhuhuy.replee.feature_chat.presentation.option.component.ToggleableItem
+import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionAction
+import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionOverlay
+import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionState
 
 @Composable
 fun OptionScreen(

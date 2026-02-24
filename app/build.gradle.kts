@@ -79,6 +79,10 @@ dependencies {
     implementation(libs.androidx.hilt.work)
     ksp(libs.androidx.hilt.compiler)
 
+    //Paging for Ui
+    implementation("androidx.paging:paging-runtime:3.3.0")
+    implementation("androidx.paging:paging-compose:3.3.0")
+
 
     //Hilt
     implementation(libs.dagger.hilt.android)

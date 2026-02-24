@@ -39,15 +39,19 @@ class GoogleCredentialProvider {
             GoogleCredentialResult.Success(googleIdTokenCredential.idToken)
 
         } catch (e: GetCredentialCancellationException) {
+            Timber.e(e)
             GoogleCredentialResult.Cancelled
 
         } catch (e: NoCredentialException) {
+            Timber.e(e)
             GoogleCredentialResult.NoCredential
 
         } catch (e: GetCredentialProviderConfigurationException) {
+            Timber.e(e)
             GoogleCredentialResult.ProviderUnavailable
 
         } catch (e: GoogleIdTokenParsingException) {
+            Timber.e(e)
             GoogleCredentialResult.InvalidCredential
 
         } catch (e: Exception) {

@@ -21,11 +21,6 @@ import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import javax.inject.Inject
 
-sealed interface ConversationDTOChange {
-    data class Upsert(val data: ConversationDTO) : ConversationDTOChange
-    data class Removed(val conversationId: String) : ConversationDTOChange
-}
-
 class ConversationNetworkDataSource @Inject constructor(
     private val firestore: FirebaseFirestore,
 ) {

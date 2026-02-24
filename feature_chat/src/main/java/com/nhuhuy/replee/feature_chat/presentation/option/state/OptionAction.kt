@@ -1,7 +1,7 @@
-package com.nhuhuy.replee.feature_chat.presentation.setting.state
+package com.nhuhuy.replee.feature_chat.presentation.option.state
 
 import com.nhuhuy.replee.core.common.base.UiAction
-import com.nhuhuy.replee.feature_chat.presentation.setting.component.SecondaryOption
+import com.nhuhuy.replee.feature_chat.presentation.option.component.SecondaryOption
 
 sealed interface OptionAction : UiAction {
     data class OnOwnerNickNameChange(val name: String) : OptionAction

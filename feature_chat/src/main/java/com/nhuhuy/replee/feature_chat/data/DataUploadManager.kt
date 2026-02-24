@@ -77,7 +77,7 @@ class SyncManagerImp @Inject constructor(
             val conversationPatchList = conversationAndUsers.map { conversationAndUser ->
                 conversationAndUser.toConversationPatch()
             }
-
+            //Update Field In Conversation
             conversationNetworkDataSource.updateConversations(conversationPatchList)
             conversationLocalDataSource.updateSyncStatusOfConversations(conversationIds, true)
         }

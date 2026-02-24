@@ -18,7 +18,7 @@ class AccountLocalDataSource @Inject constructor(
         dao.updateImageUrl(uid, imgUrl)
     }
 
-    suspend fun getAccountWithId(uid: String) : AccountEntity {
+    suspend fun getAccountWithId(uid: String): AccountEntity? {
         return dao.getAccountWithUid(uid)
     }
 

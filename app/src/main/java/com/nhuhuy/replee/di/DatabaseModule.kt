@@ -3,6 +3,7 @@ package com.nhuhuy.replee.di
 import android.content.Context
 import androidx.room.Room
 import com.nhuhuy.replee.core.database.CoreDatabase
+import com.nhuhuy.replee.core.database.Migration_15_16
 import com.nhuhuy.replee.core.database.entity.account.AccountDao
 import dagger.Module
 import dagger.Provides
@@ -21,10 +22,14 @@ class DatabaseModule {
                 context = context,
                 klass = CoreDatabase::class.java,
                 name = "replee_db"
-            ).fallbackToDestructiveMigration(false)
+        ).addMigrations(Migration_15_16)
+            .fallbackToDestructiveMigration(false)
             .build()
     }
 
+    @Provides
+    @Singleton
+    fun provideMessageRemoteKeyDao(database: CoreDatabase) = database.provideMessageRemoteKeyDao()
 
     @Provides
     @Singleton

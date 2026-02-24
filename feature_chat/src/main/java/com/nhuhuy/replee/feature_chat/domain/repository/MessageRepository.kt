@@ -1,6 +1,8 @@
 package com.nhuhuy.replee.feature_chat.domain.repository
 
+import androidx.paging.PagingData
 import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.firebase.model.DataChange
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import kotlinx.coroutines.flow.Flow
 
@@ -15,4 +17,22 @@ interface MessageRepository {
     ): NetworkResult<Unit>
     suspend fun saveMessages(messages: List<Message>)
     suspend fun searchMessageWithQuery(conversationId: String, query: String) : List<Message>
+    fun observeNetworkMessageChange(conversationId: String): Flow<List<DataChange<Message>>>
+    suspend fun updateLocalDataChange(
+        upsert: List<Message>,
+        delete: List<String>
+    )
+
+    suspend fun fetchMessageWithPaging(
+        conversationId: String,
+        limit: Int = 3,
+        startAfterKey: Long? = null
+    ): NetworkResult<List<Message>>
+
+    fun observeMessageChangeWithPaging(
+        conversationId: String,
+        limit: Int = 3
+    ): Flow<List<DataChange<Message>>>
+
+    fun observeMessageWithPaging(conversationId: String): Flow<PagingData<Message>>
 }

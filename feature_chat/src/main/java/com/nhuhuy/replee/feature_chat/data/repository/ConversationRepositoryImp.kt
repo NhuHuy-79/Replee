@@ -114,6 +114,7 @@ class ConversationRepositoryImp @Inject constructor(
         return conversationNetworkDataSource
             .listenConversationChangesByOwner(ownerId)
             .map { dataChanges ->
+                Timber.d("Data Change: $dataChanges")
                 dataChanges.map { dataChange ->
                     dataChange.mapData { dto ->
                         dto.toConversation(ownerId)

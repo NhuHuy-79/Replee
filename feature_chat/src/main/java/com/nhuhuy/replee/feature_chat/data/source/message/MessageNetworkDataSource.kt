@@ -3,8 +3,11 @@ package com.nhuhuy.replee.feature_chat.data.source.message
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.toObjects
 import com.nhuhuy.replee.core.firebase.model.Constant
+import com.nhuhuy.replee.core.firebase.model.DataChange
+import com.nhuhuy.replee.core.firebase.model.observeDataChange
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -94,6 +97,50 @@ MessageNetworkDataSource @Inject constructor(
         }.await()
 
         return snapshots.size()
+    }
+
+    fun listenMessageChangesByConversationId(conversationId: String): Flow<List<DataChange<MessageDTO>>> {
+        val query = collection.document(conversationId)
+            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            .orderBy("sendAt", Query.Direction.DESCENDING)
+        return query.observeDataChange()
+    }
+
+    fun listenToMessagesWithLimit(
+        conversationId: String,
+        limit: Int = 3
+    ): Flow<List<DataChange<MessageDTO>>> {
+        val query = collection.document(conversationId)
+            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            .orderBy("sendAt", Query.Direction.DESCENDING)
+            .limit(limit.toLong())
+        return query.observeDataChange()
+    }
+
+    suspend fun fetchMessagesPage(
+        conversationId: String,
+        limit: Int,
+        startAfterCreatedAt: Long?,
+        startAfterMessageId: String?
+    ): List<MessageDTO> {
+
+        val baseQuery = collection.document(conversationId)
+            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            .orderBy("sendAt", Query.Direction.DESCENDING)
+            .orderBy(FieldPath.documentId(), Query.Direction.DESCENDING)
+            .limit(limit.toLong())
+
+        val finalQuery = if (startAfterCreatedAt != null && startAfterMessageId != null) {
+            baseQuery.startAfter(startAfterCreatedAt, startAfterMessageId)
+        } else {
+            baseQuery
+        }
+
+        val snapshot = finalQuery.get().await()
+
+        return snapshot.documents.mapNotNull { doc ->
+            doc.toObject<MessageDTO>()
+        }
     }
 
     fun streamMessageListByConversationId(conversationId: String): Flow<List<MessageDTO>> {

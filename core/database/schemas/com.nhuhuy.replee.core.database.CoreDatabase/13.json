@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 13,
-    "identityHash": "c84e9a3be763ba5a93a67243dbd25c0d",
+    "identityHash": "e10aaf6b93be7aaa50ae9a5a03221ce8",
     "entities": [
       {
         "tableName": "accounts",
@@ -275,11 +275,40 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "message_remote_keys",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`conversationId` TEXT NOT NULL, `oldestCreatedAt` INTEGER, `endReached` INTEGER NOT NULL, PRIMARY KEY(`conversationId`))",
+        "fields": [
+          {
+            "fieldPath": "conversationId",
+            "columnName": "conversationId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "oldestCreatedAt",
+            "columnName": "oldestCreatedAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "endReached",
+            "columnName": "endReached",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "conversationId"
+          ]
+        }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c84e9a3be763ba5a93a67243dbd25c0d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e10aaf6b93be7aaa50ae9a5a03221ce8')"
     ]
   }
 }

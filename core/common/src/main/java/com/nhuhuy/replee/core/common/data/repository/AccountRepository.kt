@@ -47,14 +47,14 @@ class AccountRepositoryImp @Inject constructor(
     override suspend fun getAccountById(uid: String): Account {
         return withContext(dispatcher){
             accountLocalDataSource.getAccountWithId(uid)
-                .toAccount()
+                ?.toAccount() ?: Account()
         }
     }
 
     override suspend fun getCurrentAccount(): Account {
         return withContext(dispatcher) {
             val id = firebaseAuthEmailService.getCurrentUser().uid
-            accountLocalDataSource.getAccountWithId(uid = id).toAccount()
+            accountLocalDataSource.getAccountWithId(uid = id)?.toAccount() ?: Account()
         }
     }
 
@@ -71,9 +71,12 @@ class AccountRepositoryImp @Inject constructor(
         return safeCallWithTimeout {
             val ownerId = firebaseAuthEmailService.getCurrentUser().uid
             val owner = accountLocalDataSource.getAccountWithId(ownerId)
-            val newList = owner.blockedUserList + otherUser
-            accountLocalDataSource.updateBlockedList(list = newList, owner = ownerId)
-            accountNetworkDataSource.updateBlockedList(list = newList, owner = ownerId)
+
+            owner?.let {
+                val newList = owner.blockedUserList + otherUser
+                accountLocalDataSource.updateBlockedList(list = newList, owner = ownerId)
+                accountNetworkDataSource.updateBlockedList(list = newList, owner = ownerId)
+            }
         }
     }
 
@@ -81,9 +84,12 @@ class AccountRepositoryImp @Inject constructor(
         return safeCallWithTimeout {
             val ownerId = firebaseAuthEmailService.getCurrentUser().uid
             val owner = accountLocalDataSource.getAccountWithId(ownerId)
-            val newList = owner.blockedUserList - uid
-            accountLocalDataSource.updateBlockedList(list = newList, owner = ownerId)
-            accountNetworkDataSource.updateBlockedList(list = newList, owner = ownerId)
+
+            owner?.let {
+                val newList = owner.blockedUserList - uid
+                accountLocalDataSource.updateBlockedList(list = newList, owner = ownerId)
+                accountNetworkDataSource.updateBlockedList(list = newList, owner = ownerId)
+            }
         }
     }
 

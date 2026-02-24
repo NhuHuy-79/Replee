@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.Message
+import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
 
 @Composable
 fun MessageContainer(
@@ -112,8 +113,9 @@ fun MyMessageItem(
 
         if (isLast || clicked) {
             Text(
-                text = if (message.seen) stringResource(R.string.message_status_seen) else
-                    stringResource(R.string.message_status_sent),
+                text = stringRes?.let { res ->
+                    stringResource(id = res)
+                } ?: "",
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier

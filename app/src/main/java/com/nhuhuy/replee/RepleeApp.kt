@@ -52,10 +52,6 @@ class RepleeApp() : Application(), Configuration.Provider, SingletonImageLoader.
         //Work manager Scheduling
         workerScheduler.scheduleMessageSyncWorker()
         workerScheduler.scheduleConversationSyncWorker()
-
-        //Listen to Network Data Source
-        listenDataManager.start()
-
     }
 
     /* private fun disableFirestoreCacheSetting() {
@@ -93,17 +89,17 @@ class RepleeApp() : Application(), Configuration.Provider, SingletonImageLoader.
             "replee_image"
         )
         return ImageLoader.Builder(context)
-            .crossfade(true)
+            .crossfade(false)
             .memoryCachePolicy(CachePolicy.ENABLED)
             .memoryCache {
                 MemoryCache.Builder()
-                    .maxSizePercent(context = context, percent = 0.1)
+                    .maxSizePercent(context = context, percent = 0.25)
                     .build()
             }
             .diskCachePolicy(CachePolicy.ENABLED)
             .diskCache {
                 DiskCache.Builder()
-                    .maxSizePercent(0.1)
+                    .maxSizePercent(0.25)
                     .directory(fileDirectory)
                     .build()
             }

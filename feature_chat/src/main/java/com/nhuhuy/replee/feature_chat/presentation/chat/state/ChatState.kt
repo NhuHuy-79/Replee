@@ -12,6 +12,7 @@ data class ChatState(
     val currentUserId: String = "",
     val messageInput: String = "",
     val otherUser: Account = Account(),
+    val prefetchIndexKey: String? = null,
     val otherUserName: String = "",
     val seedColor: SeedColor = SeedColor.DEFAULT,
     val sendMessageState: ScreenState<String> = ScreenState.Idle

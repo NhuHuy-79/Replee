@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.setting
+package com.nhuhuy.replee.feature_chat.presentation.option
 
 import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
@@ -13,11 +13,11 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.MuteUs
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.PinConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.UpdateOtherNickNameUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.UpdateOwnerNicknameUseCase
-import com.nhuhuy.replee.feature_chat.presentation.setting.component.SecondaryOption
-import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionAction
-import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionEvent
-import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionOverlay
-import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionState
+import com.nhuhuy.replee.feature_chat.presentation.option.component.SecondaryOption
+import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionAction
+import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionEvent
+import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionOverlay
+import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -51,6 +51,7 @@ class OptionViewModel @AssistedInject constructor(
 
     private val _state = MutableStateFlow(
         OptionState(
+            otherUserImg = otherUserImg,
             otherUserId = otherUserId,
             otherUserName = otherUserName,
             otherUserEmail = otherUserEmail

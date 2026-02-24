@@ -43,6 +43,7 @@ android {
 dependencies {
     api(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
+    api(libs.androidx.room.paging)
     implementation(project(":core:domain"))
 
 

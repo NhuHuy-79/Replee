@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.setting.state
+package com.nhuhuy.replee.feature_chat.presentation.option.state
 
 import androidx.compose.runtime.Immutable
 import com.nhuhuy.replee.core.common.base.UiState

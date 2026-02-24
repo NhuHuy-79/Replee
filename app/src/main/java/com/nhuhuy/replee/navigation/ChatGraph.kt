@@ -6,6 +6,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.nhuhuy.replee.core.design_system.ObserveEffect
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatScreen
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatViewModel
@@ -13,9 +14,9 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.conversation.ConversationViewModel
 import com.nhuhuy.replee.feature_chat.presentation.conversation.component.ConversationScreen
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent
-import com.nhuhuy.replee.feature_chat.presentation.setting.OptionScreen
-import com.nhuhuy.replee.feature_chat.presentation.setting.OptionViewModel
-import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionEvent
+import com.nhuhuy.replee.feature_chat.presentation.option.OptionScreen
+import com.nhuhuy.replee.feature_chat.presentation.option.OptionViewModel
+import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionEvent
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -93,7 +94,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
         )
         val blocked by viewModel.blocked.collectAsStateWithLifecycle()
         val state by viewModel.state.collectAsStateWithLifecycle()
-        val message by viewModel.messageList.collectAsStateWithLifecycle()
+        val messagePagingState = viewModel.pagedMessages.collectAsLazyPagingItems()
 
         ObserveEffect(viewModel.event) { event ->
             when (event) {
@@ -116,7 +117,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
         ChatScreen(
             blocked = blocked,
             state = state,
-            messages = message,
+            pagedMessages = messagePagingState,
             onAction = viewModel::onAction
         )
     }

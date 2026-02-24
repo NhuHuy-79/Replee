@@ -1,15 +1,15 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.message
 
-import com.nhuhuy.core.domain.model.NetworkResult
+import androidx.paging.PagingData
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class ObserveMessageUseCase @Inject constructor(
+class PagingMessagesUseCase @Inject constructor(
     private val messageRepository: MessageRepository
 ) {
-    operator fun invoke(conversationId: String): Flow<NetworkResult<List<Message>>> {
-        return messageRepository.observeNetworkMessageList(conversationId)
+    operator fun invoke(conversationId: String): Flow<PagingData<Message>> {
+        return messageRepository.observeMessageWithPaging(conversationId)
     }
 }

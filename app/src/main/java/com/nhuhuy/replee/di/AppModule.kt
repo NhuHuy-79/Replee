@@ -11,7 +11,6 @@ import com.nhuhuy.replee.core.common.utils.LoggerImp
 import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.firebase.data_source.CloudifyFileUploadService
 import com.nhuhuy.replee.core.firebase.network.mapper.NetworkMapper
-import com.nhuhuy.replee.feature_chat.data.ConversationListener
 import com.nhuhuy.replee.notification.NotificationParser
 import com.nhuhuy.replee.worker.WorkerScheduler
 import com.nhuhuy.replee.worker.WorkerSchedulerImp
@@ -34,9 +33,6 @@ abstract class AbstractAppModule {
     @Binds
     abstract fun bindListenDataManager(listenDataManagerImp: ListenDataManagerImp): ListenDataManager
 
-    @Binds
-    abstract fun conversationListener(conversationListenerImp: com.nhuhuy.replee.feature_chat.data.ConversationListenerImp):
-            ConversationListener
 }
 
 @Module

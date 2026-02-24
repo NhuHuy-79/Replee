@@ -52,7 +52,6 @@ class ConversationViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            observeConversationFromNetwork()
             val currentUser = getCurrentAccountUseCase()
             saveConversationUserUseCase(currentUser.id)
             _state.reduce {
@@ -60,34 +59,6 @@ class ConversationViewModel @Inject constructor(
             }
         }
     }
-
-    private fun observeConversationFromNetwork() {
-        viewModelScope.launch {
-            observeConversationsUseCase().collect { result ->
-                if (firstSync) {
-                    _state.reduce {
-                        copy(synchronizingState = SynchronizingState.SYNC)
-                    }
-                    firstSync = false
-                }
-                result.onSuccess { conversation ->
-                    saveConversationUseCase(conversation)
-                    _state.reduce {
-                        copy(
-                            synchronizingState = SynchronizingState.NONE
-                        )
-                    }
-                }.onFailure {
-                    _state.reduce {
-                        copy(
-                            synchronizingState = SynchronizingState.FAILURE
-                        )
-                    }
-                }
-            }
-        }
-    }
-
     val conversationState: StateFlow<ScreenState<List<Conversation>>> =
         loadConversationUseCase().map { list ->
             ScreenState.Success(list)
