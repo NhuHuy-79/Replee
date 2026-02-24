@@ -63,6 +63,21 @@ fun MyMessageItem(
 ) {
     var clicked by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
+    val stringRes = when {
+        message.status == MessageStatus.FAILED ->
+            R.string.message_status_failed
+
+        message.status == MessageStatus.PENDING ->
+            R.string.message_status_sending
+
+        message.seen ->
+            R.string.message_status_seen
+
+        message.status == MessageStatus.SYNCED ->
+            R.string.message_status_sent
+
+        else -> null
+    }
     Column(
         modifier = modifier.wrapContentSize(),
         verticalArrangement = Arrangement.spacedBy(4.dp)
