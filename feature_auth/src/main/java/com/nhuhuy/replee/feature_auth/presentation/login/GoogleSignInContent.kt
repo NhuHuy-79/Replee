@@ -18,7 +18,7 @@ fun GoogleSignInContent(
     onClick: () -> Unit,
 ) {
     Box(
-        modifier = Modifier.size(48.dp), // 👈 FIX CỨNG SIZE
+        modifier = Modifier.size(48.dp),
         contentAlignment = Alignment.Center
     ) {
 

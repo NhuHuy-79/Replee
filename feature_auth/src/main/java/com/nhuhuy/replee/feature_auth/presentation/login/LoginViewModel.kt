@@ -105,12 +105,15 @@ class LoginViewModel @Inject constructor(
                     val googleCredentialResult = action.result
                     when (googleCredentialResult) {
                         is GoogleCredentialResult.Success -> {
+                            _state.reduce { copy(showLoading = true) }
                             signInWithGoogleUseCase(googleCredentialResult.idToken)
                                 .onSuccess {
+                                    _state.reduce { copy(showLoading = false) }
                                     onEvent(LoginEvent.NavigateToHome)
                                 }
                                 .onFailure { throwable ->
                                     Timber.e(throwable)
+                                    _state.reduce { copy(showLoading = false) }
                                     onEvent(Failure(throwable.toRemoteFailure()))
                                 }
                         }
