@@ -2,8 +2,6 @@ package com.nhuhuy.replee.di
 
 import android.content.Context
 import com.nhuhuy.core.domain.utils.Logger
-import com.nhuhuy.replee.ListenDataManager
-import com.nhuhuy.replee.ListenDataManagerImp
 import com.nhuhuy.replee.core.common.data.UriConverter
 import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.common.qualifier.AppCoroutineScope
@@ -12,6 +10,8 @@ import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.firebase.data_source.CloudifyFileUploadService
 import com.nhuhuy.replee.core.firebase.network.mapper.NetworkMapper
 import com.nhuhuy.replee.notification.NotificationParser
+import com.nhuhuy.replee.worker.ListenConversationsManager
+import com.nhuhuy.replee.worker.ListenConversationsManagerImp
 import com.nhuhuy.replee.worker.WorkerScheduler
 import com.nhuhuy.replee.worker.WorkerSchedulerImp
 import dagger.Binds
@@ -31,7 +31,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 abstract class AbstractAppModule {
     @Binds
-    abstract fun bindListenDataManager(listenDataManagerImp: ListenDataManagerImp): ListenDataManager
+    abstract fun bindListenConversationsManager(imp: ListenConversationsManagerImp): ListenConversationsManager
 
 }
 

@@ -17,7 +17,6 @@ interface ConversationRepository {
     fun observeNetworkConversationChange(ownerId: String): Flow<List<DataChange<Conversation>>>
 
     suspend fun updateLocalDataChange(
-        upsert: List<Conversation>,
-        delete: List<String>
+        dataChanges: List<DataChange<Conversation>>
     )
 }

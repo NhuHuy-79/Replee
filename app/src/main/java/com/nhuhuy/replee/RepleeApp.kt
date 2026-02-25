@@ -35,9 +35,6 @@ class RepleeApp() : Application(), Configuration.Provider, SingletonImageLoader.
 
     @Inject lateinit var workerScheduler: WorkerScheduler
 
-    @Inject
-    lateinit var listenDataManager: ListenDataManager
-
     override fun onCreate() {
         super.onCreate()
         //Create notification channel

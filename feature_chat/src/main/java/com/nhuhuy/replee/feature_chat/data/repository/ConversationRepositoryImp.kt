@@ -121,20 +121,31 @@ class ConversationRepositoryImp @Inject constructor(
                     }
                 }
             }
+            .flowOn(ioDispatcher)
     }
 
     override suspend fun updateLocalDataChange(
-        upsert: List<Conversation>,
-        delete: List<String>
+        dataChanges: List<DataChange<Conversation>>
     ) {
-        if (upsert.isEmpty() && delete.isEmpty()) {
-            Timber.d("$upsert - $delete")
+
+        val upserts = mutableListOf<Conversation>()
+        val deletes = mutableListOf<String>()
+
+        for (change in dataChanges) {
+            when (change) {
+                is DataChange.Delete -> deletes.add(change.id)
+                is DataChange.Upsert -> upserts.add(change.data)
+            }
+        }
+
+        if (upserts.isEmpty() && deletes.isEmpty()) {
+            Timber.d("$upserts - $deletes")
             return
         }
-        val mappedUpsert = upsert.map { conversation -> conversation.toConversationEntity() }
+        val mappedUpsert = upserts.map { conversation -> conversation.toConversationEntity() }
         conversationLocalDataSource.upsertAndDeleteConversations(
             upsert = mappedUpsert,
-            delete = delete
+            delete = deletes
         )
     }
 

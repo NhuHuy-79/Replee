@@ -35,9 +35,9 @@ class MessageRepositoryImp @Inject constructor(
     private val messageNetworkDataSource: MessageNetworkDataSource,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val messageLocalDataSource: MessageLocalDataSource,
-    private val dispatcher: CoroutineDispatcher,
+    private val ioDispatcher: CoroutineDispatcher,
 ) : MessageRepository,
-    NetworkResultCaller(dispatcher, logger) {
+    NetworkResultCaller(ioDispatcher, logger) {
     override suspend fun sendMessage(
         message: Message
     ): NetworkResult<String> {
@@ -66,7 +66,7 @@ class MessageRepositoryImp @Inject constructor(
             entities.map { entity ->
                 entity.toMessage()
             }
-        }.flowOn(dispatcher)
+        }.flowOn(ioDispatcher)
     }
 
     override suspend fun markMessagesAsRead(
@@ -95,7 +95,7 @@ class MessageRepositoryImp @Inject constructor(
     }
 
     override suspend fun saveMessages(messages: List<Message>) {
-        withContext(dispatcher){
+        withContext(ioDispatcher) {
             val entities = messages.map { message -> message.toMessageEntity() }
             messageLocalDataSource.upsertMessages(entities)
         }
@@ -105,7 +105,7 @@ class MessageRepositoryImp @Inject constructor(
         conversationId: String,
         query: String
     ): List<Message> {
-        return withContext(dispatcher){
+        return withContext(ioDispatcher) {
             messageLocalDataSource.getMessagesByQuery(
                 conversationId = conversationId,
                 query = query
@@ -116,20 +116,20 @@ class MessageRepositoryImp @Inject constructor(
     override fun observeNetworkMessageChange(conversationId: String): Flow<List<DataChange<Message>>> {
         return messageNetworkDataSource.listenMessageChangesByConversationId(conversationId)
             .map { dataChanges ->
-                Timber.d("Message Change : $dataChanges")
                 dataChanges.map { dataChange ->
                     dataChange.mapData { messageDTO ->
                         messageDTO.toMessage()
                     }
                 }
             }
+            .flowOn(ioDispatcher)
     }
 
     override suspend fun updateLocalDataChange(
         upsert: List<Message>,
         delete: List<String>
     ) {
-        withContext(dispatcher) {
+        withContext(ioDispatcher) {
             val mappedUpsert = upsert.map { message -> message.toMessageEntity() }
             if (upsert.isEmpty() && delete.isEmpty()) {
                 Timber.e("$upsert - $delete")
