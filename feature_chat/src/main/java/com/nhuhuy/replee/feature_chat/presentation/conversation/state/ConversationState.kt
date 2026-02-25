@@ -7,7 +7,7 @@ import com.nhuhuy.replee.core.design_system.state.ScreenState
 
 @Immutable
 data class ConversationState(
-    val searchState: ScreenState<List<Account>> = ScreenState.Success(emptyList()),
+    val searchState: ScreenState<List<Account>> = ScreenState.Idle,
     val currentUser: Account = Account(),
     val synchronizingState: SynchronizingState = SynchronizingState.NONE,
     val expandSearchBar: Boolean = false,
