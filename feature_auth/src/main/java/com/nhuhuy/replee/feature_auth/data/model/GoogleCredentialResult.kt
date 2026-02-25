@@ -4,8 +4,6 @@ import androidx.annotation.StringRes
 import com.nhuhuy.replee.feature_auth.R
 
 sealed interface GoogleCredentialResult {
-    data object Loading : GoogleCredentialResult
-
     data class Success(val idToken: String) : GoogleCredentialResult
 
     data object Cancelled : GoogleCredentialResult

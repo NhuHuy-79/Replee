@@ -27,7 +27,7 @@ import javax.inject.Inject
 data class LoginState(
     val email: ValidatableInput = ValidatableInput(),
     val password: ValidatableInput = ValidatableInput(),
-    val showLoading: Boolean = false
+    val showLoading: Boolean = false,
 ) : UiState {
     val inputValid: Boolean
         get() {
@@ -114,7 +114,6 @@ class LoginViewModel @Inject constructor(
                                     onEvent(Failure(throwable.toRemoteFailure()))
                                 }
                         }
-
                         else -> {
                             onEvent(LoginEvent.GoogleErrorSnackBar(googleCredentialResult))
                         }

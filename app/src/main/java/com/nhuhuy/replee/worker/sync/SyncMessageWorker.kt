@@ -25,7 +25,7 @@ object SyncKey {
 private const val CLEAN_UP_WORKER_KEY = "clean_up_worker"
 
 @HiltWorker
-class MessageSyncWork @AssistedInject constructor(
+class SyncMessageWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted params: WorkerParameters,
     private val syncManager: SyncManager,

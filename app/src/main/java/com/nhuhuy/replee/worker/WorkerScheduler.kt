@@ -7,7 +7,7 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.nhuhuy.replee.worker.sync.ConversationSyncWorker
-import com.nhuhuy.replee.worker.sync.MessageSyncWork
+import com.nhuhuy.replee.worker.sync.SyncMessageWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -28,7 +28,7 @@ class WorkerSchedulerImp @Inject constructor(
     private val workManager = WorkManager.getInstance(context)
 
     override fun scheduleMessageSyncWorker() {
-        val request = PeriodicWorkRequestBuilder<MessageSyncWork>(
+        val request = PeriodicWorkRequestBuilder<SyncMessageWorker>(
             repeatInterval = REPEAT_TIME,
             repeatIntervalTimeUnit = TimeUnit.MINUTES
         )

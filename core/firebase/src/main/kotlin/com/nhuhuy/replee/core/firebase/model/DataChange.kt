@@ -21,6 +21,21 @@ inline fun <T, R> DataChange<T>.mapData(
     }
 }
 
+/**
+ * Observes changes in a Firestore query as a [Flow] of [DataChange] lists.
+ *
+ * This function converts a Firestore snapshot listener into a cold stream of data changes.
+ * It handles three types of document changes:
+ * - ADDED: Mapped to [DataChange.Upsert]
+ * - MODIFIED: Mapped to [DataChange.Upsert]
+ * - REMOVED: Mapped to [DataChange.Delete]
+ *
+ * The flow ignores snapshots with pending writes to ensure data consistency with the server.
+ * When the flow collector is cancelled, the underlying Firestore snapshot listener is automatically removed.
+ *
+ * @param T The type to which the Firestore documents should be parsed.
+ * @return A [Flow] emitting lists of [DataChange] representing the updates in the query results.
+ */
 inline fun <reified T> Query.observeDataChange(): Flow<List<DataChange<T>>> =
     callbackFlow {
         val registration = addSnapshotListener { snapshot, error ->

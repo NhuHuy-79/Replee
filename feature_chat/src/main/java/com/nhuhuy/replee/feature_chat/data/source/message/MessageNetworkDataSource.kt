@@ -8,6 +8,7 @@ import com.google.firebase.firestore.toObjects
 import com.nhuhuy.replee.core.firebase.model.Constant
 import com.nhuhuy.replee.core.firebase.model.DataChange
 import com.nhuhuy.replee.core.firebase.model.observeDataChange
+import com.nhuhuy.replee.core.firebase.utils.optimizedWrite
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -86,15 +87,23 @@ MessageNetworkDataSource @Inject constructor(
             .get()
             .await()
 
-        Timber.d("snapshots size: ${snapshots.size()}")
-
-
-        firestore.runBatch { batch ->
-            snapshots.forEach { snapshot ->
-                val messageRef = snapshot.reference
-                batch.update(messageRef, "seen", true)
+        val refs = snapshots.map { snapshot -> snapshot.reference }
+        optimizedWrite(
+            items = refs,
+            singleWrite = { reference ->
+                reference.update("seen", true)
+            },
+            batchWrite = {
+                firestore.runBatch { batch ->
+                    snapshots.forEach { snapshot ->
+                        val messageRef = snapshot.reference
+                        batch.update(messageRef, "seen", true)
+                    }
+                }.await()
             }
-        }.await()
+        )
+
+        Timber.d("snapshots size: ${snapshots.size()}")
 
         return snapshots.size()
     }
@@ -121,6 +130,7 @@ MessageNetworkDataSource @Inject constructor(
         conversationId: String,
         limit: Int,
         startAfterCreatedAt: Long?,
+
         startAfterMessageId: String?
     ): List<MessageDTO> {
 

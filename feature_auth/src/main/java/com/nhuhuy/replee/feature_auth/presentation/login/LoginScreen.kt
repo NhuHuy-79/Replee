@@ -160,6 +160,7 @@ fun LoginScreen(
 
         item {
             GoogleSignInContent(
+                loadingState = googleButtonClicked,
                 onClick = {
                     googleButtonClicked = true
                 }

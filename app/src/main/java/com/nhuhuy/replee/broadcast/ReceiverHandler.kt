@@ -42,6 +42,7 @@ class ReceiverHandlerImp @Inject constructor(
             messageId = UUID.randomUUID().toString(),
             senderId = senderId,
             receiverId = receiverId,
+            sentAt = System.currentTimeMillis(),
             content = message,
             seen = false,
             status = MessageStatus.PENDING,
