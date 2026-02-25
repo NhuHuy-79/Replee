@@ -141,8 +141,6 @@ fun OptionScreen(
         OptionOverlay.NONE -> Unit
         OptionOverlay.SET_NICK_NAME -> {
             SetNickNameSheet(
-                ownerNickName = state.ownerNickName,
-                onOwnerNameChange = { name -> onAction(OptionAction.OnOwnerNickNameChange(name)) },
                 otherUserNickName = state.otherUserNickName,
                 onOtherUserNameChange = { name -> onAction(OptionAction.OnOtherNickNameChange(name)) },
                 onDismiss = { onAction(OptionAction.OnDismiss) },

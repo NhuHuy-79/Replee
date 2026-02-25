@@ -2,7 +2,6 @@ package com.nhuhuy.replee.navigation
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -10,6 +9,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import com.nhuhuy.replee.core.common.utils.showShortToast
 import com.nhuhuy.replee.core.design_system.ObserveEffect
 import com.nhuhuy.replee.feature_profile.R
 import com.nhuhuy.replee.feature_profile.presentation.ProfileScreen
@@ -30,7 +30,7 @@ fun EntryProviderScope<NavKey>.profileGraph(
     entry<ProfileDestination.Profile>{
         val context: Context = LocalContext.current
         val viewModel: ProfileViewModel = hiltViewModel()
-        val changePasswordResult by viewModel.changePasswordResult.collectAsStateWithLifecycle()
+        val profileActionResult by viewModel.profileActionResult.collectAsStateWithLifecycle()
         val state by viewModel.state.collectAsStateWithLifecycle()
         val event = viewModel.event
 
@@ -39,8 +39,7 @@ fun EntryProviderScope<NavKey>.profileGraph(
                 ProfileEvent.GoToAbout -> {}
                 is ProfileEvent.UpdatePassword.Failure -> {}
                 ProfileEvent.UpdatePassword.Success -> {
-                    Toast.makeText(context, R.string.update_password_success, Toast.LENGTH_SHORT)
-                        .show()
+                    context.showShortToast(R.string.update_password_success)
                 }
                 ProfileEvent.GoToSignIn -> {
                     backstack.clear()
@@ -50,13 +49,21 @@ fun EntryProviderScope<NavKey>.profileGraph(
                 ProfileEvent.NavigateBack -> {
                     backstack.removeLastOrNull()
                 }
+
+                ProfileEvent.UpdateAvatar.Failure -> {
+                    context.showShortToast(R.string.update_avatar_success)
+                }
+
+                ProfileEvent.UpdateAvatar.Success -> {
+                    context.showShortToast(R.string.update_avatar_failed)
+                }
             }
         }
 
         ProfileScreen(
             state = state,
             onAction = viewModel::onAction,
-            changePasswordResult = changePasswordResult
+            profileActionResult = profileActionResult
         )
     }
 }

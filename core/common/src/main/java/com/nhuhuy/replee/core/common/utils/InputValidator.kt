@@ -2,7 +2,7 @@ package com.nhuhuy.replee.core.common.utils
 
 import com.nhuhuy.replee.core.common.data.model.ValidateResult
 
-class Validator() {
+class InputValidator() {
     private val passwordMinLength: Int = 8
 
     fun validateEmail(email: String): ValidateResult {

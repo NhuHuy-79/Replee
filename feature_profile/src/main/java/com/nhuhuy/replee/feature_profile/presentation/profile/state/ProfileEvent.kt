@@ -13,5 +13,10 @@ sealed interface ProfileEvent : UiEvent{
         data object Success : UpdatePassword
         data class Failure(val error: RemoteFailure) : UpdatePassword
     }
+
+    sealed interface UpdateAvatar : ProfileEvent {
+        data object Success : UpdateAvatar
+        data object Failure : UpdateAvatar
+    }
 }
 

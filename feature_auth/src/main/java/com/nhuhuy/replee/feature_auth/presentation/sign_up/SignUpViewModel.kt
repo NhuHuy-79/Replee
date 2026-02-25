@@ -10,7 +10,7 @@ import com.nhuhuy.replee.core.common.base.UiState
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.data.model.ValidateResult
 import com.nhuhuy.replee.core.common.toRemoteFailure
-import com.nhuhuy.replee.core.common.utils.Validator
+import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 import com.nhuhuy.replee.feature_auth.domain.usecase.SignUpWithEmailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,7 +46,7 @@ sealed interface SignUpAction : UiAction {
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-    private val validator: Validator,
+    private val inputValidator: InputValidator,
     private val signUpWithEmailUseCase: SignUpWithEmailUseCase
 ) : BaseViewModel<SignUpAction, SignUpEvent, SignUpState>() {
     private val _state = MutableStateFlow(SignUpState())
@@ -66,7 +66,7 @@ class SignUpViewModel @Inject constructor(
                         copy(
                             confirmPassword = ValidatableInput(
                                 text = action.confirmPassword,
-                                validateResult = validator.isPasswordConfirmed(
+                                validateResult = inputValidator.isPasswordConfirmed(
                                     password = password.text,
                                     confirmedPassword = action.confirmPassword
                                 )
@@ -80,7 +80,7 @@ class SignUpViewModel @Inject constructor(
                         copy(
                             email = ValidatableInput(
                                 text = action.email,
-                                validateResult = validator.validateEmail(action.email)
+                                validateResult = inputValidator.validateEmail(action.email)
                             )
                         )
                     }
@@ -102,7 +102,7 @@ class SignUpViewModel @Inject constructor(
                         copy(
                             password = ValidatableInput(
                                 text = action.password,
-                                validateResult = validator.validatePassword(action.password)
+                                validateResult = inputValidator.validatePassword(action.password)
                             ),
                         )
                     }

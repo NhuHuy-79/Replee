@@ -3,7 +3,7 @@ package com.nhuhuy.replee.feature_auth.viewmodel
 import app.cash.turbine.test
 import com.google.common.truth.Truth
 import com.nhuhuy.replee.core.common.data.model.ValidateResult
-import com.nhuhuy.replee.core.common.utils.Validator
+import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.test.DispatcherRuleTest
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import com.nhuhuy.replee.feature_auth.presentation.sign_up.SignUpAction
@@ -21,13 +21,13 @@ class SignUpViewModelTest {
     @get:Rule
     val rule = DispatcherRuleTest()
 
-    private lateinit var validator: Validator
+    private lateinit var inputValidator: InputValidator
     private lateinit var authRepository: AuthRepository
     private lateinit var signUpViewModel: SignUpViewModel
 
     @Before
     fun setUp(){
-        validator = mockk()
+        inputValidator = mockk()
         authRepository = mockk()
 
     }
@@ -35,9 +35,14 @@ class SignUpViewModelTest {
     @Test
     fun onActionSignUp_ShouldReturnSuccess() = runTest {
 
-        every { validator.validateEmail("email") } returns ValidateResult.Valid
-        every { validator.validatePassword("password") } returns ValidateResult.Valid
-        every { validator.isPasswordConfirmed("password", "password") } returns ValidateResult.Valid
+        every { inputValidator.validateEmail("email") } returns ValidateResult.Valid
+        every { inputValidator.validatePassword("password") } returns ValidateResult.Valid
+        every {
+            inputValidator.isPasswordConfirmed(
+                "password",
+                "password"
+            )
+        } returns ValidateResult.Valid
 
         signUpViewModel.onAction(SignUpAction.OnNameChange("name"))
         signUpViewModel.onAction(SignUpAction.OnEmailChange("email"))

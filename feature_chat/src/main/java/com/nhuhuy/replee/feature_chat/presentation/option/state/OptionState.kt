@@ -15,7 +15,6 @@ data class OptionState(
     val otherUserEmail: String = "",
     val otherUserImg: String = "",
     val overlay: OptionOverlay = OptionOverlay.NONE,
-    val ownerNickName: ValidatableInput = ValidatableInput(),
     val otherUserNickName: ValidatableInput = ValidatableInput(),
 ) : UiState
 

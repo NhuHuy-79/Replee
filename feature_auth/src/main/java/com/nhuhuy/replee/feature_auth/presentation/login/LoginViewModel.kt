@@ -9,7 +9,7 @@ import com.nhuhuy.replee.core.common.base.UiAction
 import com.nhuhuy.replee.core.common.base.UiState
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.toRemoteFailure
-import com.nhuhuy.replee.core.common.utils.Validator
+import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 import com.nhuhuy.replee.feature_auth.data.model.GoogleCredentialResult
 import com.nhuhuy.replee.feature_auth.domain.usecase.LoginWithEmailUseCase
@@ -46,7 +46,7 @@ sealed interface LoginAction : UiAction {
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val validator: Validator,
+    private val inputValidator: InputValidator,
     private val loginWithEmailUseCase: LoginWithEmailUseCase,
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
 ) : BaseViewModel<LoginAction, LoginEvent, LoginState>() {
@@ -62,7 +62,7 @@ class LoginViewModel @Inject constructor(
                         copy(
                             email = ValidatableInput(
                                 text = action.email,
-                                validateResult = validator.validateEmail(action.email)
+                                validateResult = inputValidator.validateEmail(action.email)
                             )
                         )
                     }
@@ -73,7 +73,7 @@ class LoginViewModel @Inject constructor(
                         copy(
                             password = ValidatableInput(
                                 text = action.password,
-                                validateResult = validator.validatePassword(action.password)
+                                validateResult = inputValidator.validatePassword(action.password)
                             )
                         )
                     }

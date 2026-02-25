@@ -5,7 +5,7 @@ import com.google.common.truth.Truth
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
-import com.nhuhuy.replee.core.common.utils.Validator
+import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.test.DispatcherRuleTest
 import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStore
 import com.nhuhuy.replee.feature_profile.domain.usecase.LogOutUseCase
@@ -27,7 +27,7 @@ import org.junit.Test
 
 class ProfileViewModelTest {
 
-    private lateinit var validator: Validator
+    private lateinit var inputValidator: InputValidator
     private lateinit var updatePasswordUseCase: UpdatePasswordUseCase
     private lateinit var logOutUseCase: LogOutUseCase
     private lateinit var getCurrentAccountUseCase: GetCurrentAccountUseCase
@@ -39,13 +39,13 @@ class ProfileViewModelTest {
 
     @Before
     fun setUp(){
-        validator = mockk(relaxed = true)
+        inputValidator = mockk(relaxed = true)
         updatePasswordUseCase = mockk(relaxed = true)
         logOutUseCase = mockk(relaxed = true)
         getCurrentAccountUseCase = mockk(relaxed = true)
         dataStore = mockk(relaxed = true)
         viewModel = ProfileViewModel(
-            validator,
+            inputValidator,
             updatePasswordUseCase,
             logOutUseCase,
             getCurrentAccountUseCase,
@@ -77,11 +77,11 @@ class ProfileViewModelTest {
         } returns Account()
 
         every {
-            validator.validatePassword("old")
+            inputValidator.validatePassword("old")
         } returns mockk(relaxed = true)
 
         every {
-            validator.validateNewPassword("old", "new")
+            inputValidator.validateNewPassword("old", "new")
         } returns mockk(relaxed = true)
 
         coEvery {

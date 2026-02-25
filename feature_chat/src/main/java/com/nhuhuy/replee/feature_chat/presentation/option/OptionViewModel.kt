@@ -3,7 +3,7 @@ package com.nhuhuy.replee.feature_chat.presentation.option
 import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.core.common.utils.Validator
+import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.BlockUserUseCase
@@ -12,7 +12,6 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.LoadCo
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.MuteUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.PinConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.UpdateOtherNickNameUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.UpdateOwnerNicknameUseCase
 import com.nhuhuy.replee.feature_chat.presentation.option.component.SecondaryOption
 import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionAction
 import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionEvent
@@ -43,8 +42,7 @@ class OptionViewModel @AssistedInject constructor(
     private val pinConversationUseCase: PinConversationUseCase,
     private val muteUserUseCase: MuteUserUseCase,
     private val updateOtherNickNameUseCase: UpdateOtherNickNameUseCase,
-    private val updateOwnerNicknameUseCase: UpdateOwnerNicknameUseCase,
-    private val validator: Validator,
+    private val inputValidator: InputValidator,
 ) : BaseViewModel<OptionAction, OptionEvent, OptionState>() {
     val conversation = loadConversationInformationUseCase(conversationId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Conversation())
@@ -111,17 +109,6 @@ class OptionViewModel @AssistedInject constructor(
                     }
                 }
 
-                is OptionAction.OnOwnerNickNameChange -> {
-                    _state.reduce {
-                        copy(
-                            ownerNickName = ValidatableInput(
-                                text = action.name,
-                                validateResult = validator.validateNickName(action.name)
-                            )
-                        )
-                    }
-                }
-
                 OptionAction.OnDismiss -> {
                     _state.reduce { copy(overlay = OptionOverlay.NONE) }
                 }
@@ -131,14 +118,13 @@ class OptionViewModel @AssistedInject constructor(
                         copy(
                             otherUserNickName = ValidatableInput(
                                 text = action.name,
-                                validateResult = validator.validateNickName(action.name)
+                                validateResult = inputValidator.validateNickName(action.name)
                             )
                         )
                     }
                 }
 
                 OptionAction.OnNickNameSet -> {
-                    val ownerNickname = state.value.ownerNickName
                     val otherUserNickname = state.value.otherUserNickName
                     if (otherUserNickname.text.isNotEmpty()) {
                         updateOtherNickNameUseCase(
@@ -147,16 +133,8 @@ class OptionViewModel @AssistedInject constructor(
                             nickName = otherUserNickname.text
                         )
                     }
-                    if (ownerNickname.text.isNotEmpty()) {
-                        updateOwnerNicknameUseCase(
-                            uid = currentUserId,
-                            conversationId = conversationId,
-                            nickName = ownerNickname.text
-                        )
-                    }
                     _state.reduce {
                         copy(
-                            ownerNickName = ValidatableInput(),
                             otherUserNickName = ValidatableInput(),
                             overlay = OptionOverlay.NONE
                         )

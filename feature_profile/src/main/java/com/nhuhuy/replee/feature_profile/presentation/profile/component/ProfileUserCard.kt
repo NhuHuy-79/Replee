@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.feature_profile.presentation.profile.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.AuthServiceProvider
@@ -25,6 +28,7 @@ import com.nhuhuy.replee.core.design_system.component.UserImage
 
 @Composable
 fun ProfileUserCard(
+    loading: Boolean,
     user: Account,
     modifier: Modifier = Modifier,
     onEditClick: () -> Unit = {},
@@ -48,6 +52,17 @@ fun ProfileUserCard(
                 photoUrl = user.imageUrl,
                 userName = user.name,
             )
+
+            if (loading) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(Color.Black.copy(alpha = 0.4f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
         }
 
 

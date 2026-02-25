@@ -21,10 +21,8 @@ import com.nhuhuy.replee.feature_chat.R
 
 @Composable
 fun SetNickNameSheet(
-    ownerNickName: ValidatableInput,
     otherUserNickName: ValidatableInput,
     onOtherUserNameChange: (name: String) -> Unit,
-    onOwnerNameChange: (name: String) -> Unit,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
@@ -40,20 +38,6 @@ fun SetNickNameSheet(
 
         NormalTextField(
             modifier = Modifier.fillMaxWidth(),
-            label = R.string.sheet_field_owner_name,
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Rounded.Person,
-                    contentDescription = null
-                )
-            },
-            validatableInput = ownerNickName,
-            onValueChange = onOwnerNameChange,
-            errorText = ownerNickName.validateResult.toUiText(),
-        )
-
-        NormalTextField(
-            modifier = Modifier.fillMaxWidth(),
             label = R.string.sheet_field_other_user_name,
             leadingIcon = {
                 Icon(
@@ -63,7 +47,7 @@ fun SetNickNameSheet(
             },
             validatableInput = otherUserNickName,
             onValueChange = onOtherUserNameChange,
-            errorText = ownerNickName.validateResult.toUiText(),
+            errorText = otherUserNickName.validateResult.toUiText(),
         )
 
 
@@ -74,7 +58,7 @@ fun SetNickNameSheet(
                 .fillMaxWidth()
                 .height(56.dp),
             res = R.string.sheet_title_set_nick_name_btn,
-            enabled = ownerNickName.valid,
+            enabled = otherUserNickName.valid,
             onClick = onConfirm
         )
     }

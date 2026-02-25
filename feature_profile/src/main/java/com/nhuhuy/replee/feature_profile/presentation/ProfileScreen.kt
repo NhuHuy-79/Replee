@@ -32,7 +32,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
-import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.feature_profile.R
 import com.nhuhuy.replee.feature_profile.presentation.profile.component.EditDialog
 import com.nhuhuy.replee.feature_profile.presentation.profile.component.NotificationDialog
@@ -44,16 +43,16 @@ import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileActio
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction.OnNewPasswordChange
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction.OnOldPasswordChange
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction.OnUpdatePassword
+import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileActionResult
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileState
 import timber.log.Timber
 
 @Composable
 fun ProfileScreen(
-    changePasswordResult: ScreenState<Unit>,
+    profileActionResult: ProfileActionResult,
     state: ProfileState,
     onAction: (ProfileAction) -> Unit
 )= BoxContainer {
-
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -63,7 +62,6 @@ fun ProfileScreen(
             Timber.e("No media selected")
         }
     }
-
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -97,6 +95,7 @@ fun ProfileScreen(
         ) {
             item {
                 ProfileUserCard(
+                    loading = profileActionResult.updateAvatarLoading,
                     user = state.account,
                     onEditClick = {
                         onAction(ProfileAction.OnEditDialogOpen)
@@ -197,7 +196,7 @@ fun ProfileScreen(
                 },
             )
             Overlay.UPDATE_PASSWORD -> UpdatePasswordSheet(
-                result = changePasswordResult,
+                result = profileActionResult.updatePassword,
                 state = state,
                 onOldPasswordChange = { value ->
                     onAction(OnOldPasswordChange(value))

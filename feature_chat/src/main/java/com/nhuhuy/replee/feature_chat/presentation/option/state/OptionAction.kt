@@ -4,7 +4,6 @@ import com.nhuhuy.replee.core.common.base.UiAction
 import com.nhuhuy.replee.feature_chat.presentation.option.component.SecondaryOption
 
 sealed interface OptionAction : UiAction {
-    data class OnOwnerNickNameChange(val name: String) : OptionAction
     data class OnOtherNickNameChange(val name: String) : OptionAction
     data object OnBackPressed: OptionAction
     data class OnSecondaryOptionSelect(val secondaryOption: SecondaryOption) : OptionAction
