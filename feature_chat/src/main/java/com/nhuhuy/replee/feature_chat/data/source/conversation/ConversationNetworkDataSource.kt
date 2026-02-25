@@ -24,11 +24,6 @@ import javax.inject.Inject
 class ConversationNetworkDataSource @Inject constructor(
     private val firestore: FirebaseFirestore,
 ) {
-
-    class ConversationNotFoundException(
-        msg: String = "Cannot parse object to class Conversation"
-    ) : Exception(msg)
-
     private val collection = firestore.collection(Constant.Firestore.CONVERSATION_COLLECTION)
 
     suspend fun updateUnreadMessageCount(

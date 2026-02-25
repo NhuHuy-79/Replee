@@ -46,7 +46,7 @@ inline fun <reified T> Query.observeDataChange(): Flow<List<DataChange<T>>> =
 
             if (snapshot == null) return@addSnapshotListener
 
-            if (snapshot.metadata.hasPendingWrites()) return@addSnapshotListener
+            /*  if (snapshot.metadata.hasPendingWrites()) return@addSnapshotListener*/
 
             val changes = snapshot.documentChanges.mapNotNull { change ->
                 when (change.type) {

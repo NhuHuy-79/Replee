@@ -27,10 +27,11 @@ class ListenConversationsManagerImp @Inject constructor(
         return authRepository.observeAuthState()
             .distinctUntilChanged()
             .flatMapLatest { uid ->
+                Timber.d(uid)
                 if (uid == null) emptyFlow()
                 else conversationRepository.observeNetworkConversationChange(uid)
             }.onEach { dataChanges ->
-                Timber.d("Conversation Change: $dataChanges")
+                Timber.d("Conversation Change: ${dataChanges.size}")
                 conversationRepository.updateLocalDataChange(dataChanges)
             }
             .map { }
