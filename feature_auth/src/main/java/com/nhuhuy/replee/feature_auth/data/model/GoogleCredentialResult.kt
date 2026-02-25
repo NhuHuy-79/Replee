@@ -39,4 +39,5 @@ fun GoogleCredentialResult.toStringRes(): Int? = when (this) {
 
     is GoogleCredentialResult.UnknownError ->
         R.string.auth_google_sign_in_unknown_error
+    else -> null
 }
