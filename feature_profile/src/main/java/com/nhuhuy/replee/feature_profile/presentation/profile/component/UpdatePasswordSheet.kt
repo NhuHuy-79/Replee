@@ -2,7 +2,6 @@
 
 package com.nhuhuy.replee.feature_profile.presentation.profile.component
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +15,7 @@ import androidx.compose.material.icons.rounded.LockOpen
 import androidx.compose.material.icons.rounded.Password
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -28,14 +28,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.design_system.component.CommonButton
 import com.nhuhuy.replee.core.design_system.component.SecureTextField
+import com.nhuhuy.replee.core.design_system.state.ScreenState
+import com.nhuhuy.replee.core.design_system.state.ScreenStateHost
 import com.nhuhuy.replee.feature_profile.R
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileState
 import com.nhuhuy.replee.feature_profile.utils.toUiText
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun UpdateAccountSheet(
+fun UpdatePasswordSheet(
     state: ProfileState,
+    result: ScreenState<Unit>,
     onOldPasswordChange: (String) -> Unit,
     onNewPasswordChange: (String) -> Unit,
     onConfirm: () -> Unit,
@@ -56,9 +59,9 @@ fun UpdateAccountSheet(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
-            Image(
+            Icon(
                 imageVector = Icons.Rounded.Lock,
-                contentDescription = null
+                contentDescription = null,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -98,10 +101,35 @@ fun UpdateAccountSheet(
                 onValueChange = onNewPasswordChange
             )
 
-            Spacer(Modifier.height(24.dp))
+            ScreenStateHost(
+                state = result,
+                modifier = Modifier.fillMaxWidth(),
+                success = {
+                    Text(
+                        text = stringResource(R.string.update_password_success),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                },
+                failure = {
+                    Text(
+                        text = stringResource(R.string.update_password_failed),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                },
+                loading = {
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            )
+
+            Spacer(Modifier.height(16.dp))
 
             CommonButton(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
                 res = R.string.profile_confirm_btn,
                 enabled = state.valid,
                 onClick = onConfirm
@@ -113,11 +141,11 @@ fun UpdateAccountSheet(
 @Preview
 @Composable
 fun SheetPreview(){
-    UpdateAccountSheet(
+    UpdatePasswordSheet(
         state = ProfileState(),
         onOldPasswordChange = {},
         onNewPasswordChange = {},
-
+        result = ScreenState.Idle,
         onConfirm = {},
         onDismiss = {}
     )

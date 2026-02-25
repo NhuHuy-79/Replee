@@ -30,15 +30,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
+import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.feature_profile.R
 import com.nhuhuy.replee.feature_profile.presentation.profile.component.EditDialog
 import com.nhuhuy.replee.feature_profile.presentation.profile.component.NotificationDialog
 import com.nhuhuy.replee.feature_profile.presentation.profile.component.ProfileUserCard
 import com.nhuhuy.replee.feature_profile.presentation.profile.component.SelectThemeDialog
-import com.nhuhuy.replee.feature_profile.presentation.profile.component.UpdateAccountSheet
+import com.nhuhuy.replee.feature_profile.presentation.profile.component.UpdatePasswordSheet
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.Overlay
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction.OnNewPasswordChange
@@ -49,6 +49,7 @@ import timber.log.Timber
 
 @Composable
 fun ProfileScreen(
+    changePasswordResult: ScreenState<Unit>,
     state: ProfileState,
     onAction: (ProfileAction) -> Unit
 )= BoxContainer {
@@ -195,7 +196,8 @@ fun ProfileScreen(
                     onAction(ProfileAction.OnDismiss)
                 },
             )
-            Overlay.UPDATE_PASSWORD -> UpdateAccountSheet(
+            Overlay.UPDATE_PASSWORD -> UpdatePasswordSheet(
+                result = changePasswordResult,
                 state = state,
                 onOldPasswordChange = { value ->
                     onAction(OnOldPasswordChange(value))
@@ -265,14 +267,4 @@ fun ProfileItem(
             )
         },
     )
-}
-
-@Preview
-@Composable
-fun ProfilePreview(){
-    ProfileScreen(
-        state = ProfileState(),
-        onAction = {}
-    )
-
 }

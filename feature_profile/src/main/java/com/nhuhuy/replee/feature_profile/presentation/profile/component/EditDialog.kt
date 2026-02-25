@@ -59,7 +59,7 @@ fun EditDialog(
                     ) {
                         Text(
                             text = stringResource(R.string.edit_dialog_password),
-                            style = MaterialTheme.typography.labelLarge
+                            style = MaterialTheme.typography.bodyLarge
                         )
                     }
 
@@ -74,7 +74,7 @@ fun EditDialog(
                     ) {
                         Text(
                             text = stringResource(R.string.edit_dialog_avatar),
-                            style = MaterialTheme.typography.labelLarge
+                            style = MaterialTheme.typography.bodyLarge
                         )
                     }
                 }

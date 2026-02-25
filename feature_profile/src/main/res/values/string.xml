@@ -37,4 +37,8 @@
     <string name="edit_dialog_title">Edit Options</string>
     <string name="edit_dialog_avatar">Edit Avatar</string>
     <string name="edit_dialog_password">Edit Password</string>
+
+    <!--Update Password Result-->
+    <string name="update_password_success">Update your password successfully!</string>
+    <string name="update_password_failed">Update your password failed!</string>
 </resources>

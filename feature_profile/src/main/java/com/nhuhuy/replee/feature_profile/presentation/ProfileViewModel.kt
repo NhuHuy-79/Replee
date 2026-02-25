@@ -12,6 +12,8 @@ import com.nhuhuy.replee.core.common.data.UriConverter
 import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.common.utils.Validator
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
+import com.nhuhuy.replee.core.design_system.state.ScreenState
+import com.nhuhuy.replee.core.design_system.state.toScreenState
 import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStore
 import com.nhuhuy.replee.feature_profile.domain.usecase.LogOutUseCase
 import com.nhuhuy.replee.feature_profile.domain.usecase.UpdatePasswordUseCase
@@ -43,6 +45,8 @@ class ProfileViewModel @Inject constructor(
     private val uriConverter: UriConverter,
     private val dataStore: SettingDataStore,
 ) : BaseViewModel<ProfileAction, ProfileEvent, ProfileState>() {
+    private val _changePasswordResult = MutableStateFlow<ScreenState<Unit>>(ScreenState.Idle)
+    val changePasswordResult = _changePasswordResult.asStateFlow()
 
     private val _inputState = MutableStateFlow(InputState())
     private val inputState : StateFlow<InputState> = _inputState.asStateFlow()
@@ -105,11 +109,11 @@ class ProfileViewModel @Inject constructor(
                     }
                 }
                 is ProfileAction.OnNewPasswordChange -> {
-                    val old = inputState.value.oldPassword.text
                     _inputState.reduce {
+                        val old = oldPassword.text
                         copy(
                             newPassword = ValidatableInput(
-                                action.password,
+                                text = action.password,
                                 validateResult = validator.validateNewPassword(
                                     old = old,
                                     new = action.password
@@ -124,6 +128,7 @@ class ProfileViewModel @Inject constructor(
                 }
 
                 ProfileAction.OnDismiss -> {
+                    _changePasswordResult.update { ScreenState.Idle }
                     _overlayState.update { Overlay.NONE }
                 }
                 ProfileAction.OnLogOut -> {
@@ -137,14 +142,24 @@ class ProfileViewModel @Inject constructor(
                 ProfileAction.OnUpdatePassword.Confirm -> {
                     val old = inputState.value.oldPassword.text
                     val new = inputState.value.newPassword.text
-                    updatePasswordUseCase(oldPassword = old, newPassword = new)
+                    _changePasswordResult.update { ScreenState.Loading }
+                    val screenState = updatePasswordUseCase(oldPassword = old, newPassword = new)
                         .onSuccess {
                             onEvent(ProfileEvent.UpdatePassword.Success)
                             _overlayState.update { Overlay.NONE }
                         }
                         .onFailure { throwable ->
+                            _inputState.reduce {
+                                copy(
+                                    oldPassword = ValidatableInput(),
+                                    newPassword = ValidatableInput()
+
+                                )
+                            }
                             onEvent(Failure(throwable.toRemoteFailure()))
                         }
+                        .toScreenState()
+                    _changePasswordResult.update { screenState }
                 }
 
                 is ProfileAction.OnPhotoPicker.Launcher -> {

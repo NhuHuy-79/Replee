@@ -1,24 +1,27 @@
 package com.nhuhuy.replee.feature_profile.presentation.profile.component
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.AuthServiceProvider
 import com.nhuhuy.replee.core.design_system.component.UserImage
-import com.nhuhuy.replee.feature_profile.R
 
 @Composable
 fun ProfileUserCard(
@@ -33,10 +36,20 @@ fun ProfileUserCard(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ){
-        UserImage(
-            photoUrl = user.imageUrl,
-            userName = user.name,
-        )
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.border(
+                width = 2.dp,
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primary
+            )
+        ) {
+            UserImage(
+                photoUrl = user.imageUrl,
+                userName = user.name,
+            )
+        }
+
 
         Column(
             modifier = Modifier
@@ -48,23 +61,20 @@ fun ProfileUserCard(
 
             Text(
                 text = user.email,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.outline
             )
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
-        TextButton(
+        FilledTonalIconButton(
             enabled = user.provider == AuthServiceProvider.EMAIL,
             onClick = onEditClick,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-            ),
         ) {
-            Text(
-                text = stringResource(R.string.profile_screen_edit_btn)
+            Icon(
+                imageVector = Icons.Rounded.Edit,
+                contentDescription = null
             )
         }
     }
