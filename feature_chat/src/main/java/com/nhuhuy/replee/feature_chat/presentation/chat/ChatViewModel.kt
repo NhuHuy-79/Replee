@@ -9,7 +9,7 @@ import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.UnblockUserUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.block.UnblockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.listener.ListenMessageChangeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.listener.UpdateMessageChangeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveBlockStatusUseCase

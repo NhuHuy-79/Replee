@@ -103,4 +103,17 @@ class AccountRepositoryImp @Inject constructor(
                 list.contains(otherUser)
             }
     }
+
+    override suspend fun isBlocked(owner: String, otherUser: String): Boolean {
+        return try {
+            var user = accountLocalDataSource.getAccountWithId(otherUser)?.toAccount()
+            if (user == null) {
+                user = accountNetworkDataSource.fetchAccountById(otherUser).toAccount()
+            }
+            user.blockedList.contains(owner)
+        } catch (e: Exception) {
+            Timber.e(e)
+            false
+        }
+    }
 }

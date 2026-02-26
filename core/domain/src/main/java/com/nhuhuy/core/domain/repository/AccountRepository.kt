@@ -13,4 +13,5 @@ interface AccountRepository {
     suspend fun updateBlockedUsers(otherUser: String): NetworkResult<Unit>
     suspend fun removeUserFromBlockedList(uid: String): NetworkResult<Unit>
     fun observeBlockStatus(owner: String, otherUser: String): Flow<Boolean>
+    suspend fun isBlocked(owner: String, otherUser: String): Boolean
 }

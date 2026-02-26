@@ -19,7 +19,7 @@ object Route{
 
 
 interface KtorService{
-    suspend fun sendConversationMessage(token: String, body: ConversationNotificationRequest)
+    suspend fun sendConversationMessage(token: String, request: ConversationNotificationRequest)
 }
 
 class KtorServiceImp @Inject constructor(

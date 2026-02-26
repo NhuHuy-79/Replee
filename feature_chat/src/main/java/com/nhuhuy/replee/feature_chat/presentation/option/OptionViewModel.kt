@@ -6,7 +6,7 @@ import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.BlockUserUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.block.BlockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.DeleteConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.LoadConversationInformationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.MuteUserUseCase

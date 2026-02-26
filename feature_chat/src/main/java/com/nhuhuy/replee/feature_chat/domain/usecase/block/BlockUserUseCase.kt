@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting
+package com.nhuhuy.replee.feature_chat.domain.usecase.block
 
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.repository.AccountRepository
