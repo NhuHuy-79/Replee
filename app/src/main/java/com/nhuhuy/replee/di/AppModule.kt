@@ -7,8 +7,8 @@ import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.common.qualifier.AppCoroutineScope
 import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.common.utils.LoggerImp
-import com.nhuhuy.replee.core.firebase.data_source.CloudifyFileUploadService
-import com.nhuhuy.replee.core.firebase.network.mapper.NetworkMapper
+import com.nhuhuy.replee.core.network.data_source.CloudifyFileUploadService
+import com.nhuhuy.replee.core.network.network.mapper.RequestMapper
 import com.nhuhuy.replee.notification.NotificationParser
 import com.nhuhuy.replee.worker.ListenConversationsManager
 import com.nhuhuy.replee.worker.ListenConversationsManagerImp
@@ -77,11 +77,11 @@ object AppModule {
     }
     @Provides
     @Singleton
-    fun provideNetworkMapper(json: Json) = NetworkMapper(json)
+    fun provideNetworkMapper(json: Json) = RequestMapper(json)
 
     @Provides
     @Singleton
-    fun provideParser(mapper: NetworkMapper) = NotificationParser(mapper)
+    fun provideParser(mapper: RequestMapper) = NotificationParser(mapper)
 
     @Provides
     @Singleton

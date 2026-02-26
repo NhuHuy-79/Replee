@@ -9,8 +9,8 @@ import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.repository.NetworkResultCaller
 import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.core.database.CoreDatabase
-import com.nhuhuy.replee.core.firebase.model.DataChange
-import com.nhuhuy.replee.core.firebase.model.mapData
+import com.nhuhuy.replee.core.network.model.DataChange
+import com.nhuhuy.replee.core.network.model.mapData
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity

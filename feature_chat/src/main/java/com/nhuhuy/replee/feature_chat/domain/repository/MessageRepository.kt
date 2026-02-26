@@ -2,7 +2,7 @@ package com.nhuhuy.replee.feature_chat.domain.repository
 
 import androidx.paging.PagingData
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.replee.core.firebase.model.DataChange
+import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import kotlinx.coroutines.flow.Flow
 

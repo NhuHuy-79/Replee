@@ -3,6 +3,7 @@ package com.nhuhuy.replee.feature_chat.data
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.repository.NetworkResultCaller
 import com.nhuhuy.core.domain.utils.Logger
+import com.nhuhuy.replee.feature_chat.data.mapper.toConversationDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversationPatch
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
@@ -24,7 +25,7 @@ interface SyncManager {
     suspend fun cleanUpDatabase()
 }
 
-private const val CLEAN_UP_LIMIT : Int = 15
+private const val CLEAN_UP_LIMIT: Int = 250
 
 class SyncManagerImp @Inject constructor(
     private val logger: Logger,
@@ -60,7 +61,11 @@ class SyncManagerImp @Inject constructor(
             }
             val messageIds = unSyncedMessages.map { messageDTO -> messageDTO.messageId }
             val conversationIds = messageNetworkDataSource.sendMessages(unSyncedMessages)
+
+            //Update all message'sync status
             messageLocalDataSource.updateSyncStatus(messageIds, MessageStatus.SYNCED)
+
+            //Update all conversation's sync state
             conversationLocalDataSource.updateLastSyncedTime(
                 conversationIds,
                 System.currentTimeMillis()
@@ -71,12 +76,19 @@ class SyncManagerImp @Inject constructor(
     override suspend fun syncConversation(): NetworkResult<Unit> {
         return safeCall {
             val conversationAndUsers = conversationLocalDataSource.getUnSyncedConversations()
+
             val conversationIds = conversationAndUsers.map { conversationAndUsers ->
                 conversationAndUsers.conversation.id
             }
             val conversationPatchList = conversationAndUsers.map { conversationAndUser ->
                 conversationAndUser.toConversationPatch()
             }
+            //Upload ConversationDTO
+            val conversationDTOList = conversationAndUsers.map { conversationAndUser ->
+                conversationAndUser.toConversationDTO()
+            }
+            conversationNetworkDataSource.sendConversations(conversationDTOList)
+
             //Update Field In Conversation
             conversationNetworkDataSource.updateConversations(conversationPatchList)
             conversationLocalDataSource.updateSyncStatusOfConversations(conversationIds, true)

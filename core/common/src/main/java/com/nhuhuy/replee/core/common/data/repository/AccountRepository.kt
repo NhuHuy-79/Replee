@@ -9,8 +9,8 @@ import com.nhuhuy.replee.core.common.mapper.toAccount
 import com.nhuhuy.replee.core.common.mapper.toAccountDTO
 import com.nhuhuy.replee.core.common.mapper.toAccountEntity
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
-import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
+import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

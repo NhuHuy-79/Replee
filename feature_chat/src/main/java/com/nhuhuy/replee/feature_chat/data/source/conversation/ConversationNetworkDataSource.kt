@@ -5,9 +5,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.toObjects
-import com.nhuhuy.replee.core.firebase.model.Constant
-import com.nhuhuy.replee.core.firebase.model.DataChange
-import com.nhuhuy.replee.core.firebase.model.observeDataChange
+import com.nhuhuy.replee.core.network.model.Constant
+import com.nhuhuy.replee.core.network.model.DataChange
+import com.nhuhuy.replee.core.network.model.observeDataChange
+import com.nhuhuy.replee.core.network.utils.optimizedWrite
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTO
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationPatch
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
@@ -82,6 +83,26 @@ class ConversationNetworkDataSource @Inject constructor(
             .await()
             .toObject<ConversationDTO>()
 
+    }
+
+    suspend fun sendConversations(conversationDTOList: List<ConversationDTO>) {
+        //Optimize for write multi conversationDTOs to firestore
+        optimizedWrite(
+            items = conversationDTOList,
+            singleWrite = { conversationDTO ->
+                collection.document(conversationDTO.id)
+                    .set(conversationDTO)
+                    .await()
+            },
+            batchWrite = { list ->
+                firestore.runBatch { batch ->
+                    for (conversation in list) {
+                        val ref = collection.document(conversation.id)
+                        batch.set(ref, conversation)
+                    }
+                }
+            }
+        )
     }
 
     suspend fun updateConversations(conversationPatchList: List<ConversationPatch>) {

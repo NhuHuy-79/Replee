@@ -6,10 +6,10 @@ import com.nhuhuy.core.domain.repository.NetworkResultCaller
 import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.core.common.mapper.toAccountEntity
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
-import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
-import com.nhuhuy.replee.core.firebase.model.DataChange
-import com.nhuhuy.replee.core.firebase.model.mapData
+import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
+import com.nhuhuy.replee.core.network.model.DataChange
+import com.nhuhuy.replee.core.network.model.mapData
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversation
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversationDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversationEntity

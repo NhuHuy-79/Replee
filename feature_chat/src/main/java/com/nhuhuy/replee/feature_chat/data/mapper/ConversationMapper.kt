@@ -3,7 +3,7 @@ package com.nhuhuy.replee.feature_chat.data.mapper
 import com.google.firebase.firestore.FieldValue
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationAndUser
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationEntity
-import com.nhuhuy.replee.core.firebase.utils.toMilliseconds
+import com.nhuhuy.replee.core.network.utils.toMilliseconds
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTO
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTOUser
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationPatch

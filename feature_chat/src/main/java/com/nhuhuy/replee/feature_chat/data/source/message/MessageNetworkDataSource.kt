@@ -5,10 +5,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.toObjects
-import com.nhuhuy.replee.core.firebase.model.Constant
-import com.nhuhuy.replee.core.firebase.model.DataChange
-import com.nhuhuy.replee.core.firebase.model.observeDataChange
-import com.nhuhuy.replee.core.firebase.utils.optimizedWrite
+import com.nhuhuy.replee.core.network.model.Constant
+import com.nhuhuy.replee.core.network.model.DataChange
+import com.nhuhuy.replee.core.network.model.observeDataChange
+import com.nhuhuy.replee.core.network.utils.optimizedWrite
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow

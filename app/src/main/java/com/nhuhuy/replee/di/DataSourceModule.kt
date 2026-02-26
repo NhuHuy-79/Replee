@@ -8,8 +8,8 @@ import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.database.entity.account.AccountDao
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationDao
 import com.nhuhuy.replee.core.database.entity.message.MessageDao
-import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
+import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource

@@ -5,9 +5,9 @@ import com.nhuhuy.core.domain.repository.NetworkResultCaller
 import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
-import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.firebase.data_source.CloudifyFileUploadService
-import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
+import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.CloudifyFileUploadService
+import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.feature_profile.domain.repository.ProfileRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import timber.log.Timber

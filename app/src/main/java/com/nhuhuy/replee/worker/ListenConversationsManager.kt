@@ -21,13 +21,13 @@ class ListenConversationsManagerImp @Inject constructor(
     private val authRepository: AuthRepository,
     private val conversationRepository: ConversationRepository,
 ) : ListenConversationsManager {
-
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun build(): Flow<Unit> {
         return authRepository.observeAuthState()
             .distinctUntilChanged()
             .flatMapLatest { uid ->
-                Timber.d(uid)
+
+            Timber.d(uid)
                 if (uid == null) emptyFlow()
                 else conversationRepository.observeNetworkConversationChange(uid)
             }.onEach { dataChanges ->

@@ -3,8 +3,8 @@ package com.nhuhuy.replee.core.common.mapper
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.AuthServiceProvider
 import com.nhuhuy.replee.core.database.entity.account.AccountEntity
-import com.nhuhuy.replee.core.firebase.model.AccountDTO
-import com.nhuhuy.replee.core.firebase.utils.toMilliseconds
+import com.nhuhuy.replee.core.network.model.AccountDTO
+import com.nhuhuy.replee.core.network.utils.toMilliseconds
 
 fun Account.toAccountEntity() = AccountEntity(
     uid = id,

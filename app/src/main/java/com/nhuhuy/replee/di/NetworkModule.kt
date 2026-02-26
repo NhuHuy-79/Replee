@@ -5,9 +5,10 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.messaging
-import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.firebase.network.KtorService
-import com.nhuhuy.replee.core.firebase.network.KtorServiceImp
+import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
+import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
+import com.nhuhuy.replee.core.network.network.KtorService
+import com.nhuhuy.replee.core.network.network.KtorServiceImp
 import com.nhuhuy.replee.feature_chat.data.NotifyService
 import com.nhuhuy.replee.feature_chat.data.NotifyServiceImp
 import dagger.Module
@@ -64,12 +65,14 @@ class NetworkModule{
         ioDispatcher: CoroutineDispatcher,
         messaging: FirebaseMessaging,
         accountNetworkDataSource: AccountNetworkDataSource,
+        accountLocalDataSource: AccountLocalDataSource,
         service: KtorServiceImp
     ): NotifyService = NotifyServiceImp(
         logger = logger,
         dispatcher = ioDispatcher,
         messaging = messaging,
         accountNetworkDataSource = accountNetworkDataSource,
-        service = service
+        accountLocalDataSource = accountLocalDataSource,
+        service = service,
     )
 }

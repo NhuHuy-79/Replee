@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.listener
 
-import com.nhuhuy.replee.core.firebase.model.DataChange
+import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import kotlinx.coroutines.flow.Flow

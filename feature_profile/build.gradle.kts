@@ -42,7 +42,7 @@ android {
 dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:design_system"))
-    implementation(project(":core:firebase"))
+    implementation(project(":core:network"))
     implementation(project(":core:database"))
     implementation(project(":core:domain"))
     testImplementation(project(":core:test"))

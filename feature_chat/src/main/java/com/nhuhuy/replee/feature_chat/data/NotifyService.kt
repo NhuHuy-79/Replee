@@ -4,9 +4,11 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.repository.NetworkResultCaller
 import com.nhuhuy.core.domain.utils.Logger
-import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.firebase.network.KtorService
-import com.nhuhuy.replee.core.firebase.network.model.ConversationMessage
+import com.nhuhuy.replee.core.common.mapper.toAccount
+import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
+import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
+import com.nhuhuy.replee.core.network.network.KtorService
+import com.nhuhuy.replee.core.network.network.model.ConversationNotificationRequest
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +23,7 @@ interface NotifyService{
 class NotifyServiceImp @Inject constructor(
     private val logger: Logger,
     private val messaging: FirebaseMessaging,
+    private val accountLocalDataSource: AccountLocalDataSource,
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val service: KtorService,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -31,15 +34,25 @@ class NotifyServiceImp @Inject constructor(
 
     override suspend fun sendNotification(message: Message): NetworkResult<Unit> {
         return safeCall {
-            val otherUser = accountNetworkDataSource.fetchAccountById(message.senderId)
-            val conversationMessage = ConversationMessage(
+            var sender = accountLocalDataSource
+                .getAccountWithId(message.senderId)
+                ?.toAccount()
+
+            if (sender == null) {
+                sender = accountNetworkDataSource
+                    .fetchAccountById(message.senderId)
+                    .toAccount()
+            }
+
+            val conversationNotificationRequest = ConversationNotificationRequest(
                 senderId = message.senderId,
-                senderName = otherUser.name,
+                senderName = sender.name,
                 receiverId = message.receiverId,
                 content = message.content,
+                imgUrl = sender.imageUrl,
                 conversationId = message.conversationId
             )
-            service.sendConversationMessage(otherUser.currentToken, conversationMessage)
+            service.sendConversationMessage(sender.currentToken, conversationNotificationRequest)
         }
     }
 
