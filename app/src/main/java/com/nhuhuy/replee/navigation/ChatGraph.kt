@@ -17,6 +17,7 @@ import com.nhuhuy.replee.feature_chat.presentation.conversation.state.Conversati
 import com.nhuhuy.replee.feature_chat.presentation.option.OptionScreen
 import com.nhuhuy.replee.feature_chat.presentation.option.OptionViewModel
 import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionEvent
+import com.nhuhuy.replee.navigation.HomeDestination.Information
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -97,7 +98,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
                 ChatEvent.NavigateBack -> backstack.removeLastOrNull()
                 is ChatEvent.NavigateToInformation -> {
                     backstack.add(
-                        HomeDestination.Information(
+                        Information(
                             otherUserId = event.otherUserId,
                             otherUserName = event.otherUserName,
                             otherUserEmail = event.otherUserEmail,
@@ -106,6 +107,14 @@ fun EntryProviderScope<NavKey>.chatGraph(
                             otherUserImg = event.otherUserImg
                         )
                     )
+                }
+
+                ChatEvent.SendImage.Failure -> {
+                    //toast success
+                }
+
+                ChatEvent.SendImage.Success -> {
+                    //toast failed
                 }
             }
         }
@@ -118,7 +127,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
         )
     }
 
-    entry<HomeDestination.Information> { screen ->
+    entry<Information> { screen ->
         val viewModel: OptionViewModel = hiltViewModel(
             creationCallback = { factory: OptionViewModel.Factory ->
                 factory.create(

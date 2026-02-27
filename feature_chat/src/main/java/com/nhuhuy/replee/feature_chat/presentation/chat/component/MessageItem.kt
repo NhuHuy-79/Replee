@@ -31,6 +31,7 @@ import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
+import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 
 @Composable
 fun MessageContainer(
@@ -102,12 +103,16 @@ fun MyMessageItem(
                     )
                     .padding(horizontal = 14.dp, vertical = 8.dp)
             ) {
-                Text(
-                    text = message.content,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    softWrap = true
-                )
+                when (message.type) {
+                    MessageType.TEXT -> TextMessageContent(
+                        text = message.content,
+                        textColor = MaterialTheme.colorScheme.onPrimary
+                    )
+
+                    MessageType.IMAGE -> ImageMessageContent(
+                        imgUrl = message.content
+                    )
+                }
             }
         }
 
@@ -153,12 +158,16 @@ fun OtherMessageItem(
                 )
                 .padding(horizontal = 14.dp, vertical = 8.dp)
         ) {
-            Text(
-                text = message.content,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                softWrap = true
-            )
+            when (message.type) {
+                MessageType.TEXT -> TextMessageContent(
+                    text = message.content,
+                    textColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                MessageType.IMAGE -> ImageMessageContent(
+                    imgUrl = message.content
+                )
+            }
         }
     }
 }

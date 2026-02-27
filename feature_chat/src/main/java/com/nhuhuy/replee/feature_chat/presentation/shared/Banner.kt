@@ -26,7 +26,8 @@ fun Banner(
                 color = containerColor,
                 shape = RoundedCornerShape(8.dp)
             )
-            .padding(12.dp)
+            .padding(vertical = 12.dp)
+            .padding(horizontal = 16.dp)
     ){
         Text(
             text = label,

@@ -9,6 +9,7 @@ import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.repository.NetworkResultCaller
 import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.core.database.CoreDatabase
+import com.nhuhuy.replee.core.network.data_source.CloudifyFileUploadService
 import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.core.network.model.mapData
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
@@ -19,6 +20,7 @@ import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageRemoteMediator
 import com.nhuhuy.replee.feature_chat.domain.model.Message
+import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -31,6 +33,7 @@ import javax.inject.Inject
 
 class MessageRepositoryImp @Inject constructor(
     private val coreDatabase: CoreDatabase,
+    private val cloudifyFileUploadService: CloudifyFileUploadService,
     private val logger: Logger,
     private val messageNetworkDataSource: MessageNetworkDataSource,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
@@ -47,6 +50,24 @@ class MessageRepositoryImp @Inject constructor(
             messageNetworkDataSource.sendMessage(message = message.toMessageDTO())
 
             message.messageId
+        }
+    }
+
+    override suspend fun sendImage(
+        rawMessage: Message,
+        byteArray: ByteArray
+    ): NetworkResult<String> {
+        return safeCallWithTimeout {
+            val url = cloudifyFileUploadService.uploadImage(byteArray)
+
+            val message = rawMessage.copy(
+                content = url,
+                type = MessageType.IMAGE
+            )
+            messageLocalDataSource.upsertMessage(message.toMessageEntity())
+            messageNetworkDataSource.sendMessage(message.toMessageDTO())
+
+            url
         }
     }
 

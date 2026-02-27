@@ -18,7 +18,7 @@ import com.nhuhuy.replee.core.database.entity.pager.MessageRemoteKeyDao
 @Database(
     entities = [AccountEntity::class, ConversationEntity::class, MessageEntity::class,
         MessageRemoteKey::class],
-    version = 18,
+    version = 19,
     exportSchema = true,
     autoMigrations = [
         /* AutoMigration(

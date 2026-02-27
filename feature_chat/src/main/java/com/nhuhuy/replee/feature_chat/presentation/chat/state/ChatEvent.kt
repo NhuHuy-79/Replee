@@ -4,6 +4,11 @@ import com.nhuhuy.replee.core.common.base.UiEvent
 
 sealed interface ChatEvent : UiEvent{
     data object NavigateBack : ChatEvent
+
+    sealed interface SendImage : ChatEvent {
+        data object Success : SendImage
+        data object Failure : SendImage
+    }
     data class NavigateToInformation(
         val otherUserImg: String,
         val currentUserId: String,

@@ -4,9 +4,12 @@ package com.nhuhuy.replee.feature_chat.presentation.chat
 
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
+import com.nhuhuy.core.domain.model.onFailure
+import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.core.domain.usecase.GetAccountByIdUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
+import com.nhuhuy.replee.core.common.data.UriConverter
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.CheckBlockUseCase
@@ -17,6 +20,7 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.listener.UpdateMessageChang
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveBlockStatusUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.PagingMessagesUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ReadMessageUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendImageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendMessageUseCase
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
@@ -42,6 +46,7 @@ import timber.log.Timber
 class ChatViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
+    private val uriConverter: UriConverter,
     private val readMessageUseCase: ReadMessageUseCase,
     private val unblockUserUseCase: UnblockUserUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
@@ -52,6 +57,7 @@ class ChatViewModel @AssistedInject constructor(
     private val getConversationUseCase: GetConversationUseCase,
     private val pagingMessagesUseCase: PagingMessagesUseCase,
     private val checkBlockUseCase: CheckBlockUseCase,
+    private val sendImageUseCase: SendImageUseCase,
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
     private val conversationId
         get() = createConversationId(
@@ -168,6 +174,30 @@ class ChatViewModel @AssistedInject constructor(
                 is ChatAction.OnMessagePin -> TODO()
                 ChatAction.OnUnblockUser -> {
                     unblockUserUseCase(otherUserId = otherUserId)
+                }
+
+                is ChatAction.OnImageSend -> {
+                    val byteArray = uriConverter.toByteArray(action.uri)
+
+                    if (byteArray != null) {
+                        //Send Uri
+                        sendImageUseCase(
+                            senderId = currentUserId,
+                            receiverId = otherUserId,
+                            byteArray = byteArray,
+                            conversationId = conversationId
+                        )
+                            .onFailure {
+                                Timber.e("Send image failed")
+                                onEvent(ChatEvent.SendImage.Failure)
+                            }
+                            .onSuccess {
+                                Timber.d("Send image successfully!")
+                                onEvent(ChatEvent.SendImage.Success)
+                            }
+                    } else {
+                        onEvent(ChatEvent.SendImage.Failure)
+                    }
                 }
             }
         }

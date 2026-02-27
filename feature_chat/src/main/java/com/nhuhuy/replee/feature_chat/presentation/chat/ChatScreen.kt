@@ -2,6 +2,9 @@
 
 package com.nhuhuy.replee.feature_chat.presentation.chat
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
@@ -30,7 +33,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.nhuhuy.replee.core.design_system.state.ScreenStateHost
 import com.nhuhuy.replee.feature_chat.R
@@ -41,6 +43,7 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.component.MessageScreen
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
 import com.nhuhuy.replee.feature_chat.presentation.shared.Banner
+import timber.log.Timber
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -50,7 +53,16 @@ fun ChatScreen(
     state: ChatState,
     onAction: (ChatAction) -> Unit,
 ) {
-    pagedMessages.loadState.append is LoadState.Loading
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            onAction(ChatAction.OnImageSend(uri))
+        } else {
+            Timber.e("No media selected")
+        }
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -78,12 +90,13 @@ fun ChatScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            if (!state.isBlocked) {
+            if (state.isBlocked) {
                 Banner(
                     label = stringResource(R.string.chat_screen_block_banner),
                     containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                     contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
                     modifier = Modifier.fillMaxWidth()
+
                 )
             }
 
@@ -159,7 +172,9 @@ fun ChatScreen(
                         //TODO("camera clicked")
                     },
                     onImageClick = {
-                        //TODO("image clicked")
+                        launcher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
                     },
                     onSendMessage = {
                         onAction(ChatAction.OnSendMessageClicked)

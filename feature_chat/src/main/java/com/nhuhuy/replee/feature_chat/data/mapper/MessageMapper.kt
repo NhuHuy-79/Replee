@@ -4,6 +4,7 @@ import com.nhuhuy.replee.core.database.entity.message.MessageEntity
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
+import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 
 fun MessageEntity.toMessage() : Message{
     return Message(
@@ -14,6 +15,7 @@ fun MessageEntity.toMessage() : Message{
         content = content,
         seen = seen,
         sentAt = sentAt,
+        type = MessageType.valueOf(type),
         status = MessageStatus.valueOf(this.status)
     )
 }
@@ -27,7 +29,8 @@ fun MessageDTO.toMessage() : Message{
         content = content,
         seen = seen,
         sentAt = sendAt,
-        status = MessageStatus.SYNCED
+        status = MessageStatus.SYNCED,
+        type = type
     )
 }
 
@@ -40,6 +43,7 @@ fun Message.toMessageDTO() : MessageDTO {
         content = content,
         seen = seen,
         sendAt = sentAt,
+        type = type
     )
 }
 
@@ -52,6 +56,7 @@ fun Message.toMessageEntity() : MessageEntity{
         content = content,
         seen = seen,
         sentAt = sentAt,
-        status = status.name
+        status = status.name,
+        type = type.name
     )
 }
