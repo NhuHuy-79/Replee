@@ -78,6 +78,15 @@ fun ChatScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+            if (!state.isBlocked) {
+                Banner(
+                    label = stringResource(R.string.chat_screen_block_banner),
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
             ScreenStateHost(
                 modifier = Modifier.fillMaxWidth(),
                 state = state.sendMessageState,
@@ -140,7 +149,7 @@ fun ChatScreen(
                 )*/
             }
 
-            if (!blocked) {
+            if (!blocked || !state.isBlocked) {
                 MessageInput(
                     value = state.messageInput,
                     onValueChange = { value ->

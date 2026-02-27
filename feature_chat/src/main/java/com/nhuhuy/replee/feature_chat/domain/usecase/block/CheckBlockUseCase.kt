@@ -6,7 +6,7 @@ import javax.inject.Inject
 class CheckBlockUseCase @Inject constructor(
     private val accountRepository: AccountRepository
 ) {
-    suspend operator fun invoke(ownerId: String, otherUserId: String) {
-        accountRepository.isBlocked(ownerId, otherUserId)
+    suspend operator fun invoke(ownerId: String, otherUserId: String): Boolean {
+        return accountRepository.isBlocked(ownerId, otherUserId)
     }
 }

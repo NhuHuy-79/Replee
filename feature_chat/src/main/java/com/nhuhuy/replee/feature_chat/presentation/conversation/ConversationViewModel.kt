@@ -7,15 +7,11 @@ import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
 import com.nhuhuy.core.domain.usecase.SearchAccountByEmailUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.LoadConversationUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.ObserveConversationsUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationListUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationUserUseCase
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.BottomSheet
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationAction
@@ -36,16 +32,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
-    private val getConversationUseCase: GetConversationUseCase,
     private val loadConversationUseCase: LoadConversationUseCase,
     private val saveConversationListUseCase: SaveConversationListUseCase,
     private val saveConversationUserUseCase: SaveConversationUserUseCase,
-    private val observeConversationsUseCase: ObserveConversationsUseCase,
-    private val saveConversationUseCase: SaveConversationUseCase,
     private val getCurrentAccountUseCase: GetCurrentAccountUseCase,
-    private val searchAccountByEmailUseCase: SearchAccountByEmailUseCase
+    private val searchAccountByEmailUseCase: SearchAccountByEmailUseCase,
 ) : BaseViewModel<ConversationAction, ConversationEvent, ConversationState>() {
-    private var firstSync = false
     private val _state = MutableStateFlow(ConversationState())
     override val state: StateFlow<ConversationState>
         get() = _state.asStateFlow()
@@ -79,7 +71,6 @@ class ConversationViewModel @Inject constructor(
                     val conversation = action.conversation
                     onEvent(
                         NavigateToChatRoom(
-                            conversationId = conversation.id,
                             currentUserId = conversation.owner.uid,
                             otherUserId = conversation.otherUser.uid
                         )
@@ -129,24 +120,12 @@ class ConversationViewModel @Inject constructor(
                 }
 
                 is ConversationAction.OnAvatarClick -> {
-                    getConversationUseCase(action.account)
-                        .onSuccess { id ->
-                            _state.reduce {
-                                copy(expandSearchBar = false, searchQuery = "")
-                            }
-                            onEvent(
-                                NavigateToChatRoom(
-                                    conversationId = id,
-                                    currentUserId = state.value.currentUser.id,
-                                    otherUserId = action.account.id
-                                )
-                            )
-                        }
-                        .onFailure { throwable ->
-                            onEvent(
-                                ConversationEvent.Error(throwable.toRemoteFailure())
-                            )
-                        }
+                    onEvent(
+                        NavigateToChatRoom(
+                            currentUserId = state.value.currentUser.id,
+                            otherUserId = action.account.id
+                        )
+                    )
                 }
 
                 ConversationAction.OnOwnerClick -> {

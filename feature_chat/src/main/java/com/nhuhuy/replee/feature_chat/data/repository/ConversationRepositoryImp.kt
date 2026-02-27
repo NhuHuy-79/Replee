@@ -108,6 +108,22 @@ class ConversationRepositoryImp @Inject constructor(
         }
     }
 
+    override suspend fun getOrCreateConversation(
+        ownerId: String,
+        otherUserId: String
+    ): NetworkResult<String> {
+        return safeCallWithTimeout {
+            val entity = conversationLocalDataSource.getConversationAndUserById(
+                ownerId = ownerId,
+                otherUserId = otherUserId
+            )
+            val dto = entity.toConversationDTO()
+            conversationNetworkDataSource.sendConversation(dto)
+            entity.conversation.id
+
+        }
+    }
+
     override fun observeNetworkConversationChange(
         ownerId: String
     ): Flow<List<DataChange<Conversation>>> {

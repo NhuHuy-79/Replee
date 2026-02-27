@@ -26,7 +26,6 @@ sealed interface HomeDestination : NavKey {
 
     @Serializable
     data class Chat(
-        val conversationId: String,
         val ownerId: String,
         val otherUserId: String,
     ) : HomeDestination
@@ -57,7 +56,6 @@ fun EntryProviderScope<NavKey>.chatGraph(
                 is ConversationEvent.NavigateToChatRoom -> {
                     backstack.add(
                         HomeDestination.Chat(
-                            conversationId = event.conversationId,
                             ownerId = event.currentUserId,
                             otherUserId = event.otherUserId
                         )
@@ -83,10 +81,8 @@ fun EntryProviderScope<NavKey>.chatGraph(
 
     entry<HomeDestination.Chat> { screen ->
         val viewModel: ChatViewModel = hiltViewModel(
-            key = screen.conversationId,
             creationCallback = { factory: ChatViewModel.Factory ->
                 factory.create(
-                    conversationId = screen.conversationId,
                     currentUserId = screen.ownerId,
                     otherUserId = screen.otherUserId
                 )

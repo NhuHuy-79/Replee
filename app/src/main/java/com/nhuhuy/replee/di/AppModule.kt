@@ -1,10 +1,10 @@
 package com.nhuhuy.replee.di
 
+
 import android.content.Context
 import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.core.common.data.UriConverter
 import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
-import com.nhuhuy.replee.core.common.qualifier.AppCoroutineScope
 import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.common.utils.LoggerImp
 import com.nhuhuy.replee.core.network.data_source.CloudifyFileUploadService
@@ -21,9 +21,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.serialization.json.Json
 import javax.inject.Singleton
 
@@ -38,12 +36,6 @@ abstract class AbstractAppModule {
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-    @Singleton
-    @AppCoroutineScope
-    @Provides
-    fun provideAppCoroutineScope(): CoroutineScope = CoroutineScope(
-        Dispatchers.IO + SupervisorJob()
-    )
     @Provides
     @Singleton
     fun provideValidator() = InputValidator()

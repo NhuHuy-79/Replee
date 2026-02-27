@@ -5,7 +5,6 @@ import com.nhuhuy.replee.core.common.data.model.RemoteFailure
 
 sealed interface ConversationEvent : UiEvent {
     data class NavigateToChatRoom(
-        val conversationId: String,
         val currentUserId: String,
         val otherUserId: String,
     )  : ConversationEvent

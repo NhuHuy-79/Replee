@@ -13,6 +13,7 @@
     <!--Chat Screen-->
     <string name="chat_screen_placeholder">Message</string>
     <string name="chat_screen_success_banner">Send message successfully!</string>
+    <string name="chat_screen_block_banner">You cannot contact this user.</string>
     <string name="chat_screen_failure_banner">Something went wrong!</string>
     <string name="message_status_seen">Seen</string>
     <string name="message_status_sending">Sending…</string>

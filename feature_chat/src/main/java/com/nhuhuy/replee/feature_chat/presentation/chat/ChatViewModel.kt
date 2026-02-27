@@ -9,7 +9,9 @@ import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
+import com.nhuhuy.replee.feature_chat.domain.usecase.block.CheckBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.UnblockUserUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.listener.ListenMessageChangeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.listener.UpdateMessageChangeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveBlockStatusUseCase
@@ -40,7 +42,6 @@ import timber.log.Timber
 class ChatViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
-    @Assisted("conversationId") private val conversationId: String,
     private val readMessageUseCase: ReadMessageUseCase,
     private val unblockUserUseCase: UnblockUserUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
@@ -48,8 +49,15 @@ class ChatViewModel @AssistedInject constructor(
     private val observeBlockStatusUseCase: ObserveBlockStatusUseCase,
     private val listenMessageChangeUseCase: ListenMessageChangeUseCase,
     private val updateMessageChangeUseCase: UpdateMessageChangeUseCase,
+    private val getConversationUseCase: GetConversationUseCase,
     private val pagingMessagesUseCase: PagingMessagesUseCase,
+    private val checkBlockUseCase: CheckBlockUseCase,
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
+    private val conversationId
+        get() = createConversationId(
+            uid1 = currentUserId,
+            uid2 = otherUserId
+        )
     val blocked = observeBlockStatusUseCase(ownerId = currentUserId, otherUserId = otherUserId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
     private val _state = MutableStateFlow(ChatState(currentUserId = currentUserId))
@@ -63,16 +71,30 @@ class ChatViewModel @AssistedInject constructor(
         get() = _state.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            val otherUser = getAccountByIdUseCase(uid = otherUserId)
-            _state.reduce {
-                copy(otherUser = otherUser)
-            }
-        }
+        loadInitialData()
         /*observeMessageFromNetwork()*/
 
         //Listen to Message
         listenToMessageChange()
+    }
+
+    private fun loadInitialData() {
+        viewModelScope.launch {
+            launch {
+                isOwnerBLock()
+                val otherUser = getAccountByIdUseCase(uid = otherUserId)
+                _state.reduce { copy(otherUser = otherUser) }
+            }
+
+            launch {
+                getConversationUseCase(ownerId = currentUserId, otherUserId = otherUserId)
+            }
+        }
+    }
+
+    private suspend fun isOwnerBLock() {
+        val blocked = checkBlockUseCase(ownerId = currentUserId, otherUserId = otherUserId)
+        _state.reduce { copy(isBlocked = blocked) }
     }
 
     private fun listenToMessageChange() {
@@ -156,7 +178,6 @@ class ChatViewModel @AssistedInject constructor(
         fun create(
             @Assisted("otherUserId") otherUserId: String,
             @Assisted("currentUserId") currentUserId: String,
-            @Assisted("conversationId") conversationId: String
         ): ChatViewModel
     }
 
@@ -165,6 +186,10 @@ class ChatViewModel @AssistedInject constructor(
         listenJob?.cancel()
         listenJob = null
         super.onCleared()
+    }
+
+    private fun createConversationId(uid1: String, uid2: String): String {
+        return listOf(uid1, uid2).sorted().joinToString(separator = "_")
     }
 
 }
