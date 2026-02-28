@@ -21,7 +21,6 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -34,12 +33,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.compose.LazyPagingItems
-import com.nhuhuy.replee.core.design_system.state.ScreenStateHost
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.BlockOverlay
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.MessageInput
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.MessageScreen
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageInput
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageScreen
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
 import com.nhuhuy.replee.feature_chat.presentation.shared.Banner
@@ -99,31 +97,6 @@ fun ChatScreen(
 
                 )
             }
-
-            ScreenStateHost(
-                modifier = Modifier.fillMaxWidth(),
-                state = state.sendMessageState,
-                success = {
-                    Banner(
-                        label = stringResource(R.string.chat_screen_success_banner),
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                },
-                failure = {
-                    Banner(
-                        label = stringResource(R.string.chat_screen_failure_banner),
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                },
-                loading = {
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                },
-            )
-
             Spacer(Modifier.height(16.dp))
 
             if (blocked) {

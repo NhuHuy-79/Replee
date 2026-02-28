@@ -7,6 +7,10 @@ import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import kotlinx.coroutines.flow.Flow
 
 interface ConversationRepository {
+    fun listenConversationWithLimit(
+        limit: Int,
+        ownerId: String
+    ): Flow<List<DataChange<Conversation>>>
     suspend fun fetchOtherUserInConversations(ownerId: String)
     suspend fun fetchConversations(): NetworkResult<List<Conversation>>
     fun observeLocalConversations() : Flow<List<Conversation>>

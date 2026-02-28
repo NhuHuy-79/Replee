@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.feature_chat.data.model.network
 
+import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
 import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 
 data class MessageDTO(
@@ -11,4 +12,5 @@ data class MessageDTO(
     val sendAt: Long?= null,
     val seen: Boolean = false,
     val type: MessageType = MessageType.TEXT,
+    val status: MessageStatus = MessageStatus.SYNCED
 )

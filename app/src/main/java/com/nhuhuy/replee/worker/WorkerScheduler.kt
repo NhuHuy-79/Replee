@@ -2,14 +2,13 @@ package com.nhuhuy.replee.worker
 
 import android.content.Context
 import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.nhuhuy.replee.worker.sync.ConversationSyncWorker
 import com.nhuhuy.replee.worker.sync.SyncMessageWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 interface WorkerScheduler {
@@ -17,7 +16,6 @@ interface WorkerScheduler {
     fun scheduleConversationSyncWorker()
 }
 
-const val REPEAT_TIME: Long = 15L
 const val MESSAGE_SYNC_WORKER = "message_sync_worker"
 const val CONVERSATION_SYNC_WORKER = "conversation_sync_worker"
 
@@ -28,10 +26,7 @@ class WorkerSchedulerImp @Inject constructor(
     private val workManager = WorkManager.getInstance(context)
 
     override fun scheduleMessageSyncWorker() {
-        val request = PeriodicWorkRequestBuilder<SyncMessageWorker>(
-            repeatInterval = REPEAT_TIME,
-            repeatIntervalTimeUnit = TimeUnit.MINUTES
-        )
+        val request = OneTimeWorkRequestBuilder<SyncMessageWorker>()
             .setConstraints(
                 Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -40,18 +35,15 @@ class WorkerSchedulerImp @Inject constructor(
             .addTag(MESSAGE_SYNC_WORKER)
             .build()
 
-        workManager.enqueueUniquePeriodicWork(
+        workManager.enqueueUniqueWork(
             MESSAGE_SYNC_WORKER,
-            ExistingPeriodicWorkPolicy.KEEP,
+            ExistingWorkPolicy.KEEP,
             request
         )
     }
 
     override fun scheduleConversationSyncWorker() {
-        val request = PeriodicWorkRequestBuilder<ConversationSyncWorker>(
-            repeatInterval = REPEAT_TIME,
-            repeatIntervalTimeUnit = TimeUnit.MINUTES
-        )
+        val request = OneTimeWorkRequestBuilder<ConversationSyncWorker>()
             .setConstraints(
                 Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -60,9 +52,9 @@ class WorkerSchedulerImp @Inject constructor(
             .addTag(CONVERSATION_SYNC_WORKER)
             .build()
 
-        workManager.enqueueUniquePeriodicWork(
-            MESSAGE_SYNC_WORKER,
-            ExistingPeriodicWorkPolicy.KEEP,
+        workManager.enqueueUniqueWork(
+            CONVERSATION_SYNC_WORKER,
+            ExistingWorkPolicy.KEEP,
             request
         )
     }

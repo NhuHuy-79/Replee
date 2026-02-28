@@ -21,4 +21,5 @@ enum class MessageStatus{
     SYNCED,
     PENDING,
     FAILED,
+    SEEN,
 }

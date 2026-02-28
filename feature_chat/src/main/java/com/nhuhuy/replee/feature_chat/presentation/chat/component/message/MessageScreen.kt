@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.chat.component
+package com.nhuhuy.replee.feature_chat.presentation.chat.component.message
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandIn
@@ -32,6 +32,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import com.nhuhuy.replee.feature_chat.domain.model.Message
+import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -98,12 +99,11 @@ fun MessageScreen(
     val refreshState = pagingItems.loadState.refresh
     val appendState = pagingItems.loadState.append
 
-    /*LaunchedEffect(pagingItems.itemCount, isAtBottom) {
-        // Nếu đang ở bottom mà có thêm item mới -> scroll về bottom
-        if (isAtBottom && pagingItems.itemCount > 0) {
+    LaunchedEffect(pagingItems.itemCount, isAtBottom) {
+        if (isAtBottom) {
             lazyListState.animateScrollToItem(0)
         }
-    }*/
+    }
 
     // =========================
     // UI
@@ -131,17 +131,23 @@ fun MessageScreen(
             ) { index ->
                 val message = pagingItems.peek(index) ?: return@items
 
-                if (message.senderId == currentUserId) {
-                    MyMessageItem(
-                        isLast = index == 0,
-                        message = message
-                    )
-                } else {
-                    OtherMessageItem(
-                        userName = otherUserName,
-                        message = message,
-                        imgUrl = otherUserImg
-                    )
+                when (message.type) {
+                    MessageType.TEXT -> {
+                        if (message.senderId == currentUserId) {
+                            MyMessageItem(
+                                isLast = index == 0,
+                                message = message
+                            )
+                        } else {
+                            OtherMessageItem(
+                                userName = otherUserName,
+                                message = message,
+                                imgUrl = otherUserImg
+                            )
+                        }
+                    }
+
+                    MessageType.IMAGE -> ImageMessageContainer(message)
                 }
             }
 

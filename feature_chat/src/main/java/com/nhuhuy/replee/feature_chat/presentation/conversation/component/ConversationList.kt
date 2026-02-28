@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -97,9 +96,8 @@ fun ConversationItem(
             isLastSender = conversation.lastSenderId == conversation.owner.uid,
             userName = conversation.otherUser.nick.ifEmpty { conversation.otherUser.name },
             messageContent = conversation.lastMessageContent,
+            modifier = Modifier.weight(1f)
         )
-
-        Spacer(Modifier.weight(1f))
 
         Column(
             modifier = Modifier.fillMaxHeight(),
@@ -167,6 +165,7 @@ fun ConversationBody(
             text = userName,
             maxLines = 1,
             style = MaterialTheme.typography.titleMedium,
+            overflow = TextOverflow.Ellipsis
         )
 
         Text(

@@ -9,13 +9,18 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
+sealed interface AuthState {
+    data object Loading : AuthState
+    data class Authenticated(val uid: String) : AuthState
+    data object Unauthenticated : AuthState
+}
+
 class FirebaseAuthEmailService @Inject constructor(
     private val auth: FirebaseAuth,
     private val messaging: FirebaseMessaging
 ) {
-    class CurrentUserNotFound(msg : String = "Firebase User not found") : Exception(msg)
 
-    fun getCurrentUser() = auth.currentUser ?: throw CurrentUserNotFound()
+    fun getCurrentUser() = auth.currentUser
 
     suspend fun getDeviceToken() : String = messaging.token.await()
 
@@ -33,7 +38,7 @@ class FirebaseAuthEmailService @Inject constructor(
 
     suspend fun updateNewPassword(old: String, new: String){
         val user = getCurrentUser()
-        val email = user.email ?: throw IllegalStateException("Missing email")
+        val email = user?.email ?: return
         val credential = EmailAuthProvider.getCredential(email, old)
         user.reauthenticate(credential).await()
         user.updatePassword(new).await()
@@ -51,6 +56,23 @@ class FirebaseAuthEmailService @Inject constructor(
         auth.addAuthStateListener(listener)
 
         trySend(auth.currentUser?.uid)
+
+        awaitClose {
+            auth.removeAuthStateListener(listener)
+        }
+    }
+
+    fun authState(): Flow<AuthState> = callbackFlow {
+        val listener = FirebaseAuth.AuthStateListener { auth ->
+            val user = auth.currentUser
+            if (user == null) {
+                trySend(AuthState.Unauthenticated)
+            } else {
+                trySend(AuthState.Authenticated(user.uid))
+            }
+        }
+
+        auth.addAuthStateListener(listener)
 
         awaitClose {
             auth.removeAuthStateListener(listener)

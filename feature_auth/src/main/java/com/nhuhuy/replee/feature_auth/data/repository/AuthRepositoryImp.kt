@@ -9,6 +9,7 @@ import com.nhuhuy.replee.core.common.mapper.toAccount
 import com.nhuhuy.replee.core.common.mapper.toAccountEntity
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.AuthState
 import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.core.network.data_source.GoogleAuthService
 import com.nhuhuy.replee.core.network.model.AccountDTO
@@ -41,7 +42,7 @@ class AuthRepositoryImp @Inject constructor(
     ): NetworkResult<String> = safeCallWithTimeout {
         firebaseAuthEmailService.loginWithEmail(email, password)
 
-        val userId = firebaseAuthEmailService.getCurrentUser().uid
+        val userId = firebaseAuthEmailService.getCurrentUser()?.uid ?: return@safeCallWithTimeout ""
         val account = accountNetworkDataSource.fetchAccountById(userId).toAccountEntity()
         accountLocalDataSource.upsertAccount(account.copy(logOut = false))
 
@@ -56,7 +57,8 @@ class AuthRepositoryImp @Inject constructor(
         name: String, email: String, password: String
     ): NetworkResult<Account> = safeCallWithTimeout {
         firebaseAuthEmailService.signUpWithEmail(email, password)
-        val id = firebaseAuthEmailService.getCurrentUser().uid
+        val id =
+            firebaseAuthEmailService.getCurrentUser()?.uid ?: return@safeCallWithTimeout Account()
         val account = AccountDTO(
             id = id,
             name = name,
@@ -89,5 +91,9 @@ class AuthRepositoryImp @Inject constructor(
 
     override fun observeAuthState(): Flow<String?> {
         return firebaseAuthEmailService.observeAuthState()
+    }
+
+    override fun observeAuthenticationState(): Flow<AuthState> {
+        return firebaseAuthEmailService.authState()
     }
 }

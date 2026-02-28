@@ -25,7 +25,7 @@ class ProfileRepositoryImp @Inject constructor(
     NetworkResultCaller(ioDispatcher, logger) {
     override suspend fun updateUserImage(byteArray: ByteArray): NetworkResult<String> {
         return safeCall {
-            val ownerId = firebaseAuthEmailService.getCurrentUser().uid
+            val ownerId = firebaseAuthEmailService.getCurrentUser()?.uid ?: return@safeCall ""
             val url = cloudifyFileUploadService.uploadImage(byteArray)
             Timber.d(url)
             accountLocalDataSource.updateImageUrl(
@@ -42,7 +42,7 @@ class ProfileRepositoryImp @Inject constructor(
 
     override suspend fun logOut() {
         val uid = try {
-            firebaseAuthEmailService.getCurrentUser().uid
+            firebaseAuthEmailService.getCurrentUser()?.uid
         } catch (e: Exception) {
             Timber.e(e)
             null

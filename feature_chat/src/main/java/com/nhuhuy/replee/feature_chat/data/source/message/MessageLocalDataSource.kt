@@ -12,6 +12,20 @@ class MessageLocalDataSource @Inject constructor(
         messageDao.upsert(message)
     }
 
+    suspend fun updateMessageStatus(status: MessageStatus, messageId: String) {
+        messageDao.updateStatusOfMessage(
+            status = status.name,
+            messageId = messageId,
+        )
+    }
+
+    suspend fun updateMessageListStatus(status: MessageStatus, messageIds: List<String>) {
+        messageDao.updateStatusOfMessageList(
+            status = status.name,
+            messageIds = messageIds,
+        )
+    }
+
     suspend fun upsertMessages(messages: List<MessageEntity>){
         messageDao.upsertAll(messages)
     }

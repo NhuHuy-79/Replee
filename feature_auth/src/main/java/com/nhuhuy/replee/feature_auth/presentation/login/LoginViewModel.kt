@@ -83,9 +83,9 @@ class LoginViewModel @Inject constructor(
                     val value = state.value
                     _state.reduce { copy(showLoading = true) }
                     loginWithEmailUseCase(value.email.text, value.password.text)
-                        .onSuccess {
+                        .onSuccess { uid ->
                             _state.reduce { copy(showLoading = false) }
-                            onEvent(LoginEvent.NavigateToHome)
+                            onEvent(LoginEvent.NavigateToHome(uid = uid))
                         }
                         .onFailure { throwable ->
                             _state.reduce { copy(showLoading = false) }
@@ -107,9 +107,9 @@ class LoginViewModel @Inject constructor(
                         is GoogleCredentialResult.Success -> {
                             _state.reduce { copy(showLoading = true) }
                             signInWithGoogleUseCase(googleCredentialResult.idToken)
-                                .onSuccess {
+                                .onSuccess { account ->
                                     _state.reduce { copy(showLoading = false) }
-                                    onEvent(LoginEvent.NavigateToHome)
+                                    onEvent(LoginEvent.NavigateToHome(uid = account.id))
                                 }
                                 .onFailure { throwable ->
                                     Timber.e(throwable)

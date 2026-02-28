@@ -39,6 +39,14 @@ interface MessageDao : BaseDao<MessageEntity> {
             "AND receiverId = :receiverId")
     suspend fun markMessageAsRead(messageIds: List<String>, conversationId: String, receiverId: String)
 
+    //Update Message Status
+    @Query("UPDATE message SET status = :status WHERE messageId = :messageId")
+    suspend fun updateStatusOfMessage(messageId: String, status: String)
+
+    @Query("UPDATE message SET status = :status WHERE messageId IN (:messageIds)")
+    suspend fun updateStatusOfMessageList(messageIds: List<String>, status: String)
+
+
     @Query("DELETE\n" +
             "    FROM message\n" +
             "    WHERE messageId IN (\n" +

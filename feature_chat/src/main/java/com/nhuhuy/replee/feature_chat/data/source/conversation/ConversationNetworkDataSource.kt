@@ -202,4 +202,13 @@ class ConversationNetworkDataSource @Inject constructor(
         return query.observeDataChange<ConversationDTO>()
     }
 
+    fun listenConversationChanges(
+        ownerId: String,
+        limit: Int
+    ): Flow<List<DataChange<ConversationDTO>>> {
+        val query = collection.whereArrayContains("memberIds", ownerId)
+            .limit(limit.toLong())
+        return query.observeDataChange<ConversationDTO>()
+    }
+
 }

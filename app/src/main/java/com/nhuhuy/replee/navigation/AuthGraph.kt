@@ -31,13 +31,15 @@ import com.nhuhuy.replee.feature_auth.utils.toUiText
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed interface AuthDestination : NavKey{
+sealed interface AuthDestination : NavKey {
     @Serializable
-    data object Login: AuthDestination
+    data object Login : AuthDestination
+
     @Serializable
-    data object SignUp: AuthDestination
+    data object SignUp : AuthDestination
+
     @Serializable
-    data object ForgotPassword: AuthDestination
+    data object ForgotPassword : AuthDestination
 }
 
 private const val DURATION: Int = 350
@@ -86,9 +88,13 @@ fun EntryProviderScope<NavKey>.authGraph(
                     )
                 }
 
-                LoginEvent.NavigateToHome -> {
+                is LoginEvent.NavigateToHome -> {
                     backstack.clear()
-                    backstack.add(HomeDestination.ConversationList)
+                    backstack.add(
+                        HomeDestination.ConversationList(
+                            currentUserId = event.uid
+                        )
+                    )
                 }
 
                 LoginEvent.NavigateToRecover -> {
@@ -134,11 +140,15 @@ fun EntryProviderScope<NavKey>.authGraph(
                 }
 
                 SignUpEvent.NavigateBack -> backstack.removeLastOrNull()
-                SignUpEvent.SignUpSuccessfully -> {
-                    backstack.removeAll{ destination ->
+                is SignUpEvent.NavigateToHome -> {
+                    backstack.removeAll { destination ->
                         destination is AuthDestination
                     }
-                    backstack.add(HomeDestination.ConversationList)
+                    backstack.add(
+                        HomeDestination.ConversationList(
+                            currentUserId = event.uid
+                        )
+                    )
                 }
             }
         }

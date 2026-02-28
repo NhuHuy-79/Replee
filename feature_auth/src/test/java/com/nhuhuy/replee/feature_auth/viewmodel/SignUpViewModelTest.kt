@@ -53,7 +53,7 @@ class SignUpViewModelTest {
         signUpViewModel.event.test {
             signUpViewModel.onAction(SignUpAction.SignUp)
             val event = awaitItem()
-            Truth.assertThat(event).isEqualTo(SignUpEvent.SignUpSuccessfully)
+            Truth.assertThat(event).isEqualTo(SignUpEvent.NavigateToHome)
         }
     }
 

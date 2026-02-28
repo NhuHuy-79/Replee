@@ -43,7 +43,8 @@ fun Message.toMessageDTO() : MessageDTO {
         content = content,
         seen = seen,
         sendAt = sentAt,
-        type = type
+        type = type,
+        status = status
     )
 }
 

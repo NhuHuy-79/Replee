@@ -13,6 +13,8 @@ import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.LoadConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationListUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationUserUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.listener.ListenConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.listener.UpsertConversationUseCase
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.BottomSheet
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationAction
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent
@@ -20,18 +22,25 @@ import com.nhuhuy.replee.feature_chat.presentation.conversation.state.Conversati
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent.NavigateToChatRoom
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationState
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.SynchronizingState
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class ConversationViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = ConversationViewModel.Factory::class)
+class ConversationViewModel @AssistedInject constructor(
+    @Assisted private val currentUserId: String,
+    private val listenConversationUseCase: ListenConversationUseCase,
+    private val upsertConversationUseCase: UpsertConversationUseCase,
     private val loadConversationUseCase: LoadConversationUseCase,
     private val saveConversationListUseCase: SaveConversationListUseCase,
     private val saveConversationUserUseCase: SaveConversationUserUseCase,
@@ -43,12 +52,11 @@ class ConversationViewModel @Inject constructor(
         get() = _state.asStateFlow()
 
     init {
+        listenToNetworkConversation()
         viewModelScope.launch {
             val currentUser = getCurrentAccountUseCase()
-            saveConversationUserUseCase(currentUser.id)
-            _state.reduce {
-                copy(currentUser = currentUser)
-            }
+            saveConversationUserUseCase(currentUserId)
+            _state.reduce { copy(currentUser = currentUser) }
         }
     }
     val conversationState: StateFlow<ScreenState<List<Conversation>>> =
@@ -57,6 +65,19 @@ class ConversationViewModel @Inject constructor(
         }.stateIn(
             viewModelScope, SharingStarted.WhileSubscribed(5000), ScreenState.Loading
         )
+
+    private fun listenToNetworkConversation() {
+        viewModelScope.launch(Dispatchers.IO) {
+            listenConversationUseCase(
+                ownerId = currentUserId,
+                limit = 60
+            )
+                .distinctUntilChanged()
+                .collect { dataChanges ->
+                    upsertConversationUseCase(dataChanges)
+                }
+        }
+    }
 
     override fun onAction(action: ConversationAction) {
         viewModelScope.launch {
@@ -122,7 +143,7 @@ class ConversationViewModel @Inject constructor(
                 is ConversationAction.OnAvatarClick -> {
                     onEvent(
                         NavigateToChatRoom(
-                            currentUserId = state.value.currentUser.id,
+                            currentUserId = currentUserId,
                             otherUserId = action.account.id
                         )
                     )
@@ -157,5 +178,12 @@ class ConversationViewModel @Inject constructor(
                 }
             }
 
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(
+            @Assisted currentUserId: String
+        ): ConversationViewModel
     }
 }

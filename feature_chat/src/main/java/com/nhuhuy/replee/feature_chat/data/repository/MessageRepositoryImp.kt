@@ -20,6 +20,7 @@ import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageRemoteMediator
 import com.nhuhuy.replee.feature_chat.domain.model.Message
+import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
 import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -95,18 +96,17 @@ class MessageRepositoryImp @Inject constructor(
         conversationId: String,
         receiverId: String
     ): NetworkResult<Unit> = safeCallWithTimeout {
-        messageLocalDataSource.updateMessageSeenStatus(
-            messageIds = messageIds,
-            conversationId = conversationId,
-            receiverId = receiverId
+        messageLocalDataSource.updateMessageListStatus(
+            status = MessageStatus.SEEN,
+            messageIds = messageIds
         )
         val conversationDTO = conversationNetworkDataSource.fetchConversationById(conversationId)
         val receiverField =
             if (conversationDTO?.user1?.uid == receiverId) "user1" else "user2"
-        val count = messageNetworkDataSource.updateMessageSeenStatus(
+        val count = messageNetworkDataSource.updateMessageStatus(
             conversationId = conversationId,
             messageIds = messageIds,
-            receiverId = receiverId
+            status = MessageStatus.SEEN
         )
         conversationNetworkDataSource.updateUnreadMessageCount(
             conversationId = conversationId,

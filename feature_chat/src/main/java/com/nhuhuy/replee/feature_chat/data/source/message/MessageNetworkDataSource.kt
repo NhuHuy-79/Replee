@@ -10,6 +10,7 @@ import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.core.network.model.observeDataChange
 import com.nhuhuy.replee.core.network.utils.optimizedWrite
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
+import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -37,22 +38,45 @@ MessageNetworkDataSource @Inject constructor(
         }
     }
 
-    suspend fun sendMessages(list: List<MessageDTO>) : List<String>{
-        val messageMap: Map<String, List<MessageDTO>> = list.groupBy { messageDTO -> messageDTO.conversationId }
-        val conversationIds: MutableList<String> = mutableListOf()
-        firestore.runBatch { batch ->
-            messageMap.forEach { conversationId, messages ->
-                for (message in messages) {
-                    val ref = collection.document(conversationId)
-                        .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
-                        .document(message.messageId)
-                    batch.set(ref, message)
-                    conversationIds.add(conversationId)
-                }
-            }
-        }.await()
+    suspend fun sendMessages(
+        list: List<MessageDTO>
+    ): List<String> {
 
-        return conversationIds
+        if (list.isEmpty()) return emptyList()
+
+        val conversationIds = mutableSetOf<String>()
+
+        optimizedWrite(
+            items = list,
+
+            singleWrite = { message ->
+                val ref = collection
+                    .document(message.conversationId)
+                    .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+                    .document(message.messageId)
+
+                ref.set(message).await()
+                conversationIds.add(message.conversationId)
+            },
+
+            batchWrite = { messages ->
+                firestore.runBatch { batch ->
+                    messages.forEach { message ->
+                        val ref = collection
+                            .document(message.conversationId)
+                            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+                            .document(message.messageId)
+
+                        batch.set(ref, message)
+                        conversationIds.add(message.conversationId)
+                    }
+                }.await()
+            },
+
+            batchSize = 400
+        )
+
+        return conversationIds.toList()
     }
 
     suspend fun fetchMessagesByConversationId(conversationId: String) : List<MessageDTO>{
@@ -70,6 +94,38 @@ MessageNetworkDataSource @Inject constructor(
             .document(messageId)
             .delete()
             .await()
+    }
+
+    suspend fun updateMessageStatus(
+        conversationId: String,
+        messageIds: List<String>,
+        status: MessageStatus,
+    ): Int {
+        if (messageIds.isEmpty()) return 0
+
+        val snapshots = collection.document(conversationId)
+            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            .whereEqualTo(FieldPath.documentId(), messageIds)
+            .get()
+            .await()
+
+        val refs = snapshots.map { snapshot -> snapshot.reference }
+        optimizedWrite(
+            items = refs,
+            singleWrite = { reference ->
+                reference.update("status", status).await()
+            },
+            batchWrite = {
+                firestore.runBatch { batch ->
+                    for (snapshot in snapshots) {
+                        val messageRef = snapshot.reference
+                        batch.update(messageRef, "status", status)
+                    }
+                }.await()
+            }
+        )
+
+        return refs.size
     }
 
     suspend fun updateMessageSeenStatus(conversationId: String, messageIds: List<String>, receiverId: String) : Int{
@@ -91,7 +147,7 @@ MessageNetworkDataSource @Inject constructor(
         optimizedWrite(
             items = refs,
             singleWrite = { reference ->
-                reference.update("seen", true)
+                reference.update("seen", true).await()
             },
             batchWrite = {
                 firestore.runBatch { batch ->

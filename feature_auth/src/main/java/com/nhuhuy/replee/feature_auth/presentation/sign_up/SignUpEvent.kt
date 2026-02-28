@@ -5,6 +5,6 @@ import com.nhuhuy.replee.core.common.data.model.RemoteFailure
 
 sealed interface SignUpEvent : UiEvent {
     data object NavigateBack : SignUpEvent
-    data object SignUpSuccessfully : SignUpEvent
+    data class NavigateToHome(val uid: String) : SignUpEvent
     data class Failure(val error: RemoteFailure): SignUpEvent
 }

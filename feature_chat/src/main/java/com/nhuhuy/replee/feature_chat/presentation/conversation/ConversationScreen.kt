@@ -4,27 +4,31 @@ package com.nhuhuy.replee.feature_chat.presentation.conversation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
+import com.nhuhuy.replee.core.design_system.state.ScreenState
+import com.nhuhuy.replee.core.design_system.state.ScreenStateHost
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.presentation.conversation.component.ConversationList
 import com.nhuhuy.replee.feature_chat.presentation.conversation.component.ConversationSearchBar
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationAction
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationState
+import com.nhuhuy.replee.feature_chat.presentation.shared.RetryScreen
 
 @Composable
-internal fun ConversationContent(
-    converationList: List<Conversation>,
+fun ConversationScreen(
+    conversationListState: ScreenState<List<Conversation>>,
     state: ConversationState,
     onAction: (ConversationAction) -> Unit
 ) = BoxContainer {
@@ -64,27 +68,46 @@ internal fun ConversationContent(
                 }
             )
 
-            ConversationList(
-                conversationList = converationList,
-                onConversationClick = { conversation ->
-                    onAction(ConversationAction.OnConversationClick(conversation))
+            ScreenStateHost(
+                state = conversationListState,
+                success = { conversationList ->
+                    ConversationList(
+                        conversationList = conversationList,
+                        onConversationClick = { conversation ->
+                            onAction(ConversationAction.OnConversationClick(conversation))
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 16.dp)
+                    )
                 },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 16.dp)
+                failure = {
+                    RetryScreen(
+                        modifier = Modifier.fillMaxSize(),
+                        onRetry = {
+                            onAction(ConversationAction.Retry)
+                        }
+                    )
+                },
+                loading = {
+                    ConversationLoadingContent(
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             )
         }
     }
 }
 
-@Preview
+
 @Composable
-fun ConversationScreenPreview() {
-    ConversationContent(
-        converationList = emptyList(),
-        state = ConversationState(),
-        onAction = {}
-    )
+private fun ConversationLoadingContent(
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
+    }
 }
-
-

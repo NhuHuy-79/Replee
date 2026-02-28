@@ -39,7 +39,7 @@ class AccountRepositoryImp @Inject constructor(
 
     override suspend fun updateDeviceToken(token: String): NetworkResult<Unit> {
         return safeCall {
-            val uid = firebaseAuthEmailService.getCurrentUser().uid
+            val uid = firebaseAuthEmailService.getCurrentUser()?.uid ?: return@safeCall
             accountNetworkDataSource.updateDeviceToken(uid, token)
         }
     }
@@ -53,8 +53,10 @@ class AccountRepositoryImp @Inject constructor(
 
     override suspend fun getCurrentAccount(): Account {
         return withContext(dispatcher) {
-            val id = firebaseAuthEmailService.getCurrentUser().uid
-            accountLocalDataSource.getAccountWithId(uid = id)?.toAccount() ?: Account()
+            val id = firebaseAuthEmailService.getCurrentUser()?.uid
+            id?.let {
+                accountLocalDataSource.getAccountWithId(uid = id)?.toAccount() ?: Account()
+            } ?: return@withContext Account()
         }
     }
 
@@ -69,7 +71,8 @@ class AccountRepositoryImp @Inject constructor(
 
     override suspend fun updateBlockedUsers(otherUser: String): NetworkResult<Unit> {
         return safeCallWithTimeout {
-            val ownerId = firebaseAuthEmailService.getCurrentUser().uid
+            val ownerId =
+                firebaseAuthEmailService.getCurrentUser()?.uid ?: return@safeCallWithTimeout
             val owner = accountLocalDataSource.getAccountWithId(ownerId)
 
             owner?.let {
@@ -82,7 +85,8 @@ class AccountRepositoryImp @Inject constructor(
 
     override suspend fun removeUserFromBlockedList(uid: String): NetworkResult<Unit> {
         return safeCallWithTimeout {
-            val ownerId = firebaseAuthEmailService.getCurrentUser().uid
+            val ownerId =
+                firebaseAuthEmailService.getCurrentUser()?.uid ?: return@safeCallWithTimeout
             val owner = accountLocalDataSource.getAccountWithId(ownerId)
 
             owner?.let {

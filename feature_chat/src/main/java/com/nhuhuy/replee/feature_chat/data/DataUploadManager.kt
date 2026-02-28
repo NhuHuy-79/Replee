@@ -60,6 +60,7 @@ class SyncManagerImp @Inject constructor(
                 entity.toMessage().toMessageDTO()
             }
             val messageIds = unSyncedMessages.map { messageDTO -> messageDTO.messageId }
+
             val conversationIds = messageNetworkDataSource.sendMessages(unSyncedMessages)
 
             //Update all message'sync status

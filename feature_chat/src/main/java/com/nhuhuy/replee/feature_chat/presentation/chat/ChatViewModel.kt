@@ -10,8 +10,6 @@ import com.nhuhuy.core.domain.usecase.GetAccountByIdUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.data.UriConverter
-import com.nhuhuy.replee.core.design_system.state.ScreenState
-import com.nhuhuy.replee.core.design_system.state.toScreenState
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.CheckBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.UnblockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversationUseCase
@@ -33,7 +31,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -78,7 +75,6 @@ class ChatViewModel @AssistedInject constructor(
 
     init {
         loadInitialData()
-        /*observeMessageFromNetwork()*/
 
         //Listen to Message
         listenToMessageChange()
@@ -126,24 +122,14 @@ class ChatViewModel @AssistedInject constructor(
                 }
 
                 ChatAction.OnSendMessageClicked -> {
-                    _state.reduce {
-                        copy(sendMessageState = ScreenState.Loading)
-                    }
                     val messageInput: String = state.value.messageInput
-                    val screenState = sendMessageUseCase(
+                    _state.reduce { copy(messageInput = "") }
+                    sendMessageUseCase(
                         senderId = currentUserId,
                         receiverId = otherUserId,
                         conversationId = conversationId,
                         text = messageInput
-                    ).toScreenState()
-
-                    _state.reduce {
-                        copy(sendMessageState = screenState, messageInput = "")
-                    }
-                    delay(1500)
-                    _state.reduce {
-                        copy(sendMessageState = ScreenState.Idle)
-                    }
+                    )
 
                 }
 

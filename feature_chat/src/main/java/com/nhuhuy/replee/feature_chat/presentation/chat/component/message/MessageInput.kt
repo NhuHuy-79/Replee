@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.chat.component
+package com.nhuhuy.replee.feature_chat.presentation.chat.component.message
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -47,7 +47,8 @@ fun MessageInput(
             imageVector = Icons.Rounded.CameraAlt,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier
+                .padding(8.dp)
                 .clickable(onClick = onCameraClick)
         )
 
@@ -55,7 +56,8 @@ fun MessageInput(
             imageVector = Icons.Rounded.Image,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier
+                .padding(8.dp)
                 .clickable(onClick = onImageClick)
         )
 
@@ -92,11 +94,13 @@ fun MessageTextField(
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = modifier.background(
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            shape = RoundedCornerShape(32.dp)
-        ).padding(horizontal = 16.dp, vertical = 14.dp)
-            .onFocusChanged{ focusState ->
+        modifier = modifier
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(32.dp)
+            )
+            .padding(horizontal = 16.dp, vertical = 14.dp)
+            .onFocusChanged { focusState ->
                 onFocusChange(focusState.isFocused)
             }
         ,

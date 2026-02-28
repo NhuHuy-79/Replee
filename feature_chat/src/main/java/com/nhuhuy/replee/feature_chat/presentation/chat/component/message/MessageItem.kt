@@ -1,6 +1,6 @@
-package com.nhuhuy.replee.feature_chat.presentation.chat.component
+package com.nhuhuy.replee.feature_chat.presentation.chat.component.message
 
-import androidx.compose.animation.animateContentSize
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -24,38 +25,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
-import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 
-@Composable
-fun MessageContainer(
-    showInfo: Boolean,
-    onShowInfo: (show: Boolean) -> Unit,
-    isOwnerMessage: Boolean,
-    message: Message,
-    modifier: Modifier = Modifier,
-){
-    Column(
-        modifier = modifier
-            .animateContentSize()
-            .wrapContentSize(),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-
-
-        Text(
-            text = if (message.seen) "Seen" else "Sent",
-            style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.align(Alignment.End)
-        )
-    }
-}
 
 @Composable
 fun MyMessageItem(
@@ -65,62 +42,52 @@ fun MyMessageItem(
 ) {
     var clicked by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
-    val stringRes = when {
-        message.status == MessageStatus.FAILED ->
-            R.string.message_status_failed
 
-        message.status == MessageStatus.PENDING ->
-            R.string.message_status_sending
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val maxWidth = screenWidth * 0.7f
 
-        message.seen ->
-            R.string.message_status_seen
-
-        message.status == MessageStatus.SYNCED ->
-            R.string.message_status_sent
-
-        else -> null
+    @StringRes
+    val stringRes = remember(message.status) {
+        when (message.status) {
+            MessageStatus.PENDING -> R.string.message_status_sending
+            MessageStatus.SYNCED -> R.string.message_status_sent
+            MessageStatus.FAILED -> R.string.message_status_failed
+            MessageStatus.SEEN -> R.string.message_status_seen
+        }
     }
+
     Column(
         modifier = modifier.wrapContentSize(),
         verticalArrangement = Arrangement.spacedBy(4.dp)
-
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(
                     interactionSource = interactionSource,
-                    indication = null,
-                    onClick = { clicked = !clicked }
-                ),
+                    indication = null
+                ) { clicked = !clicked },
             horizontalArrangement = Arrangement.End
         ) {
             Box(
                 modifier = Modifier
+                    .widthIn(max = maxWidth)
                     .background(
                         color = MaterialTheme.colorScheme.primary,
                         shape = RoundedCornerShape(24.dp)
                     )
                     .padding(horizontal = 14.dp, vertical = 8.dp)
             ) {
-                when (message.type) {
-                    MessageType.TEXT -> TextMessageContent(
-                        text = message.content,
-                        textColor = MaterialTheme.colorScheme.onPrimary
-                    )
-
-                    MessageType.IMAGE -> ImageMessageContent(
-                        imgUrl = message.content
-                    )
-                }
+                TextMessageContent(
+                    text = message.content,
+                    textColor = MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
 
         if (isLast || clicked) {
             Text(
-                text = stringRes?.let { res ->
-                    stringResource(id = res)
-                } ?: "",
+                text = stringResource(stringRes),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
@@ -130,7 +97,6 @@ fun MyMessageItem(
         }
     }
 }
-
 @Composable
 fun OtherMessageItem(
     imgUrl: String,
@@ -138,6 +104,9 @@ fun OtherMessageItem(
     message: Message,
     modifier: Modifier = Modifier
 ) {
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val maxWidth = screenWidth * 0.7f
+
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Start
@@ -152,28 +121,17 @@ fun OtherMessageItem(
 
         Box(
             modifier = Modifier
+                .widthIn(max = maxWidth)
                 .background(
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = RoundedCornerShape(24.dp)
                 )
                 .padding(horizontal = 14.dp, vertical = 8.dp)
         ) {
-            when (message.type) {
-                MessageType.TEXT -> TextMessageContent(
-                    text = message.content,
-                    textColor = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                MessageType.IMAGE -> ImageMessageContent(
-                    imgUrl = message.content
-                )
-            }
+            TextMessageContent(
+                text = message.content,
+                textColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
-}
-
-@Composable
-@Preview
-fun MessageTheme() {
-
 }

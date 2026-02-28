@@ -20,6 +20,7 @@ import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -35,6 +36,22 @@ class ConversationRepositoryImp @Inject constructor(
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource
 ) : ConversationRepository, NetworkResultCaller(ioDispatcher, logger) {
+    override fun listenConversationWithLimit(
+        limit: Int,
+        ownerId: String
+    ): Flow<List<DataChange<Conversation>>> {
+        return conversationNetworkDataSource.listenConversationChanges(
+            ownerId = ownerId,
+            limit = limit
+        ).map { dataChanges ->
+            dataChanges.map { dataChange ->
+                dataChange.mapData { dto ->
+                    dto.toConversation(ownerId)
+                }
+            }
+        }
+    }
+
     override suspend fun fetchOtherUserInConversations(ownerId: String) {
         return withContext(ioDispatcher) {
             val uids = conversationNetworkDataSource.getConversationUserIdsWithOwner(ownerId)
@@ -50,7 +67,8 @@ class ConversationRepositoryImp @Inject constructor(
 
     override suspend fun fetchConversations(): NetworkResult<List<Conversation>> {
         return safeCallWithTimeout {
-            val uid = firebaseAuthEmailService.getCurrentUser().uid
+            val uid = firebaseAuthEmailService.getCurrentUser()?.uid
+                ?: return@safeCallWithTimeout emptyList()
             conversationNetworkDataSource.fetchConversationsByUser(uid).map { conversationDTO ->
                 conversationDTO.toConversation(uid)
             }
@@ -58,7 +76,7 @@ class ConversationRepositoryImp @Inject constructor(
     }
 
     override fun observeLocalConversations(): Flow<List<Conversation>> {
-        val uid = firebaseAuthEmailService.getCurrentUser().uid
+        val uid = firebaseAuthEmailService.getCurrentUser()?.uid ?: return emptyFlow()
         return conversationLocalDataSource.observeConversationAndUsers(uid).map { entities ->
             entities.map { entity ->
                 Timber.d("${entity.toConversation()}")
@@ -86,7 +104,7 @@ class ConversationRepositoryImp @Inject constructor(
     }
 
     override fun observeNetworkConversation(): Flow<NetworkResult<List<Conversation>>> {
-        val uid = firebaseAuthEmailService.getCurrentUser().uid
+        val uid = firebaseAuthEmailService.getCurrentUser()?.uid ?: return emptyFlow()
         return conversationNetworkDataSource.streamConversationsByOwner(uid)
             .map { conversationDTOS ->
                 val data =
@@ -97,7 +115,8 @@ class ConversationRepositoryImp @Inject constructor(
 
     override suspend fun getOrCreateConversation(otherUser: Account): NetworkResult<String> {
         return safeCallWithTimeout {
-            val currentUserId = firebaseAuthEmailService.getCurrentUser().uid
+            val currentUserId =
+                firebaseAuthEmailService.getCurrentUser()?.uid ?: return@safeCallWithTimeout ""
             val entity = conversationLocalDataSource.getConversationAndUserById(
                 ownerId = currentUserId,
                 otherUserId = otherUser.id

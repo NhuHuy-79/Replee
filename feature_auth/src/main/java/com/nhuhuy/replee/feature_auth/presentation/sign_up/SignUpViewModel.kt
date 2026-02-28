@@ -116,9 +116,9 @@ class SignUpViewModel @Inject constructor(
                         email = value.email.text,
                         password = value.password.text
                     )
-                        .onSuccess {
+                        .onSuccess { account ->
                             _state.reduce { copy(showLoading = false) }
-                            onEvent(SignUpEvent.SignUpSuccessfully)
+                            onEvent(SignUpEvent.NavigateToHome(account.id))
                         }
                         .onFailure { throwable ->
                             _state.reduce { copy(showLoading = false) }
