@@ -23,10 +23,10 @@ class ProfileRepositoryImp @Inject constructor(
     private val appPreferences: AppPreferences
 ) : ProfileRepository,
     NetworkResultCaller(ioDispatcher, logger) {
-    override suspend fun updateUserImage(byteArray: ByteArray): NetworkResult<String> {
+    override suspend fun updateUserImage(uriPath: String): NetworkResult<String> {
         return safeCall {
             val ownerId = firebaseAuthEmailService.getCurrentUser()?.uid ?: return@safeCall ""
-            val url = cloudifyFileUploadService.uploadImage(byteArray)
+            val url = cloudifyFileUploadService.uploadImageWithUriPath(uriPath)
             Timber.d(url)
             accountLocalDataSource.updateImageUrl(
                 uid = ownerId,

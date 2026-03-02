@@ -35,7 +35,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
@@ -168,22 +167,16 @@ class ProfileViewModel @Inject constructor(
                 }
 
                 is ProfileAction.OnPhotoPicker.Select -> {
-                    val byteArray = uriConverter.toByteArray(action.uri)
                     _profileActionResult.reduce { copy(updateAvatarLoading = true) }
-                    if (byteArray == null) {
-                        Timber.e("Byte array is null")
-                        onEvent(ProfileEvent.UpdateAvatar.Failure)
-                    } else {
-                        uploadAvatarUseCase(byteArray)
-                            .onSuccess {
-                                _profileActionResult.reduce { copy(updateAvatarLoading = false) }
-                                onEvent(ProfileEvent.UpdateAvatar.Success)
-                            }
-                            .onFailure {
-                                _profileActionResult.reduce { copy(updateAvatarLoading = false) }
-                                onEvent(ProfileEvent.UpdateAvatar.Failure)
-                            }
-                    }
+                    uploadAvatarUseCase(action.uri.toString())
+                        .onSuccess {
+                            _profileActionResult.reduce { copy(updateAvatarLoading = false) }
+                            onEvent(ProfileEvent.UpdateAvatar.Success)
+                        }
+                        .onFailure {
+                            _profileActionResult.reduce { copy(updateAvatarLoading = false) }
+                            onEvent(ProfileEvent.UpdateAvatar.Failure)
+                        }
 
                 }
 

@@ -50,7 +50,7 @@ fun ImageMessageContainer(
     }
 
     Column(
-        modifier = modifier.padding(16.dp)
+        modifier = modifier
     ) {
 
         // 👉 Container chung cho cả pending & sent

@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.core.database
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -18,7 +19,7 @@ import com.nhuhuy.replee.core.database.entity.pager.MessageRemoteKeyDao
 @Database(
     entities = [AccountEntity::class, ConversationEntity::class, MessageEntity::class,
         MessageRemoteKey::class],
-    version = 19,
+    version = 22,
     exportSchema = true,
     autoMigrations = [
         /* AutoMigration(
@@ -54,6 +55,12 @@ import com.nhuhuy.replee.core.database.entity.pager.MessageRemoteKeyDao
          AutoMigration(
              from = 14, to= 15
          ),*/
+        AutoMigration(
+            from = 19, to = 20
+        ),
+        AutoMigration(
+            from = 20, to = 21
+        )
     ]
 )
 @TypeConverters(CoreConverter::class)

@@ -7,7 +7,7 @@ import javax.inject.Inject
 class UploadAvatarUseCase @Inject constructor(
     private val profileRepository: ProfileRepository
 ) {
-    suspend operator fun invoke(byteArray: ByteArray): NetworkResult<String> {
-        return profileRepository.updateUserImage(byteArray)
+    suspend operator fun invoke(uriPath: String): NetworkResult<String> {
+        return profileRepository.updateUserImage(uriPath)
     }
 }

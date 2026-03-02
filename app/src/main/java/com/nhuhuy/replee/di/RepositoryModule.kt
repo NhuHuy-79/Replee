@@ -1,6 +1,8 @@
 package com.nhuhuy.replee.di
 
 import com.nhuhuy.replee.core.common.data.repository.AccountRepositoryImp
+import com.nhuhuy.replee.core.network.data_source.CloudifyFileUploadService
+import com.nhuhuy.replee.core.network.data_source.FileLocalDataSource
 import com.nhuhuy.replee.feature_auth.data.repository.AuthRepositoryImp
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import com.nhuhuy.replee.feature_chat.data.SyncManager
@@ -21,6 +23,10 @@ import dagger.hilt.components.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
+
+    //DataSource
+    @Binds
+    abstract fun bindImageDataSource(imp: CloudifyFileUploadService): FileLocalDataSource
     //
     @Binds
     abstract fun bindAuthRepository(imp: AuthRepositoryImp): AuthRepository

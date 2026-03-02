@@ -9,6 +9,7 @@ data class Conversation(
     val lastMessageContent: String = "",
     val lastSenderId: String = "",
     val lastMessageTime: Long? = null,
+    val lastMessageType: MessageType = MessageType.TEXT,
     //Add field
     val seedColor: Long = 0xFF1C6586,
     val muted: Boolean = false,

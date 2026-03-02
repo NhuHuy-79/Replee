@@ -12,7 +12,6 @@ sealed interface ValidateResult {
         TOO_LONG,
     }
 
-
     enum class PasswordError : ValidateResult {
         INVALID,
         NOT_MATCH,

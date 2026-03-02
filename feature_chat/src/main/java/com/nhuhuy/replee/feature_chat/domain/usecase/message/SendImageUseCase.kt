@@ -6,6 +6,7 @@ import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
+import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import java.util.UUID
 import javax.inject.Inject
@@ -17,7 +18,7 @@ class SendImageUseCase @Inject constructor(
     suspend operator fun invoke(
         senderId: String,
         receiverId: String,
-        byteArray: ByteArray,
+        uriPath: String,
         conversationId: String
     ): NetworkResult<String> {
         val raw = Message(
@@ -29,9 +30,10 @@ class SendImageUseCase @Inject constructor(
             content = "",
             sentAt = System.currentTimeMillis(),
             seen = false,
+            type = MessageType.IMAGE
         )
 
-        return messageRepository.sendImage(rawMessage = raw, byteArray = byteArray)
+        return messageRepository.sendImage(rawMessage = raw, uriPath = uriPath)
             .onFailure {
                 syncManager.updateMessageStatus(raw.messageId, MessageStatus.FAILED)
             }

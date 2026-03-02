@@ -2,6 +2,7 @@ package com.nhuhuy.replee.feature_chat.data.model.network
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.ServerTimestamp
+import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 
 data class ConversationDTO(
     val id: String = "",
@@ -19,7 +20,8 @@ data class ConversationDTO(
     val pinnedBy: List<String> = emptyList(),
     val deletedBy: List<String> = emptyList(),
     val blockedBy: List<String> = emptyList(),
-    val seedColor: Long = 0xFF1C6586
+    val seedColor: Long = 0xFF1C6586,
+    val lastMessageType: MessageType = MessageType.TEXT
 )
 
 data class ConversationDTOUser(

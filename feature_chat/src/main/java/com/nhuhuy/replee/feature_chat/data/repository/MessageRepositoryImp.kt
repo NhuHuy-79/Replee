@@ -15,6 +15,7 @@ import com.nhuhuy.replee.core.network.model.mapData
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
+import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
@@ -38,6 +39,7 @@ class MessageRepositoryImp @Inject constructor(
     private val logger: Logger,
     private val messageNetworkDataSource: MessageNetworkDataSource,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
+    private val conversationLocalDataSource: ConversationLocalDataSource,
     private val messageLocalDataSource: MessageLocalDataSource,
     private val ioDispatcher: CoroutineDispatcher,
 ) : MessageRepository,
@@ -46,9 +48,24 @@ class MessageRepositoryImp @Inject constructor(
         message: Message
     ): NetworkResult<String> {
         return safeCallWithTimeout {
-            messageLocalDataSource.upsertMessage(message = message.toMessageEntity())
+            val entity = message.toMessageEntity()
+            messageLocalDataSource.upsertMessage(message = entity)
+            conversationLocalDataSource.updateLastMessage(message = entity)
 
             messageNetworkDataSource.sendMessage(message = message.toMessageDTO())
+
+            val conversationDTO =
+                conversationNetworkDataSource.fetchConversationById(message.conversationId)
+            val messageDTO = message.toMessageDTO()
+
+            if (conversationDTO == null) {
+                conversationLocalDataSource.updateSyncStatusOfConversations(
+                    conversationIds = listOf(message.conversationId),
+                    synced = false
+                )
+            } else {
+                conversationNetworkDataSource.updateLastMessage(messageDTO, conversationDTO)
+            }
 
             message.messageId
         }
@@ -56,10 +73,12 @@ class MessageRepositoryImp @Inject constructor(
 
     override suspend fun sendImage(
         rawMessage: Message,
-        byteArray: ByteArray
+        uriPath: String,
     ): NetworkResult<String> {
         return safeCallWithTimeout {
-            val url = cloudifyFileUploadService.uploadImage(byteArray)
+            messageLocalDataSource.upsertMessage(rawMessage.toMessageEntity())
+
+            val url = cloudifyFileUploadService.uploadImageWithUriPath(uriPath)
 
             val message = rawMessage.copy(
                 content = url,

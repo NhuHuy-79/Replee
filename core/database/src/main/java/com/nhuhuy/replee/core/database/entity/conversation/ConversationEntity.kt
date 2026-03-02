@@ -3,11 +3,19 @@ package com.nhuhuy.replee.core.database.entity.conversation
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 import com.nhuhuy.replee.core.database.entity.account.AccountEntity
 
-@Entity(tableName = "conversation")
+@Entity(
+    tableName = "conversation",
+    indices = [
+        Index(value = ["ownerId", "pinned", "lastMessageTime"]),
+        Index(value = ["otherUserId"]),
+        Index(value = ["synced"])
+    ]
+)
 data class ConversationEntity(
     @PrimaryKey
     val id: String = "",
@@ -19,6 +27,8 @@ data class ConversationEntity(
     val lastSenderId: String = "",
     val lastMessageTime: Long? = null,
     val lastTimeSyncs: Long? = null,
+    @ColumnInfo(name = "lastMessageType", defaultValue = "TEXT")
+    val lastMessageType: String = "TEXT",
     @ColumnInfo(name = "ownerNick", defaultValue = "")
     val ownerNick: String = "",
     @ColumnInfo(name = "otherUserNick", defaultValue = "")

@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,6 +31,7 @@ import com.nhuhuy.replee.core.common.utils.formatToString
 import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
+import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 
 @Composable
 fun ConversationList(
@@ -95,6 +97,7 @@ fun ConversationItem(
         ConversationBody(
             isLastSender = conversation.lastSenderId == conversation.owner.uid,
             userName = conversation.otherUser.nick.ifEmpty { conversation.otherUser.name },
+            messageType = conversation.lastMessageType,
             messageContent = conversation.lastMessageContent,
             modifier = Modifier.weight(1f)
         )
@@ -155,9 +158,28 @@ fun ConversationItem(
 fun ConversationBody(
     isLastSender: Boolean,
     userName: String,
+    messageType: MessageType,
     messageContent: String,
     modifier: Modifier = Modifier
 ) {
+    LocalContext.current
+    val lastMessageContent: String = when (messageType) {
+        MessageType.TEXT -> {
+            if (isLastSender) {
+                stringResource(R.string.conversation_last_message_text, messageContent)
+            } else {
+                messageContent
+            }
+        }
+
+        MessageType.IMAGE -> {
+            if (isLastSender) {
+                stringResource(R.string.conversation_my_last_message_image)
+            } else {
+                stringResource(R.string.conversation_other_last_message_image, userName)
+            }
+        }
+    }
     Column(
         modifier = modifier
     ) {
@@ -169,7 +191,7 @@ fun ConversationBody(
         )
 
         Text(
-            text = if (isLastSender) "You: $messageContent" else messageContent,
+            text = lastMessageContent,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.outline,
             maxLines = 1,

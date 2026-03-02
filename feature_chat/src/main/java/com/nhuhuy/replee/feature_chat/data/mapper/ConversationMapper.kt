@@ -9,6 +9,7 @@ import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTOUser
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationPatch
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.domain.model.ConversationOtherUser
+import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 
 fun ConversationDTOUser.toUserInConversation() : ConversationOtherUser {
     return ConversationOtherUser(
@@ -39,7 +40,8 @@ fun Conversation.toConversationEntity(): ConversationEntity {
         pinned = this.pinned,
         deleted = this.deleted,
         synced = false,
-        lastTimeSyncs = System.currentTimeMillis()
+        lastTimeSyncs = System.currentTimeMillis(),
+        lastMessageType = this.lastMessageType.name
     )
 }
 
@@ -64,7 +66,8 @@ fun ConversationAndUser.toConversationDTO() : ConversationDTO {
         memberIds = listOf(user1.uid, user2.uid),
         lastSenderId = conversation.lastSenderId,
         lastMessageTime = conversation.lastMessageTime,
-        lastMessageContent = conversation.lastMessageContent
+        lastMessageContent = conversation.lastMessageContent,
+        lastMessageType = MessageType.valueOf(conversation.lastMessageType)
     )
 }
 
@@ -93,7 +96,8 @@ fun ConversationAndUser.toLastMessageMap(): Map<String, Any?> {
     return mapOf(
         "lastSenderId" to conversation.lastSenderId,
         "lastMessageTime" to conversation.lastMessageTime,
-        "lastMessageContent" to conversation.lastMessageContent
+        "lastMessageContent" to conversation.lastMessageContent,
+        "lastMessageType" to conversation.lastMessageType
     )
 }
 
@@ -117,7 +121,8 @@ fun ConversationDTO.toConversation(
         muted = mutedBy.contains(otherUser.uid),
         pinned = pinnedBy.contains(otherUser.uid),
         blocked = blockedBy.contains(otherUser.uid),
-        deleted = deletedBy.contains(otherUser.uid)
+        deleted = deletedBy.contains(otherUser.uid),
+        lastMessageType = lastMessageType
     )
 }
 
@@ -144,10 +149,11 @@ fun ConversationAndUser.toConversation(): Conversation {
         lastMessageContent = conversation.lastMessageContent,
         lastSenderId = conversation.lastSenderId,
         lastMessageTime = conversation.lastMessageTime,
+        lastMessageType = MessageType.valueOf(conversation.lastMessageType),
         muted = conversation.muted,
         pinned = conversation.pinned,
         blocked = conversation.blocked,
-        deleted = conversation.deleted
+        deleted = conversation.deleted,
     )
 }
 

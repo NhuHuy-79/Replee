@@ -3,6 +3,9 @@
     <!--Conversation Screen-->
     <string name="conversation_screen_empty">You haven\'t opened any conversation yet.\nlease add someone to message.</string>
     <string name="conversation_screen_search_empty">No result.</string>
+    <string name="conversation_last_message_text">You: %1$s</string>
+    <string name="conversation_my_last_message_image">You \'ve send an image</string>
+    <string name="conversation_other_last_message_image"> %1$s sent an image</string>
 
     <!--Synchronizing Screen-->
     <string name="sync_screen">Synchronizing…</string>

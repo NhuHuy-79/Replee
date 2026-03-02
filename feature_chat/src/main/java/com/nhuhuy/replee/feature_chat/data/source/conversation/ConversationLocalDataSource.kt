@@ -107,7 +107,8 @@ class ConversationLocalDataSource @Inject constructor(
             conversationId = message.conversationId,
             lastMessageTime = message.sentAt ?: -1L,
             lastMessageContent = message.content,
-            lastSenderId = message.senderId
+            lastSenderId = message.senderId,
+            lastMessageType = message.type
         )
     }
 

@@ -170,7 +170,7 @@ class ChatViewModel @AssistedInject constructor(
                         sendImageUseCase(
                             senderId = currentUserId,
                             receiverId = otherUserId,
-                            byteArray = byteArray,
+                            uriPath = action.uri.toString(),
                             conversationId = conversationId
                         )
                             .onFailure {

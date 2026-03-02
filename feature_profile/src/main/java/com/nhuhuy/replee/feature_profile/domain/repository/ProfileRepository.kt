@@ -3,7 +3,7 @@ package com.nhuhuy.replee.feature_profile.domain.repository
 import com.nhuhuy.core.domain.model.NetworkResult
 
 interface ProfileRepository {
-    suspend fun updateUserImage(byteArray: ByteArray): NetworkResult<String>
+    suspend fun updateUserImage(uriPath: String): NetworkResult<String>
 
     suspend fun logOut()
 

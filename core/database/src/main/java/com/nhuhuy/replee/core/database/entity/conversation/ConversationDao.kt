@@ -50,16 +50,20 @@ interface ConversationDao : BaseDao<ConversationEntity> {
     @Query("SELECT * FROM conversation WHERE id = :id")
     suspend fun getConversationAndUserById(id: String): ConversationAndUser?
 
-    @Query("UPDATE conversation SET" +
-            " lastMessageContent = :lastMessageContent, " +
-            "lastSenderId = :lastSenderId, " +
-            "lastMessageTime = :lastMessageTime " +
-            "WHERE id = :conversationId")
+    @Query(
+        "UPDATE conversation SET " +
+                "lastMessageContent = :lastMessageContent, " +
+                "lastSenderId = :lastSenderId, " +
+                "lastMessageTime = :lastMessageTime, " +
+                "lastMessageType = :lastMessageType " +
+                "WHERE id = :conversationId"
+    )
     suspend fun updateLastMessage(
         conversationId: String,
         lastMessageContent: String,
         lastSenderId: String,
         lastMessageTime: Long,
+        lastMessageType: String,
     )
 
     @Query("UPDATE conversation SET muted = :muted WHERE id = :conversationId")

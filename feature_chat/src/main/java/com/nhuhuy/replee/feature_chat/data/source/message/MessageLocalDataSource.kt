@@ -30,20 +30,6 @@ class MessageLocalDataSource @Inject constructor(
         messageDao.upsertAll(messages)
     }
 
-    fun observePagingSource(conversationId: String) = messageDao.pagingSource(conversationId)
-
-    suspend fun updateMessageSeenStatus(
-        messageIds: List<String>,
-        conversationId: String,
-        receiverId: String
-    ){
-        messageDao.markMessageAsRead(
-            messageIds = messageIds,
-            conversationId = conversationId,
-            receiverId = receiverId
-        )
-    }
-
     suspend fun upsertAndDeleteMessages(
         upsert: List<MessageEntity>,
         delete: List<String>

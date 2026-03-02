@@ -144,6 +144,7 @@ class ConversationNetworkDataSource @Inject constructor(
             "lastMessageContent" to message.content,
             "lastMessageTime" to message.sendAt,
             "lastSenderId" to message.senderId,
+            "lastMessageType" to message.type,
             "unreadMessageCount.$receiverId" to FieldValue.increment(1)
         )
 

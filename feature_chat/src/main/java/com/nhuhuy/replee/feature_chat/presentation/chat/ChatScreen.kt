@@ -164,13 +164,14 @@ fun ChatScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatTopBar(
+    modifier: Modifier = Modifier,
     otherUserName: String,
     enable: Boolean = true,
     onBackClick: () -> Unit,
     onSearchClick: () -> Unit,
     onMoreClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+
+    ) {
     TopAppBar(
         modifier = modifier,
         title = {

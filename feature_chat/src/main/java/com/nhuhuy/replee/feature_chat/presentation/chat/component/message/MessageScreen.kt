@@ -5,19 +5,22 @@ import androidx.compose.animation.expandIn
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -54,9 +57,6 @@ fun MessageScreen(
     val lazyListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
-    // =========================
-    // 1) isAtBottom (đang ở newest)
-    // =========================
     val isAtBottom by remember(lazyListState) {
         derivedStateOf {
             val visible = lazyListState.layoutInfo.visibleItemsInfo
@@ -66,9 +66,7 @@ fun MessageScreen(
         }
     }
 
-    // =========================
-    // 2) Mark read theo visible items
-    // =========================
+
     LaunchedEffect(lazyListState, pagingItems) {
         snapshotFlow { lazyListState.layoutInfo.visibleItemsInfo }
             .map { visibleInfos ->
@@ -99,6 +97,22 @@ fun MessageScreen(
     val refreshState = pagingItems.loadState.refresh
     val appendState = pagingItems.loadState.append
 
+    if (refreshState is LoadState.Loading || appendState is LoadState.Loading) {
+        Box(
+            modifier = Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    shape = CircleShape
+                )
+                .padding(8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+
     LaunchedEffect(pagingItems.itemCount, isAtBottom) {
         if (isAtBottom) {
             lazyListState.animateScrollToItem(0)
@@ -119,12 +133,6 @@ fun MessageScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
-            // Loading lần đầu
-            if (refreshState is LoadState.Loading) {
-                //
-            }
-
-            // Render messages
             items(
                 count = pagingItems.itemCount,
                 key = pagingItems.itemKey { item -> item.messageId }
@@ -147,17 +155,18 @@ fun MessageScreen(
                         }
                     }
 
-                    MessageType.IMAGE -> ImageMessageContainer(message)
-                }
-            }
-
-            // Loading older (kéo lên)
-            if (appendState is LoadState.Loading) {
-                item {
-                    Text(
-                        text = "Loading more...",
-                        modifier = Modifier.padding(16.dp)
-                    )
+                    MessageType.IMAGE -> {
+                        if (message.senderId == currentUserId) {
+                            ReceiverImageMessageItem(message = message)
+                        } else {
+                            SenderImageMessageItem(
+                                senderName = otherUserName,
+                                senderImgUrl = otherUserImg,
+                                message = message,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                        }
+                    }
                 }
             }
 
@@ -178,9 +187,6 @@ fun MessageScreen(
             }*/
         }
 
-        // =========================
-        // Scroll-to-bottom button
-        // =========================
         AnimatedVisibility(
             visible = !isAtBottom,
             modifier = Modifier
@@ -192,7 +198,10 @@ fun MessageScreen(
             FilledTonalIconButton(
                 onClick = {
                     scope.launch {
-                        lazyListState.animateScrollToItem(0)
+                        lazyListState.animateScrollToItem(
+                            index = 0,
+                            scrollOffset = 0
+                        )
                     }
                 },
                 colors = IconButtonDefaults.iconButtonColors(
