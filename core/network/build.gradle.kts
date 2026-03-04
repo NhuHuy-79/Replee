@@ -2,7 +2,8 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.google.gms.google.services)
+    id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
     id ("org.jetbrains.kotlin.plugin.serialization") version "1.9.23"
 
 
@@ -39,6 +40,7 @@ android {
 
 dependencies {
     implementation(project(":core:domain"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -54,6 +56,12 @@ dependencies {
     //CLOUDINARY
     /*api(libs.kotlin.url.gen)*/
     api(libs.cloudinary.android)
+
+    //Hilt
+    implementation(libs.dagger.hilt.android)
+    testImplementation(libs.junit.junit)
+    debugImplementation(libs.ui.tooling)
+    ksp(libs.hilt.android.compiler)
 
     //KTOR
     api(libs.ktor.okhttp)

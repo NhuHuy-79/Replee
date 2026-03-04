@@ -9,7 +9,7 @@ import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.repository.NetworkResultCaller
 import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.core.database.CoreDatabase
-import com.nhuhuy.replee.core.network.data_source.CloudifyFileUploadService
+import com.nhuhuy.replee.core.network.data_source.CloudinaryFileUploader
 import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.core.network.model.mapData
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
@@ -35,7 +35,7 @@ import javax.inject.Inject
 
 class MessageRepositoryImp @Inject constructor(
     private val coreDatabase: CoreDatabase,
-    private val cloudifyFileUploadService: CloudifyFileUploadService,
+    private val cloudifyFileUploadService: CloudinaryFileUploader,
     private val logger: Logger,
     private val messageNetworkDataSource: MessageNetworkDataSource,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,

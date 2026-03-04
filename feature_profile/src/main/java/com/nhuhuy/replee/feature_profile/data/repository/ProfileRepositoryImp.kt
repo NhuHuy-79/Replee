@@ -6,7 +6,7 @@ import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.network.data_source.CloudifyFileUploadService
+import com.nhuhuy.replee.core.network.data_source.CloudinaryFileUploader
 import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.feature_profile.domain.repository.ProfileRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -18,7 +18,7 @@ class ProfileRepositoryImp @Inject constructor(
     private val ioDispatcher: CoroutineDispatcher,
     private val accountLocalDataSource: AccountLocalDataSource,
     private val accountNetworkDataSource: AccountNetworkDataSource,
-    private val cloudifyFileUploadService: CloudifyFileUploadService,
+    private val cloudifyFileUploadService: CloudinaryFileUploader,
     private val firebaseAuthEmailService: FirebaseAuthEmailService,
     private val appPreferences: AppPreferences
 ) : ProfileRepository,

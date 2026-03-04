@@ -6,30 +6,39 @@ import androidx.core.net.toUri
 import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
+import com.nhuhuy.core.domain.model.FileState
+import com.nhuhuy.core.domain.model.FileUploadException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-interface FileLocalDataSource {
+interface UploadFileService {
     suspend fun uploadImageWithByteArray(byteArray: ByteArray): String
     suspend fun uploadImageWithUriPath(uriPath: String): String
+    fun observeUploadFile(uriPath: String): Flow<FileState>
 }
 
-class CloudifyFileUploadService @Inject constructor() : FileLocalDataSource {
+class CloudinaryFileUploader @Inject constructor(
+    private val mediaManager: MediaManager,
+) : UploadFileService {
     @SuppressLint("Recycle")
     override suspend fun uploadImageWithUriPath(uriPath: String): String {
         return withContext(Dispatchers.IO) {
             val uri = uriPath.toUri()
             suspendCancellableCoroutine { continuation ->
-                val requestId = MediaManager.get()
+                val requestId = mediaManager
                     .upload(uri)
                     .unsigned("replee_upload_avatar")
                     .option("resource_type", "image")
                     .option("folder", "replee/chat")
-                    .option("transformation", "c_limit,w_1280,q_auto,f_auto")
+                    /*.option("transformation", "c_limit,w_1280,q_auto,f_auto")*/
+                    //Use transform for backend!
                     .option("quality", "auto")
                     .option("fetch_format", "auto")
                     .callback(object : UploadCallback {
@@ -79,6 +88,73 @@ class CloudifyFileUploadService @Inject constructor() : FileLocalDataSource {
             }
         }
 
+    }
+
+    override fun observeUploadFile(uriPath: String): Flow<FileState> {
+        val uri = uriPath.toUri()
+        return callbackFlow {
+            val requestId = mediaManager
+                .upload(uri)
+                .unsigned("replee_upload_avatar")
+                .option("resource_type", "image")
+                .option("folder", "replee/avatars")
+                .option("quality", "auto")
+                .option("fetch_format", "auto")
+                .callback(object : UploadCallback {
+                    override fun onStart(requestId: String?) {
+                        trySend(FileState.Loading)
+                    }
+
+                    override fun onProgress(
+                        requestId: String?,
+                        bytes: Long,
+                        totalBytes: Long
+                    ) {
+                        val progress = if (totalBytes > 0)
+                            bytes.toFloat() / totalBytes.toFloat()
+                        else 0f
+                        trySend(FileState.Progress(progress))
+                    }
+
+                    override fun onSuccess(
+                        requestId: String?,
+                        resultData: Map<*, *>?
+                    ) {
+                        val secureUrl = resultData?.get("secure_url")?.toString()
+
+                        if (secureUrl == null) {
+                            val exception =
+                                FileUploadException("Cloudinary upload success but secure_url is null")
+                            trySend(FileState.Failure(exception))
+                        } else {
+                            trySend(FileState.Success(secureUrl))
+                        }
+                        close()
+                    }
+
+                    override fun onError(
+                        requestId: String?,
+                        error: ErrorInfo?
+                    ) {
+                        val exception = FileUploadException(error?.description ?: "Unknow")
+                        trySend(FileState.Failure(exception))
+                        close(exception)
+                    }
+
+                    override fun onReschedule(
+                        requestId: String?,
+                        error: ErrorInfo?
+                    ) {
+                        //Do nothing
+                    }
+
+                }
+                ).dispatch()
+
+            awaitClose {
+                mediaManager.cancelRequest(requestId)
+            }
+        }
     }
 
     suspend fun uploadImage(bytes: ByteArray): String {

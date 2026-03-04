@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.di
+package com.nhuhuy.replee.core.database.di
 
 import android.content.Context
 import androidx.room.Room
@@ -14,14 +14,14 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class DatabaseModule {
+object DatabaseModuleProvider {
     @Provides
     @Singleton
-    fun provideDatabase(@ApplicationContext context: Context) : CoreDatabase {
+    fun provideDatabase(@ApplicationContext context: Context): CoreDatabase {
         return Room.databaseBuilder(
-                context = context,
-                klass = CoreDatabase::class.java,
-                name = "replee_db"
+            context = context,
+            klass = CoreDatabase::class.java,
+            name = "replee_db"
         ).addMigrations(Migration_15_16)
             .fallbackToDestructiveMigration(false)
             .build()
@@ -41,7 +41,7 @@ class DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideAccountDao(database: CoreDatabase) : AccountDao {
+    fun provideAccountDao(database: CoreDatabase): AccountDao {
         return database.provideAccountDao()
     }
 }

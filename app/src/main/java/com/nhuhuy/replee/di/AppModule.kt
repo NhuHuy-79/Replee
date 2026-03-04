@@ -7,7 +7,6 @@ import com.nhuhuy.replee.core.common.data.UriConverter
 import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.common.utils.LoggerImp
-import com.nhuhuy.replee.core.network.data_source.CloudifyFileUploadService
 import com.nhuhuy.replee.core.network.network.mapper.RequestMapper
 import com.nhuhuy.replee.notification.NotificationParser
 import com.nhuhuy.replee.worker.ListenConversationsManager
@@ -44,14 +43,9 @@ object AppModule {
     @Singleton
     fun provideDispatcherIO() = Dispatchers.IO
 
-
     @Provides
     @Singleton
     fun provideSharedPreferences(@ApplicationContext context: Context) = AppPreferences(context)
-
-    @Provides
-    @Singleton
-    fun provideCloudinaryUploadService() = CloudifyFileUploadService()
 
     @Provides
     @Singleton
