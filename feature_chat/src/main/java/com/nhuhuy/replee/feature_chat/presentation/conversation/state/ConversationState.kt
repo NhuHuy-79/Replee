@@ -12,6 +12,7 @@ data class ConversationState(
     val synchronizingState: SynchronizingState = SynchronizingState.NONE,
     val expandSearchBar: Boolean = false,
     val searchQuery: String = "",
+    val dialog: Dialog = Dialog.NONE,
     val bottomSheet: BottomSheet = BottomSheet.CLOSE
 ) : UiState
 
@@ -19,6 +20,12 @@ enum class SynchronizingState{
     NONE,
     SYNC,
     FAILURE
+}
+
+enum class Dialog {
+    NONE,
+    FULL_IMAGE,
+    MESSAGE
 }
 
 enum class BottomSheet{

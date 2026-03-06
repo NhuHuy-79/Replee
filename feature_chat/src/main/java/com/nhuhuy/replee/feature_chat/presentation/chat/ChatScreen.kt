@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.compose.LazyPagingItems
+import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.BlockOverlay
@@ -121,18 +122,6 @@ fun ChatScreen(
                         .weight(1f)
                         .padding(horizontal = 16.dp)
                 )
-                /*ChatContent(
-                    otherUserImg = state.otherUser.imageUrl,
-                    otherUserName = state.otherUser.name,
-                    currentUserId = state.currentUserId,
-                    messageList = messages,
-                    markMessagesRead = { ids ->
-                        onAction(ChatAction.OnReadMessage(ids))
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 16.dp)
-                )*/
             }
 
             if (!blocked || !state.isBlocked) {

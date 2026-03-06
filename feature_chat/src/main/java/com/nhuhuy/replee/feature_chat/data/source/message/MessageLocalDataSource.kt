@@ -1,13 +1,18 @@
 package com.nhuhuy.replee.feature_chat.data.source.message
 
+import androidx.room.withTransaction
+import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.database.entity.message.MessageDao
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
 import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
+import com.nhuhuy.replee.feature_chat.domain.model.MessageType
+import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 
 class MessageLocalDataSource @Inject constructor(
-    private val messageDao: MessageDao
+    private val coreDatabase: CoreDatabase
 ) {
+    private val messageDao: MessageDao = coreDatabase.provideMessageDao()
     suspend fun upsertMessage(message: MessageEntity) {
         messageDao.upsert(message)
     }
@@ -17,6 +22,25 @@ class MessageLocalDataSource @Inject constructor(
             status = status.name,
             messageId = messageId,
         )
+    }
+
+    suspend fun updateRemoteUrlMessage(messageIdWithUrl: Map<String, String>) {
+        coreDatabase.withTransaction {
+            messageIdWithUrl.forEach { (messageId, remoteUrl) ->
+                messageDao.updateRemoteUrlAndStatus(
+                    messageId = messageId,
+                    remoteUrl = remoteUrl,
+                    status = MessageStatus.SYNCED.name
+                )
+            }
+
+        }
+    }
+
+    suspend fun getUnsyncedMessageByType(
+        messageType: MessageType
+    ): List<MessageEntity> {
+        return messageDao.getUnSyncedMessageByType(messageType.name)
     }
 
     suspend fun updateMessageListStatus(status: MessageStatus, messageIds: List<String>) {

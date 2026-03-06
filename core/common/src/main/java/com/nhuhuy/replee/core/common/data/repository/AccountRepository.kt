@@ -3,11 +3,11 @@ package com.nhuhuy.replee.core.common.data.repository
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.repository.AccountRepository
-import com.nhuhuy.core.domain.repository.NetworkResultCaller
-import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.core.common.mapper.toAccount
 import com.nhuhuy.replee.core.common.mapper.toAccountDTO
 import com.nhuhuy.replee.core.common.mapper.toAccountEntity
+import com.nhuhuy.replee.core.common.utils.ioExecute
+import com.nhuhuy.replee.core.common.utils.ioExecuteWithTimeout
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
@@ -19,14 +19,12 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class AccountRepositoryImp @Inject constructor(
-    private val logger: Logger,
     private val dispatcher: CoroutineDispatcher,
     private val firebaseAuthEmailService: FirebaseAuthEmailService,
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val accountLocalDataSource: AccountLocalDataSource,
-) : AccountRepository,
-    NetworkResultCaller(dispatcher, logger) {
-    override suspend fun createAccount(account: Account): NetworkResult<Account> = safeCall {
+) : AccountRepository {
+    override suspend fun createAccount(account: Account): NetworkResult<Account> = ioExecute {
         val entity = account.toAccountEntity()
         val dto = account.toAccountDTO()
 
@@ -38,8 +36,8 @@ class AccountRepositoryImp @Inject constructor(
     }
 
     override suspend fun updateDeviceToken(token: String): NetworkResult<Unit> {
-        return safeCall {
-            val uid = firebaseAuthEmailService.getCurrentUser()?.uid ?: return@safeCall
+        return ioExecute {
+            val uid = firebaseAuthEmailService.getCurrentUser()?.uid ?: return@ioExecute
             accountNetworkDataSource.updateDeviceToken(uid, token)
         }
     }
@@ -61,7 +59,7 @@ class AccountRepositoryImp @Inject constructor(
     }
 
     override suspend fun searchAccountsByEmail(email: String): NetworkResult<List<Account>> {
-        return safeCallWithTimeout {
+        return ioExecuteWithTimeout {
             val accountDTOs = accountNetworkDataSource.fetchAccountsByEmail(email)
             val entities = accountDTOs.map { accountDTO -> accountDTO.toAccountEntity() }
             accountLocalDataSource.upsertAccounts(entities)
@@ -70,9 +68,9 @@ class AccountRepositoryImp @Inject constructor(
     }
 
     override suspend fun updateBlockedUsers(otherUser: String): NetworkResult<Unit> {
-        return safeCallWithTimeout {
+        return ioExecuteWithTimeout {
             val ownerId =
-                firebaseAuthEmailService.getCurrentUser()?.uid ?: return@safeCallWithTimeout
+                firebaseAuthEmailService.getCurrentUser()?.uid ?: return@ioExecuteWithTimeout
             val owner = accountLocalDataSource.getAccountWithId(ownerId)
 
             owner?.let {
@@ -84,9 +82,9 @@ class AccountRepositoryImp @Inject constructor(
     }
 
     override suspend fun removeUserFromBlockedList(uid: String): NetworkResult<Unit> {
-        return safeCallWithTimeout {
+        return ioExecuteWithTimeout {
             val ownerId =
-                firebaseAuthEmailService.getCurrentUser()?.uid ?: return@safeCallWithTimeout
+                firebaseAuthEmailService.getCurrentUser()?.uid ?: return@ioExecuteWithTimeout
             val owner = accountLocalDataSource.getAccountWithId(ownerId)
 
             owner?.let {

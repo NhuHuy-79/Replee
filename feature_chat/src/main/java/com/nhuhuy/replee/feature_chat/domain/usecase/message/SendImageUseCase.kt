@@ -30,6 +30,7 @@ class SendImageUseCase @Inject constructor(
             content = "",
             sentAt = System.currentTimeMillis(),
             seen = false,
+            localUriPath = uriPath,
             type = MessageType.IMAGE
         )
 

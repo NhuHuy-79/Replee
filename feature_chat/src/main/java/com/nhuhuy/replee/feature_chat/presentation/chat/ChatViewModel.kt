@@ -163,27 +163,20 @@ class ChatViewModel @AssistedInject constructor(
                 }
 
                 is ChatAction.OnImageSend -> {
-                    val byteArray = uriConverter.toByteArray(action.uri)
-
-                    if (byteArray != null) {
-                        //Send Uri
-                        sendImageUseCase(
-                            senderId = currentUserId,
-                            receiverId = otherUserId,
-                            uriPath = action.uri.toString(),
-                            conversationId = conversationId
-                        )
-                            .onFailure {
-                                Timber.e("Send image failed")
-                                onEvent(ChatEvent.SendImage.Failure)
-                            }
-                            .onSuccess {
-                                Timber.d("Send image successfully!")
-                                onEvent(ChatEvent.SendImage.Success)
-                            }
-                    } else {
-                        onEvent(ChatEvent.SendImage.Failure)
-                    }
+                    sendImageUseCase(
+                        senderId = currentUserId,
+                        receiverId = otherUserId,
+                        uriPath = action.uri.toString(),
+                        conversationId = conversationId
+                    )
+                        .onFailure {
+                            Timber.e("Send image failed")
+                            onEvent(ChatEvent.SendImage.Failure)
+                        }
+                        .onSuccess {
+                            Timber.d("Send image successfully!")
+                            onEvent(ChatEvent.SendImage.Success)
+                        }
                 }
             }
         }

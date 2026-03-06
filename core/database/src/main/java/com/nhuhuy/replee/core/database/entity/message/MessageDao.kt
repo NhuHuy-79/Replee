@@ -25,6 +25,9 @@ interface MessageDao : BaseDao<MessageEntity> {
     @Query("UPDATE message SET status = :status WHERE messageId in (:messageIds)")
     suspend fun updateStatusOfMessages(messageIds: List<String>, status: String)
 
+    @Query("SELECT * FROM message WHERE type = :messageType & status = 'FAILED'")
+    suspend fun getUnSyncedMessageByType(messageType: String): List<MessageEntity>
+
     @Transaction
     suspend fun upsertAndDeleteMessages(
         upsert: List<MessageEntity>,
@@ -91,5 +94,11 @@ interface MessageDao : BaseDao<MessageEntity> {
 
     @Query("SELECT * FROM message WHERE conversationId = :conversationId AND content LIKE :query")
     suspend fun getMessageByQuery(conversationId: String, query: String): List<MessageEntity>
+
+    @Query("UPDATE message SET content = :remoteUrl WHERE messageId = :messageId")
+    suspend fun updateRemoteUrl(messageId: String, remoteUrl: String)
+
+    @Query("UPDATE message SET content = :remoteUrl, status = :status WHERE messageId = :messageId")
+    suspend fun updateRemoteUrlAndStatus(messageId: String, remoteUrl: String, status: String)
 }
 

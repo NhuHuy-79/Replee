@@ -2,11 +2,9 @@ package com.nhuhuy.replee.di
 
 
 import android.content.Context
-import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.core.common.data.UriConverter
 import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.common.utils.InputValidator
-import com.nhuhuy.replee.core.common.utils.LoggerImp
 import com.nhuhuy.replee.core.network.network.mapper.RequestMapper
 import com.nhuhuy.replee.notification.NotificationParser
 import com.nhuhuy.replee.worker.ListenConversationsManager
@@ -73,8 +71,4 @@ object AppModule {
     @Singleton
     fun provideSyncScheduler(@ApplicationContext context: Context): WorkerScheduler =
         WorkerSchedulerImp(context)
-
-    @Provides
-    @Singleton
-    fun provideLogger(): Logger = LoggerImp()
 }

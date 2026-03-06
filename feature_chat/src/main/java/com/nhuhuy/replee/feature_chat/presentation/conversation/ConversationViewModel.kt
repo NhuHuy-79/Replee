@@ -21,6 +21,7 @@ import com.nhuhuy.replee.feature_chat.presentation.conversation.state.Conversati
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent.GoToProfile
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent.NavigateToChatRoom
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationState
+import com.nhuhuy.replee.feature_chat.presentation.conversation.state.Dialog
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.SynchronizingState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -100,7 +101,7 @@ class ConversationViewModel @AssistedInject constructor(
 
                 ConversationAction.OnDismissPress -> {
                     _state.reduce {
-                        copy(bottomSheet = BottomSheet.CLOSE)
+                        copy(bottomSheet = BottomSheet.CLOSE, dialog = Dialog.NONE)
                     }
                 }
 
@@ -151,6 +152,18 @@ class ConversationViewModel @AssistedInject constructor(
 
                 ConversationAction.OnOwnerClick -> {
                     onEvent(GoToProfile)
+                }
+
+                ConversationAction.OnImagePress -> {
+                    _state.reduce {
+                        copy(dialog = Dialog.FULL_IMAGE)
+                    }
+                }
+
+                ConversationAction.OnMessageLongPress -> {
+                    _state.reduce {
+                        copy(dialog = Dialog.MESSAGE)
+                    }
                 }
             }
         }

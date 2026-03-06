@@ -6,8 +6,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.repository.NetworkResultCaller
-import com.nhuhuy.core.domain.utils.Logger
+import com.nhuhuy.replee.core.common.utils.ioExecuteWithTimeout
 import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.network.data_source.CloudinaryFileUploader
 import com.nhuhuy.replee.core.network.model.DataChange
@@ -36,18 +35,16 @@ import javax.inject.Inject
 class MessageRepositoryImp @Inject constructor(
     private val coreDatabase: CoreDatabase,
     private val cloudifyFileUploadService: CloudinaryFileUploader,
-    private val logger: Logger,
     private val messageNetworkDataSource: MessageNetworkDataSource,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource,
     private val messageLocalDataSource: MessageLocalDataSource,
     private val ioDispatcher: CoroutineDispatcher,
-) : MessageRepository,
-    NetworkResultCaller(ioDispatcher, logger) {
+) : MessageRepository {
     override suspend fun sendMessage(
         message: Message
     ): NetworkResult<String> {
-        return safeCallWithTimeout {
+        return ioExecuteWithTimeout {
             val entity = message.toMessageEntity()
             messageLocalDataSource.upsertMessage(message = entity)
             conversationLocalDataSource.updateLastMessage(message = entity)
@@ -75,17 +72,38 @@ class MessageRepositoryImp @Inject constructor(
         rawMessage: Message,
         uriPath: String,
     ): NetworkResult<String> {
-        return safeCallWithTimeout {
+        return ioExecuteWithTimeout {
             messageLocalDataSource.upsertMessage(rawMessage.toMessageEntity())
-
             val url = cloudifyFileUploadService.uploadImageWithUriPath(uriPath)
 
-            val message = rawMessage.copy(
-                content = url,
-                type = MessageType.IMAGE
-            )
-            messageLocalDataSource.upsertMessage(message.toMessageEntity())
-            messageNetworkDataSource.sendMessage(message.toMessageDTO())
+            if (url.isBlank()) {
+                val failure = rawMessage.copy(
+                    content = url,
+                    type = MessageType.IMAGE,
+                    status = MessageStatus.FAILED
+                )
+                messageLocalDataSource.upsertMessage(failure.toMessageEntity())
+            } else {
+                val message = rawMessage.copy(
+                    content = url,
+                    type = MessageType.IMAGE,
+                )
+                messageLocalDataSource.upsertMessage(message.toMessageEntity())
+                messageNetworkDataSource.sendMessage(message.toMessageDTO())
+
+                val conversationDTO =
+                    conversationNetworkDataSource.fetchConversationById(message.conversationId)
+                val messageDTO = message.toMessageDTO()
+
+                if (conversationDTO == null) {
+                    conversationLocalDataSource.updateSyncStatusOfConversations(
+                        conversationIds = listOf(message.conversationId),
+                        synced = false
+                    )
+                } else {
+                    conversationNetworkDataSource.updateLastMessage(messageDTO, conversationDTO)
+                }
+            }
 
             url
         }
@@ -114,7 +132,7 @@ class MessageRepositoryImp @Inject constructor(
         messageIds: List<String>,
         conversationId: String,
         receiverId: String
-    ): NetworkResult<Unit> = safeCallWithTimeout {
+    ): NetworkResult<Unit> = ioExecuteWithTimeout {
         messageLocalDataSource.updateMessageListStatus(
             status = MessageStatus.SEEN,
             messageIds = messageIds

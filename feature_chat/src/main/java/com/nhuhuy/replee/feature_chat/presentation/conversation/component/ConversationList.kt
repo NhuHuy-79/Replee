@@ -32,6 +32,7 @@ import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.domain.model.MessageType
+import com.nhuhuy.replee.feature_chat.utils.getMainName
 
 @Composable
 fun ConversationList(
@@ -162,7 +163,6 @@ fun ConversationBody(
     messageContent: String,
     modifier: Modifier = Modifier
 ) {
-    LocalContext.current
     val lastMessageContent: String = when (messageType) {
         MessageType.TEXT -> {
             if (isLastSender) {
@@ -176,7 +176,10 @@ fun ConversationBody(
             if (isLastSender) {
                 stringResource(R.string.conversation_my_last_message_image)
             } else {
-                stringResource(R.string.conversation_other_last_message_image, userName)
+                stringResource(
+                    R.string.conversation_other_last_message_image,
+                    userName.getMainName()
+                )
             }
         }
     }

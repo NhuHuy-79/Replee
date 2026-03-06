@@ -16,7 +16,8 @@ fun MessageEntity.toMessage() : Message{
         seen = seen,
         sentAt = sentAt,
         type = MessageType.valueOf(type),
-        status = MessageStatus.valueOf(this.status)
+        status = MessageStatus.valueOf(this.status),
+        localUriPath = localUriPath
     )
 }
 
@@ -58,6 +59,7 @@ fun Message.toMessageEntity() : MessageEntity{
         seen = seen,
         sentAt = sentAt,
         status = status.name,
-        type = type.name
+        type = type.name,
+        localUriPath = localUriPath
     )
 }

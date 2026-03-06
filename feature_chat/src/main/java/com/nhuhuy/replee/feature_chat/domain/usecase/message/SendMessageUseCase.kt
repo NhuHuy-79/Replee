@@ -7,6 +7,7 @@ import com.nhuhuy.replee.feature_chat.data.NotifyService
 import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
+import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import java.util.UUID
 import javax.inject.Inject
@@ -30,7 +31,8 @@ class SendMessageUseCase @Inject constructor(
             content = text,
             status = MessageStatus.PENDING,
             sentAt = System.currentTimeMillis(),
-            seen = false
+            seen = false,
+            type = MessageType.TEXT
         )
         return messageRepository.sendMessage(message = message)
             .onSuccess { messageId ->

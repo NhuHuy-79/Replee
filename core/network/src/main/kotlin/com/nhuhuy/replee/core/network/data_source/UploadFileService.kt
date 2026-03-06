@@ -8,8 +8,12 @@ import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
 import com.nhuhuy.core.domain.model.FileState
 import com.nhuhuy.core.domain.model.FileUploadException
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -19,6 +23,10 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 interface UploadFileService {
+    suspend fun uploadFiles(uriPaths: List<String>): List<String>
+
+    //Return a list contains message ids.
+    suspend fun uploadMessageWithUri(messageAndUri: Map<String, String>): Map<String, String>
     suspend fun uploadImageWithByteArray(byteArray: ByteArray): String
     suspend fun uploadImageWithUriPath(uriPath: String): String
     fun observeUploadFile(uriPath: String): Flow<FileState>
@@ -26,10 +34,11 @@ interface UploadFileService {
 
 class CloudinaryFileUploader @Inject constructor(
     private val mediaManager: MediaManager,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : UploadFileService {
     @SuppressLint("Recycle")
     override suspend fun uploadImageWithUriPath(uriPath: String): String {
-        return withContext(Dispatchers.IO) {
+        return withContext(ioDispatcher) {
             val uri = uriPath.toUri()
             suspendCancellableCoroutine { continuation ->
                 val requestId = mediaManager
@@ -211,6 +220,34 @@ class CloudinaryFileUploader @Inject constructor(
                 } catch (_: Exception) {
                 }
             }
+        }
+    }
+
+    override suspend fun uploadFiles(uriPaths: List<String>): List<String> {
+        return withContext(ioDispatcher) {
+            coroutineScope {
+                uriPaths.map { uri ->
+                    async {
+                        uploadImageWithUriPath(uri)
+                    }
+                }.awaitAll()
+            }
+        }
+    }
+
+    override suspend fun uploadMessageWithUri(
+        messageAndUri: Map<String, String>
+    ): Map<String, String> {
+
+        return withContext(ioDispatcher) {
+            coroutineScope {
+                messageAndUri.map { (messageId, uri) ->
+                    async {
+                        val remoteUrl = uploadImageWithUriPath(uriPath = uri)
+                        messageId to remoteUrl
+                    }
+                }.awaitAll()
+            }.toMap()
         }
     }
 

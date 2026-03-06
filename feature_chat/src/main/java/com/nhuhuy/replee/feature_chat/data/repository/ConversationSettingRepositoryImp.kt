@@ -1,8 +1,7 @@
 package com.nhuhuy.replee.feature_chat.data.repository
 
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.repository.NetworkResultCaller
-import com.nhuhuy.core.domain.utils.Logger
+import com.nhuhuy.replee.core.common.utils.ioExecuteWithTimeout
 import com.nhuhuy.replee.feature_chat.data.data_store.SeedColor
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
@@ -13,12 +12,10 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class ConversationSettingRepositoryImp @Inject constructor(
-    private val logger: Logger,
     private val ioDispatcher: CoroutineDispatcher,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource
-) : ConversationSettingRepository,
-    NetworkResultCaller(ioDispatcher, logger) {
+) : ConversationSettingRepository {
     override suspend fun updateSeedColor(seedColor: SeedColor) {
         return withContext(ioDispatcher) {
             TODO("Update seed color")
@@ -30,7 +27,7 @@ class ConversationSettingRepositoryImp @Inject constructor(
         conversationId: String,
         nickName: String
     ): NetworkResult<Unit> {
-        return safeCallWithTimeout {
+        return ioExecuteWithTimeout {
             conversationLocalDataSource.updateOwnerNickName(conversationId, nickName)
             val conversationDTO =
                 conversationNetworkDataSource.fetchConversationById(conversationId)
@@ -50,7 +47,7 @@ class ConversationSettingRepositoryImp @Inject constructor(
         conversationId: String,
         nickName: String
     ): NetworkResult<Unit> {
-        return safeCallWithTimeout {
+        return ioExecuteWithTimeout {
             conversationLocalDataSource.updateOwnerNickName(conversationId, nickName)
             val conversationDTO =
                 conversationNetworkDataSource.fetchConversationById(conversationId)
@@ -68,7 +65,7 @@ class ConversationSettingRepositoryImp @Inject constructor(
         otherUser: String,
         muted: Boolean
     ): NetworkResult<Unit> {
-        return safeCallWithTimeout {
+        return ioExecuteWithTimeout {
             conversationLocalDataSource.updateMutedStatus(conversationId, muted)
             conversationNetworkDataSource.updateMutedStatus(conversationId, otherUser, muted)
         }
@@ -79,7 +76,7 @@ class ConversationSettingRepositoryImp @Inject constructor(
         currentUser: String,
         pinned: Boolean
     ): NetworkResult<Unit> {
-        return safeCallWithTimeout {
+        return ioExecuteWithTimeout {
             conversationLocalDataSource.updatePinnedStatus(conversationId, pinned)
             conversationNetworkDataSource.updatePinnedStatus(
                 conversationId,
@@ -94,13 +91,13 @@ class ConversationSettingRepositoryImp @Inject constructor(
         otherUser: String,
         blocked: Boolean
     ): NetworkResult<Unit> {
-        return safeCallWithTimeout {
+        return ioExecuteWithTimeout {
             conversationLocalDataSource.updateBlockStatus(conversationId, blocked)
         }
     }
 
     override suspend fun deleteConversation(conversationId: String): NetworkResult<Unit> {
-        return safeCallWithTimeout {
+        return ioExecuteWithTimeout {
 
         }
     }

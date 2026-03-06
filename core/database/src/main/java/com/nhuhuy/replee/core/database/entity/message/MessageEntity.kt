@@ -31,4 +31,5 @@ data class MessageEntity(
     val sentAt: Long? = null,
     val type: String = "TEXT",
     val status: String = "PENDING",
+    val localUriPath: String? = null,
 )

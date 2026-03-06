@@ -28,7 +28,9 @@ MessageNetworkDataSource @Inject constructor(
         val data = mapOf(
             "lastMessageTime" to message.sendAt,
             "lastMessageContent" to message.content,
-            "lastSenderId" to message.senderId
+            "lastSenderId" to message.senderId,
+            "lastMessageType" to message.type
+
         )
         collection.document(message.conversationId).apply {
             update(data).await()

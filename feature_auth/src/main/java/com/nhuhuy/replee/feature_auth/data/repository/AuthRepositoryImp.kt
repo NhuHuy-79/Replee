@@ -2,11 +2,10 @@ package com.nhuhuy.replee.feature_auth.data.repository
 
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.repository.NetworkResultCaller
-import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.common.mapper.toAccount
 import com.nhuhuy.replee.core.common.mapper.toAccountEntity
+import com.nhuhuy.replee.core.common.utils.ioExecuteWithTimeout
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.AuthState
@@ -14,23 +13,19 @@ import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.core.network.data_source.GoogleAuthService
 import com.nhuhuy.replee.core.network.model.AccountDTO
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import timber.log.Timber
 import javax.inject.Inject
 
 class AuthRepositoryImp @Inject constructor(
-    logger: Logger,
-    ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val googleAuthService: GoogleAuthService,
     private val firebaseAuthEmailService: FirebaseAuthEmailService,
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val accountLocalDataSource: AccountLocalDataSource,
     private val appPreferences: AppPreferences
-) : AuthRepository, NetworkResultCaller(dispatcher = ioDispatcher, logger = logger) {
+) : AuthRepository {
     override suspend fun signInWithGoogle(idToken: String): NetworkResult<Account> {
-        return safeCallWithTimeout {
+        return ioExecuteWithTimeout {
             val accountDTO = googleAuthService.signIn(idToken)
             appPreferences.saveLoggedStatus(true)
             accountDTO.toAccount()
@@ -39,10 +34,11 @@ class AuthRepositoryImp @Inject constructor(
 
     override suspend fun loginWithEmail(
         email: String, password: String
-    ): NetworkResult<String> = safeCallWithTimeout {
+    ): NetworkResult<String> = ioExecuteWithTimeout {
         firebaseAuthEmailService.loginWithEmail(email, password)
 
-        val userId = firebaseAuthEmailService.getCurrentUser()?.uid ?: return@safeCallWithTimeout ""
+        val userId =
+            firebaseAuthEmailService.getCurrentUser()?.uid ?: return@ioExecuteWithTimeout ""
         val account = accountNetworkDataSource.fetchAccountById(userId).toAccountEntity()
         accountLocalDataSource.upsertAccount(account.copy(logOut = false))
 
@@ -55,10 +51,10 @@ class AuthRepositoryImp @Inject constructor(
 
     override suspend fun signUpWithEmail(
         name: String, email: String, password: String
-    ): NetworkResult<Account> = safeCallWithTimeout {
+    ): NetworkResult<Account> = ioExecuteWithTimeout {
         firebaseAuthEmailService.signUpWithEmail(email, password)
         val id =
-            firebaseAuthEmailService.getCurrentUser()?.uid ?: return@safeCallWithTimeout Account()
+            firebaseAuthEmailService.getCurrentUser()?.uid ?: return@ioExecuteWithTimeout Account()
         val account = AccountDTO(
             id = id,
             name = name,
@@ -81,7 +77,7 @@ class AuthRepositoryImp @Inject constructor(
     }
 
     override suspend fun sendRecoverPasswordEmail(email: String): NetworkResult<Unit> =
-        safeCallWithTimeout {
+        ioExecuteWithTimeout {
             firebaseAuthEmailService.sendRecoverPasswordEmail(email)
         }
 

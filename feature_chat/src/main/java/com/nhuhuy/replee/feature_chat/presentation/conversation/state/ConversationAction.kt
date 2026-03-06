@@ -9,6 +9,10 @@ sealed interface ConversationAction : UiAction{
     data object OnSearchBarClose: ConversationAction
     data class OnQueryChange(val value: String) : ConversationAction
 
+    data object OnMessageLongPress : ConversationAction
+
+    data object OnImagePress : ConversationAction
+
     data class OnExpandChange(val expand: Boolean) : ConversationAction
     data object OnDismissPress: ConversationAction
     data object OnAddFabClick: ConversationAction

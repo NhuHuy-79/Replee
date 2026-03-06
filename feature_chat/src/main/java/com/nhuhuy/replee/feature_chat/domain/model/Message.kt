@@ -9,7 +9,8 @@ data class Message(
     val seen: Boolean,
     val sentAt: Long? = null,
     val status: MessageStatus,
-    val type: MessageType = MessageType.TEXT
+    val type: MessageType = MessageType.TEXT,
+    val localUriPath: String? = null,
 )
 
 enum class MessageType {

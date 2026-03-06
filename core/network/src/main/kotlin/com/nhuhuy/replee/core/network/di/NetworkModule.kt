@@ -28,7 +28,9 @@ import javax.inject.Singleton
 object NetworkModuleProvider {
     @Provides
     @Singleton
-    fun provideMediaManager(): MediaManager = MediaManager.get()
+    fun provideMediaManager(): MediaManager {
+        return MediaManager.get()
+    }
 
     @Provides
     @Singleton

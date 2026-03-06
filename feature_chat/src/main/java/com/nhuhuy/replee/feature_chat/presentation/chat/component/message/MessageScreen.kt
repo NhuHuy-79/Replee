@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -114,7 +115,7 @@ fun MessageScreen(
     }
 
     LaunchedEffect(pagingItems.itemCount, isAtBottom) {
-        if (isAtBottom) {
+        if (!isAtBottom) {
             lazyListState.animateScrollToItem(0)
         }
     }
@@ -163,7 +164,7 @@ fun MessageScreen(
                                 senderName = otherUserName,
                                 senderImgUrl = otherUserImg,
                                 message = message,
-                                modifier = Modifier.padding(horizontal = 16.dp)
+                                modifier = Modifier.fillMaxWidth()
                             )
                         }
                     }

@@ -2,9 +2,9 @@ package com.nhuhuy.replee.feature_chat.data.repository
 
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.repository.NetworkResultCaller
-import com.nhuhuy.core.domain.utils.Logger
 import com.nhuhuy.replee.core.common.mapper.toAccountEntity
+import com.nhuhuy.replee.core.common.utils.ioExecute
+import com.nhuhuy.replee.core.common.utils.ioExecuteWithTimeout
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
@@ -28,14 +28,13 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class ConversationRepositoryImp @Inject constructor(
-    private val logger: Logger,
     private val ioDispatcher: CoroutineDispatcher,
     private val firebaseAuthEmailService: FirebaseAuthEmailService,
     private val accountLocalDataSource: AccountLocalDataSource,
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource
-) : ConversationRepository, NetworkResultCaller(ioDispatcher, logger) {
+) : ConversationRepository {
     override fun listenConversationWithLimit(
         limit: Int,
         ownerId: String
@@ -66,9 +65,9 @@ class ConversationRepositoryImp @Inject constructor(
     }
 
     override suspend fun fetchConversations(): NetworkResult<List<Conversation>> {
-        return safeCallWithTimeout {
+        return ioExecute {
             val uid = firebaseAuthEmailService.getCurrentUser()?.uid
-                ?: return@safeCallWithTimeout emptyList()
+                ?: return@ioExecute emptyList()
             conversationNetworkDataSource.fetchConversationsByUser(uid).map { conversationDTO ->
                 conversationDTO.toConversation(uid)
             }
@@ -114,9 +113,9 @@ class ConversationRepositoryImp @Inject constructor(
     }
 
     override suspend fun getOrCreateConversation(otherUser: Account): NetworkResult<String> {
-        return safeCallWithTimeout {
+        return ioExecuteWithTimeout {
             val currentUserId =
-                firebaseAuthEmailService.getCurrentUser()?.uid ?: return@safeCallWithTimeout ""
+                firebaseAuthEmailService.getCurrentUser()?.uid ?: return@ioExecuteWithTimeout ""
             val entity = conversationLocalDataSource.getConversationAndUserById(
                 ownerId = currentUserId,
                 otherUserId = otherUser.id
@@ -131,7 +130,7 @@ class ConversationRepositoryImp @Inject constructor(
         ownerId: String,
         otherUserId: String
     ): NetworkResult<String> {
-        return safeCallWithTimeout {
+        return ioExecuteWithTimeout {
             val entity = conversationLocalDataSource.getConversationAndUserById(
                 ownerId = ownerId,
                 otherUserId = otherUserId
