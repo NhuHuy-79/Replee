@@ -18,6 +18,7 @@ import com.nhuhuy.replee.feature_chat.domain.model.Message
 fun SenderImageMessageItem(
     senderName: String,
     senderImgUrl: String,
+    onImagePress: (urlKey: String) -> Unit,
     message: Message,
     modifier: Modifier
 ) {
@@ -36,7 +37,8 @@ fun SenderImageMessageItem(
         ImageMessageContainer(
             message = message,
             contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            onClick = onImagePress
         )
     }
 }
@@ -44,7 +46,8 @@ fun SenderImageMessageItem(
 @Composable
 fun ReceiverImageMessageItem(
     message: Message,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onImagePress: (urlKey: String) -> Unit
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -53,7 +56,8 @@ fun ReceiverImageMessageItem(
         ImageMessageContainer(
             message = message,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            onClick = onImagePress
         )
 
     }

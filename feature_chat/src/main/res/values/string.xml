@@ -24,6 +24,7 @@
     <string name="message_status_sent">Sent</string>
 
     <string name="full_img_dialog">Close</string>
+    <string name="full_img_dialog_error">Cannot load image!</string>
 
     <!--Information Screen-->
     <string name="information_screen_pin">Pin</string>

@@ -14,5 +14,12 @@ data class ChatState(
     val otherUser: Account = Account(),
     val prefetchIndexKey: String? = null,
     val otherUserName: String = "",
-    val seedColor: SeedColor = SeedColor.DEFAULT
+    val seedColor: SeedColor = SeedColor.DEFAULT,
+    val dialog: ChatDialog = ChatDialog.None,
 ) : UiState
+
+
+sealed interface ChatDialog {
+    data object None : ChatDialog
+    data class FullImage(val url: String) : ChatDialog
+}

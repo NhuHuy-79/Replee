@@ -37,9 +37,11 @@ import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.BlockOverlay
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.dialog.FullImageDialog
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageInput
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageScreen
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatDialog
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
 import com.nhuhuy.replee.feature_chat.presentation.shared.Banner
 import timber.log.Timber
@@ -51,7 +53,7 @@ fun ChatScreen(
     blocked: Boolean,
     state: ChatState,
     onAction: (ChatAction) -> Unit,
-) {
+) = BoxContainer {
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -118,6 +120,7 @@ fun ChatScreen(
                     markMessagesRead = { ids ->
                         onAction(ChatAction.OnReadMessage(ids))
                     },
+                    onAction = onAction,
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 16.dp)
@@ -146,6 +149,19 @@ fun ChatScreen(
                         .fillMaxWidth()
                 )
             }
+        }
+
+        when (val dialog = state.dialog) {
+            is ChatDialog.FullImage -> {
+                FullImageDialog(
+                    url = dialog.url,
+                    onDismiss = {
+                        onAction(ChatAction.OnDismiss)
+                    }
+                )
+            }
+
+            ChatDialog.None -> Unit
         }
     }
 }

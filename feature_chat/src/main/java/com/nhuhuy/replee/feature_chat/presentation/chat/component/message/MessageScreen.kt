@@ -37,6 +37,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.model.MessageType
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -50,6 +51,7 @@ import timber.log.Timber
 fun MessageScreen(
     otherUserImg: String,
     otherUserName: String,
+    onAction: (ChatAction) -> Unit,
     modifier: Modifier = Modifier,
     currentUserId: String,
     pagingItems: LazyPagingItems<Message>,
@@ -98,24 +100,8 @@ fun MessageScreen(
     val refreshState = pagingItems.loadState.refresh
     val appendState = pagingItems.loadState.append
 
-    if (refreshState is LoadState.Loading || appendState is LoadState.Loading) {
-        Box(
-            modifier = Modifier
-                .background(
-                    color = MaterialTheme.colorScheme.secondaryContainer,
-                    shape = CircleShape
-                )
-                .padding(8.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(20.dp)
-            )
-        }
-    }
-
     LaunchedEffect(pagingItems.itemCount, isAtBottom) {
-        if (!isAtBottom) {
+        if (isAtBottom) {
             lazyListState.animateScrollToItem(0)
         }
     }
@@ -145,26 +131,39 @@ fun MessageScreen(
                         if (message.senderId == currentUserId) {
                             MyMessageItem(
                                 isLast = index == 0,
-                                message = message
+                                message = message,
+                                modifier = Modifier.animateItem()
                             )
                         } else {
                             OtherMessageItem(
                                 userName = otherUserName,
                                 message = message,
-                                imgUrl = otherUserImg
+                                imgUrl = otherUserImg,
+                                modifier = Modifier.animateItem()
                             )
                         }
                     }
 
                     MessageType.IMAGE -> {
                         if (message.senderId == currentUserId) {
-                            ReceiverImageMessageItem(message = message)
+                            ReceiverImageMessageItem(
+                                message = message,
+                                onImagePress = { url: String ->
+                                    onAction(ChatAction.OnImagePress(urlKey = url))
+                                },
+                                modifier = Modifier.animateItem()
+                            )
                         } else {
                             SenderImageMessageItem(
                                 senderName = otherUserName,
                                 senderImgUrl = otherUserImg,
                                 message = message,
-                                modifier = Modifier.fillMaxWidth()
+                                onImagePress = { url: String ->
+                                    onAction(ChatAction.OnImagePress(urlKey = url))
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .animateItem()
                             )
                         }
                     }
@@ -176,16 +175,26 @@ fun MessageScreen(
             if (appendError != null) {
                 Timber.d("Load more failed: ${appendError.error.message}")
             }
+        }
 
-            // End reached (hết tin nhắn cũ)
-            /*if (pagingItems.loadState.append.endOfPaginationReached && pagingItems.itemCount > 0) {
-                item {
-                    Text(
-                        text = "Đã tới đầu cuộc trò chuyện",
-                        modifier = Modifier.padding(16.dp)
+
+        AnimatedVisibility(
+            visible = refreshState is LoadState.Loading,
+            modifier = Modifier.align(Alignment.TopCenter)
+        ) {
+            Box(
+                modifier = Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        shape = CircleShape
                     )
-                }
-            }*/
+                    .padding(8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
 
         AnimatedVisibility(

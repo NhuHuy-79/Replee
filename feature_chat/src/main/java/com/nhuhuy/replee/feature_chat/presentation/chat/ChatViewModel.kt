@@ -21,6 +21,7 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.message.ReadMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendImageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendMessageUseCase
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatDialog
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToInformation
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
@@ -177,6 +178,18 @@ class ChatViewModel @AssistedInject constructor(
                             Timber.d("Send image successfully!")
                             onEvent(ChatEvent.SendImage.Success)
                         }
+                }
+
+                ChatAction.OnDismiss -> {
+                    _state.reduce {
+                        copy(dialog = ChatDialog.None)
+                    }
+                }
+
+                is ChatAction.OnImagePress -> {
+                    _state.reduce {
+                        copy(dialog = ChatDialog.FullImage(action.urlKey))
+                    }
                 }
             }
         }

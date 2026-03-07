@@ -148,7 +148,7 @@ fun LoginScreen(
                     ),
                 ),
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.clickable{
+                modifier = Modifier.clickable {
                     onAction(LoginAction.NavigateToSignUp)
                 }
             )

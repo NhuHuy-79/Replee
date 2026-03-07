@@ -59,6 +59,9 @@ dependencies {
     //Room
     ksp(libs.androidx.room.compiler)
 
+    //Zoomable for Image zoonm
+    implementation("net.engawapg.lib:zoomable:2.8.0")
+
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
