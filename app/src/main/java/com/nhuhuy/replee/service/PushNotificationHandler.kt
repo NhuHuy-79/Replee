@@ -3,8 +3,8 @@ package com.nhuhuy.replee.service
 import android.content.Context
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
-import com.nhuhuy.replee.feature_profile.data.data_store.NotificationMode
-import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStore
+import com.nhuhuy.replee.core.common.data.data_store.AppDataStore
+import com.nhuhuy.replee.core.common.data.data_store.NotificationMode
 import com.nhuhuy.replee.notification.ConversationNotificationResponse
 import com.nhuhuy.replee.notification.NotificationFactory
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -17,12 +17,12 @@ interface PushNotificationHandler {
 }
 
 class PushNotificationHandlerImp @Inject constructor(
-    private val settingDataStore: SettingDataStore,
+    private val appDataStore: AppDataStore,
     private val notificationFactory: NotificationFactory,
     @ApplicationContext private val context: Context,
 ) : PushNotificationHandler{
     override suspend fun showConversationNotification(body: ConversationNotificationResponse) {
-        val notificationMode = settingDataStore.observeNotification().first()
+        val notificationMode = appDataStore.observeNotification().first()
 
         if (notificationMode == NotificationMode.NONE){
             Timber.d("User turn off notification!")

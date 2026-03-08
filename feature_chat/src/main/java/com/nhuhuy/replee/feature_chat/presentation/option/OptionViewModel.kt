@@ -7,11 +7,11 @@ import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.BlockUserUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.DeleteConversationUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.LoadConversationInformationUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.MuteUserUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.PinConversationUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting.UpdateOtherNickNameUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.option.DeleteConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.option.LoadConversationInformationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.option.MuteUserUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.option.PinConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.option.UpdateOtherNickNameUseCase
 import com.nhuhuy.replee.feature_chat.presentation.option.component.SecondaryOption
 import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionAction
 import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionEvent

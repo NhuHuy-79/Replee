@@ -53,9 +53,14 @@ class ConversationRepositoryImp @Inject constructor(
 
     override suspend fun fetchOtherUserInConversations(ownerId: String) {
         return withContext(ioDispatcher) {
-            val uids = conversationNetworkDataSource.getConversationUserIdsWithOwner(ownerId)
+            val uids = conversationLocalDataSource.getOtherUserInConversation(ownerId)
 
-            if (uids.isEmpty()) return@withContext
+            if (uids.isEmpty()) {
+                Timber.e("List is empty")
+                return@withContext
+            }
+
+            Timber.d("Fetched User list: $uids")
 
             val accounts = accountNetworkDataSource.fetchAccountByIdList(uids).map { accountDTO ->
                 accountDTO.toAccountEntity()

@@ -3,7 +3,6 @@ package com.nhuhuy.replee.di
 
 import android.content.Context
 import com.nhuhuy.replee.core.common.data.UriConverter
-import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.network.network.mapper.RequestMapper
 import com.nhuhuy.replee.notification.NotificationParser
@@ -41,9 +40,6 @@ object AppModule {
     @Singleton
     fun provideDispatcherIO() = Dispatchers.IO
 
-    @Provides
-    @Singleton
-    fun provideSharedPreferences(@ApplicationContext context: Context) = AppPreferences(context)
 
     @Provides
     @Singleton

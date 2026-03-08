@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.domain.usecase.conversation_setting
+package com.nhuhuy.replee.feature_chat.domain.usecase.option
 
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.model.onFailure
@@ -7,19 +7,19 @@ import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationSettingRepository
 import javax.inject.Inject
 
-class UpdateOwnerNicknameUseCase @Inject constructor(
+class MuteUserUseCase @Inject constructor(
     private val syncManager: SyncManager,
-    private val conversationSettingRepository: ConversationSettingRepository
+    private val conversationSettingRepository: ConversationSettingRepository,
 ) {
     suspend operator fun invoke(
-        uid: String,
         conversationId: String,
-        nickName: String
+        muted: Boolean,
+        otherUserId: String
     ): NetworkResult<Unit> {
-        return conversationSettingRepository.updateOwnerNickname(
+        return conversationSettingRepository.muteOtherUser(
             conversationId = conversationId,
-            nickName = nickName,
-            uid = uid
+            otherUser = otherUserId,
+            muted = muted
         ).onSuccess {
             syncManager.updateConversationStatus(conversationId, synced = true)
         }

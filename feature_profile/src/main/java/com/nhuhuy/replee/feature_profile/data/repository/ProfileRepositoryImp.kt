@@ -1,13 +1,12 @@
 package com.nhuhuy.replee.feature_profile.data.repository
 
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.common.utils.ioExecute
 import com.nhuhuy.replee.core.common.utils.ioExecuteWithTimeout
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.network.data_source.CloudinaryFileUploader
 import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
+import com.nhuhuy.replee.core.network.data_source.UploadFileService
 import com.nhuhuy.replee.feature_profile.domain.repository.ProfileRepository
 import timber.log.Timber
 import javax.inject.Inject
@@ -15,14 +14,13 @@ import javax.inject.Inject
 class ProfileRepositoryImp @Inject constructor(
     private val accountLocalDataSource: AccountLocalDataSource,
     private val accountNetworkDataSource: AccountNetworkDataSource,
-    private val cloudifyFileUploadService: CloudinaryFileUploader,
-    private val firebaseAuthEmailService: FirebaseAuthEmailService,
-    private val appPreferences: AppPreferences
+    private val uploadFileService: UploadFileService,
+    private val firebaseAuthEmailService: FirebaseAuthEmailService
 ) : ProfileRepository {
     override suspend fun updateUserImage(uriPath: String): NetworkResult<String> {
         return ioExecute {
             val ownerId = firebaseAuthEmailService.getCurrentUser()?.uid ?: return@ioExecute ""
-            val url = cloudifyFileUploadService.uploadImageWithUriPath(uriPath)
+            val url = uploadFileService.uploadImageWithUriPath(uriPath)
             Timber.d(url)
             accountLocalDataSource.updateImageUrl(
                 uid = ownerId,
@@ -44,7 +42,6 @@ class ProfileRepositoryImp @Inject constructor(
             null
         }
         firebaseAuthEmailService.logOut()
-        appPreferences.saveLoggedStatus(false)
 
         uid?.let { uid ->
             accountLocalDataSource.updateLogoutStatus(uid)

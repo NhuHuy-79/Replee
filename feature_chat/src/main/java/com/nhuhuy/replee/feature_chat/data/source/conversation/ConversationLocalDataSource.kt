@@ -5,6 +5,7 @@ import com.nhuhuy.replee.core.database.entity.conversation.ConversationDao
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationEntity
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class ConversationLocalDataSource @Inject constructor(
@@ -12,6 +13,10 @@ class ConversationLocalDataSource @Inject constructor(
 ) {
     suspend fun upsertConversations(entities: List<ConversationEntity>){
         conversationDao.upsertAll(entities)
+    }
+
+    suspend fun getOtherUserInConversation(uid: String): List<String> {
+        return conversationDao.getOtherUserInConversationList(uid)
     }
 
     suspend fun upsertAndDeleteConversations(
@@ -63,7 +68,11 @@ class ConversationLocalDataSource @Inject constructor(
 
 
     fun observeConversationAndUsers(uid: String) : Flow<List<ConversationAndUser>>{
-        return conversationDao.observeConversations(uid)
+        return conversationDao.observeConversations(uid).map { conversationAndUsers ->
+            conversationAndUsers.filter { conversationAndUser ->
+                conversationAndUser.otherUser != null && conversationAndUser.owner != null
+            }
+        }
     }
 
     suspend fun updateLastSyncedTime(conversationIds: List<String>, lastMessageTime: Long) {

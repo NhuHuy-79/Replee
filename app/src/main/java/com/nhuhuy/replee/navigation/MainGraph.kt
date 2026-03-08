@@ -15,6 +15,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.nhuhuy.replee.core.network.data_source.AuthState
 import com.nhuhuy.replee.navigation.splash.SplashKey
 import com.nhuhuy.replee.navigation.splash.splashGraph
+import kotlinx.coroutines.delay
 
 private const val DURATION = 350
 
@@ -28,6 +29,8 @@ fun MainGraph(
     LaunchedEffect(authState) {
         when (authState) {
             is AuthState.Authenticated -> {
+                delay(800)
+                backStack.clear()
                 backStack.add(HomeDestination.ConversationList(currentUserId = authState.uid))
             }
 
@@ -36,6 +39,8 @@ fun MainGraph(
             }
 
             AuthState.Unauthenticated -> {
+                delay(800)
+                backStack.clear()
                 backStack.add(AuthDestination.Login)
             }
         }

@@ -7,4 +7,6 @@
 
     <string name="notification_failure">Cannot send your message!</string>
     <string name="notification_success">Send message successfully</string>
+
+    <string name="splash_screen">Checking your authentication…</string>
 </resources>

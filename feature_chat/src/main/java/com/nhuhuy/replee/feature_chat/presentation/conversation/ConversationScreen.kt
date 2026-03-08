@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.nhuhuy.core.domain.model.SearchHistoryResult
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.ScreenStateHost
@@ -30,6 +31,7 @@ import com.nhuhuy.replee.feature_chat.presentation.shared.RetryScreen
 fun ConversationScreen(
     conversationListState: ScreenState<List<Conversation>>,
     state: ConversationState,
+    searchHistory: List<SearchHistoryResult>,
     onAction: (ConversationAction) -> Unit
 ) = BoxContainer {
     Scaffold(
@@ -49,6 +51,7 @@ fun ConversationScreen(
             ConversationSearchBar(
                 currentUser = state.currentUser,
                 state = state.searchState,
+                searchHistory = searchHistory,
                 expand = state.expandSearchBar,
                 input = state.searchQuery,
                 onSearch = {
@@ -65,6 +68,9 @@ fun ConversationScreen(
                 },
                 goToProfile = {
                     onAction(ConversationAction.OnOwnerClick)
+                },
+                onSearchResultClick = { result ->
+                    onAction(ConversationAction.OnSearchResultClick(result))
                 }
             )
 

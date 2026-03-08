@@ -16,6 +16,9 @@ interface ConversationDao : BaseDao<ConversationEntity> {
     @Query("DELETE FROM conversation WHERE id in (:list)")
     suspend fun deleteConversationsById(list: List<String>)
 
+    @Query("SELECT otherUserId FROM conversation WHERE ownerId = :uid")
+    suspend fun getOtherUserInConversationList(uid: String): List<String>
+
     @Transaction
     suspend fun upsertAndDeleteConversations(
         upsert: List<ConversationEntity>,

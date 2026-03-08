@@ -2,7 +2,6 @@ package com.nhuhuy.replee.feature_auth.data.repository
 
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
 import com.nhuhuy.replee.core.common.mapper.toAccount
 import com.nhuhuy.replee.core.common.mapper.toAccountEntity
 import com.nhuhuy.replee.core.common.utils.ioExecuteWithTimeout
@@ -21,13 +20,11 @@ class AuthRepositoryImp @Inject constructor(
     private val googleAuthService: GoogleAuthService,
     private val firebaseAuthEmailService: FirebaseAuthEmailService,
     private val accountNetworkDataSource: AccountNetworkDataSource,
-    private val accountLocalDataSource: AccountLocalDataSource,
-    private val appPreferences: AppPreferences
+    private val accountLocalDataSource: AccountLocalDataSource
 ) : AuthRepository {
     override suspend fun signInWithGoogle(idToken: String): NetworkResult<Account> {
         return ioExecuteWithTimeout {
             val accountDTO = googleAuthService.signIn(idToken)
-            appPreferences.saveLoggedStatus(true)
             accountDTO.toAccount()
         }
     }
@@ -45,7 +42,6 @@ class AuthRepositoryImp @Inject constructor(
         val token = firebaseAuthEmailService.getDeviceToken()
         accountNetworkDataSource.updateDeviceToken(userId, token)
 
-        appPreferences.saveLoggedStatus(true)
         userId
     }
 
@@ -72,7 +68,6 @@ class AuthRepositoryImp @Inject constructor(
             firebaseAuthEmailService.deleteCurrentUser()
         }
 
-        appPreferences.saveLoggedStatus(true)
         account.toAccount()
     }
 
@@ -80,10 +75,6 @@ class AuthRepositoryImp @Inject constructor(
         ioExecuteWithTimeout {
             firebaseAuthEmailService.sendRecoverPasswordEmail(email)
         }
-
-    override fun isUserLogged(): Boolean {
-        return appPreferences.getLoggedStatus()
-    }
 
     override fun observeAuthState(): Flow<String?> {
         return firebaseAuthEmailService.observeAuthState()

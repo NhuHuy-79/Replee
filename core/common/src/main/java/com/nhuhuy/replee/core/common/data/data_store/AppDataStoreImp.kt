@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_profile.data.data_store
+package com.nhuhuy.replee.core.common.data.data_store
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
@@ -8,18 +8,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-interface SettingDataStore {
-    suspend fun saveNotificationMode(mode: NotificationMode)
-    suspend fun saveThemeMode(mode: ThemeMode)
-    fun observeNotification() : Flow<NotificationMode>
-    fun observeTheme() : Flow<ThemeMode>
-}
-
 private val Context.dataStore by preferencesDataStore("setting_pref")
 
-class SettingDataStoreImp @Inject constructor(
+class AppDataStoreImp @Inject constructor(
     private val context: Context
-) : SettingDataStore{
+) : AppDataStore {
     companion object {
         val NOTIFICATION_KEY = stringPreferencesKey("notification_key")
         val THEME_KEY = stringPreferencesKey("theme_key")

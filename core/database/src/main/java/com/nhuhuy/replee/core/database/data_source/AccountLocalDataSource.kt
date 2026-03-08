@@ -1,47 +1,64 @@
 package com.nhuhuy.replee.core.database.data_source
 
 import android.util.Log
-import com.nhuhuy.replee.core.database.entity.account.AccountDao
+import com.nhuhuy.core.domain.model.SearchHistoryResult
+import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.database.entity.account.AccountEntity
+import com.nhuhuy.replee.core.database.entity.search_history.SearchHistoryEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class AccountLocalDataSource @Inject constructor(
-    private val dao: AccountDao
+    private val coreDatabase: CoreDatabase,
 ) {
+    private val accountDao = coreDatabase.provideAccountDao()
+    private val searchHistoryDao = coreDatabase.provideSearchHistoryDao()
     suspend fun upsertAccount(accountEntity: AccountEntity){
-        dao.upsert(accountEntity)
+        accountDao.upsert(accountEntity)
     }
 
     suspend fun updateImageUrl(uid: String, imgUrl: String) {
-        dao.updateImageUrl(uid, imgUrl)
+        accountDao.updateImageUrl(uid, imgUrl)
     }
 
     suspend fun getAccountWithId(uid: String): AccountEntity? {
-        return dao.getAccountWithUid(uid)
+        return accountDao.getAccountWithUid(uid)
     }
 
     suspend fun upsertAccounts(list: List<AccountEntity>){
-        dao.upsertAll(list)
+        accountDao.upsertAll(list)
     }
 
     suspend fun updateLogoutStatus(uid: String) {
-        dao.updateLogoutStatus(uid)
+        accountDao.updateLogoutStatus(uid)
     }
 
+    suspend fun upsertSearchHistory(list: List<SearchHistoryEntity>) {
+        searchHistoryDao.upsertAll(list)
+    }
+
+    fun observeSearchHistory(uid: String): Flow<List<SearchHistoryResult>> {
+        return searchHistoryDao.getSearchHistory(uid)
+    }
+
+    suspend fun updateSearchHistory(list: List<SearchHistoryEntity>) {
+        searchHistoryDao.upsertAll(list)
+    }
+
+
     fun observeBlockStatus(owner: String): Flow<List<String>> {
-        return dao.observeBlockStatus(owner).map { accountEntity ->
+        return accountDao.observeBlockStatus(owner).map { accountEntity ->
             Log.d("AccountLocalSource", "observeBlockStatus: $accountEntity")
             accountEntity?.blockedUserList ?: emptyList()
         }
     }
 
     suspend fun updateBlockedList(owner: String, list: List<String>) {
-        dao.updateBlockedList(owner, list)
+        accountDao.updateBlockedList(owner, list)
     }
 
     suspend fun deleteAccount(accountEntity: AccountEntity) {
-        dao.delete(accountEntity)
+        accountDao.delete(accountEntity)
     }
 }

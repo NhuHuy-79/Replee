@@ -55,6 +55,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
         )
         val conversationList by viewModel.conversationState.collectAsStateWithLifecycle()
         val state by viewModel.state.collectAsStateWithLifecycle()
+        val searchHistory by viewModel.searchHistory.collectAsStateWithLifecycle()
         val event = viewModel.event
         val onAction = viewModel::onAction
 
@@ -82,6 +83,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
         ConversationScreen(
             conversationListState = conversationList,
             state = state,
+            searchHistory = searchHistory,
             onAction = onAction
         )
     }

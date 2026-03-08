@@ -14,8 +14,6 @@ interface AuthRepository {
 
     suspend fun sendRecoverPasswordEmail(email: String): NetworkResult<Unit>
 
-    fun isUserLogged(): Boolean
-
     fun observeAuthState(): Flow<String?>
     fun observeAuthenticationState(): Flow<AuthState>
 }

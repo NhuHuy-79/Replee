@@ -5,6 +5,7 @@ plugins {
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     id ("org.jetbrains.kotlin.plugin.serialization") version "1.9.23"
+    alias(libs.plugins.google.gms.google.services)
 
 
 }
@@ -48,17 +49,17 @@ dependencies {
     api(libs.androidx.credentials)
     api(libs.androidx.credentials.play.services.auth)
     api(libs.googleid)
+    api(libs.firebase.database)
     api(libs.firebase.firestore)
     api(libs.firebase.messaging)
     api(libs.kotlinx.serialization.json)
-    api(libs.firebase.messaging)
 
     //CLOUDINARY
-    /*api(libs.kotlin.url.gen)*/
     api(libs.cloudinary.android)
 
     //Hilt
     implementation(libs.dagger.hilt.android)
+    implementation(libs.firebase.database)
     testImplementation(libs.junit.junit)
     debugImplementation(libs.ui.tooling)
     ksp(libs.hilt.android.compiler)

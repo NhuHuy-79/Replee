@@ -52,3 +52,4 @@ fun AccountDTO.toAccountEntity() = AccountEntity(
     blockedUserList = blockedList,
     logOut = false
 )
+

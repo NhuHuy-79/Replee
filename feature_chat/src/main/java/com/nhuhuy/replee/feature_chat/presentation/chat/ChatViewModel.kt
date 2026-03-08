@@ -9,7 +9,6 @@ import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.core.domain.usecase.GetAccountByIdUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.core.common.data.UriConverter
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.CheckBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.UnblockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversationUseCase
@@ -44,7 +43,6 @@ import timber.log.Timber
 class ChatViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
-    private val uriConverter: UriConverter,
     private val readMessageUseCase: ReadMessageUseCase,
     private val unblockUserUseCase: UnblockUserUseCase,
     private val sendMessageUseCase: SendMessageUseCase,

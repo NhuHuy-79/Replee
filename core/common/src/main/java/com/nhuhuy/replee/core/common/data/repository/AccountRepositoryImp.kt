@@ -2,6 +2,7 @@ package com.nhuhuy.replee.core.common.data.repository
 
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.core.domain.model.SearchHistoryResult
 import com.nhuhuy.core.domain.repository.AccountRepository
 import com.nhuhuy.replee.core.common.mapper.toAccount
 import com.nhuhuy.replee.core.common.mapper.toAccountDTO
@@ -9,6 +10,7 @@ import com.nhuhuy.replee.core.common.mapper.toAccountEntity
 import com.nhuhuy.replee.core.common.utils.ioExecute
 import com.nhuhuy.replee.core.common.utils.ioExecuteWithTimeout
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
+import com.nhuhuy.replee.core.database.entity.search_history.SearchHistoryEntity
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
 import kotlinx.coroutines.CoroutineDispatcher
@@ -19,7 +21,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class AccountRepositoryImp @Inject constructor(
-    private val dispatcher: CoroutineDispatcher,
+    private val ioDispatcher: CoroutineDispatcher,
     private val firebaseAuthEmailService: FirebaseAuthEmailService,
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val accountLocalDataSource: AccountLocalDataSource,
@@ -43,14 +45,14 @@ class AccountRepositoryImp @Inject constructor(
     }
 
     override suspend fun getAccountById(uid: String): Account {
-        return withContext(dispatcher){
+        return withContext(ioDispatcher) {
             accountLocalDataSource.getAccountWithId(uid)
                 ?.toAccount() ?: Account()
         }
     }
 
     override suspend fun getCurrentAccount(): Account {
-        return withContext(dispatcher) {
+        return withContext(ioDispatcher) {
             val id = firebaseAuthEmailService.getCurrentUser()?.uid
             id?.let {
                 accountLocalDataSource.getAccountWithId(uid = id)?.toAccount() ?: Account()
@@ -66,6 +68,7 @@ class AccountRepositoryImp @Inject constructor(
             accountDTOs.map { accountDTOs -> accountDTOs.toAccount() }
         }
     }
+
 
     override suspend fun updateBlockedUsers(otherUser: String): NetworkResult<Unit> {
         return ioExecuteWithTimeout {
@@ -117,5 +120,21 @@ class AccountRepositoryImp @Inject constructor(
             Timber.e(e)
             false
         }
+    }
+
+    override suspend fun updateHistory(ownerId: String, list: List<SearchHistoryResult>) {
+        withContext(ioDispatcher) {
+            val list = list.map { result ->
+                SearchHistoryEntity(
+                    ownerId = ownerId,
+                    searchResultId = result.uid,
+                )
+            }
+            accountLocalDataSource.updateSearchHistory(list)
+        }
+    }
+
+    override fun getSearchHistory(owner: String): Flow<List<SearchHistoryResult>> {
+        return accountLocalDataSource.observeSearchHistory(owner)
     }
 }

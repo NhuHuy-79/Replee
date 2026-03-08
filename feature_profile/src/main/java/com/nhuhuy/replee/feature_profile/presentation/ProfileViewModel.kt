@@ -8,13 +8,12 @@ import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.core.common.data.UriConverter
+import com.nhuhuy.replee.core.common.data.data_store.AppDataStore
 import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
-import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStore
 import com.nhuhuy.replee.feature_profile.domain.usecase.LogOutUseCase
 import com.nhuhuy.replee.feature_profile.domain.usecase.UpdatePasswordUseCase
 import com.nhuhuy.replee.feature_profile.domain.usecase.UploadAvatarUseCase
@@ -43,8 +42,7 @@ class ProfileViewModel @Inject constructor(
     private val logOutUseCase: LogOutUseCase,
     private val getCurrentAccountUseCase: GetCurrentAccountUseCase,
     private val uploadAvatarUseCase: UploadAvatarUseCase,
-    private val uriConverter: UriConverter,
-    private val dataStore: SettingDataStore,
+    private val dataStore: AppDataStore,
 ) : BaseViewModel<ProfileAction, ProfileEvent, ProfileState>() {
     private val _profileActionResult = MutableStateFlow(ProfileActionResult())
     val profileActionResult = _profileActionResult.asStateFlow()

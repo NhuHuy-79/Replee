@@ -1,8 +1,8 @@
 package com.nhuhuy.replee.feature_profile.di
 
 import android.content.Context
-import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStore
-import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStoreImp
+import com.nhuhuy.replee.core.common.data.data_store.AppDataStore
+import com.nhuhuy.replee.core.common.data.data_store.AppDataStoreImp
 import com.nhuhuy.replee.feature_profile.data.repository.ProfileRepositoryImp
 import com.nhuhuy.replee.feature_profile.domain.repository.ProfileRepository
 import dagger.Binds
@@ -26,6 +26,6 @@ abstract class ProfileModuleBinder {
 object ProfileModuleProvider {
     @Provides
     @Singleton
-    fun provideSettingDataStore(@ApplicationContext context: Context): SettingDataStore =
-        SettingDataStoreImp(context)
+    fun provideSettingDataStore(@ApplicationContext context: Context): AppDataStore =
+        AppDataStoreImp(context)
 }

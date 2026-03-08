@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_profile.data.data_store
+package com.nhuhuy.replee.core.common.data.data_store
 
 enum class NotificationMode {
     NONE,

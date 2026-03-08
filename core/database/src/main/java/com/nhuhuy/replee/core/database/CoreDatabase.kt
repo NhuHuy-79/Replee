@@ -15,11 +15,13 @@ import com.nhuhuy.replee.core.database.entity.message.MessageDao
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
 import com.nhuhuy.replee.core.database.entity.pager.MessageRemoteKey
 import com.nhuhuy.replee.core.database.entity.pager.MessageRemoteKeyDao
+import com.nhuhuy.replee.core.database.entity.search_history.SearchHistoryDao
+import com.nhuhuy.replee.core.database.entity.search_history.SearchHistoryEntity
 
 @Database(
     entities = [AccountEntity::class, ConversationEntity::class, MessageEntity::class,
-        MessageRemoteKey::class],
-    version = 23,
+        MessageRemoteKey::class, SearchHistoryEntity::class],
+    version = 24,
     exportSchema = true,
     autoMigrations = [
         /* AutoMigration(
@@ -66,6 +68,7 @@ import com.nhuhuy.replee.core.database.entity.pager.MessageRemoteKeyDao
 @TypeConverters(CoreConverter::class)
 abstract class CoreDatabase() : RoomDatabase(){
     abstract fun provideAccountDao() : AccountDao
+    abstract fun provideSearchHistoryDao(): SearchHistoryDao
     abstract fun provideConversationDao() : ConversationDao
     abstract fun provideMessageDao() : MessageDao
     abstract fun provideMessageRemoteKeyDao(): MessageRemoteKeyDao

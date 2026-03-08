@@ -127,7 +127,7 @@ fun ChatScreen(
                 )
             }
 
-            if (!blocked || !state.isBlocked) {
+            if (!blocked && !state.isBlocked) {
                 MessageInput(
                     value = state.messageInput,
                     onValueChange = { value ->

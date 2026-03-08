@@ -14,8 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import com.nhuhuy.replee.core.common.data.data_store.NotificationMode
 import com.nhuhuy.replee.feature_profile.R
-import com.nhuhuy.replee.feature_profile.data.data_store.NotificationMode
 
 @Composable
 fun NotificationDialog(

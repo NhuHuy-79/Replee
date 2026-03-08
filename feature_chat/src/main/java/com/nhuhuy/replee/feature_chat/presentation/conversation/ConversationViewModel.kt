@@ -1,6 +1,7 @@
 package com.nhuhuy.replee.feature_chat.presentation.conversation
 
 import androidx.lifecycle.viewModelScope
+import com.nhuhuy.core.domain.model.SearchHistoryResult
 import com.nhuhuy.core.domain.model.onFailure
 import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
@@ -10,6 +11,7 @@ import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetSearchHistoryUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.LoadConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationListUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationUserUseCase
@@ -40,6 +42,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = ConversationViewModel.Factory::class)
 class ConversationViewModel @AssistedInject constructor(
     @Assisted private val currentUserId: String,
+    private val getSearchHistoryUseCase: GetSearchHistoryUseCase,
     private val listenConversationUseCase: ListenConversationUseCase,
     private val upsertConversationUseCase: UpsertConversationUseCase,
     private val loadConversationUseCase: LoadConversationUseCase,
@@ -52,13 +55,17 @@ class ConversationViewModel @AssistedInject constructor(
     override val state: StateFlow<ConversationState>
         get() = _state.asStateFlow()
 
+    val searchHistory: StateFlow<List<SearchHistoryResult>> = getSearchHistoryUseCase(currentUserId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     init {
         listenToNetworkConversation()
         viewModelScope.launch {
-            val currentUser = getCurrentAccountUseCase()
             saveConversationUserUseCase(currentUserId)
+            val currentUser = getCurrentAccountUseCase()
             _state.reduce { copy(currentUser = currentUser) }
         }
+
     }
     val conversationState: StateFlow<ScreenState<List<Conversation>>> =
         loadConversationUseCase().map { list ->
@@ -93,7 +100,7 @@ class ConversationViewModel @AssistedInject constructor(
                     val conversation = action.conversation
                     onEvent(
                         NavigateToChatRoom(
-                            currentUserId = conversation.owner.uid,
+                            currentUserId = currentUserId,
                             otherUserId = conversation.otherUser.uid
                         )
                     )
@@ -110,7 +117,10 @@ class ConversationViewModel @AssistedInject constructor(
                         copy(searchState = ScreenState.Loading)
                     }
                     val query = state.value.searchQuery
-                    val result = searchAccountByEmailUseCase(email = query)
+                    val result = searchAccountByEmailUseCase(
+                        ownerId = currentUserId,
+                        email = query
+                    )
                     _state.reduce {
                         copy(searchState = result.toScreenState())
                     }
@@ -118,7 +128,11 @@ class ConversationViewModel @AssistedInject constructor(
 
                 ConversationAction.OnSearchBarClose -> {
                     _state.reduce {
-                        copy(expandSearchBar = false, searchQuery = "")
+                        copy(
+                            expandSearchBar = false,
+                            searchQuery = "",
+                            searchState = ScreenState.Idle
+                        )
                     }
                 }
 
@@ -138,6 +152,11 @@ class ConversationViewModel @AssistedInject constructor(
                 is ConversationAction.OnExpandChange -> {
                     _state.reduce {
                         copy(expandSearchBar = action.expand)
+                    }
+                    if (!action.expand) {
+                        _state.reduce {
+                            copy(searchQuery = "", searchState = ScreenState.Idle)
+                        }
                     }
                 }
 
@@ -164,6 +183,15 @@ class ConversationViewModel @AssistedInject constructor(
                     _state.reduce {
                         copy(dialog = Dialog.MESSAGE)
                     }
+                }
+
+                is ConversationAction.OnSearchResultClick -> {
+                    onEvent(
+                        NavigateToChatRoom(
+                            currentUserId = currentUserId,
+                            otherUserId = action.historyResult.uid
+                        )
+                    )
                 }
             }
         }

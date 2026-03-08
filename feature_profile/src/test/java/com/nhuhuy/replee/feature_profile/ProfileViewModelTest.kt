@@ -5,9 +5,9 @@ import com.google.common.truth.Truth
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
+import com.nhuhuy.replee.core.common.data.data_store.AppDataStore
 import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.test.DispatcherRuleTest
-import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStore
 import com.nhuhuy.replee.feature_profile.domain.usecase.LogOutUseCase
 import com.nhuhuy.replee.feature_profile.domain.usecase.UpdatePasswordUseCase
 import com.nhuhuy.replee.feature_profile.presentation.ProfileViewModel
@@ -31,7 +31,7 @@ class ProfileViewModelTest {
     private lateinit var updatePasswordUseCase: UpdatePasswordUseCase
     private lateinit var logOutUseCase: LogOutUseCase
     private lateinit var getCurrentAccountUseCase: GetCurrentAccountUseCase
-    private lateinit var dataStore: SettingDataStore
+    private lateinit var dataStore: AppDataStore
     private lateinit var viewModel: ProfileViewModel
 
     @get:Rule
