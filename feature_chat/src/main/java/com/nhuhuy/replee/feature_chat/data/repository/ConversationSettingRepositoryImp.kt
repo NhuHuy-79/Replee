@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_chat.data.repository
 
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.replee.core.common.utils.ioExecuteWithTimeout
+import com.nhuhuy.replee.core.common.utils.executeWithTimeout
 import com.nhuhuy.replee.feature_chat.data.data_store.SeedColor
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
@@ -27,7 +27,7 @@ class ConversationSettingRepositoryImp @Inject constructor(
         conversationId: String,
         nickName: String
     ): NetworkResult<Unit> {
-        return ioExecuteWithTimeout {
+        return executeWithTimeout {
             conversationLocalDataSource.updateOwnerNickName(conversationId, nickName)
             val conversationDTO =
                 conversationNetworkDataSource.fetchConversationById(conversationId)
@@ -47,7 +47,7 @@ class ConversationSettingRepositoryImp @Inject constructor(
         conversationId: String,
         nickName: String
     ): NetworkResult<Unit> {
-        return ioExecuteWithTimeout {
+        return executeWithTimeout {
             conversationLocalDataSource.updateOwnerNickName(conversationId, nickName)
             val conversationDTO =
                 conversationNetworkDataSource.fetchConversationById(conversationId)
@@ -65,7 +65,7 @@ class ConversationSettingRepositoryImp @Inject constructor(
         otherUser: String,
         muted: Boolean
     ): NetworkResult<Unit> {
-        return ioExecuteWithTimeout {
+        return executeWithTimeout {
             conversationLocalDataSource.updateMutedStatus(conversationId, muted)
             conversationNetworkDataSource.updateMutedStatus(conversationId, otherUser, muted)
         }
@@ -76,7 +76,7 @@ class ConversationSettingRepositoryImp @Inject constructor(
         currentUser: String,
         pinned: Boolean
     ): NetworkResult<Unit> {
-        return ioExecuteWithTimeout {
+        return executeWithTimeout {
             conversationLocalDataSource.updatePinnedStatus(conversationId, pinned)
             conversationNetworkDataSource.updatePinnedStatus(
                 conversationId,
@@ -91,13 +91,13 @@ class ConversationSettingRepositoryImp @Inject constructor(
         otherUser: String,
         blocked: Boolean
     ): NetworkResult<Unit> {
-        return ioExecuteWithTimeout {
+        return executeWithTimeout {
             conversationLocalDataSource.updateBlockStatus(conversationId, blocked)
         }
     }
 
     override suspend fun deleteConversation(conversationId: String): NetworkResult<Unit> {
-        return ioExecuteWithTimeout {
+        return executeWithTimeout {
 
         }
     }

@@ -1,6 +1,6 @@
-package com.nhuhuy.replee.notification
+package com.nhuhuy.replee.core.network.network.model
 
-data class ConversationNotificationResponse(
+data class NotificationResponse(
     val imgUrl: String? = null,
     val conversationId: String,
     val senderId: String,

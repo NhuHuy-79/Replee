@@ -18,19 +18,19 @@ import timber.log.Timber
 import java.util.UUID
 import javax.inject.Inject
 
-interface ReceiverHandler {
+interface BroadcastDataMapper {
     suspend fun handleReplyMessage(conversationId: String, senderId: String, receiverId: String, message: String)
 
     fun showNotification(success: Boolean)
 }
 
-class ReceiverHandlerImp @Inject constructor(
+class BroadcastDataMapperImp @Inject constructor(
     private val syncManager: SyncManager,
     private val messageRepository: MessageRepository,
     private val notifyService: NotifyService,
     private val notificationFactory: ConversationNotificationFactory,
     @ApplicationContext private val context: Context
-) : ReceiverHandler{
+) : BroadcastDataMapper {
     override suspend fun handleReplyMessage(
         conversationId: String,
         senderId: String,

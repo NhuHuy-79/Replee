@@ -6,9 +6,9 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.replee.core.common.utils.ioExecuteWithTimeout
+import com.nhuhuy.replee.core.common.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.CoreDatabase
-import com.nhuhuy.replee.core.network.data_source.CloudinaryFileUploader
+import com.nhuhuy.replee.core.network.data_source.UploadFileService
 import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.core.network.model.mapData
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
@@ -34,7 +34,7 @@ import javax.inject.Inject
 
 class MessageRepositoryImp @Inject constructor(
     private val coreDatabase: CoreDatabase,
-    private val cloudifyFileUploadService: CloudinaryFileUploader,
+    private val uploadFileService: UploadFileService,
     private val messageNetworkDataSource: MessageNetworkDataSource,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource,
@@ -44,7 +44,7 @@ class MessageRepositoryImp @Inject constructor(
     override suspend fun sendMessage(
         message: Message
     ): NetworkResult<String> {
-        return ioExecuteWithTimeout {
+        return executeWithTimeout(dispatcher = ioDispatcher) {
             val entity = message.toMessageEntity()
             messageLocalDataSource.upsertMessage(message = entity)
             conversationLocalDataSource.updateLastMessage(message = entity)
@@ -72,9 +72,9 @@ class MessageRepositoryImp @Inject constructor(
         rawMessage: Message,
         uriPath: String,
     ): NetworkResult<String> {
-        return ioExecuteWithTimeout {
+        return executeWithTimeout(dispatcher = ioDispatcher) {
             messageLocalDataSource.upsertMessage(rawMessage.toMessageEntity())
-            val url = cloudifyFileUploadService.uploadImageWithUriPath(uriPath)
+            val url = uploadFileService.uploadImageWithUriPath(uriPath)
 
             if (url.isBlank()) {
                 val failure = rawMessage.copy(
@@ -132,7 +132,7 @@ class MessageRepositoryImp @Inject constructor(
         messageIds: List<String>,
         conversationId: String,
         receiverId: String
-    ): NetworkResult<Unit> = ioExecuteWithTimeout {
+    ): NetworkResult<Unit> = executeWithTimeout {
         messageLocalDataSource.updateMessageListStatus(
             status = MessageStatus.SEEN,
             messageIds = messageIds

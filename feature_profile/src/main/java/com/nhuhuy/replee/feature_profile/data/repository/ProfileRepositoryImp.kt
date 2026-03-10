@@ -1,8 +1,8 @@
 package com.nhuhuy.replee.feature_profile.data.repository
 
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.replee.core.common.utils.ioExecute
-import com.nhuhuy.replee.core.common.utils.ioExecuteWithTimeout
+import com.nhuhuy.replee.core.common.utils.execute
+import com.nhuhuy.replee.core.common.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
@@ -18,8 +18,8 @@ class ProfileRepositoryImp @Inject constructor(
     private val firebaseAuthEmailService: FirebaseAuthEmailService
 ) : ProfileRepository {
     override suspend fun updateUserImage(uriPath: String): NetworkResult<String> {
-        return ioExecute {
-            val ownerId = firebaseAuthEmailService.getCurrentUser()?.uid ?: return@ioExecute ""
+        return execute {
+            val ownerId = firebaseAuthEmailService.getCurrentUser()?.uid ?: return@execute ""
             val url = uploadFileService.uploadImageWithUriPath(uriPath)
             Timber.d(url)
             accountLocalDataSource.updateImageUrl(
@@ -51,7 +51,7 @@ class ProfileRepositoryImp @Inject constructor(
     override suspend fun updatePassword(
         oldPassword: String,
         newPassword: String
-    ): NetworkResult<Unit> = ioExecuteWithTimeout {
+    ): NetworkResult<Unit> = executeWithTimeout {
         firebaseAuthEmailService.updateNewPassword(oldPassword, newPassword)
     }
 

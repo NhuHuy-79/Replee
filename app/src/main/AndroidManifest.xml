@@ -33,7 +33,7 @@
             </intent-filter>
         </service>
         <receiver
-            android:name=".broadcast.ReplyReceiver"
+            android:name=".broadcast.ReplyBroadcast"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

@@ -1,6 +1,7 @@
 package com.nhuhuy.replee.core.network.network.mapper
 
 import com.nhuhuy.replee.core.network.network.model.ConversationNotificationRequest
+import com.nhuhuy.replee.core.network.network.model.NotificationResponse
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
@@ -11,8 +12,8 @@ class RequestMapper @Inject constructor(
         return json.encodeToString(ConversationNotificationRequest.serializer(), body)
     }
 
-    fun parseToNetworkMessage(data: String): ConversationNotificationRequest {
-        return json.decodeFromString<ConversationNotificationRequest>(data)
+    fun parseToNetworkMessage(data: String): NotificationResponse {
+        return json.decodeFromString<NotificationResponse>(data)
     }
 
 }

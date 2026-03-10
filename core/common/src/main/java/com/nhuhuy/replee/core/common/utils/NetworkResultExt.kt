@@ -2,18 +2,20 @@ package com.nhuhuy.replee.core.common.utils
 
 import com.nhuhuy.core.domain.model.NetworkResult
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import timber.log.Timber
 
 
-suspend fun <T> ioExecuteWithTimeout(
+suspend fun <T> executeWithTimeout(
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
     timeout: Long = 5000L,
     body: suspend () -> T
 ): NetworkResult<T> {
     return withTimeout(timeout) {
-        withContext(Dispatchers.IO) {
+        withContext(dispatcher) {
             try {
                 val data = body()
                 NetworkResult.Success(data)
@@ -28,10 +30,11 @@ suspend fun <T> ioExecuteWithTimeout(
     }
 }
 
-suspend fun <T> ioExecute(
+suspend fun <T> execute(
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
     body: suspend () -> T,
 ): NetworkResult<T> {
-    return withContext(Dispatchers.IO) {
+    return withContext(dispatcher) {
         try {
             val data = body()
             NetworkResult.Success(data)

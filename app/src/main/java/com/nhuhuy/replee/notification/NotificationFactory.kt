@@ -14,14 +14,15 @@ import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.request.allowHardware
 import com.nhuhuy.replee.R
-import com.nhuhuy.replee.broadcast.ReplyReceiver
+import com.nhuhuy.replee.broadcast.ReplyBroadcast
+import com.nhuhuy.replee.core.network.network.model.NotificationResponse
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 abstract class NotificationFactory() {
-    abstract suspend fun execute(response: ConversationNotificationResponse): Notification
+    abstract suspend fun execute(response: NotificationResponse): Notification
 
     abstract fun showResult(success: Boolean): Notification
 
@@ -61,7 +62,7 @@ const val EXTRA_NOTIFICATION_ID = "notification_id"
 class ConversationNotificationFactory @Inject constructor(
     @ApplicationContext private val context: Context
 ) : NotificationFactory() {
-    override suspend fun execute(response: ConversationNotificationResponse): Notification {
+    override suspend fun execute(response: NotificationResponse): Notification {
         val channelId = context.getString(R.string.notification_channel)
 
         val bitmap = loadBitmapForNotification(
@@ -88,7 +89,7 @@ class ConversationNotificationFactory @Inject constructor(
             .setLabel(context.getString(R.string.action_reply))
             .build()
 
-        val replyIntent = Intent(context, ReplyReceiver::class.java).apply {
+        val replyIntent = Intent(context, ReplyBroadcast::class.java).apply {
             putExtra(EXTRA_SENDER_ID, response.receiverId)
             putExtra(EXTRA_RECEIVER_ID, response.senderId)
             putExtra(EXTRA_CONVERSATION_ID, response.conversationId)

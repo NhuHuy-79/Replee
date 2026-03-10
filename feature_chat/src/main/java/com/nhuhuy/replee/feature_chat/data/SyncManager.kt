@@ -1,8 +1,7 @@
 package com.nhuhuy.replee.feature_chat.data
 
-import androidx.core.net.toUri
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.replee.core.common.utils.ioExecute
+import com.nhuhuy.replee.core.common.utils.execute
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversationDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversationPatch
@@ -59,14 +58,14 @@ class SyncManagerImp @Inject constructor(
     }
 
     override suspend fun syncMessage(): NetworkResult<Unit> {
-        return ioExecute {
+        return execute {
             val unSyncedMessages = messageLocalDataSource.getUnsyncedMessages().map { entity ->
                 entity.toMessage().toMessageDTO()
             }
 
             if (unSyncedMessages.isEmpty()) {
                 Timber.e("No message to sync")
-                return@ioExecute
+                return@execute
             }
 
             val messageIds = unSyncedMessages.map { messageDTO -> messageDTO.messageId }
@@ -76,7 +75,7 @@ class SyncManagerImp @Inject constructor(
 
             if (conversationIds.isEmpty()) {
                 Timber.e("Failed to sync all message to network!")
-                return@ioExecute
+                return@execute
             }
 
             //Update all message'sync status
@@ -91,7 +90,7 @@ class SyncManagerImp @Inject constructor(
     }
 
     override suspend fun syncConversation(): NetworkResult<Unit> {
-        return ioExecute {
+        return execute {
             val conversationAndUsers = conversationLocalDataSource.getUnSyncedConversations()
 
             val conversationIds = conversationAndUsers.map { conversationAndUsers ->
@@ -117,7 +116,7 @@ class SyncManagerImp @Inject constructor(
     }
 
     override suspend fun syncImageMessage(): NetworkResult<Unit> {
-        return ioExecute {
+        return execute {
             val messageWithUri: Map<String, String> = messageLocalDataSource
                 .getUnsyncedMessageByType(MessageType.IMAGE)
                 .mapNotNull { message ->
@@ -129,7 +128,7 @@ class SyncManagerImp @Inject constructor(
 
             if (messageWithUri.isEmpty()) {
                 Timber.e("No image message to sync")
-                return@ioExecute
+                return@execute
             }
 
             val messageIdsWithURl: Map<String, String> =

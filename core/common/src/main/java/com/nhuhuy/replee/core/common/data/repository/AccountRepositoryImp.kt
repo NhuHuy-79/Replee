@@ -7,8 +7,8 @@ import com.nhuhuy.core.domain.repository.AccountRepository
 import com.nhuhuy.replee.core.common.mapper.toAccount
 import com.nhuhuy.replee.core.common.mapper.toAccountDTO
 import com.nhuhuy.replee.core.common.mapper.toAccountEntity
-import com.nhuhuy.replee.core.common.utils.ioExecute
-import com.nhuhuy.replee.core.common.utils.ioExecuteWithTimeout
+import com.nhuhuy.replee.core.common.utils.execute
+import com.nhuhuy.replee.core.common.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.database.entity.search_history.SearchHistoryEntity
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
@@ -26,7 +26,7 @@ class AccountRepositoryImp @Inject constructor(
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val accountLocalDataSource: AccountLocalDataSource,
 ) : AccountRepository {
-    override suspend fun createAccount(account: Account): NetworkResult<Account> = ioExecute {
+    override suspend fun createAccount(account: Account): NetworkResult<Account> = execute {
         val entity = account.toAccountEntity()
         val dto = account.toAccountDTO()
 
@@ -34,12 +34,15 @@ class AccountRepositoryImp @Inject constructor(
 
         accountNetworkDataSource.sendAccount(dto)
 
+        val token = firebaseAuthEmailService.getDeviceToken()
+        accountNetworkDataSource.updateDeviceToken(entity.uid, token)
+
         account
     }
 
     override suspend fun updateDeviceToken(token: String): NetworkResult<Unit> {
-        return ioExecute {
-            val uid = firebaseAuthEmailService.getCurrentUser()?.uid ?: return@ioExecute
+        return execute {
+            val uid = firebaseAuthEmailService.getCurrentUser()?.uid ?: return@execute
             accountNetworkDataSource.updateDeviceToken(uid, token)
         }
     }
@@ -61,7 +64,7 @@ class AccountRepositoryImp @Inject constructor(
     }
 
     override suspend fun searchAccountsByEmail(email: String): NetworkResult<List<Account>> {
-        return ioExecuteWithTimeout {
+        return executeWithTimeout {
             val accountDTOs = accountNetworkDataSource.fetchAccountsByEmail(email)
             val entities = accountDTOs.map { accountDTO -> accountDTO.toAccountEntity() }
             accountLocalDataSource.upsertAccounts(entities)
@@ -71,9 +74,9 @@ class AccountRepositoryImp @Inject constructor(
 
 
     override suspend fun updateBlockedUsers(otherUser: String): NetworkResult<Unit> {
-        return ioExecuteWithTimeout {
+        return executeWithTimeout {
             val ownerId =
-                firebaseAuthEmailService.getCurrentUser()?.uid ?: return@ioExecuteWithTimeout
+                firebaseAuthEmailService.getCurrentUser()?.uid ?: return@executeWithTimeout
             val owner = accountLocalDataSource.getAccountWithId(ownerId)
 
             owner?.let {
@@ -85,9 +88,9 @@ class AccountRepositoryImp @Inject constructor(
     }
 
     override suspend fun removeUserFromBlockedList(uid: String): NetworkResult<Unit> {
-        return ioExecuteWithTimeout {
+        return executeWithTimeout {
             val ownerId =
-                firebaseAuthEmailService.getCurrentUser()?.uid ?: return@ioExecuteWithTimeout
+                firebaseAuthEmailService.getCurrentUser()?.uid ?: return@executeWithTimeout
             val owner = accountLocalDataSource.getAccountWithId(ownerId)
 
             owner?.let {

@@ -20,7 +20,8 @@ fun SenderImageMessageItem(
     senderImgUrl: String,
     onImagePress: (urlKey: String) -> Unit,
     message: Message,
-    modifier: Modifier
+    modifier: Modifier,
+    isLast: Boolean,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -35,6 +36,7 @@ fun SenderImageMessageItem(
         Spacer(Modifier.width(4.dp))
 
         ImageMessageContainer(
+            isLast = isLast,
             message = message,
             contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
             containerColor = MaterialTheme.colorScheme.secondaryContainer,

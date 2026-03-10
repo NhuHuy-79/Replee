@@ -19,7 +19,6 @@ class FirebaseAuthEmailService @Inject constructor(
     private val auth: FirebaseAuth,
     private val messaging: FirebaseMessaging
 ) {
-
     fun getCurrentUser() = auth.currentUser
 
     suspend fun getDeviceToken() : String = messaging.token.await()

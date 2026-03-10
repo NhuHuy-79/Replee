@@ -36,11 +36,12 @@ class SendMessageUseCase @Inject constructor(
         )
         return messageRepository.sendMessage(message = message)
             .onSuccess { messageId ->
+
+                notifyService.sendNotification(message)
                 syncManager.updateMessageStatus(
                     messageId = messageId,
                     status = MessageStatus.SYNCED
                 )
-                notifyService.sendNotification(message)
             }
             .onFailure {
                 syncManager.updateMessageStatus(

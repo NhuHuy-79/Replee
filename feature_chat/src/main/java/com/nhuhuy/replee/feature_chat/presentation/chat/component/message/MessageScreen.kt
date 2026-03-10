@@ -155,6 +155,7 @@ fun MessageScreen(
                             )
                         } else {
                             SenderImageMessageItem(
+                                isLast = index == pagingItems.itemCount - 1,
                                 senderName = otherUserName,
                                 senderImgUrl = otherUserImg,
                                 message = message,

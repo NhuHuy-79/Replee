@@ -11,27 +11,32 @@ import io.ktor.http.contentType
 import javax.inject.Inject
 
 object Route{
-    const val HEADER = "Device-Token"
-    const val URL = "http://10.0.2.2:8080"
-    const val POST = "$URL/post/conversation"
+    const val HEADER = "device-token"
+    const val URL = "http://192.168.1.5:3000/api/v1/notifications"
+    const val POST = "$URL/send"
 }
 
 
 
 interface KtorService{
-    suspend fun sendConversationMessage(token: String, request: ConversationNotificationRequest)
+    suspend fun sendConversationMessage(
+        authenticationId: String,
+        deviceToken: String,
+        request: ConversationNotificationRequest
+    )
 }
 
 class KtorServiceImp @Inject constructor(
     private val client: HttpClient
 ): KtorService{
     override suspend fun sendConversationMessage(
-        token: String,
+        authenticationId: String,
+        deviceToken: String,
         request: ConversationNotificationRequest
     ) {
         client.post(Route.POST) {
-            bearerAuth(request.senderId)
-            header(Route.HEADER, token)
+            bearerAuth(authenticationId)
+            header(Route.HEADER, deviceToken)
             contentType(ContentType.Application.Json)
             setBody(request)
         }

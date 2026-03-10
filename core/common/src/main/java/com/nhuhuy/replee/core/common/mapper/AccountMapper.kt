@@ -22,6 +22,7 @@ fun AccountEntity.toAccount() = Account(
     imageUrl = imageUrl,
     blockedList = blockedUserList,
     provider = AuthServiceProvider.valueOf(provider)
+
 )
 
 fun Account.toAccountDTO() = AccountDTO(
@@ -39,6 +40,7 @@ fun AccountDTO.toAccount() = Account(
     imageUrl = imageUrl,
     provider = provider,
     createAt = createAt?.toMilliseconds(),
+    currentToken = currentToken,
     blockedList = blockedList
 )
 

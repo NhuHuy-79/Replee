@@ -56,6 +56,7 @@ dependencies {
     //Hilt
     implementation(libs.dagger.hilt.android)
     testImplementation(libs.junit.junit)
+    testImplementation(libs.junit.junit)
     debugImplementation(libs.ui.tooling)
     ksp(libs.hilt.android.compiler)
 

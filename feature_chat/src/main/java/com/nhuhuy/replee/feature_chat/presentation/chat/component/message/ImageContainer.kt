@@ -37,11 +37,13 @@ import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun ImageMessageContainer(
+    modifier: Modifier = Modifier,
+    isLast: Boolean = false,
     onClick: (url: String) -> Unit,
     message: Message,
     containerColor: Color,
     contentColor: Color,
-    modifier: Modifier = Modifier
+
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val maxWidth: Dp = screenWidth * 0.7f
@@ -51,6 +53,7 @@ fun ImageMessageContainer(
         when (message.status) {
             MessageStatus.FAILED -> R.string.message_status_failed
             MessageStatus.SEEN -> R.string.message_status_seen
+            MessageStatus.SYNCED -> R.string.message_status_sent
             else -> null
         }
     }
@@ -85,9 +88,9 @@ fun ImageMessageContainer(
             }
         )
 
-        stringRes?.let {
+        if (stringRes != null && isLast) {
             Text(
-                text = stringResource(it),
+                text = stringResource(stringRes),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier

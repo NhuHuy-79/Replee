@@ -5,23 +5,23 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import com.nhuhuy.replee.core.common.data.data_store.AppDataStore
 import com.nhuhuy.replee.core.common.data.data_store.NotificationMode
-import com.nhuhuy.replee.notification.ConversationNotificationResponse
+import com.nhuhuy.replee.core.network.network.model.NotificationResponse
 import com.nhuhuy.replee.notification.NotificationFactory
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import timber.log.Timber
 import javax.inject.Inject
 
-interface PushNotificationHandler {
-    suspend fun showConversationNotification(body: ConversationNotificationResponse)
+interface ServiceNotifier {
+    suspend fun showConversationNotification(body: NotificationResponse)
 }
 
-class PushNotificationHandlerImp @Inject constructor(
+class ServiceNotifierImp @Inject constructor(
     private val appDataStore: AppDataStore,
     private val notificationFactory: NotificationFactory,
     @ApplicationContext private val context: Context,
-) : PushNotificationHandler{
-    override suspend fun showConversationNotification(body: ConversationNotificationResponse) {
+) : ServiceNotifier {
+    override suspend fun showConversationNotification(body: NotificationResponse) {
         val notificationMode = appDataStore.observeNotification().first()
 
         if (notificationMode == NotificationMode.NONE){

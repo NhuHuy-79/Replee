@@ -1,11 +1,11 @@
 package com.nhuhuy.replee.di
 
-import com.nhuhuy.replee.broadcast.ReceiverHandler
-import com.nhuhuy.replee.broadcast.ReceiverHandlerImp
+import com.nhuhuy.replee.broadcast.BroadcastDataMapper
+import com.nhuhuy.replee.broadcast.BroadcastDataMapperImp
 import com.nhuhuy.replee.notification.ConversationNotificationFactory
 import com.nhuhuy.replee.notification.NotificationFactory
-import com.nhuhuy.replee.service.PushNotificationHandler
-import com.nhuhuy.replee.service.PushNotificationHandlerImp
+import com.nhuhuy.replee.service.ServiceNotifier
+import com.nhuhuy.replee.service.ServiceNotifierImp
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -15,10 +15,10 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 abstract class NotificationModule {
     @Binds
-    abstract fun bindReplyHandler(handler: ReceiverHandlerImp): ReceiverHandler
+    abstract fun bindReplyHandler(handler: BroadcastDataMapperImp): BroadcastDataMapper
 
     @Binds
-    abstract fun bindPushNotificationHandler(handler: PushNotificationHandlerImp): PushNotificationHandler
+    abstract fun bindPushNotificationHandler(handler: ServiceNotifierImp): ServiceNotifier
 
     @Binds
     abstract fun bindNotificationFactory(factory: ConversationNotificationFactory): NotificationFactory

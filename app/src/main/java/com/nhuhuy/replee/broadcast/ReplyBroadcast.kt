@@ -18,9 +18,9 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ReplyReceiver() : BroadcastReceiver() {
+class ReplyBroadcast() : BroadcastReceiver() {
     @Inject
-    lateinit var handler: ReceiverHandler
+    lateinit var handler: BroadcastDataMapper
     private lateinit var notificationManager: NotificationManagerCompat
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
