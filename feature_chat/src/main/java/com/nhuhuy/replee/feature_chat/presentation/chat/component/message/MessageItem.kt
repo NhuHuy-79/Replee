@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.feature_chat.presentation.chat.component.message
 
+import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -97,6 +98,8 @@ fun MyMessageItem(
         }
     }
 }
+
+@SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun OtherMessageItem(
     imgUrl: String,

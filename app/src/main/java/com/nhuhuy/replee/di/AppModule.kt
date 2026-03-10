@@ -4,7 +4,7 @@ package com.nhuhuy.replee.di
 import android.content.Context
 import com.nhuhuy.replee.core.common.data.UriConverter
 import com.nhuhuy.replee.core.common.utils.InputValidator
-import com.nhuhuy.replee.core.network.network.mapper.RequestMapper
+import com.nhuhuy.replee.core.network.api.mapper.RequestMapper
 import com.nhuhuy.replee.notification.NotificationParser
 import com.nhuhuy.replee.worker.ListenConversationsManager
 import com.nhuhuy.replee.worker.ListenConversationsManagerImp

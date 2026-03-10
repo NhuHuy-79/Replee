@@ -20,6 +20,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -28,17 +29,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.feature_chat.R
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun MessageInput(
     value: String,
     onValueChange: (value: String) -> Unit,
     onFocusChange: (focus: Boolean) -> Unit,
+    scrollCallback: suspend () -> Unit,
     onCameraClick:() -> Unit,
     onImageClick: () -> Unit,
     onSendMessage: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val scope = rememberCoroutineScope()
+
     Row(
         modifier = modifier.padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -71,7 +77,13 @@ fun MessageInput(
         )
 
         IconButton(
-            onClick = onSendMessage,
+            onClick = {
+                onSendMessage()
+                scope.launch {
+                    delay(50)
+                    scrollCallback()
+                }
+            },
             enabled = value.isNotBlank(),
             colors = IconButtonDefaults.iconButtonColors(
                 contentColor = if (value.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline

@@ -22,7 +22,8 @@ FROM search_history_table s
 JOIN accounts a
 ON s.searchResultId = a.uid
 WHERE s.ownerId = :ownerId
-ORDER BY s.searchAt DESC
+ORDER BY s.searchAt DESC 
+LIMIT 5
 """
     )
     fun getSearchHistory(ownerId: String): Flow<List<SearchHistoryResult>>

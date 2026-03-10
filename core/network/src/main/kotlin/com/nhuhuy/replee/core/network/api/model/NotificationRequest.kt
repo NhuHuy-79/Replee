@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.network.network.model
+package com.nhuhuy.replee.core.network.api.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

@@ -66,6 +66,9 @@
         This action cannot be undone. The conversation will be removed from your account.
     </string>
 
+    <!--Network Status-->
+    <string name="network_failed">You are offline! Please check your connection!</string>
+
     <!--Blocked-->
     <string name="banner_blocked_user">You have blocked this user. If you want to contact to them, please
     unblock them in Setting.</string>

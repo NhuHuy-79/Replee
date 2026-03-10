@@ -1,7 +1,7 @@
-package com.nhuhuy.replee.core.network.network.mapper
+package com.nhuhuy.replee.core.network.api.mapper
 
-import com.nhuhuy.replee.core.network.network.model.ConversationNotificationRequest
-import com.nhuhuy.replee.core.network.network.model.NotificationResponse
+import com.nhuhuy.replee.core.network.api.model.ConversationNotificationRequest
+import com.nhuhuy.replee.core.network.api.model.NotificationResponse
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 

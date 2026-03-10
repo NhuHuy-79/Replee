@@ -7,6 +7,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.nhuhuy.replee.LocalNetworkStatus
 import com.nhuhuy.replee.core.design_system.ObserveEffect
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatScreen
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatViewModel
@@ -46,6 +47,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
     backstack: NavBackStack<NavKey>,
 ) {
     entry<HomeDestination.ConversationList> { screen ->
+        val localNetworkStatus = LocalNetworkStatus.current
         val viewModel: ConversationViewModel = hiltViewModel(
             creationCallback = { factory: ConversationViewModel.Factory ->
                 factory.create(
@@ -81,6 +83,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
         }
 
         ConversationScreen(
+            networkStatus = localNetworkStatus,
             conversationListState = conversationList,
             state = state,
             searchHistory = searchHistory,

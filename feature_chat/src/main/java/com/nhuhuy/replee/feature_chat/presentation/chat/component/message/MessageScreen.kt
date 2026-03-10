@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
@@ -49,6 +49,7 @@ import timber.log.Timber
 @OptIn(FlowPreview::class)
 @Composable
 fun MessageScreen(
+    lazyListState: LazyListState,
     otherUserImg: String,
     otherUserName: String,
     onAction: (ChatAction) -> Unit,
@@ -57,15 +58,12 @@ fun MessageScreen(
     pagingItems: LazyPagingItems<Message>,
     markMessagesRead: (ids: Set<String>) -> Unit,
 ) {
-    val lazyListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
-    val isAtBottom by remember(lazyListState) {
+    val isAtBottom by remember {
         derivedStateOf {
-            val visible = lazyListState.layoutInfo.visibleItemsInfo
-            // reverseLayout = true => item đầu tiên visible thường là newest
-            val newestVisibleIndex = visible.firstOrNull()?.index ?: return@derivedStateOf true
-            newestVisibleIndex == 0
+            lazyListState.firstVisibleItemIndex == 0 &&
+                    lazyListState.firstVisibleItemScrollOffset == 0
         }
     }
 
@@ -100,12 +98,6 @@ fun MessageScreen(
     val refreshState = pagingItems.loadState.refresh
     val appendState = pagingItems.loadState.append
 
-    LaunchedEffect(pagingItems.itemCount, isAtBottom) {
-        if (isAtBottom) {
-            lazyListState.animateScrollToItem(0)
-        }
-    }
-
     // =========================
     // UI
     // =========================
@@ -124,7 +116,7 @@ fun MessageScreen(
                 count = pagingItems.itemCount,
                 key = pagingItems.itemKey { item -> item.messageId }
             ) { index ->
-                val message = pagingItems.peek(index) ?: return@items
+                val message = pagingItems[index] ?: return@items
 
                 when (message.type) {
                     MessageType.TEXT -> {

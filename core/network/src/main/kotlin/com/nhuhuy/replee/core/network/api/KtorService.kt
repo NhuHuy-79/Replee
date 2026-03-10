@@ -1,6 +1,6 @@
-package com.nhuhuy.replee.core.network.network
+package com.nhuhuy.replee.core.network.api
 
-import com.nhuhuy.replee.core.network.network.model.ConversationNotificationRequest
+import com.nhuhuy.replee.core.network.api.model.ConversationNotificationRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.header

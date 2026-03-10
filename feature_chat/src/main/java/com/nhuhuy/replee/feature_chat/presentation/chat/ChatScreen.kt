@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.MoreVert
@@ -54,6 +55,7 @@ fun ChatScreen(
     state: ChatState,
     onAction: (ChatAction) -> Unit,
 ) = BoxContainer {
+    val lazyListState = rememberLazyListState()
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -113,6 +115,7 @@ fun ChatScreen(
                 )
             } else {
                 MessageScreen(
+                    lazyListState = lazyListState,
                     otherUserImg = state.otherUser.imageUrl,
                     otherUserName = state.otherUser.name,
                     currentUserId = state.currentUserId,
@@ -143,7 +146,9 @@ fun ChatScreen(
                     },
                     onSendMessage = {
                         onAction(ChatAction.OnSendMessageClicked)
+
                     },
+                    scrollCallback = { lazyListState.scrollToItem(0) },
                     onFocusChange = {},
                     modifier = Modifier
                         .fillMaxWidth()

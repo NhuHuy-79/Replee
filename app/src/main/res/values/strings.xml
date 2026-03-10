@@ -9,4 +9,6 @@
     <string name="notification_success">Send message successfully</string>
 
     <string name="splash_screen">Checking your authentication…</string>
+
+    <string name="network_failed">You are offline! Please check connection and try again.</string>
 </resources>

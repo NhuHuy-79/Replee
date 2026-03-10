@@ -1,8 +1,8 @@
 package com.nhuhuy.replee.notification
 
 import com.google.firebase.messaging.RemoteMessage
-import com.nhuhuy.replee.core.network.network.mapper.RequestMapper
-import com.nhuhuy.replee.core.network.network.model.NotificationResponse
+import com.nhuhuy.replee.core.network.api.mapper.RequestMapper
+import com.nhuhuy.replee.core.network.api.model.NotificationResponse
 import timber.log.Timber
 import javax.inject.Inject
 

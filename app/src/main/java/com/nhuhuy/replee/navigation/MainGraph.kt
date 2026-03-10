@@ -85,7 +85,9 @@ fun MainGraph(
         entryProvider = entryProvider {
             splashGraph()
             authGraph(backStack)
-            chatGraph(backStack)
+            chatGraph(
+                backstack = backStack
+            )
             profileGraph(backStack)
         }
     )

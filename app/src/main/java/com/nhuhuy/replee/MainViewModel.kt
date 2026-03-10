@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.data.data_store.AppDataStore
 import com.nhuhuy.replee.core.common.data.data_store.ThemeMode
 import com.nhuhuy.replee.core.network.data_source.AuthState
+import com.nhuhuy.replee.core.network.manager.ConnectivityObserver
+import com.nhuhuy.replee.core.network.manager.NetworkStatus
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import com.nhuhuy.replee.worker.ListenConversationsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,14 +18,22 @@ import timber.log.Timber
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
+    connectionObserver: ConnectivityObserver,
     authRepository: AuthRepository,
     appDataStore: AppDataStore,
     private val listenConversationsManager: ListenConversationsManager,
 ) : ViewModel(){
+
     init {
         listenToNetworkConversations()
     }
 
+    val network = connectionObserver.observe()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = NetworkStatus.Online
+        )
     val authState = authRepository.observeAuthenticationState()
         .stateIn(
             scope = viewModelScope,
@@ -37,6 +47,7 @@ class MainViewModel @Inject constructor(
 
     val theme = appDataStore.observeTheme()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ThemeMode.DEFAULT)
+
 
     override fun onCleared() {
         Timber.e("Main ViewModel is cleared, stop listening")

@@ -6,10 +6,10 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import com.google.firebase.messaging.messaging
+import com.nhuhuy.replee.core.network.api.KtorService
+import com.nhuhuy.replee.core.network.api.KtorServiceImp
 import com.nhuhuy.replee.core.network.data_source.CloudinaryFileUploader
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
-import com.nhuhuy.replee.core.network.network.KtorService
-import com.nhuhuy.replee.core.network.network.KtorServiceImp
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
