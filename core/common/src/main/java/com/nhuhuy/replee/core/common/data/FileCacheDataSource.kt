@@ -1,10 +1,14 @@
 package com.nhuhuy.replee.core.common.data
 
 import androidx.core.net.toUri
+import javax.inject.Inject
 
-class FileCacheDataSource {
-    suspend fun cacheImage(uriPath: String) {
+interface FileCacheDataSource {
+    suspend fun cacheImage(uriPath: String)
+}
+
+class FileCacheDataSourceImp @Inject constructor() : FileCacheDataSource {
+    override suspend fun cacheImage(uriPath: String) {
         uriPath.toUri()
-
     }
 }

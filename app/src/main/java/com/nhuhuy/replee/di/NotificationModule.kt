@@ -13,7 +13,7 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class NotificationModule {
+abstract class NotificationModuleBinder {
     @Binds
     abstract fun bindReplyHandler(handler: BroadcastDataMapperImp): BroadcastDataMapper
 

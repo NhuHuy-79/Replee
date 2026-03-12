@@ -1,10 +1,13 @@
-package com.nhuhuy.replee.core.database.di
+package com.nhuhuy.replee.di
 
 import android.content.Context
 import androidx.room.Room
+import com.nhuhuy.replee.core.common.data.data_store.AppDataStore
+import com.nhuhuy.replee.core.common.data.data_store.AppDataStoreImp
 import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.database.Migration_15_16
 import com.nhuhuy.replee.core.database.entity.account.AccountDao
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,7 +17,17 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object DatabaseModuleProvider {
+abstract class LocalModuleBinder {
+    @Binds
+    abstract fun bindAppDataStore(imp: AppDataStoreImp): AppDataStore
+
+}
+
+
+@Module
+@InstallIn(SingletonComponent::class)
+object LocalModuleProvider {
+
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): CoreDatabase {

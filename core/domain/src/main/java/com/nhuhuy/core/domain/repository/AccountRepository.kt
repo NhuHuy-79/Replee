@@ -6,6 +6,7 @@ import com.nhuhuy.core.domain.model.SearchHistoryResult
 import kotlinx.coroutines.flow.Flow
 
 interface AccountRepository {
+    suspend fun createAccount(token: String, account: Account): NetworkResult<Account>
     suspend fun createAccount(account: Account): NetworkResult<Account>
     suspend fun updateDeviceToken(token: String): NetworkResult<Unit>
     suspend fun getAccountById(uid: String): Account

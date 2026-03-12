@@ -26,12 +26,23 @@ class AccountRepositoryImp @Inject constructor(
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val accountLocalDataSource: AccountLocalDataSource,
 ) : AccountRepository {
+    override suspend fun createAccount(
+        token: String,
+        account: Account
+    ): NetworkResult<Account> = execute(dispatcher = ioDispatcher) {
+        val entity = account.toAccountEntity()
+        val dto = account.toAccountDTO().copy(currentToken = token)
+
+        accountLocalDataSource.upsertAccount(entity)
+        accountNetworkDataSource.sendAccount(dto)
+        account
+    }
+
     override suspend fun createAccount(account: Account): NetworkResult<Account> = execute {
         val entity = account.toAccountEntity()
         val dto = account.toAccountDTO()
 
         accountLocalDataSource.upsertAccount(entity)
-
         accountNetworkDataSource.sendAccount(dto)
 
         val token = firebaseAuthEmailService.getDeviceToken()

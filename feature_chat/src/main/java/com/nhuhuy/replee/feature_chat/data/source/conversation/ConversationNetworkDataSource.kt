@@ -22,12 +22,38 @@ import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import javax.inject.Inject
 
-class ConversationNetworkDataSource @Inject constructor(
+interface ConversationNetworkDataSource {
+    suspend fun updateUnreadMessageCount(conversationId: String, receiverField: String, count: Int)
+    suspend fun sendConversation(conversationDTO: ConversationDTO)
+    suspend fun getConversationUserIdsWithOwner(ownerId: String): List<String>
+    suspend fun fetchConversationsByUser(uid: String): List<ConversationDTO>
+    suspend fun fetchConversationById(conversationId: String): ConversationDTO?
+    suspend fun sendConversations(conversationDTOList: List<ConversationDTO>)
+    suspend fun updateConversations(conversationPatchList: List<ConversationPatch>)
+    suspend fun updateNicknameForUser(
+        uid: String,
+        nickName: String,
+        conversationDTO: ConversationDTO
+    )
+
+    suspend fun updateLastMessage(message: MessageDTO, conversation: ConversationDTO)
+    suspend fun updateSeedColor(conversationId: String, seedColor: Long)
+    suspend fun updateMutedStatus(conversationId: String, uid: String, muted: Boolean)
+    suspend fun updatePinnedStatus(conversationId: String, uid: String, pinned: Boolean)
+    fun streamConversationsByOwner(ownerId: String): Flow<List<ConversationDTO>>
+    fun listenConversationChangesByOwner(ownerId: String): Flow<List<DataChange<ConversationDTO>>>
+    fun listenConversationChanges(
+        ownerId: String,
+        limit: Int
+    ): Flow<List<DataChange<ConversationDTO>>>
+}
+
+class ConversationNetworkDataSourceImp @Inject constructor(
     private val firestore: FirebaseFirestore,
-) {
+) : ConversationNetworkDataSource {
     private val collection = firestore.collection(Constant.Firestore.CONVERSATION_COLLECTION)
 
-    suspend fun updateUnreadMessageCount(
+    override suspend fun updateUnreadMessageCount(
         conversationId: String,
         receiverField: String,
         count: Int
@@ -37,7 +63,7 @@ class ConversationNetworkDataSource @Inject constructor(
             .await()
     }
 
-    suspend fun sendConversation(conversationDTO: ConversationDTO) {
+    override suspend fun sendConversation(conversationDTO: ConversationDTO) {
         val snapshot = collection.document(conversationDTO.id)
             .get()
             .await()
@@ -50,7 +76,7 @@ class ConversationNetworkDataSource @Inject constructor(
 
     }
 
-    suspend fun getConversationUserIdsWithOwner(ownerId: String): List<String> {
+    override suspend fun getConversationUserIdsWithOwner(ownerId: String): List<String> {
         val conversationDTO = collection.whereArrayContains("memberIds", ownerId)
             .get()
             .await()
@@ -68,7 +94,7 @@ class ConversationNetworkDataSource @Inject constructor(
         return userIds
     }
 
-    suspend fun fetchConversationsByUser(uid: String): List<ConversationDTO> {
+    override suspend fun fetchConversationsByUser(uid: String): List<ConversationDTO> {
         val snapshot = collection.whereArrayContains("memberIds", uid)
             .get()
             .await()
@@ -77,7 +103,7 @@ class ConversationNetworkDataSource @Inject constructor(
 
     }
 
-    suspend fun fetchConversationById(conversationId: String): ConversationDTO? {
+    override suspend fun fetchConversationById(conversationId: String): ConversationDTO? {
         return collection.document(conversationId)
             .get()
             .await()
@@ -85,7 +111,7 @@ class ConversationNetworkDataSource @Inject constructor(
 
     }
 
-    suspend fun sendConversations(conversationDTOList: List<ConversationDTO>) {
+    override suspend fun sendConversations(conversationDTOList: List<ConversationDTO>) {
         //Optimize for write multi conversationDTOs to firestore
         optimizedWrite(
             items = conversationDTOList,
@@ -105,7 +131,7 @@ class ConversationNetworkDataSource @Inject constructor(
         )
     }
 
-    suspend fun updateConversations(conversationPatchList: List<ConversationPatch>) {
+    override suspend fun updateConversations(conversationPatchList: List<ConversationPatch>) {
         firestore.runBatch { batch ->
             for (conversation in conversationPatchList) {
                 val ref = collection.document(conversation.id)
@@ -116,7 +142,7 @@ class ConversationNetworkDataSource @Inject constructor(
 
     }
 
-    suspend fun updateNicknameForUser(
+    override suspend fun updateNicknameForUser(
         uid: String,
         nickName: String,
         conversationDTO: ConversationDTO
@@ -132,7 +158,7 @@ class ConversationNetworkDataSource @Inject constructor(
             .await()
     }
 
-    suspend fun updateLastMessage(message: MessageDTO, conversation: ConversationDTO) {
+    override suspend fun updateLastMessage(message: MessageDTO, conversation: ConversationDTO) {
 
         val receiverId = if (message.senderId == conversation.user1.uid) {
             "user2"
@@ -153,12 +179,12 @@ class ConversationNetworkDataSource @Inject constructor(
             .await()
     }
 
-    suspend fun updateSeedColor(conversationId: String, seedColor: Long) {
+    override suspend fun updateSeedColor(conversationId: String, seedColor: Long) {
         val documentRef = collection.document(conversationId)
         documentRef.updateFieldValue("seedColor", seedColor)
     }
 
-    suspend fun updateMutedStatus(conversationId: String, uid: String, muted: Boolean) {
+    override suspend fun updateMutedStatus(conversationId: String, uid: String, muted: Boolean) {
         val documentRef = collection.document(conversationId)
         if (muted) {
             documentRef.unionFieldValueInArray("mutedBy", uid)
@@ -167,7 +193,7 @@ class ConversationNetworkDataSource @Inject constructor(
         }
     }
 
-    suspend fun updatePinnedStatus(conversationId: String, uid: String, pinned: Boolean) {
+    override suspend fun updatePinnedStatus(conversationId: String, uid: String, pinned: Boolean) {
         val documentRef = collection.document(conversationId)
         if (pinned) {
             documentRef.unionFieldValueInArray("pinnedBy", uid)
@@ -176,7 +202,7 @@ class ConversationNetworkDataSource @Inject constructor(
         }
     }
 
-    fun streamConversationsByOwner(ownerId: String): Flow<List<ConversationDTO>> {
+    override fun streamConversationsByOwner(ownerId: String): Flow<List<ConversationDTO>> {
         return callbackFlow {
             val listener = collection
                 .whereArrayContains("memberIds", ownerId)
@@ -197,13 +223,13 @@ class ConversationNetworkDataSource @Inject constructor(
         }
     }
 
-    fun listenConversationChangesByOwner(ownerId: String): Flow<List<DataChange<ConversationDTO>>> {
+    override fun listenConversationChangesByOwner(ownerId: String): Flow<List<DataChange<ConversationDTO>>> {
         val query = collection
             .whereArrayContains("memberIds", ownerId)
         return query.observeDataChange<ConversationDTO>()
     }
 
-    fun listenConversationChanges(
+    override fun listenConversationChanges(
         ownerId: String,
         limit: Int
     ): Flow<List<DataChange<ConversationDTO>>> {

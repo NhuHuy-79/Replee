@@ -13,7 +13,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class CoreUseCaseModule {
+class CoreUseCaseModuleProvider {
     @Provides
     @Singleton
     fun provideGetCurrentAccountUseCase(accountRepository: AccountRepository): GetCurrentAccountUseCase {

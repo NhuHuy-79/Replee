@@ -8,48 +8,58 @@ import com.nhuhuy.replee.core.network.utils.FirestoreCannotConvertObjectExceptio
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class AccountNetworkDataSource @Inject constructor(
+interface AccountNetworkDataSource {
+    suspend fun sendAccount(account: AccountDTO)
+    suspend fun updateImageUrl(uid: String, imgUrl: String)
+    suspend fun updateBlockedList(list: List<String>, owner: String)
+    suspend fun updateDeviceToken(uid: String, token: String)
+    suspend fun fetchAccountById(id: String): AccountDTO
+    suspend fun fetchAccountByIdList(ids: List<String>): List<AccountDTO>
+    suspend fun fetchAccountsByEmail(query: String): List<AccountDTO>
+}
+
+class AccountNetworkDataSourceImp @Inject constructor(
     firestore: FirebaseFirestore
-){
+) : AccountNetworkDataSource {
     private val collection = firestore.collection(Constant.Firestore.USER_COLLECTION)
 
-    suspend fun sendAccount(account: AccountDTO){
+    override suspend fun sendAccount(account: AccountDTO) {
         collection.document(account.id).set(account).await()
     }
 
-    suspend fun updateImageUrl(uid: String, imgUrl: String) {
+    override suspend fun updateImageUrl(uid: String, imgUrl: String) {
         collection.document(uid)
             .update("imageUrl", imgUrl)
             .await()
     }
 
-    suspend fun updateBlockedList(list: List<String>, owner: String) {
+    override suspend fun updateBlockedList(list: List<String>, owner: String) {
         collection.document(owner)
             .update("blockedList", list)
             .await()
     }
 
-    suspend fun updateDeviceToken(uid: String, token: String){
+    override suspend fun updateDeviceToken(uid: String, token: String) {
         collection.document(uid)
             .update("currentToken", token)
             .await()
     }
 
-    suspend fun fetchAccountById(id: String) : AccountDTO {
+    override suspend fun fetchAccountById(id: String): AccountDTO {
         return collection.document(id)
             .get()
             .await()
             .toObject(AccountDTO::class.java) ?: throw FirestoreCannotConvertObjectException()
     }
 
-    suspend fun fetchAccountByIdList(ids: List<String>): List<AccountDTO> {
+    override suspend fun fetchAccountByIdList(ids: List<String>): List<AccountDTO> {
         return collection.whereIn("id", ids)
             .get()
             .await()
             .toObjects<AccountDTO>()
     }
 
-    suspend fun fetchAccountsByEmail(query: String): List<AccountDTO> {
+    override suspend fun fetchAccountsByEmail(query: String): List<AccountDTO> {
         return collection
             .orderBy("email")
             .startAt(query.lowercase())

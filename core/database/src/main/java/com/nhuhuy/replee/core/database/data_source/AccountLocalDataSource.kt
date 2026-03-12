@@ -9,56 +9,71 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class AccountLocalDataSource @Inject constructor(
+interface AccountLocalDataSource {
+    suspend fun upsertAccount(accountEntity: AccountEntity)
+    suspend fun updateImageUrl(uid: String, imgUrl: String)
+    suspend fun getAccountWithId(uid: String): AccountEntity?
+    suspend fun upsertAccounts(list: List<AccountEntity>)
+    suspend fun updateLogoutStatus(uid: String)
+    suspend fun upsertSearchHistory(list: List<SearchHistoryEntity>)
+    fun observeSearchHistory(uid: String): Flow<List<SearchHistoryResult>>
+    suspend fun updateSearchHistory(list: List<SearchHistoryEntity>)
+    fun observeBlockStatus(owner: String): Flow<List<String>>
+    suspend fun updateBlockedList(owner: String, list: List<String>)
+    suspend fun deleteAccount(accountEntity: AccountEntity)
+}
+
+class AccountLocalDataSourceImp @Inject constructor(
     private val coreDatabase: CoreDatabase,
-) {
+) : AccountLocalDataSource {
     private val accountDao = coreDatabase.provideAccountDao()
     private val searchHistoryDao = coreDatabase.provideSearchHistoryDao()
-    suspend fun upsertAccount(accountEntity: AccountEntity){
+
+    override suspend fun upsertAccount(accountEntity: AccountEntity) {
         accountDao.upsert(accountEntity)
     }
 
-    suspend fun updateImageUrl(uid: String, imgUrl: String) {
+    override suspend fun updateImageUrl(uid: String, imgUrl: String) {
         accountDao.updateImageUrl(uid, imgUrl)
     }
 
-    suspend fun getAccountWithId(uid: String): AccountEntity? {
+    override suspend fun getAccountWithId(uid: String): AccountEntity? {
         return accountDao.getAccountWithUid(uid)
     }
 
-    suspend fun upsertAccounts(list: List<AccountEntity>){
+    override suspend fun upsertAccounts(list: List<AccountEntity>) {
         accountDao.upsertAll(list)
     }
 
-    suspend fun updateLogoutStatus(uid: String) {
+    override suspend fun updateLogoutStatus(uid: String) {
         accountDao.updateLogoutStatus(uid)
     }
 
-    suspend fun upsertSearchHistory(list: List<SearchHistoryEntity>) {
+    override suspend fun upsertSearchHistory(list: List<SearchHistoryEntity>) {
         searchHistoryDao.upsertAll(list)
     }
 
-    fun observeSearchHistory(uid: String): Flow<List<SearchHistoryResult>> {
+    override fun observeSearchHistory(uid: String): Flow<List<SearchHistoryResult>> {
         return searchHistoryDao.getSearchHistory(uid)
     }
 
-    suspend fun updateSearchHistory(list: List<SearchHistoryEntity>) {
+    override suspend fun updateSearchHistory(list: List<SearchHistoryEntity>) {
         searchHistoryDao.upsertAll(list)
     }
 
 
-    fun observeBlockStatus(owner: String): Flow<List<String>> {
+    override fun observeBlockStatus(owner: String): Flow<List<String>> {
         return accountDao.observeBlockStatus(owner).map { accountEntity ->
             Log.d("AccountLocalSource", "observeBlockStatus: $accountEntity")
             accountEntity?.blockedUserList ?: emptyList()
         }
     }
 
-    suspend fun updateBlockedList(owner: String, list: List<String>) {
+    override suspend fun updateBlockedList(owner: String, list: List<String>) {
         accountDao.updateBlockedList(owner, list)
     }
 
-    suspend fun deleteAccount(accountEntity: AccountEntity) {
+    override suspend fun deleteAccount(accountEntity: AccountEntity) {
         accountDao.delete(accountEntity)
     }
 }

@@ -48,3 +48,27 @@ suspend fun <T> execute(
         }
     }
 }
+
+suspend fun <T, R> NetworkResult<T>.flatMap(
+    transform: suspend (T) -> NetworkResult<R>
+): NetworkResult<R> {
+    return when (this) {
+        is NetworkResult.Failure -> this
+        is NetworkResult.Success -> transform(this.data)
+    }
+}
+
+suspend fun <T, R> NetworkResult<T>.andThen(
+    transform: suspend (T) -> NetworkResult<R>
+): NetworkResult<T> {
+    return when (this) {
+        is NetworkResult.Failure -> this
+        is NetworkResult.Success -> {
+            transform(this.data)
+            this
+        }
+    }
+}
+
+
+

@@ -18,13 +18,45 @@ import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import javax.inject.Inject
 
-class
-MessageNetworkDataSource @Inject constructor(
+interface MessageNetworkDataSource {
+    suspend fun sendMessage(message: MessageDTO)
+    suspend fun sendMessages(list: List<MessageDTO>): List<String>
+    suspend fun fetchMessagesByConversationId(conversationId: String): List<MessageDTO>
+    suspend fun deleteMessage(conversationId: String, messageId: String)
+    suspend fun updateMessageStatus(
+        conversationId: String,
+        messageIds: List<String>,
+        status: MessageStatus,
+    ): Int
+
+    suspend fun updateMessageSeenStatus(
+        conversationId: String,
+        messageIds: List<String>,
+        receiverId: String
+    ): Int
+
+    fun listenMessageChangesByConversationId(conversationId: String): Flow<List<DataChange<MessageDTO>>>
+    fun listenToMessagesWithLimit(
+        conversationId: String,
+        limit: Int = 3
+    ): Flow<List<DataChange<MessageDTO>>>
+
+    suspend fun fetchMessagesPage(
+        conversationId: String,
+        limit: Int,
+        startAfterCreatedAt: Long?,
+        startAfterMessageId: String?
+    ): List<MessageDTO>
+
+    fun streamMessageListByConversationId(conversationId: String): Flow<List<MessageDTO>>
+}
+
+class MessageNetworkDataSourceImp @Inject constructor(
     private val firestore: FirebaseFirestore
-){
+) : MessageNetworkDataSource {
     private val collection = firestore.collection(Constant.Firestore.CONVERSATION_COLLECTION)
 
-    suspend fun sendMessage(message: MessageDTO) {
+    override suspend fun sendMessage(message: MessageDTO) {
         val data = mapOf(
             "lastMessageTime" to message.sendAt,
             "lastMessageContent" to message.content,
@@ -40,7 +72,7 @@ MessageNetworkDataSource @Inject constructor(
         }
     }
 
-    suspend fun sendMessages(
+    override suspend fun sendMessages(
         list: List<MessageDTO>
     ): List<String> {
 
@@ -81,7 +113,7 @@ MessageNetworkDataSource @Inject constructor(
         return conversationIds.toList()
     }
 
-    suspend fun fetchMessagesByConversationId(conversationId: String) : List<MessageDTO>{
+    override suspend fun fetchMessagesByConversationId(conversationId: String): List<MessageDTO> {
         val snapshot = collection.document(conversationId)
             .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
             .get()
@@ -90,7 +122,7 @@ MessageNetworkDataSource @Inject constructor(
         return snapshot.toObjects<MessageDTO>()
     }
 
-    suspend fun deleteMessage(conversationId: String, messageId: String){
+    override suspend fun deleteMessage(conversationId: String, messageId: String) {
         collection.document(conversationId)
             .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
             .document(messageId)
@@ -98,7 +130,7 @@ MessageNetworkDataSource @Inject constructor(
             .await()
     }
 
-    suspend fun updateMessageStatus(
+    override suspend fun updateMessageStatus(
         conversationId: String,
         messageIds: List<String>,
         status: MessageStatus,
@@ -130,7 +162,11 @@ MessageNetworkDataSource @Inject constructor(
         return refs.size
     }
 
-    suspend fun updateMessageSeenStatus(conversationId: String, messageIds: List<String>, receiverId: String) : Int{
+    override suspend fun updateMessageSeenStatus(
+        conversationId: String,
+        messageIds: List<String>,
+        receiverId: String
+    ): Int {
         if (messageIds.isEmpty()) return 0
 
         Timber.d("messages: $messageIds")
@@ -166,16 +202,16 @@ MessageNetworkDataSource @Inject constructor(
         return snapshots.size()
     }
 
-    fun listenMessageChangesByConversationId(conversationId: String): Flow<List<DataChange<MessageDTO>>> {
+    override fun listenMessageChangesByConversationId(conversationId: String): Flow<List<DataChange<MessageDTO>>> {
         val query = collection.document(conversationId)
             .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
             .orderBy("sendAt", Query.Direction.DESCENDING)
         return query.observeDataChange()
     }
 
-    fun listenToMessagesWithLimit(
+    override fun listenToMessagesWithLimit(
         conversationId: String,
-        limit: Int = 3
+        limit: Int
     ): Flow<List<DataChange<MessageDTO>>> {
         val query = collection.document(conversationId)
             .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
@@ -184,11 +220,10 @@ MessageNetworkDataSource @Inject constructor(
         return query.observeDataChange()
     }
 
-    suspend fun fetchMessagesPage(
+    override suspend fun fetchMessagesPage(
         conversationId: String,
         limit: Int,
         startAfterCreatedAt: Long?,
-
         startAfterMessageId: String?
     ): List<MessageDTO> {
 
@@ -211,7 +246,7 @@ MessageNetworkDataSource @Inject constructor(
         }
     }
 
-    fun streamMessageListByConversationId(conversationId: String): Flow<List<MessageDTO>> {
+    override fun streamMessageListByConversationId(conversationId: String): Flow<List<MessageDTO>> {
         return callbackFlow {
             val listener = collection
                 .document(conversationId)

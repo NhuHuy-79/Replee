@@ -50,8 +50,7 @@ class AuthRepositoryImpTest {
             ioDispatcher = ioDispatcher,
             firebaseAuthEmailService = firebaseAuthEmailService,
             accountNetworkDataSource = accountNetworkDataSource,
-            accountLocalDataSource = accountLocalDataSource,
-            googleAuthService = googleAuthService
+            accountLocalDataSource = accountLocalDataSource
         )
 
     }

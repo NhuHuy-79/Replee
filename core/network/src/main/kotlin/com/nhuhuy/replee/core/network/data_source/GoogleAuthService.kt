@@ -7,10 +7,14 @@ import com.nhuhuy.replee.core.network.model.AccountDTO
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class GoogleAuthService @Inject constructor(
+interface GoogleAuthService {
+    suspend fun signIn(idToken: String): AccountDTO
+}
+
+class GoogleAuthServiceImp @Inject constructor(
     private val firebaseAuth: FirebaseAuth
-) {
-    suspend fun signIn(idToken: String): AccountDTO {
+) : GoogleAuthService {
+    override suspend fun signIn(idToken: String): AccountDTO {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         val authResult = firebaseAuth.signInWithCredential(credential).await()
         val user = authResult?.user

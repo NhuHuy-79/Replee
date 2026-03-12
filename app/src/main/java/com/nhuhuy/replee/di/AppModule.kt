@@ -23,7 +23,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class AbstractAppModule {
+abstract class AppModuleBinder {
     @Binds
     abstract fun bindListenConversationsManager(imp: ListenConversationsManagerImp): ListenConversationsManager
 
@@ -31,7 +31,7 @@ abstract class AbstractAppModule {
 
 @Module
 @InstallIn(SingletonComponent::class)
-object AppModule {
+object AppModuleProvider {
     @Provides
     @Singleton
     fun provideValidator() = InputValidator()

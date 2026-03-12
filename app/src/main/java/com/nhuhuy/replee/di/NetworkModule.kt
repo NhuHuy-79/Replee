@@ -1,6 +1,5 @@
-package com.nhuhuy.replee.core.network.di
+package com.nhuhuy.replee.di
 
-import android.util.Log
 import com.cloudinary.android.MediaManager
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -8,8 +7,6 @@ import com.google.firebase.firestore.firestore
 import com.google.firebase.messaging.messaging
 import com.nhuhuy.replee.core.network.api.KtorService
 import com.nhuhuy.replee.core.network.api.KtorServiceImp
-import com.nhuhuy.replee.core.network.data_source.CloudinaryFileUploader
-import com.nhuhuy.replee.core.network.data_source.UploadFileService
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -24,6 +21,7 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import timber.log.Timber
 import javax.inject.Singleton
 
 @Module
@@ -53,7 +51,7 @@ object NetworkModuleProvider {
         install(Logging){
             logger = object : Logger {
                 override fun log(message: String) {
-                    Log.d("KTOR", message)
+                    Timber.tag("KTOR").d(message)
                 }
             }
             level = LogLevel.ALL
@@ -77,13 +75,7 @@ object NetworkModuleProvider {
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class NetworkModuleBinder {
-
     @Binds
     abstract fun bindKtorService(impl: KtorServiceImp): KtorService
-
-    @Binds
-    abstract fun bindCloudinaryFileUploader(impl: CloudinaryFileUploader): UploadFileService
-
-
 }
 
