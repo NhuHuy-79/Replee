@@ -148,7 +148,7 @@ fun ChatScreen(
                         onAction(ChatAction.OnSendMessageClicked)
 
                     },
-                    scrollCallback = { lazyListState.scrollToItem(0) },
+                    scrollCallback = { lazyListState.animateScrollToItem(0) },
                     onFocusChange = {},
                     modifier = Modifier
                         .fillMaxWidth()

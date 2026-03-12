@@ -23,6 +23,7 @@ suspend fun <T> executeWithTimeout(
                 Timber.e(e)
                 throw e
             } catch (e: Exception) {
+
                 Timber.e(e)
                 NetworkResult.Failure(e)
             }

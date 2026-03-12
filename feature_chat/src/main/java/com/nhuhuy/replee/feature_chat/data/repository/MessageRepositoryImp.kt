@@ -152,13 +152,6 @@ class MessageRepositoryImp @Inject constructor(
         )
     }
 
-    override suspend fun saveMessages(messages: List<Message>) {
-        withContext(ioDispatcher) {
-            val entities = messages.map { message -> message.toMessageEntity() }
-            messageLocalDataSource.upsertMessages(entities)
-        }
-    }
-
     override suspend fun searchMessageWithQuery(
         conversationId: String,
         query: String
@@ -199,14 +192,6 @@ class MessageRepositoryImp @Inject constructor(
                 )
             }
         }
-    }
-
-    override suspend fun fetchMessageWithPaging(
-        conversationId: String,
-        limit: Int,
-        startAfterKey: Long?
-    ): NetworkResult<List<Message>> {
-        TODO("")
     }
 
     override fun observeMessageChangeWithPaging(

@@ -124,14 +124,14 @@ fun MessageScreen(
                             MyMessageItem(
                                 isLast = index == 0,
                                 message = message,
-                                modifier = Modifier.animateItem()
+                                modifier = Modifier
                             )
                         } else {
                             OtherMessageItem(
                                 userName = otherUserName,
                                 message = message,
                                 imgUrl = otherUserImg,
-                                modifier = Modifier.animateItem()
+                                modifier = Modifier
                             )
                         }
                     }
@@ -143,7 +143,7 @@ fun MessageScreen(
                                 onImagePress = { url: String ->
                                     onAction(ChatAction.OnImagePress(urlKey = url))
                                 },
-                                modifier = Modifier.animateItem()
+                                modifier = Modifier
                             )
                         } else {
                             SenderImageMessageItem(
@@ -156,7 +156,6 @@ fun MessageScreen(
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .animateItem()
                             )
                         }
                     }
@@ -201,10 +200,7 @@ fun MessageScreen(
             FilledTonalIconButton(
                 onClick = {
                     scope.launch {
-                        lazyListState.animateScrollToItem(
-                            index = 0,
-                            scrollOffset = 0
-                        )
+                        lazyListState.animateScrollToItem(0)
                     }
                 },
                 colors = IconButtonDefaults.iconButtonColors(

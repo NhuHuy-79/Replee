@@ -80,7 +80,7 @@ fun MessageInput(
             onClick = {
                 onSendMessage()
                 scope.launch {
-                    delay(50)
+                    delay(150)
                     scrollCallback()
                 }
             },

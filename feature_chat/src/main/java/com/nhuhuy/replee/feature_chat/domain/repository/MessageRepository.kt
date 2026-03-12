@@ -16,19 +16,13 @@ interface MessageRepository {
         conversationId: String,
         receiverId: String
     ): NetworkResult<Unit>
-    suspend fun saveMessages(messages: List<Message>)
+
     suspend fun searchMessageWithQuery(conversationId: String, query: String) : List<Message>
     fun observeNetworkMessageChange(conversationId: String): Flow<List<DataChange<Message>>>
     suspend fun updateLocalDataChange(
         upsert: List<Message>,
         delete: List<String>
     )
-
-    suspend fun fetchMessageWithPaging(
-        conversationId: String,
-        limit: Int = 3,
-        startAfterKey: Long? = null
-    ): NetworkResult<List<Message>>
 
     fun observeMessageChangeWithPaging(
         conversationId: String,
