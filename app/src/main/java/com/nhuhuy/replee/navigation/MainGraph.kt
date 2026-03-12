@@ -12,7 +12,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.nhuhuy.replee.core.network.data_source.AuthState
+import com.nhuhuy.replee.core.network.data_source.AuthenticatedState
 import com.nhuhuy.replee.navigation.splash.SplashKey
 import com.nhuhuy.replee.navigation.splash.splashGraph
 import kotlinx.coroutines.delay
@@ -21,24 +21,24 @@ private const val DURATION = 350
 
 @Composable
 fun MainGraph(
-    authState: AuthState,
+    authenticatedState: AuthenticatedState,
 ){
     val startDestination: NavKey = SplashKey
     val backStack = rememberNavBackStack(startDestination)
 
-    LaunchedEffect(authState) {
-        when (authState) {
-            is AuthState.Authenticated -> {
+    LaunchedEffect(authenticatedState) {
+        when (authenticatedState) {
+            is AuthenticatedState.Authenticated -> {
                 delay(800)
                 backStack.clear()
-                backStack.add(HomeDestination.ConversationList(currentUserId = authState.uid))
+                backStack.add(HomeDestination.ConversationList(currentUserId = authenticatedState.uid))
             }
 
-            AuthState.Loading -> {
+            AuthenticatedState.Loading -> {
                 backStack.add(SplashKey)
             }
 
-            AuthState.Unauthenticated -> {
+            AuthenticatedState.Unauthenticated -> {
                 delay(800)
                 backStack.clear()
                 backStack.add(AuthDestination.Login)

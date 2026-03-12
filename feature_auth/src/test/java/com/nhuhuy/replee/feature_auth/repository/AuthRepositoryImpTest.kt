@@ -5,7 +5,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.network.data_source.AuthState
+import com.nhuhuy.replee.core.network.data_source.AuthenticatedState
 import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.core.network.data_source.GoogleAuthService
 import com.nhuhuy.replee.core.network.model.AccountDTO
@@ -160,13 +160,13 @@ class AuthRepositoryImpTest {
     @Test
     fun `observeAuthenticationState should emit state`() = runTest {
 
-        val flow = flowOf(AuthState.Authenticated(uid = "uid"))
+        val flow = flowOf(AuthenticatedState.Authenticated(uid = "uid"))
 
         every { firebaseAuthEmailService.authState() } returns flow
 
         val result = authRepositoryImp.observeAuthenticationState().first()
 
-        Truth.assertThat(result).isEqualTo(AuthState.Authenticated(uid = "uid"))
+        Truth.assertThat(result).isEqualTo(AuthenticatedState.Authenticated(uid = "uid"))
     }
 
 }

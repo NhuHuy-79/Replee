@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.data.data_store.AppDataStore
 import com.nhuhuy.replee.core.common.data.data_store.ThemeMode
-import com.nhuhuy.replee.core.network.data_source.AuthState
+import com.nhuhuy.replee.core.network.data_source.AuthenticatedState
 import com.nhuhuy.replee.core.network.manager.ConnectivityObserver
 import com.nhuhuy.replee.core.network.manager.NetworkStatus
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
@@ -34,11 +34,11 @@ class MainViewModel @Inject constructor(
             started = SharingStarted.Eagerly,
             initialValue = NetworkStatus.Online
         )
-    val authState = authRepository.observeAuthenticationState()
+    val authenticatedState = authRepository.observeAuthenticationState()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = AuthState.Loading
+            initialValue = AuthenticatedState.Loading
         )
     private fun listenToNetworkConversations() {
         listenConversationsManager.build()

@@ -10,9 +10,9 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 sealed interface AuthState {
-    data object Loading : AuthState
-    data class Authenticated(val uid: String) : AuthState
-    data object Unauthenticated : AuthState
+    data object Loading : AuthenticatedState
+    data class Authenticated(val uid: String) : AuthenticatedState
+    data object Unauthenticated : AuthenticatedState
 }
 
 class FirebaseAuthEmailService @Inject constructor(
@@ -61,13 +61,13 @@ class FirebaseAuthEmailService @Inject constructor(
         }
     }
 
-    fun authState(): Flow<AuthState> = callbackFlow {
+    fun authState(): Flow<AuthenticatedState> = callbackFlow {
         val listener = FirebaseAuth.AuthStateListener { auth ->
             val user = auth.currentUser
             if (user == null) {
-                trySend(AuthState.Unauthenticated)
+                trySend(AuthenticatedState.Unauthenticated)
             } else {
-                trySend(AuthState.Authenticated(user.uid))
+                trySend(AuthenticatedState.Authenticated(user.uid))
             }
         }
 

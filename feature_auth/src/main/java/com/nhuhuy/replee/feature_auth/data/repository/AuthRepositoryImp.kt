@@ -7,10 +7,9 @@ import com.nhuhuy.replee.core.common.mapper.toAccountEntity
 import com.nhuhuy.replee.core.common.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.network.data_source.AuthState
+import com.nhuhuy.replee.core.network.data_source.AuthenticatedState
 import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
-import com.nhuhuy.replee.core.network.data_source.GoogleAuthService
-import com.nhuhuy.replee.core.network.model.AccountDTO
+import com.nhuhuy.replee.feature_auth.data.data_source.AuthNetworkDataSource
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -18,15 +17,15 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class AuthRepositoryImp @Inject constructor(
+    private val authNetworkDataSource: AuthNetworkDataSource,
     private val ioDispatcher: CoroutineDispatcher,
-    private val googleAuthService: GoogleAuthService,
     private val firebaseAuthEmailService: FirebaseAuthEmailService,
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val accountLocalDataSource: AccountLocalDataSource
 ) : AuthRepository {
     override suspend fun signInWithGoogle(idToken: String): NetworkResult<Account> {
         return executeWithTimeout(dispatcher = ioDispatcher) {
-            val accountDTO = googleAuthService.signIn(idToken)
+            val accountDTO = authNetworkDataSource.signInWithGoogle(idToken)
             accountDTO.toAccount()
         }
     }
@@ -34,10 +33,7 @@ class AuthRepositoryImp @Inject constructor(
     override suspend fun loginWithEmail(
         email: String, password: String
     ): NetworkResult<String> = executeWithTimeout(dispatcher = ioDispatcher) {
-        firebaseAuthEmailService.loginWithEmail(email, password)
-
-        val userId =
-            firebaseAuthEmailService.getCurrentUser()?.uid ?: return@executeWithTimeout ""
+        val userId = authNetworkDataSource.signInWithEmail(email, password)
         val account = accountNetworkDataSource.fetchAccountById(userId).toAccountEntity()
         accountLocalDataSource.upsertAccount(account.copy(logOut = false))
 
@@ -50,20 +46,13 @@ class AuthRepositoryImp @Inject constructor(
     override suspend fun signUpWithEmail(
         name: String, email: String, password: String
     ): NetworkResult<Account> = executeWithTimeout(dispatcher = ioDispatcher) {
-        firebaseAuthEmailService.signUpWithEmail(email, password)
-        val id =
-            firebaseAuthEmailService.getCurrentUser()?.uid ?: return@executeWithTimeout Account()
-        val account = AccountDTO(
-            id = id,
-            name = name,
-            email = email,
-        )
+        val account = authNetworkDataSource.signUpWithEmail(name = name, email, password)
         try {
             accountNetworkDataSource.sendAccount(account)
             accountLocalDataSource.upsertAccount(account.toAccountEntity().copy(logOut = false))
 
             val token = firebaseAuthEmailService.getDeviceToken()
-            accountNetworkDataSource.updateDeviceToken(id, token)
+            accountNetworkDataSource.updateDeviceToken(account.id, token)
 
         } catch (e: Exception) {
             Timber.e(e)
@@ -75,14 +64,14 @@ class AuthRepositoryImp @Inject constructor(
 
     override suspend fun sendRecoverPasswordEmail(email: String): NetworkResult<Unit> =
         executeWithTimeout(dispatcher = ioDispatcher) {
-            firebaseAuthEmailService.sendRecoverPasswordEmail(email)
+            authNetworkDataSource.sendRecoverPasswordEmail(email)
         }
 
     override fun observeAuthState(): Flow<String?> {
         return firebaseAuthEmailService.observeAuthState()
     }
 
-    override fun observeAuthenticationState(): Flow<AuthState> {
-        return firebaseAuthEmailService.authState()
+    override fun observeAuthenticationState(): Flow<AuthenticatedState> {
+        return authNetworkDataSource.observeAuthenticatedState()
     }
 }

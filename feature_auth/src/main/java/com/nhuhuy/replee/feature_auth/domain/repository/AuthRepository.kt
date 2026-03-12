@@ -2,7 +2,7 @@ package com.nhuhuy.replee.feature_auth.domain.repository
 
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.replee.core.network.data_source.AuthState
+import com.nhuhuy.replee.core.network.data_source.AuthenticatedState
 import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
@@ -15,5 +15,5 @@ interface AuthRepository {
     suspend fun sendRecoverPasswordEmail(email: String): NetworkResult<Unit>
 
     fun observeAuthState(): Flow<String?>
-    fun observeAuthenticationState(): Flow<AuthState>
+    fun observeAuthenticationState(): Flow<AuthenticatedState>
 }

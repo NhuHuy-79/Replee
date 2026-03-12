@@ -2,28 +2,38 @@ package com.nhuhuy.replee.core.common.data.repository
 
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.common.utils.execute
-import com.nhuhuy.replee.core.network.data_source.TokenNetworkDataSource
+import com.nhuhuy.replee.core.network.api.model.ConversationNotificationRequest
+import com.nhuhuy.replee.core.network.data_source.PushNotificationNetworkDataSource
 import javax.inject.Inject
 
 interface PushNotificationRepository {
-    suspend fun updateToken(newToken: String): NetworkResult<String>
     suspend fun getCurrentToken(): NetworkResult<String>
-    suspend fun pushNotification(): NetworkResult<Unit>
+    suspend fun pushNotification(
+        deviceToken: String,
+        authenticationId: String,
+        request: ConversationNotificationRequest
+    ): NetworkResult<Unit>
 }
 
 class PushNotificationRepositoryImp @Inject constructor(
-    private val tokenNetworkDataSource: TokenNetworkDataSource
+    private val pushNotificationNetworkDataSource: PushNotificationNetworkDataSource
 ) : PushNotificationRepository {
-    override suspend fun updateToken(newToken: String): NetworkResult<String> {
-        TODO("Not yet implemented")
-    }
 
     override suspend fun getCurrentToken(): NetworkResult<String> = execute {
-        tokenNetworkDataSource.getDeviceToken()
+        pushNotificationNetworkDataSource.getDeviceToken()
     }
 
-    override suspend fun pushNotification(): NetworkResult<Unit> {
-        TODO("Not yet implemented")
+    override suspend fun pushNotification(
+        deviceToken: String,
+        authenticationId: String,
+        request: ConversationNotificationRequest
+    ): NetworkResult<Unit> {
+        return execute {
+            pushNotificationNetworkDataSource.sendNotification(
+                deviceToken = deviceToken,
+                authenticationId = authenticationId,
+                request = request
+            )
+        }
     }
-
 }

@@ -10,10 +10,10 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-sealed interface AuthState {
-    data object Loading : AuthState
-    data class Authenticated(val uid: String) : AuthState
-    data object Unauthenticated : AuthState
+sealed interface AuthenticatedState {
+    data object Loading : AuthenticatedState
+    data class Authenticated(val uid: String) : AuthenticatedState
+    data object Unauthenticated : AuthenticatedState
 }
 
 interface AuthService {
@@ -25,7 +25,7 @@ interface AuthService {
     suspend fun updateNewPassword(old: String, new: String)
     suspend fun deleteCurrentUser()
     fun observeAuthState(): Flow<String?>
-    fun authState(): Flow<AuthState>
+    fun authState(): Flow<AuthenticatedState>
     fun logOut()
 }
 
@@ -70,13 +70,13 @@ class AuthServiceImp @Inject constructor(
         awaitClose { auth.removeAuthStateListener(listener) }
     }
 
-    override fun authState(): Flow<AuthState> = callbackFlow {
+    override fun authState(): Flow<AuthenticatedState> = callbackFlow {
         val listener = FirebaseAuth.AuthStateListener { auth ->
             val user = auth.currentUser
             if (user == null) {
-                trySend(AuthState.Unauthenticated)
+                trySend(AuthenticatedState.Unauthenticated)
             } else {
-                trySend(AuthState.Authenticated(user.uid))
+                trySend(AuthenticatedState.Authenticated(user.uid))
             }
         }
         auth.addAuthStateListener(listener)

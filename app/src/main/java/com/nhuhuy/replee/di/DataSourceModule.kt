@@ -5,8 +5,8 @@ import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSourceImp
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSourceImp
 import com.nhuhuy.replee.core.network.data_source.CloudinaryFileUploader
-import com.nhuhuy.replee.core.network.data_source.TokenNetworkDataSource
-import com.nhuhuy.replee.core.network.data_source.TokenNetworkDataSourceImp
+import com.nhuhuy.replee.core.network.data_source.PushNotificationNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.PushNotificationNetworkDataSourceImp
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
 import com.nhuhuy.replee.feature_auth.data.data_source.AuthNetworkDataSource
 import com.nhuhuy.replee.feature_auth.data.data_source.AuthNetworkDataSourceImp
@@ -63,7 +63,7 @@ abstract class DataSourceModuleBinder {
     abstract fun bindAuthNetworkDataSource(imp: AuthNetworkDataSourceImp): AuthNetworkDataSource
 
     @Binds
-    abstract fun bindTokenNetworkDataSource(imp: TokenNetworkDataSourceImp): TokenNetworkDataSource
+    abstract fun bindTokenNetworkDataSource(imp: PushNotificationNetworkDataSourceImp): PushNotificationNetworkDataSource
 
     @Binds
     abstract fun bindAccountLocalDataSource(imp: AccountLocalDataSourceImp): AccountLocalDataSource

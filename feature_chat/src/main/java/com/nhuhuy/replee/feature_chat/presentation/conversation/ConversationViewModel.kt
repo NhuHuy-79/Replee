@@ -12,11 +12,11 @@ import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetSearchHistoryUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.ListenConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.LoadConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationListUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationUserUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.listener.ListenConversationUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.listener.UpsertConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.UpsertConversationUseCase
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.BottomSheet
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationAction
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent
