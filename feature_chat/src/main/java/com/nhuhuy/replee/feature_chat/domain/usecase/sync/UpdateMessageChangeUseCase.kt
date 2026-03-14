@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.domain.usecase.listener
+package com.nhuhuy.replee.feature_chat.domain.usecase.sync
 
 import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.feature_chat.domain.model.Message

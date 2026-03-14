@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.domain.repository
+package com.nhuhuy.core.domain.repository
 
 import com.nhuhuy.core.domain.model.NetworkResult
 import kotlinx.coroutines.flow.Flow

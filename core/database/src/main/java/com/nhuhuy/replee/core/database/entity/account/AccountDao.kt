@@ -19,6 +19,12 @@ interface AccountDao : BaseDao<AccountEntity>{
     @Query("UPDATE accounts SET imageUrl = :imgUrl WHERE uid = :uid ")
     suspend fun updateImageUrl(uid: String, imgUrl: String)
 
+    @Query("UPDATE accounts SET isOnline = :isOnline, lastSeen = :lastSeen WHERE uid = :uid")
+    suspend fun updateOnlineStatus(uid: String, isOnline: Boolean, lastSeen: Long)
+
+    @Query("SELECT * FROM accounts WHERE uid = :uid")
+    fun observeAccount(uid: String): Flow<AccountEntity?>
+    
     @Query("SELECT * FROM accounts WHERE uid = :uid")
     fun observeBlockStatus(uid: String): Flow<AccountEntity?>
 }

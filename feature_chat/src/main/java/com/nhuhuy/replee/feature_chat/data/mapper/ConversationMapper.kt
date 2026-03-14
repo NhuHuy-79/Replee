@@ -16,7 +16,7 @@ fun ConversationDTOUser.toUserInConversation() : ConversationOtherUser {
         imgUrl = imgUrl,
         nick = nick,
         uid = uid,
-        name = name
+        name = name,
     )
 }
 
@@ -48,16 +48,16 @@ fun Conversation.toConversationEntity(): ConversationEntity {
 fun ConversationAndUser.toConversationDTO() : ConversationDTO {
     val user1 = ConversationDTOUser(
         nick = conversation.ownerNick,
-        uid = owner?.uid.orEmpty(),
-        name = owner?.name.orEmpty(),
-        imgUrl = owner?.imageUrl.orEmpty()
+        uid = owner.uid,
+        name = owner.name,
+        imgUrl = owner.imageUrl
     )
 
     val user2 = ConversationDTOUser(
         nick = conversation.otherUserNick,
-        uid = otherUser?.uid.orEmpty(),
-        name = otherUser?.name.orEmpty(),
-        imgUrl = otherUser?.imageUrl.orEmpty()
+        uid = otherUser.uid,
+        name = otherUser.name,
+        imgUrl = otherUser.imageUrl
     )
     return ConversationDTO(
         id = conversation.id,
@@ -128,16 +128,18 @@ fun ConversationDTO.toConversation(
 
 fun ConversationAndUser.toConversation(): Conversation {
     val owner = ConversationOtherUser(
-        imgUrl = owner?.imageUrl.orEmpty(),
+        imgUrl = owner.imageUrl,
         nick = conversation.ownerNick,
-        uid = owner?.uid.orEmpty(),
-        name = owner?.name.orEmpty()
+        uid = owner.uid,
+        name = owner.name,
+        online = owner.isOnline
     )
     val otherUser = ConversationOtherUser(
-        imgUrl = otherUser?.imageUrl.orEmpty(),
+        imgUrl = otherUser.imageUrl,
         nick = conversation.otherUserNick,
-        uid = otherUser?.uid.orEmpty(),
-        name = otherUser?.name.orEmpty()
+        uid = otherUser.uid,
+        name = otherUser.name,
+        online = otherUser.isOnline
     )
 
     return Conversation(

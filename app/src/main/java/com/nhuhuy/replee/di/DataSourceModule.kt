@@ -5,6 +5,8 @@ import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSourceImp
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSourceImp
 import com.nhuhuy.replee.core.network.data_source.CloudinaryFileUploader
+import com.nhuhuy.replee.core.network.data_source.FirebasePresenceDataSource
+import com.nhuhuy.replee.core.network.data_source.PresenceNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.PushNotificationNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.PushNotificationNetworkDataSourceImp
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
@@ -18,8 +20,6 @@ import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSourceImp
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSourceImp
-import com.nhuhuy.replee.feature_chat.data.source.presence.FirebasePresenceDataSource
-import com.nhuhuy.replee.feature_chat.data.source.presence.PresenceNetworkDataSource
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

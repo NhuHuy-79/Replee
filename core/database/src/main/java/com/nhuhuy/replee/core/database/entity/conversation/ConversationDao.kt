@@ -10,7 +10,18 @@ import kotlinx.coroutines.flow.Flow
 interface ConversationDao : BaseDao<ConversationEntity> {
 
     @Transaction
-    @Query("SELECT * FROM conversation WHERE id = :id")
+    @Query(
+        """
+    SELECT 
+    c.*,
+    o.uid AS owner_uid, o.name AS owner_name, o.imageUrl AS owner_imageUrl, o.isOnline AS owner_isOnline,
+    u.uid AS other_uid, u.name AS other_name, u.imageUrl AS other_imageUrl, u.isOnline AS other_isOnline
+    FROM conversation c
+    INNER JOIN accounts o ON c.ownerId = o.uid
+    INNER JOIN accounts u ON c.otherUserId = u.uid
+    WHERE c.id = :id
+    """
+    )
     suspend fun getConversationById(id: String): ConversationAndUser?
 
     @Query("DELETE FROM conversation WHERE id in (:list)")
@@ -29,28 +40,58 @@ interface ConversationDao : BaseDao<ConversationEntity> {
     }
 
     @Transaction
-    @Query("SELECT * FROM conversation WHERE id = :id")
+    @Query(
+        """
+    SELECT 
+    c.*,
+    o.uid AS owner_uid, o.name AS owner_name, o.imageUrl AS owner_imageUrl, o.isOnline AS owner_isOnline,
+    u.uid AS other_uid, u.name AS other_name, u.imageUrl AS other_imageUrl, u.isOnline AS other_isOnline
+    FROM conversation c
+    INNER JOIN accounts o ON c.ownerId = o.uid
+    INNER JOIN accounts u ON c.otherUserId = u.uid
+    WHERE c.id = :id
+    """
+    )
     fun observeConversationById(id: String): Flow<ConversationAndUser?>
 
     @Query("DELETE FROM conversation WHERE id = :id")
     suspend fun deleteConversationById(id: String)
+
     @Transaction
     @Query(
         """
-    SELECT * FROM conversation
-    WHERE ownerId = :ownerId
-    ORDER BY pinned DESC, lastMessageTime DESC
-"""
+    SELECT 
+    c.*,
+    o.uid AS owner_uid, o.name AS owner_name, o.imageUrl AS owner_imageUrl, o.isOnline AS owner_isOnline,
+    u.uid AS other_uid, u.name AS other_name, u.imageUrl AS other_imageUrl, u.isOnline AS other_isOnline
+    FROM conversation c
+    INNER JOIN accounts o ON c.ownerId = o.uid
+    INNER JOIN accounts u ON c.otherUserId = u.uid
+    WHERE c.ownerId = :uid OR c.otherUserId = :uid
+    ORDER BY c.lastMessageTime DESC
+    """
     )
-    fun observeConversations(ownerId: String): Flow<List<ConversationAndUser>>
+    fun observeConversations(uid: String): Flow<List<ConversationAndUser>>
 
     @Query("SELECT COUNT(*) FROM conversation WHERE ownerId = :ownerId")
     suspend fun getConversationListCount(ownerId: String) : Int
 
     @Query("UPDATE conversation SET lastMessageTime = :lastMessageTime WHERE id in (:conversationIds)")
     suspend fun updateSyncedTime(conversationIds: List<String>, lastMessageTime: Long)
+
     @Transaction
-    @Query("SELECT * FROM conversation WHERE id = :id")
+    @Query(
+        """
+    SELECT 
+    c.*,
+    o.uid AS owner_uid, o.name AS owner_name, o.imageUrl AS owner_imageUrl, o.isOnline AS owner_isOnline,
+    u.uid AS other_uid, u.name AS other_name, u.imageUrl AS other_imageUrl, u.isOnline AS other_isOnline
+    FROM conversation c
+    INNER JOIN accounts o ON c.ownerId = o.uid
+    INNER JOIN accounts u ON c.otherUserId = u.uid
+    WHERE c.id = :id
+    """
+    )
     suspend fun getConversationAndUserById(id: String): ConversationAndUser?
 
     @Query(
@@ -85,7 +126,18 @@ interface ConversationDao : BaseDao<ConversationEntity> {
     suspend fun updateSyncedStatus(conversationId: String, synced: Boolean)
 
     @Transaction
-    @Query("SELECT * from conversation WHERE synced = 0")
+    @Query(
+        """
+    SELECT 
+    c.*,
+    o.uid AS owner_uid, o.name AS owner_name, o.imageUrl AS owner_imageUrl, o.isOnline AS owner_isOnline,
+    u.uid AS other_uid, u.name AS other_name, u.imageUrl AS other_imageUrl, u.isOnline AS other_isOnline
+    FROM conversation c
+    INNER JOIN accounts o ON c.ownerId = o.uid
+    INNER JOIN accounts u ON c.otherUserId = u.uid
+    WHERE c.synced = 0
+    """
+    )
     suspend fun getUnSyncedConversation(): List<ConversationAndUser>
 
     @Query("UPDATE conversation SET synced = :synced WHERE id in (:conversations)")

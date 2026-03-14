@@ -12,7 +12,9 @@ fun Account.toAccountEntity() = AccountEntity(
     email = email,
     createAt = createAt,
     imageUrl = imageUrl,
-    provider = provider.name
+    provider = provider.name,
+    isOnline = online,
+    lastSeen = lastActive
 )
 
 fun AccountEntity.toAccount() = Account(
@@ -21,6 +23,8 @@ fun AccountEntity.toAccount() = Account(
     email = email,
     imageUrl = imageUrl,
     blockedList = blockedUserList,
+    lastActive = lastSeen,
+    online = isOnline,
     provider = AuthServiceProvider.valueOf(provider)
 
 )
@@ -30,7 +34,9 @@ fun Account.toAccountDTO() = AccountDTO(
     name = name,
     email = email,
     imageUrl = imageUrl,
-    provider = provider
+    provider = provider,
+    online = online,
+    lastActive = lastActive
 )
 
 fun AccountDTO.toAccount() = Account(
@@ -41,7 +47,9 @@ fun AccountDTO.toAccount() = Account(
     provider = provider,
     createAt = createAt?.toMilliseconds(),
     currentToken = currentToken,
-    blockedList = blockedList
+    blockedList = blockedList,
+    online = online,
+    lastActive = lastActive
 )
 
 fun AccountDTO.toAccountEntity() = AccountEntity(
@@ -52,6 +60,8 @@ fun AccountDTO.toAccountEntity() = AccountEntity(
     imageUrl = imageUrl,
     provider = provider.name,
     blockedUserList = blockedList,
-    logOut = false
+    logOut = false,
+    isOnline = online,
+    lastSeen = lastActive
 )
 

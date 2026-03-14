@@ -13,9 +13,12 @@ import com.nhuhuy.replee.core.network.model.mapData
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversation
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversationDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversationEntity
+import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
+import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
+import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -79,14 +82,11 @@ class ConversationRepositoryImp @Inject constructor(
         }
     }
 
-    override fun observeLocalConversations(): Flow<List<Conversation>> {
-        val uid = firebaseAuthEmailService.getCurrentUser()?.uid ?: return emptyFlow()
-        return conversationLocalDataSource.observeConversationAndUsers(uid).map { entities ->
+    override fun observeLocalConversations(ownerId: String): Flow<List<Conversation>> {
+        return conversationLocalDataSource.observeConversationAndUsers(ownerId).map { entities ->
             entities.map { entity ->
                 Timber.d("${entity.toConversation()}")
                 entity.toConversation()
-            }.filter { conversation ->
-                conversation.lastMessageContent.isNotEmpty()
             }
         }
             .flowOn(ioDispatcher)
@@ -186,6 +186,21 @@ class ConversationRepositoryImp @Inject constructor(
             upsert = mappedUpsert,
             delete = deletes
         )
+    }
+
+    override suspend fun updateMetadataConversation(message: Message): NetworkResult<Unit> {
+        return execute {
+            val entity = message.toMessageEntity()
+            conversationLocalDataSource.updateLastMessage(entity)
+
+            //Update in network
+            val conversationDTO =
+                conversationNetworkDataSource.fetchConversationByIdOrThrow(message.conversationId)
+            conversationNetworkDataSource.updateLastMessage(
+                message = message.toMessageDTO(),
+                conversation = conversationDTO
+            )
+        }
     }
 
 }

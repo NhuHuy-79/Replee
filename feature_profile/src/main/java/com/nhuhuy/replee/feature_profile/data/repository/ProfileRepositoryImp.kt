@@ -34,7 +34,7 @@ class ProfileRepositoryImp @Inject constructor(
         }
     }
 
-    override suspend fun logOut() {
+    override suspend fun logOut(): String {
         val uid = try {
             firebaseAuthEmailService.getCurrentUser()?.uid
         } catch (e: Exception) {
@@ -46,6 +46,8 @@ class ProfileRepositoryImp @Inject constructor(
         uid?.let { uid ->
             accountLocalDataSource.updateLogoutStatus(uid)
         }
+
+        return uid.orEmpty()
     }
 
     override suspend fun updatePassword(

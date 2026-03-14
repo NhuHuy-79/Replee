@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 object Route{
     const val HEADER = "device-token"
-    const val URL = "http://192.168.1.5:3000/api/v1/notifications"
+    const val URL = "https://replee-deploy.vercel.app/api/v1/notifications"
     const val POST = "$URL/send"
 }
 

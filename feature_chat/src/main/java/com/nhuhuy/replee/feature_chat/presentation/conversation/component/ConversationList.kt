@@ -22,12 +22,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.common.utils.formatToString
+import com.nhuhuy.replee.core.design_system.canvas.AvatarContainer
 import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
@@ -91,10 +91,17 @@ fun ConversationItem(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        UserImage(
-            photoUrl = conversation.otherUser.imgUrl,
-            userName = conversation.otherUser.nick.ifEmpty { conversation.otherUser.name },
-        )
+
+        AvatarContainer(
+            showDot = conversation.otherUser.online,
+            sizeAvatar = 56.dp
+        ) {
+            UserImage(
+                photoUrl = conversation.otherUser.imgUrl,
+                userName = conversation.otherUser.nick.ifEmpty { conversation.otherUser.name },
+            )
+        }
+
         ConversationBody(
             isLastSender = conversation.lastSenderId == conversation.owner.uid,
             userName = conversation.otherUser.nick.ifEmpty { conversation.otherUser.name },

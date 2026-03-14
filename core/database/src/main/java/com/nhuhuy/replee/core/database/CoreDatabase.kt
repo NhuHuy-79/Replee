@@ -21,47 +21,17 @@ import com.nhuhuy.replee.core.database.entity.search_history.SearchHistoryEntity
 @Database(
     entities = [AccountEntity::class, ConversationEntity::class, MessageEntity::class,
         MessageRemoteKey::class, SearchHistoryEntity::class],
-    version = 24,
+    version = 25,
     exportSchema = true,
     autoMigrations = [
-        /* AutoMigration(
-             from = 4, to = 5
-         ),
-         AutoMigration(
-             from = 5, to = 6
-         ),
-         AutoMigration(
-             from = 6, to = 7
-         ),
-         AutoMigration(
-             from = 7, to = 8
-         ),
-         AutoMigration(
-             from = 8, to = 9
-         ),
-         AutoMigration(
-             from = 9, to = 10
-         ),
-         AutoMigration(
-             from = 10, to = 11
-         ),
-         AutoMigration(
-             from = 11, to = 12
-         ),
-         AutoMigration(
-             from = 12, to = 13
-         ),
-         AutoMigration(
-             from = 13, to = 14
-         ),
-         AutoMigration(
-             from = 14, to= 15
-         ),*/
         AutoMigration(
             from = 19, to = 20
         ),
         AutoMigration(
             from = 20, to = 21
+        ),
+        AutoMigration(
+            from = 24, to = 25
         )
     ]
 )

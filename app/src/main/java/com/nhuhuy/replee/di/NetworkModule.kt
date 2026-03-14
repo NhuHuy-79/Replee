@@ -3,6 +3,7 @@ package com.nhuhuy.replee.di
 import com.cloudinary.android.MediaManager
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.google.firebase.database.database
 import com.google.firebase.firestore.firestore
 import com.google.firebase.messaging.messaging
 import com.nhuhuy.replee.core.network.api.KtorService
@@ -40,6 +41,10 @@ object NetworkModuleProvider {
     @Provides
     @Singleton
     fun provideFirebaseFirestore() = Firebase.firestore
+
+    @Provides
+    @Singleton
+    fun provideFirebaseDatabase() = Firebase.database
 
     @Provides
     @Singleton

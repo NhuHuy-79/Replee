@@ -9,11 +9,6 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-sealed interface AuthState {
-    data object Loading : AuthenticatedState
-    data class Authenticated(val uid: String) : AuthenticatedState
-    data object Unauthenticated : AuthenticatedState
-}
 
 class FirebaseAuthEmailService @Inject constructor(
     private val auth: FirebaseAuth,

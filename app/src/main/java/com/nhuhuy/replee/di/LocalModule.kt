@@ -7,7 +7,6 @@ import com.nhuhuy.replee.core.common.data.data_store.AppDataStoreImp
 import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.database.Migration_15_16
 import com.nhuhuy.replee.core.database.entity.account.AccountDao
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,16 +16,13 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class LocalModuleBinder {
-    @Binds
-    abstract fun bindAppDataStore(imp: AppDataStoreImp): AppDataStore
-
-}
-
-
-@Module
-@InstallIn(SingletonComponent::class)
 object LocalModuleProvider {
+
+    @Provides
+    @Singleton
+    fun provideAppDataStore(@ApplicationContext context: Context): AppDataStore {
+        return AppDataStoreImp(context)
+    }
 
     @Provides
     @Singleton

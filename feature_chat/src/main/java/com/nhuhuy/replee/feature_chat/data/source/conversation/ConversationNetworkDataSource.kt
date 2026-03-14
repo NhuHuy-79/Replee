@@ -28,6 +28,7 @@ interface ConversationNetworkDataSource {
     suspend fun getConversationUserIdsWithOwner(ownerId: String): List<String>
     suspend fun fetchConversationsByUser(uid: String): List<ConversationDTO>
     suspend fun fetchConversationById(conversationId: String): ConversationDTO?
+    suspend fun fetchConversationByIdOrThrow(conversationId: String): ConversationDTO
     suspend fun sendConversations(conversationDTOList: List<ConversationDTO>)
     suspend fun updateConversations(conversationPatchList: List<ConversationPatch>)
     suspend fun updateNicknameForUser(
@@ -111,6 +112,14 @@ class ConversationNetworkDataSourceImp @Inject constructor(
 
     }
 
+    override suspend fun fetchConversationByIdOrThrow(conversationId: String): ConversationDTO {
+        return collection.document(conversationId)
+            .get()
+            .await()
+            .toObject<ConversationDTO>() ?: throw Exception("Conversation not found")
+
+    }
+
     override suspend fun sendConversations(conversationDTOList: List<ConversationDTO>) {
         //Optimize for write multi conversationDTOs to firestore
         optimizedWrite(
@@ -170,7 +179,7 @@ class ConversationNetworkDataSourceImp @Inject constructor(
             "lastMessageContent" to message.content,
             "lastMessageTime" to message.sendAt,
             "lastSenderId" to message.senderId,
-            "lastMessageType" to message.type,
+            "lastMessageType" to message.type.name,
             "unreadMessageCount.$receiverId" to FieldValue.increment(1)
         )
 

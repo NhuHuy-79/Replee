@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.common.data
+package com.nhuhuy.replee.core.common.data.data_source
 
 import androidx.core.net.toUri
 import javax.inject.Inject

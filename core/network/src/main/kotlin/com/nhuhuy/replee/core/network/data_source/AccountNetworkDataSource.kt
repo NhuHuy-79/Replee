@@ -9,6 +9,7 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 interface AccountNetworkDataSource {
+    suspend fun updateOnlineStatus(uid: String, online: Boolean)
     suspend fun sendAccount(account: AccountDTO)
     suspend fun updateImageUrl(uid: String, imgUrl: String)
     suspend fun updateBlockedList(list: List<String>, owner: String)
@@ -22,6 +23,11 @@ class AccountNetworkDataSourceImp @Inject constructor(
     firestore: FirebaseFirestore
 ) : AccountNetworkDataSource {
     private val collection = firestore.collection(Constant.Firestore.USER_COLLECTION)
+    override suspend fun updateOnlineStatus(uid: String, online: Boolean) {
+        collection.document(uid)
+            .update("online", online)
+            .await()
+    }
 
     override suspend fun sendAccount(account: AccountDTO) {
         collection.document(account.id).set(account).await()

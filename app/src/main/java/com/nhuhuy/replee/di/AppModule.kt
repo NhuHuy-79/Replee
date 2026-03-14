@@ -2,7 +2,6 @@ package com.nhuhuy.replee.di
 
 
 import android.content.Context
-import com.nhuhuy.replee.core.common.data.UriConverter
 import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.network.api.mapper.RequestMapper
 import com.nhuhuy.replee.notification.NotificationParser
@@ -16,7 +15,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import javax.inject.Singleton
@@ -41,13 +39,6 @@ object AppModuleProvider {
     fun provideDispatcherIO() = Dispatchers.IO
 
 
-    @Provides
-    @Singleton
-    fun provideUriToFileConverter(
-        @ApplicationContext context: Context,
-        ioDispatcher: CoroutineDispatcher
-    ) =
-        UriConverter(context, ioDispatcher)
 
     @Provides
     @Singleton

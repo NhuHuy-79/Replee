@@ -16,7 +16,7 @@ interface PushNotificationRepository {
 }
 
 class PushNotificationRepositoryImp @Inject constructor(
-    private val pushNotificationNetworkDataSource: PushNotificationNetworkDataSource
+    private val pushNotificationNetworkDataSource: PushNotificationNetworkDataSource,
 ) : PushNotificationRepository {
 
     override suspend fun getCurrentToken(): NetworkResult<String> = execute {

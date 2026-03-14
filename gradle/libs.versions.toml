@@ -49,6 +49,7 @@ workRuntimeKtx = "2.11.0"
 firebaseDatabase = "22.0.1"
 
 [libraries]
+
 androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltWork" }
 androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltWork" }
 androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "roomRuntime" }

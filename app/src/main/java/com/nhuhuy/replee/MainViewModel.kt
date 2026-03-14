@@ -2,6 +2,7 @@ package com.nhuhuy.replee
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nhuhuy.core.domain.repository.PresenceRepository
 import com.nhuhuy.replee.core.common.data.data_store.AppDataStore
 import com.nhuhuy.replee.core.common.data.data_store.ThemeMode
 import com.nhuhuy.replee.core.network.data_source.AuthenticatedState
@@ -14,6 +15,7 @@ import jakarta.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @HiltViewModel
@@ -21,13 +23,9 @@ class MainViewModel @Inject constructor(
     connectionObserver: ConnectivityObserver,
     authRepository: AuthRepository,
     appDataStore: AppDataStore,
+    private val presenceRepository: PresenceRepository,
     private val listenConversationsManager: ListenConversationsManager,
 ) : ViewModel(){
-
-    init {
-        listenToNetworkConversations()
-    }
-
     val network = connectionObserver.observe()
         .stateIn(
             scope = viewModelScope,
@@ -40,6 +38,27 @@ class MainViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = AuthenticatedState.Loading
         )
+
+    init {
+        listenToNetworkConversations()
+        listenAccountOnlineStatus()
+    }
+
+    private fun listenAccountOnlineStatus() {
+        viewModelScope.launch {
+            authenticatedState.collect { state ->
+                when (state) {
+                    is AuthenticatedState.Authenticated -> {
+                        presenceRepository.setOnline(state.uid)
+                        Timber.d("User is online!")
+                    }
+
+                    else -> Unit
+                }
+            }
+        }
+    }
+
     private fun listenToNetworkConversations() {
         listenConversationsManager.build()
             .launchIn(viewModelScope)

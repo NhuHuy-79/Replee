@@ -49,7 +49,7 @@ suspend fun <T> execute(
     }
 }
 
-suspend fun <T, R> NetworkResult<T>.flatMap(
+suspend inline fun <T, R> NetworkResult<T>.flatMap(
     transform: suspend (T) -> NetworkResult<R>
 ): NetworkResult<R> {
     return when (this) {
@@ -58,7 +58,7 @@ suspend fun <T, R> NetworkResult<T>.flatMap(
     }
 }
 
-suspend fun <T, R> NetworkResult<T>.andThen(
+suspend inline fun <T, R> NetworkResult<T>.andThen(
     transform: suspend (T) -> NetworkResult<R>
 ): NetworkResult<T> {
     return when (this) {

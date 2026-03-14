@@ -45,6 +45,9 @@ fun ImageMessageContainer(
     contentColor: Color,
 
 ) {
+    val imageModel = remember(message.content, message.localUriPath) {
+        message.content.takeIf { it.isNotBlank() } ?: message.localUriPath.orEmpty()
+    }
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val maxWidth: Dp = screenWidth * 0.7f
     val shape = RoundedCornerShape(8.dp)
@@ -60,12 +63,12 @@ fun ImageMessageContainer(
 
     Column(
         modifier = modifier.clickable {
-            onClick(message.content)
+            onClick(imageModel)
         }
     ) {
 
         SubcomposeAsyncImage(
-            model = message.content,
+            model = imageModel,
             contentDescription = null,
             contentScale = ContentScale.Fit,
             modifier = Modifier

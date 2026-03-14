@@ -16,7 +16,7 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.ListenConversa
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.LoadConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationListUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationUserUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.UpsertConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.sync.UpsertConversationUseCase
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.BottomSheet
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationAction
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent
@@ -68,7 +68,7 @@ class ConversationViewModel @AssistedInject constructor(
 
     }
     val conversationState: StateFlow<ScreenState<List<Conversation>>> =
-        loadConversationUseCase().map { list ->
+        loadConversationUseCase(ownerId = currentUserId).map { list ->
             ScreenState.Success(list)
         }.stateIn(
             viewModelScope, SharingStarted.WhileSubscribed(5000), ScreenState.Loading

@@ -51,19 +51,6 @@ class MessageRepositoryImp @Inject constructor(
 
             messageNetworkDataSource.sendMessage(message = message.toMessageDTO())
 
-            val conversationDTO =
-                conversationNetworkDataSource.fetchConversationById(message.conversationId)
-            val messageDTO = message.toMessageDTO()
-
-            if (conversationDTO == null) {
-                conversationLocalDataSource.updateSyncStatusOfConversations(
-                    conversationIds = listOf(message.conversationId),
-                    synced = false
-                )
-            } else {
-                conversationNetworkDataSource.updateLastMessage(messageDTO, conversationDTO)
-            }
-
             message.messageId
         }
     }

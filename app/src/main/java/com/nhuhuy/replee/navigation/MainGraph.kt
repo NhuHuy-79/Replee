@@ -13,6 +13,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.nhuhuy.replee.core.network.data_source.AuthenticatedState
+import com.nhuhuy.replee.navigation.HomeDestination.ConversationList
 import com.nhuhuy.replee.navigation.splash.SplashKey
 import com.nhuhuy.replee.navigation.splash.splashGraph
 import kotlinx.coroutines.delay
@@ -31,7 +32,7 @@ fun MainGraph(
             is AuthenticatedState.Authenticated -> {
                 delay(800)
                 backStack.clear()
-                backStack.add(HomeDestination.ConversationList(currentUserId = authenticatedState.uid))
+                backStack.add(ConversationList(currentUserId = authenticatedState.uid))
             }
 
             AuthenticatedState.Loading -> {

@@ -5,7 +5,7 @@ import com.nhuhuy.core.domain.model.NetworkResult
 interface ProfileRepository {
     suspend fun updateUserImage(uriPath: String): NetworkResult<String>
 
-    suspend fun logOut()
+    suspend fun logOut(): String
 
     suspend fun updatePassword(oldPassword: String, newPassword: String): NetworkResult<Unit>
 }

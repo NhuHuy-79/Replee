@@ -23,6 +23,7 @@ data class ConversationOtherUser(
     val nick: String = "",
     val uid: String = "404",
     val name: String = "No one",
+    val online: Boolean = false,
 )
 
 
