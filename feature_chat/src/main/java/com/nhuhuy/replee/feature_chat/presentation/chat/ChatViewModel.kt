@@ -10,7 +10,7 @@ import com.nhuhuy.core.domain.usecase.GetAccountByIdUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.CheckBlockUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.block.ObserveBlockStatusUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.block.ObserveOwnerIsBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.UnblockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ListenMessageChangeUseCase
@@ -47,7 +47,7 @@ class ChatViewModel @AssistedInject constructor(
     private val unblockUserUseCase: UnblockUserUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
     private val getAccountByIdUseCase: GetAccountByIdUseCase,
-    private val observeBlockStatusUseCase: ObserveBlockStatusUseCase,
+    private val observeOwnerIsBlockUseCase: ObserveOwnerIsBlockUseCase,
     private val listenMessageChangeUseCase: ListenMessageChangeUseCase,
     private val updateMessageChangeUseCase: UpdateMessageChangeUseCase,
     private val getConversationUseCase: GetConversationUseCase,
@@ -60,7 +60,7 @@ class ChatViewModel @AssistedInject constructor(
             uid1 = currentUserId,
             uid2 = otherUserId
         )
-    val blocked = observeBlockStatusUseCase(ownerId = currentUserId, otherUserId = otherUserId)
+    val blocked = observeOwnerIsBlockUseCase(ownerId = currentUserId, otherUserId = otherUserId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
     private val _state = MutableStateFlow(ChatState(currentUserId = currentUserId))
     private var listenJob: Job? = null

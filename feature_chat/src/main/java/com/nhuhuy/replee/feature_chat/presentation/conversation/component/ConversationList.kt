@@ -93,18 +93,19 @@ fun ConversationItem(
     ) {
 
         AvatarContainer(
-            showDot = conversation.otherUser.online,
+            showDot = conversation.otherUserOnline,
+            colorDot = MaterialTheme.colorScheme.primary,
             sizeAvatar = 56.dp
         ) {
             UserImage(
-                photoUrl = conversation.otherUser.imgUrl,
-                userName = conversation.otherUser.nick.ifEmpty { conversation.otherUser.name },
+                photoUrl = conversation.otherUserImg,
+                userName = conversation.otherUserName,
             )
         }
 
         ConversationBody(
-            isLastSender = conversation.lastSenderId == conversation.owner.uid,
-            userName = conversation.otherUser.nick.ifEmpty { conversation.otherUser.name },
+            isLastSender = conversation.lastSenderId == conversation.ownerUserId,
+            userName = conversation.otherUserNickName.ifEmpty { conversation.otherUserName },
             messageType = conversation.lastMessageType,
             messageContent = conversation.lastMessageContent,
             modifier = Modifier.weight(1f)

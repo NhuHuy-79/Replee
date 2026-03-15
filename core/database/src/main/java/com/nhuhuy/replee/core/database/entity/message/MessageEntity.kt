@@ -32,4 +32,5 @@ data class MessageEntity(
     val type: String = "TEXT",
     val status: String = "PENDING",
     val localUriPath: String? = null,
+    val remoteUrl: String? = null,
 )

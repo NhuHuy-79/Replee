@@ -2,6 +2,7 @@ package com.nhuhuy.replee.core.network.data_source
 
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.core.net.toUri
 import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
@@ -24,7 +25,6 @@ import kotlin.coroutines.resumeWithException
 
 interface UploadFileService {
     suspend fun uploadFiles(uriPaths: List<String>): List<String>
-
     //Return a list contains message ids.
     suspend fun uploadMessageWithUri(messageAndUri: Map<String, String>): Map<String, String>
     suspend fun uploadImageWithByteArray(byteArray: ByteArray): String
@@ -86,6 +86,12 @@ class CloudinaryFileUploader @Inject constructor(
                             requestId: String?,
                             error: ErrorInfo?
                         ) {
+                            //Delegate upload scheduling for Work Manager
+                            Log.d("Cloudinary", "Cancel worker")
+                            continuation.resumeWithException(
+                                Exception("Delegate uploading for Work Manager")
+
+                            )
                         }
                     })
                     .dispatch()
@@ -154,7 +160,8 @@ class CloudinaryFileUploader @Inject constructor(
                         requestId: String?,
                         error: ErrorInfo?
                     ) {
-                        //Do nothing
+                        trySend(FileState.Failure(throwable = Exception("Reschedule")))
+                        close()
                     }
 
                 }

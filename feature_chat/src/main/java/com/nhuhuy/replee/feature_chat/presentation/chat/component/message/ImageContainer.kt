@@ -43,11 +43,8 @@ fun ImageMessageContainer(
     message: Message,
     containerColor: Color,
     contentColor: Color,
-
 ) {
-    val imageModel = remember(message.content, message.localUriPath) {
-        message.content.takeIf { it.isNotBlank() } ?: message.localUriPath.orEmpty()
-    }
+    val imageModel = message.content.takeIf { it.isNotBlank() } ?: message.localUriPath.orEmpty()
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val maxWidth: Dp = screenWidth * 0.7f
     val shape = RoundedCornerShape(8.dp)

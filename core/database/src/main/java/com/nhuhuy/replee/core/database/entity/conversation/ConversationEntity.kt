@@ -5,6 +5,8 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import androidx.room.Relation
+import com.nhuhuy.replee.core.database.entity.account.AccountEntity
 
 @Entity(
     tableName = "conversation",
@@ -53,9 +55,9 @@ data class ConversationAndUser(
     @Embedded
     val conversation: ConversationEntity,
 
-    @Embedded(prefix = "owner_")
-    val owner: ConversationUserEntity,
-
-    @Embedded(prefix = "other_")
-    val otherUser: ConversationUserEntity
+    @Relation(
+        parentColumn = "otherUserId",
+        entityColumn = "uid"
+    )
+    val otherUser: AccountEntity?
 )

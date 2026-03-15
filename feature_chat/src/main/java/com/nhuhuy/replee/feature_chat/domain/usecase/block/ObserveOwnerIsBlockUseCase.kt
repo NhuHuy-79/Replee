@@ -4,13 +4,13 @@ import com.nhuhuy.core.domain.repository.AccountRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class ObserveBlockStatusUseCase @Inject constructor(
+class ObserveOwnerIsBlockUseCase @Inject constructor(
     private val accountRepository: AccountRepository
 ) {
     operator fun invoke(ownerId: String, otherUserId: String): Flow<Boolean> {
-        return accountRepository.observeBlockStatus(
-            owner = ownerId,
-            otherUser = otherUserId
+        return accountRepository.observeWhoIsBlock(
+            block = ownerId,
+            isBlocked = otherUserId
         )
     }
 }

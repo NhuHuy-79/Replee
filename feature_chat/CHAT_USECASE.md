@@ -30,3 +30,9 @@ e. PinConversationUseCase: Pin conversations in the top of list.
 f. UpdateOtherUserNickNameUseCase: Update otherUser's nick name in conversation screen.
 g. GetConversationUseCase: Get information of current conversation in Option Screen.
 f. DeleteConversationUseCase: Delete all messages in conversation.
+
+//Cần tách hẳn các hàm toggle trong ConversationRepository.
+//Xem lại phần sync tin nhắn
+//Xem lại WorK manager (sCheduler sẽ để tầng data)
+//Xem lại các map lại đè nhau không
+//Đè callback để cloudinary

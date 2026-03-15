@@ -13,7 +13,7 @@ class ReadMessageUseCase @Inject constructor(
         receiverId: String,
     ): NetworkResult<Unit> {
         return messageRepository.markMessagesAsRead(
-            messageIds = listOf(),
+            messageIds = messageIds,
             conversationId = conversationId,
             receiverId = receiverId
         )

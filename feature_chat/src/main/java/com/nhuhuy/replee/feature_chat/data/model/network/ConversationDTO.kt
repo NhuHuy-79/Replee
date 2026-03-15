@@ -6,32 +6,22 @@ import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 
 data class ConversationDTO(
     val id: String = "",
-    val user1: ConversationDTOUser = ConversationDTOUser(),
-    val user2: ConversationDTOUser = ConversationDTOUser(),
-    val unreadMessageCount: UnreadMessageCount = UnreadMessageCount(),
+    val unReadMessages: Map<String, Int> = emptyMap(),
+
+    //Unchanged data
     val memberIds : List<String> = emptyList(),
     @ServerTimestamp
     val createdAt: Timestamp? = null,
+
     val lastMessageContent: String = "",
     val lastSenderId: String = "",
     val lastMessageTime: Long? = null,
-    //Add field
-    val mutedBy: List<String> = emptyList(),
-    val pinnedBy: List<String> = emptyList(),
-    val deletedBy: List<String> = emptyList(),
-    val blockedBy: List<String> = emptyList(),
-    val seedColor: Long = 0xFF1C6586,
-    val lastMessageType: MessageType = MessageType.TEXT
+    val lastMessageType: MessageType = MessageType.TEXT,
+
+    val nickName: Map<String, String> = emptyMap(),
+    val isMuted: Map<String, Boolean> = emptyMap(),
+    val isPinned: Map<String, Boolean> = emptyMap(),
+    val isDeleted: Map<String, Boolean> = emptyMap(),
+    val isBlocked: Map<String, Boolean> = emptyMap(),
 )
 
-data class ConversationDTOUser(
-    val nick: String = "",
-    val uid: String = "404",
-    val name: String = "No one",
-    val imgUrl: String = "",
-)
-
-data class UnreadMessageCount(
-    val user1: Int = 0,
-    val user2: Int = 0
-)

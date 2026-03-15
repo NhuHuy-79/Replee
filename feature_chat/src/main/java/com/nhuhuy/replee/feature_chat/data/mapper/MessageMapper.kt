@@ -1,6 +1,7 @@
 package com.nhuhuy.replee.feature_chat.data.mapper
 
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
+import com.nhuhuy.replee.core.network.utils.toMilliseconds
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
@@ -14,10 +15,11 @@ fun MessageEntity.toMessage() : Message{
         receiverId = receiverId,
         content = content,
         seen = seen,
-        sentAt = sentAt,
+        sentAt = sentAt ?: System.currentTimeMillis(),
         type = MessageType.valueOf(type),
         status = MessageStatus.valueOf(this.status),
-        localUriPath = localUriPath
+        localUriPath = localUriPath,
+        remoteUrl = remoteUrl
     )
 }
 
@@ -29,9 +31,10 @@ fun MessageDTO.toMessage() : Message{
         receiverId = receiverId,
         content = content,
         seen = seen,
-        sentAt = sendAt,
+        sentAt = sendAt?.toMilliseconds() ?: System.currentTimeMillis(),
         status = MessageStatus.SYNCED,
-        type = type
+        type = type,
+        remoteUrl = url
     )
 }
 
@@ -43,8 +46,8 @@ fun Message.toMessageDTO() : MessageDTO {
         receiverId = receiverId,
         content = content,
         seen = seen,
-        sendAt = sentAt,
         type = type,
+        url = remoteUrl,
         status = status
     )
 }
@@ -60,6 +63,7 @@ fun Message.toMessageEntity() : MessageEntity{
         sentAt = sentAt,
         status = status.name,
         type = type.name,
-        localUriPath = localUriPath
+        localUriPath = localUriPath,
+        remoteUrl = remoteUrl
     )
 }

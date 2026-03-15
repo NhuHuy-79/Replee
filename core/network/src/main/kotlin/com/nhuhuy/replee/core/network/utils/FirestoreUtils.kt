@@ -1,5 +1,10 @@
 package com.nhuhuy.replee.core.network.utils
 
+import android.util.Log
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+
 /**
  * Optimizes write operations by selecting the most efficient method based on the number of items.
  *
@@ -14,7 +19,7 @@ package com.nhuhuy.replee.core.network.utils
  * @param batchWrite A suspend function to handle a batch write operation for a list of items.
  * @param batchSize The maximum number of items allowed in a single batch (defaults to 400).
  */
-suspend fun <T> optimizedWrite(
+suspend inline fun <T> optimizedWrite(
     items: List<T>,
     singleWrite: suspend (T) -> Unit,
     batchWrite: suspend (List<T>) -> Unit,
@@ -37,4 +42,28 @@ suspend fun <T> optimizedWrite(
             }
         }
     }
+}
+
+
+suspend inline fun <T, R> optimizeRead(
+    items: List<T>,
+    crossinline action: suspend (List<T>) -> List<R>
+): List<R> = coroutineScope {
+    if (items.isEmpty()) return@coroutineScope emptyList()
+
+    val chunks = items.distinct().chunked(30)
+
+    // Bắn tất cả request cùng lúc
+    val deferredResults = chunks.map { chunk ->
+        async {
+            try {
+                action(chunk)
+            } catch (e: Exception) {
+                Log.e("OptimizedRead", "Error in optimizedRead: ${e.message}")
+                emptyList()
+            }
+        }
+    }
+
+    deferredResults.awaitAll().flatten()
 }

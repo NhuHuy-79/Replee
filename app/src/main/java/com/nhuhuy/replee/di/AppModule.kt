@@ -4,12 +4,9 @@ package com.nhuhuy.replee.di
 import android.content.Context
 import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.network.api.mapper.RequestMapper
+import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
 import com.nhuhuy.replee.notification.NotificationParser
-import com.nhuhuy.replee.worker.ListenConversationsManager
-import com.nhuhuy.replee.worker.ListenConversationsManagerImp
-import com.nhuhuy.replee.worker.WorkerScheduler
 import com.nhuhuy.replee.worker.WorkerSchedulerImp
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,13 +16,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import javax.inject.Singleton
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class AppModuleBinder {
-    @Binds
-    abstract fun bindListenConversationsManager(imp: ListenConversationsManagerImp): ListenConversationsManager
-
-}
 
 @Module
 @InstallIn(SingletonComponent::class)

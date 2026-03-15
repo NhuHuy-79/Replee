@@ -5,6 +5,7 @@ import com.google.firebase.firestore.toObjects
 import com.nhuhuy.replee.core.network.model.AccountDTO
 import com.nhuhuy.replee.core.network.model.Constant
 import com.nhuhuy.replee.core.network.utils.FirestoreCannotConvertObjectException
+import com.nhuhuy.replee.core.network.utils.optimizeRead
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -59,10 +60,17 @@ class AccountNetworkDataSourceImp @Inject constructor(
     }
 
     override suspend fun fetchAccountByIdList(ids: List<String>): List<AccountDTO> {
-        return collection.whereIn("id", ids)
-            .get()
-            .await()
-            .toObjects<AccountDTO>()
+        return optimizeRead(
+            items = ids,
+            action = { uids ->
+                collection.whereIn("id", uids)
+                    .get()
+                    .await()
+                    .toObjects<AccountDTO>()
+            }
+        )
+
+
     }
 
     override suspend fun fetchAccountsByEmail(query: String): List<AccountDTO> {

@@ -3,10 +3,9 @@ package com.nhuhuy.replee.feature_chat.data
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.common.utils.execute
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
-import com.nhuhuy.replee.feature_chat.data.mapper.toConversationDTO
-import com.nhuhuy.replee.feature_chat.data.mapper.toConversationPatch
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
+import com.nhuhuy.replee.feature_chat.data.mapper.toUpdatePatch
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
@@ -23,8 +22,8 @@ interface SyncManager {
     suspend fun updateMessageStatus(messageId: String, status: MessageStatus)
     suspend fun updateConversationStatus(conversationId: String, synced: Boolean)
     suspend fun syncMessage(): NetworkResult<Unit>
-    suspend fun syncConversation(): NetworkResult<Unit>
-    suspend fun syncImageMessage(): NetworkResult<Unit>
+    suspend fun syncConversation(uid: String): NetworkResult<Unit>
+    suspend fun uploadFile(): NetworkResult<Unit>
     suspend fun cleanUpDatabase()
 }
 
@@ -42,9 +41,8 @@ class SyncManagerImp @Inject constructor(
         messageId: String,
         status: MessageStatus
     ) {
-       return withContext(dispatcher){
-            messageLocalDataSource.updateSyncStatus(
-                listOf(messageId), status)
+        return withContext(dispatcher) {
+            messageLocalDataSource.updateMessageStatus(messageId = messageId, status = status)
         }
     }
 
@@ -59,12 +57,17 @@ class SyncManagerImp @Inject constructor(
 
     override suspend fun syncMessage(): NetworkResult<Unit> {
         return execute {
-            val unSyncedMessages = messageLocalDataSource.getUnsyncedMessages().map { entity ->
+            val unSyncedMessages = messageLocalDataSource.getUnsyncedMessages()
+                .filter { entity ->
+                    entity.type == MessageType.TEXT.name ||
+                            entity.remoteUrl != null
+                }
+                .map { entity ->
                 entity.toMessage().toMessageDTO()
             }
 
             if (unSyncedMessages.isEmpty()) {
-                Timber.e("No message to sync")
+                Timber.d("No message to sync")
                 return@execute
             }
 
@@ -73,49 +76,40 @@ class SyncManagerImp @Inject constructor(
             //Send message to network
             val conversationIds = messageNetworkDataSource.sendMessages(unSyncedMessages)
 
-            if (conversationIds.isEmpty()) {
-                Timber.e("Failed to sync all message to network!")
-                return@execute
-            }
-
-            //Update all message'sync status
+            //Update all MessagePack status
             messageLocalDataSource.updateSyncStatus(messageIds, MessageStatus.SYNCED)
 
             //Update all conversation's sync state
             conversationLocalDataSource.updateLastSyncedTime(
-                conversationIds,
-                System.currentTimeMillis()
+                conversationIds = conversationIds,
+                lastSyncedTime = System.currentTimeMillis()
             )
         }
     }
 
-    override suspend fun syncConversation(): NetworkResult<Unit> {
+    override suspend fun syncConversation(uid: String): NetworkResult<Unit> {
         return execute {
-            val conversationAndUsers = conversationLocalDataSource.getUnSyncedConversations()
+            val unSyncedConversations = conversationLocalDataSource.getUnSyncedConversations()
+            val conversationIds: List<String> = unSyncedConversations.map { conversationAndUser ->
+                conversationAndUser.conversation.id
+            }
+            val conversationUpdatePatches: List<Map<String, Any>> =
+                unSyncedConversations.map { conversationAndUser ->
+                    conversationAndUser.toUpdatePatch(uid)
+                }
+            if (conversationUpdatePatches.isEmpty()) {
+                Timber.d("No conversation to sync")
+                return@execute
+            }
 
-            val conversationIds = conversationAndUsers.map { conversationAndUsers ->
-                conversationAndUsers.conversation.id
-            }
-            val conversationPatchList = conversationAndUsers.map { conversationAndUser ->
-                conversationAndUser.toConversationPatch()
-            }
-            //Upload ConversationDTO
-            val conversationDTOList = conversationAndUsers.map { conversationAndUser ->
-                conversationAndUser.toConversationDTO()
-            }
-            conversationNetworkDataSource.sendConversations(conversationDTOList)
-
-            //Update Field In Conversation
-            conversationNetworkDataSource.updateConversations(conversationPatchList)
+            //Update conversation in network
+            conversationNetworkDataSource.updateConversationDataMap(conversationUpdatePatches)
+            //Update synced conversation in local
             conversationLocalDataSource.updateSyncStatusOfConversations(conversationIds, true)
-            conversationLocalDataSource.updateLastSyncedTime(
-                conversationIds,
-                System.currentTimeMillis()
-            )
         }
     }
 
-    override suspend fun syncImageMessage(): NetworkResult<Unit> {
+    override suspend fun uploadFile(): NetworkResult<Unit> {
         return execute {
             val messageWithUri: Map<String, String> = messageLocalDataSource
                 .getUnsyncedMessageByType(MessageType.IMAGE)
@@ -127,7 +121,6 @@ class SyncManagerImp @Inject constructor(
                 .toMap()
 
             if (messageWithUri.isEmpty()) {
-                Timber.e("No image message to sync")
                 return@execute
             }
 
@@ -135,8 +128,9 @@ class SyncManagerImp @Inject constructor(
                 uploadFileService.uploadMessageWithUri(messageWithUri)
 
             if (messageIdsWithURl.isNotEmpty()) {
-                Timber.e("Synced ${messageIdsWithURl.size} image message to network!")
+                Timber.d("Synced ${messageIdsWithURl.size} image message to network!")
                 messageLocalDataSource.updateRemoteUrlMessage(messageIdsWithURl)
+                syncMessage()
             } else {
                 Timber.e("Failed to sync all image message to network!")
             }
@@ -144,7 +138,7 @@ class SyncManagerImp @Inject constructor(
     }
 
     override suspend fun cleanUpDatabase() {
-        return withContext(dispatcher){
+        return withContext(dispatcher) {
             messageLocalDataSource.deleteMessageByConversationId(CLEAN_UP_LIMIT)
         }
     }

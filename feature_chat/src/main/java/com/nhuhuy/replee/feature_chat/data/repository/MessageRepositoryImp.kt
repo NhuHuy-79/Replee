@@ -25,7 +25,6 @@ import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -49,7 +48,8 @@ class MessageRepositoryImp @Inject constructor(
             messageLocalDataSource.upsertMessage(message = entity)
             conversationLocalDataSource.updateLastMessage(message = entity)
 
-            messageNetworkDataSource.sendMessage(message = message.toMessageDTO())
+            val dto = message.toMessageDTO().copy(status = MessageStatus.SYNCED)
+            messageNetworkDataSource.sendMessage(message = dto)
 
             message.messageId
         }
@@ -96,25 +96,6 @@ class MessageRepositoryImp @Inject constructor(
         }
     }
 
-    override fun observeNetworkMessageList(conversationId: String): Flow<NetworkResult<List<Message>>> {
-        return messageNetworkDataSource.streamMessageListByConversationId(conversationId)
-            .map { messageList ->
-                val data = messageList.map { messageDTO -> messageDTO.toMessage() }
-                NetworkResult.Success(data) as NetworkResult<List<Message>>
-            }
-            .catch { throwable ->
-                emit(NetworkResult.Failure(throwable))
-            }
-    }
-
-    override fun observeLocalMessages(conversationId: String): Flow<List<Message>> {
-        return messageLocalDataSource.observeMessages(conversationId).map { entities ->
-            entities.map { entity ->
-                entity.toMessage()
-            }
-        }.flowOn(ioDispatcher)
-    }
-
     override suspend fun markMessagesAsRead(
         messageIds: List<String>,
         conversationId: String,
@@ -124,9 +105,7 @@ class MessageRepositoryImp @Inject constructor(
             status = MessageStatus.SEEN,
             messageIds = messageIds
         )
-        val conversationDTO = conversationNetworkDataSource.fetchConversationById(conversationId)
-        val receiverField =
-            if (conversationDTO?.user1?.uid == receiverId) "user1" else "user2"
+
         val count = messageNetworkDataSource.updateMessageStatus(
             conversationId = conversationId,
             messageIds = messageIds,
@@ -134,21 +113,9 @@ class MessageRepositoryImp @Inject constructor(
         )
         conversationNetworkDataSource.updateUnreadMessageCount(
             conversationId = conversationId,
-            receiverField = receiverField,
+            receiverId = receiverId,
             count = count
         )
-    }
-
-    override suspend fun searchMessageWithQuery(
-        conversationId: String,
-        query: String
-    ): List<Message> {
-        return withContext(ioDispatcher) {
-            messageLocalDataSource.getMessagesByQuery(
-                conversationId = conversationId,
-                query = query
-            ).map { entity -> entity.toMessage() }
-        }
     }
 
     override fun observeNetworkMessageChange(conversationId: String): Flow<List<DataChange<Message>>> {
@@ -181,7 +148,7 @@ class MessageRepositoryImp @Inject constructor(
         }
     }
 
-    override fun observeMessageChangeWithPaging(
+    override fun observeMessageChangeWithLimit(
         conversationId: String,
         limit: Int
     ): Flow<List<DataChange<Message>>> {
@@ -196,7 +163,7 @@ class MessageRepositoryImp @Inject constructor(
     }
 
     @OptIn(ExperimentalPagingApi::class)
-    override fun observeMessageWithPaging(
+    override fun pagingLocalMessages(
         conversationId: String,
     ): Flow<PagingData<Message>> {
         val messageDao = coreDatabase.provideMessageDao()

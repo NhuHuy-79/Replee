@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.core.network.model
 
+import android.util.Log
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
@@ -8,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
 sealed class DataChange<out T> {
+    data object Empty : DataChange<Nothing>()
     data class Upsert<out T>(val data: T) : DataChange<T>()
     data class Delete(val id: String) : DataChange<Nothing>()
 }
@@ -16,15 +18,33 @@ inline fun <T, R> DataChange<T>.mapData(
     transformer: (T) -> R
 ): DataChange<R> {
     return when (this) {
+        is DataChange.Empty -> DataChange.Empty
         is DataChange.Delete -> DataChange.Delete(id)
         is DataChange.Upsert -> DataChange.Upsert(transformer(data))
     }
 }
 
+inline fun <T, R : Any> DataChange<T>.mapNotNullData(
+    transformer: (T) -> R?
+): DataChange<R>? {
+    return when (this) {
+        is DataChange.Delete -> DataChange.Delete(id)
+        is DataChange.Empty -> DataChange.Empty
+        is DataChange.Upsert -> {
+            val mappedData = transformer(data)
+            if (mappedData != null) {
+                DataChange.Upsert(mappedData)
+            } else {
+                null
+            }
+        }
+    }
+}
 /**
  * Observes changes in a Firestore query as a [Flow] of [DataChange] lists.
  *
  * This function converts a Firestore snapshot listener into a cold stream of data changes.
+ * If initial snapshot is empty, that means database has nothing and return [DataChange.Empty]].
  * It handles three types of document changes:
  * - ADDED: Mapped to [DataChange.Upsert]
  * - MODIFIED: Mapped to [DataChange.Upsert]
@@ -46,7 +66,14 @@ inline fun <reified T> Query.observeDataChange(): Flow<List<DataChange<T>>> =
 
             if (snapshot == null) return@addSnapshotListener
 
-            /*  if (snapshot.metadata.hasPendingWrites()) return@addSnapshotListener*/
+            Log.d("Firestore", "fromCache=${snapshot.metadata.isFromCache}")
+
+            /*if (snapshot.metadata.hasPendingWrites()) return@addSnapshotListener
+*/
+            if (snapshot.metadata.isFromCache.not() && snapshot.documentChanges.size == snapshot.size()) {
+                Log.d("Firestore", "Ignoring snapshot with pending writes")
+
+            }
 
             val changes = snapshot.documentChanges.mapNotNull { change ->
                 when (change.type) {

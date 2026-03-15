@@ -12,7 +12,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.nhuhuy.replee.core.network.data_source.AuthenticatedState
+import com.nhuhuy.core.domain.model.AuthenticatedState
 import com.nhuhuy.replee.navigation.HomeDestination.ConversationList
 import com.nhuhuy.replee.navigation.splash.SplashKey
 import com.nhuhuy.replee.navigation.splash.splashGraph

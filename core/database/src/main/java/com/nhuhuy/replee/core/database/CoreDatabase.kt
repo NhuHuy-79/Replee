@@ -21,7 +21,7 @@ import com.nhuhuy.replee.core.database.entity.search_history.SearchHistoryEntity
 @Database(
     entities = [AccountEntity::class, ConversationEntity::class, MessageEntity::class,
         MessageRemoteKey::class, SearchHistoryEntity::class],
-    version = 25,
+    version = 26,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(

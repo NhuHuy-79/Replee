@@ -1,17 +1,16 @@
 package com.nhuhuy.replee.feature_chat.data.repository
 
-import com.nhuhuy.core.domain.model.Account
+import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.common.mapper.toAccountEntity
 import com.nhuhuy.replee.core.common.utils.execute
 import com.nhuhuy.replee.core.common.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.core.network.model.DataChange
-import com.nhuhuy.replee.core.network.model.mapData
+import com.nhuhuy.replee.core.network.model.mapNotNullData
+import com.nhuhuy.replee.feature_chat.data.mapper.createConversationDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversation
-import com.nhuhuy.replee.feature_chat.data.mapper.toConversationDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversationEntity
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
@@ -22,8 +21,6 @@ import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -32,11 +29,11 @@ import javax.inject.Inject
 
 class ConversationRepositoryImp @Inject constructor(
     private val ioDispatcher: CoroutineDispatcher,
-    private val firebaseAuthEmailService: FirebaseAuthEmailService,
+    private val sessionManager: SessionManager,
     private val accountLocalDataSource: AccountLocalDataSource,
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
-    private val conversationLocalDataSource: ConversationLocalDataSource
+    private val conversationLocalDataSource: ConversationLocalDataSource,
 ) : ConversationRepository {
     override fun listenConversationWithLimit(
         limit: Int,
@@ -46,8 +43,9 @@ class ConversationRepositoryImp @Inject constructor(
             ownerId = ownerId,
             limit = limit
         ).map { dataChanges ->
-            dataChanges.map { dataChange ->
-                dataChange.mapData { dto ->
+            Timber.d("Data Change: ${dataChanges.size}")
+            dataChanges.mapNotNull { dataChange ->
+                dataChange.mapNotNullData { dto ->
                     dto.toConversation(ownerId)
                 }
             }
@@ -74,9 +72,9 @@ class ConversationRepositoryImp @Inject constructor(
 
     override suspend fun fetchConversations(): NetworkResult<List<Conversation>> {
         return execute {
-            val uid = firebaseAuthEmailService.getCurrentUser()?.uid
-                ?: return@execute emptyList()
-            conversationNetworkDataSource.fetchConversationsByUser(uid).map { conversationDTO ->
+            val uid = sessionManager.requireUserId()
+            conversationNetworkDataSource.fetchConversationsByUser(uid)
+                .mapNotNull { conversationDTO ->
                 conversationDTO.toConversation(uid)
             }
         }
@@ -107,30 +105,6 @@ class ConversationRepositoryImp @Inject constructor(
             }
     }
 
-    override fun observeNetworkConversation(): Flow<NetworkResult<List<Conversation>>> {
-        val uid = firebaseAuthEmailService.getCurrentUser()?.uid ?: return emptyFlow()
-        return conversationNetworkDataSource.streamConversationsByOwner(uid)
-            .map { conversationDTOS ->
-                val data =
-                    conversationDTOS.map { conversationDTO -> conversationDTO.toConversation(uid) }
-                NetworkResult.Success(data) as NetworkResult<List<Conversation>>
-            }.catch { exception -> emit(NetworkResult.Failure(exception)) }
-    }
-
-    override suspend fun getOrCreateConversation(otherUser: Account): NetworkResult<String> {
-        return executeWithTimeout {
-            val currentUserId =
-                firebaseAuthEmailService.getCurrentUser()?.uid ?: return@executeWithTimeout ""
-            val entity = conversationLocalDataSource.getConversationAndUserById(
-                ownerId = currentUserId,
-                otherUserId = otherUser.id
-            )
-            val dto = entity.toConversationDTO()
-            conversationNetworkDataSource.sendConversation(dto)
-            entity.conversation.id
-        }
-    }
-
     override suspend fun getOrCreateConversation(
         ownerId: String,
         otherUserId: String
@@ -140,33 +114,17 @@ class ConversationRepositoryImp @Inject constructor(
                 ownerId = ownerId,
                 otherUserId = otherUserId
             )
-            val dto = entity.toConversationDTO()
+            val dto = entity.createConversationDTO()
             conversationNetworkDataSource.sendConversation(dto)
             entity.conversation.id
 
         }
     }
 
-    override fun observeNetworkConversationChange(
-        ownerId: String
-    ): Flow<List<DataChange<Conversation>>> {
-        return conversationNetworkDataSource
-            .listenConversationChangesByOwner(ownerId)
-            .map { dataChanges ->
-                Timber.d("Data Change: $dataChanges")
-                dataChanges.map { dataChange ->
-                    dataChange.mapData { dto ->
-                        dto.toConversation(ownerId)
-                    }
-                }
-            }
-            .flowOn(ioDispatcher)
-    }
-
     override suspend fun updateLocalDataChange(
         dataChanges: List<DataChange<Conversation>>
-    ) {
-
+    ): NetworkResult<Unit> = execute {
+        val currentUserId: String = sessionManager.requireUserId()
         val upserts = mutableListOf<Conversation>()
         val deletes = mutableListOf<String>()
 
@@ -174,33 +132,38 @@ class ConversationRepositoryImp @Inject constructor(
             when (change) {
                 is DataChange.Delete -> deletes.add(change.id)
                 is DataChange.Upsert -> upserts.add(change.data)
+                DataChange.Empty -> conversationLocalDataSource.deleteConversationsByUid(
+                    currentUserId
+                )
             }
         }
 
-        if (upserts.isEmpty() && deletes.isEmpty()) {
-            Timber.d("$upserts - $deletes")
-            return
-        }
         val mappedUpsert = upserts.map { conversation -> conversation.toConversationEntity() }
         conversationLocalDataSource.upsertAndDeleteConversations(
             upsert = mappedUpsert,
-            delete = deletes
+            delete = deletes,
         )
+
     }
 
     override suspend fun updateMetadataConversation(message: Message): NetworkResult<Unit> {
         return execute {
-            val entity = message.toMessageEntity()
-            conversationLocalDataSource.updateLastMessage(entity)
+            val messageEntity = message.toMessageEntity()
+            conversationLocalDataSource.updateLastMessage(messageEntity)
 
-            //Update in network
-            val conversationDTO =
-                conversationNetworkDataSource.fetchConversationByIdOrThrow(message.conversationId)
+            val conversationDTO = conversationNetworkDataSource
+                .fetchConversationByIdOrThrow(message.conversationId)
+            val messageDTO = message.toMessageDTO()
+
             conversationNetworkDataSource.updateLastMessage(
-                message = message.toMessageDTO(),
+                message = messageDTO,
                 conversation = conversationDTO
             )
         }
+    }
+
+    override fun observeOtherUserInConversation(currentUserId: String): Flow<List<String>> {
+        return conversationLocalDataSource.observeOtherUserInConversation(currentUserId)
     }
 
 }

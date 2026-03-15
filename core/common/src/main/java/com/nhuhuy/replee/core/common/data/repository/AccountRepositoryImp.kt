@@ -13,6 +13,7 @@ import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.database.entity.search_history.SearchHistoryEntity
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
+import com.nhuhuy.replee.core.network.model.AccountDTO
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -49,6 +50,24 @@ class AccountRepositoryImp @Inject constructor(
         accountNetworkDataSource.updateDeviceToken(entity.uid, token)
 
         account
+    }
+
+    override suspend fun fetchAccount(uid: String): NetworkResult<String> {
+        return execute(ioDispatcher) {
+            val accountDTO = accountNetworkDataSource.fetchAccountById(uid)
+            val accountEntity = accountDTO.toAccountEntity()
+            accountLocalDataSource.upsertAccount(accountEntity)
+            uid
+        }
+    }
+
+    override suspend fun fetchAccountList(uids: List<String>): NetworkResult<Unit> {
+        return execute(ioDispatcher) {
+            val accountDTOs: List<AccountDTO> = accountNetworkDataSource.fetchAccountByIdList(uids)
+            val entities = accountDTOs.map { accountDTO -> accountDTO.toAccountEntity() }
+
+            accountLocalDataSource.upsertAccounts(entities)
+        }
     }
 
     override suspend fun updateDeviceToken(token: String): NetworkResult<Unit> {
@@ -112,14 +131,14 @@ class AccountRepositoryImp @Inject constructor(
         }
     }
 
-    override fun observeBlockStatus(
-        owner: String,
-        otherUser: String
+    override fun observeWhoIsBlock(
+        block: String,
+        isBlocked: String
     ): Flow<Boolean> {
-        return accountLocalDataSource.observeBlockStatus(owner)
+        return accountLocalDataSource.observeBlockStatus(block)
             .map { list ->
                 Timber.d("$list")
-                list.contains(otherUser)
+                list.contains(isBlocked)
             }
     }
 

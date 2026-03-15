@@ -19,6 +19,9 @@ class UpdateMessageChangeUseCase @Inject constructor(
             when (change) {
                 is DataChange.Delete -> deletes.add(change.id)
                 is DataChange.Upsert -> upserts.add(change.data)
+                DataChange.Empty -> {
+                    //TODO
+                }
             }
         }
 

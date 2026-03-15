@@ -10,18 +10,7 @@ import kotlinx.coroutines.flow.Flow
 interface ConversationDao : BaseDao<ConversationEntity> {
 
     @Transaction
-    @Query(
-        """
-    SELECT 
-    c.*,
-    o.uid AS owner_uid, o.name AS owner_name, o.imageUrl AS owner_imageUrl, o.isOnline AS owner_isOnline,
-    u.uid AS other_uid, u.name AS other_name, u.imageUrl AS other_imageUrl, u.isOnline AS other_isOnline
-    FROM conversation c
-    INNER JOIN accounts o ON c.ownerId = o.uid
-    INNER JOIN accounts u ON c.otherUserId = u.uid
-    WHERE c.id = :id
-    """
-    )
+    @Query("SELECT * FROM conversation WHERE id = :id")
     suspend fun getConversationById(id: String): ConversationAndUser?
 
     @Query("DELETE FROM conversation WHERE id in (:list)")
@@ -30,68 +19,41 @@ interface ConversationDao : BaseDao<ConversationEntity> {
     @Query("SELECT otherUserId FROM conversation WHERE ownerId = :uid")
     suspend fun getOtherUserInConversationList(uid: String): List<String>
 
+    @Query("SELECT DISTINCT otherUserId FROM conversation WHERE ownerId = :uid")
+    fun getOtherUserInConversationFlow(uid: String): Flow<List<String>>
+
     @Transaction
     suspend fun upsertAndDeleteConversations(
         upsert: List<ConversationEntity>,
-        delete: List<String>
+        delete: List<String>,
     ) {
         upsertAll(upsert)
         deleteConversationsById(delete)
+
     }
 
+    @Query("DELETE FROM conversation WHERE ownerId = :uid")
+    suspend fun deleteConversationsByOwnerId(uid: String)
+
     @Transaction
-    @Query(
-        """
-    SELECT 
-    c.*,
-    o.uid AS owner_uid, o.name AS owner_name, o.imageUrl AS owner_imageUrl, o.isOnline AS owner_isOnline,
-    u.uid AS other_uid, u.name AS other_name, u.imageUrl AS other_imageUrl, u.isOnline AS other_isOnline
-    FROM conversation c
-    INNER JOIN accounts o ON c.ownerId = o.uid
-    INNER JOIN accounts u ON c.otherUserId = u.uid
-    WHERE c.id = :id
-    """
-    )
+    @Query("SELECT * FROM conversation WHERE id = :id")
     fun observeConversationById(id: String): Flow<ConversationAndUser?>
 
     @Query("DELETE FROM conversation WHERE id = :id")
     suspend fun deleteConversationById(id: String)
 
     @Transaction
-    @Query(
-        """
-    SELECT 
-    c.*,
-    o.uid AS owner_uid, o.name AS owner_name, o.imageUrl AS owner_imageUrl, o.isOnline AS owner_isOnline,
-    u.uid AS other_uid, u.name AS other_name, u.imageUrl AS other_imageUrl, u.isOnline AS other_isOnline
-    FROM conversation c
-    INNER JOIN accounts o ON c.ownerId = o.uid
-    INNER JOIN accounts u ON c.otherUserId = u.uid
-    WHERE c.ownerId = :uid OR c.otherUserId = :uid
-    ORDER BY c.lastMessageTime DESC
-    """
-    )
+    @Query("SELECT * FROM conversation WHERE ownerId = :uid ORDER BY lastMessageTime DESC")
     fun observeConversations(uid: String): Flow<List<ConversationAndUser>>
 
     @Query("SELECT COUNT(*) FROM conversation WHERE ownerId = :ownerId")
     suspend fun getConversationListCount(ownerId: String) : Int
 
-    @Query("UPDATE conversation SET lastMessageTime = :lastMessageTime WHERE id in (:conversationIds)")
-    suspend fun updateSyncedTime(conversationIds: List<String>, lastMessageTime: Long)
+    @Query("UPDATE conversation SET lastTimeSyncs = :lastSyncedTime WHERE id in (:conversationIds)")
+    suspend fun updateSyncedTime(conversationIds: List<String>, lastSyncedTime: Long)
 
     @Transaction
-    @Query(
-        """
-    SELECT 
-    c.*,
-    o.uid AS owner_uid, o.name AS owner_name, o.imageUrl AS owner_imageUrl, o.isOnline AS owner_isOnline,
-    u.uid AS other_uid, u.name AS other_name, u.imageUrl AS other_imageUrl, u.isOnline AS other_isOnline
-    FROM conversation c
-    INNER JOIN accounts o ON c.ownerId = o.uid
-    INNER JOIN accounts u ON c.otherUserId = u.uid
-    WHERE c.id = :id
-    """
-    )
+    @Query("SELECT * FROM conversation WHERE id = :id")
     suspend fun getConversationAndUserById(id: String): ConversationAndUser?
 
     @Query(
@@ -133,8 +95,8 @@ interface ConversationDao : BaseDao<ConversationEntity> {
     o.uid AS owner_uid, o.name AS owner_name, o.imageUrl AS owner_imageUrl, o.isOnline AS owner_isOnline,
     u.uid AS other_uid, u.name AS other_name, u.imageUrl AS other_imageUrl, u.isOnline AS other_isOnline
     FROM conversation c
-    INNER JOIN accounts o ON c.ownerId = o.uid
-    INNER JOIN accounts u ON c.otherUserId = u.uid
+    LEFT JOIN accounts o ON c.ownerId = o.uid
+    LEFT JOIN accounts u ON c.otherUserId = u.uid
     WHERE c.synced = 0
     """
     )

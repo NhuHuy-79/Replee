@@ -8,6 +8,7 @@ import androidx.room.withTransaction
 import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
 import com.nhuhuy.replee.core.database.entity.pager.MessageRemoteKey
+import com.nhuhuy.replee.core.network.utils.toMilliseconds
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
 import timber.log.Timber
@@ -19,8 +20,8 @@ class MessageRemoteMediator(
     private val network: MessageNetworkDataSource
 ) : RemoteMediator<Int, MessageEntity>() {
 
-    val messageDao = db.provideMessageDao()
-    val remoteKeyDao = db.provideMessageRemoteKeyDao()
+    private val messageDao = db.provideMessageDao()
+    private val remoteKeyDao = db.provideMessageRemoteKeyDao()
 
     override suspend fun load(
         loadType: LoadType,
@@ -84,7 +85,7 @@ class MessageRemoteMediator(
                 remoteKeyDao.upsert(
                     MessageRemoteKey(
                         conversationId = conversationId,
-                        oldestCreatedAt = last?.sendAt,
+                        oldestCreatedAt = last?.sendAt?.toMilliseconds(),
                         oldestMessageId = last?.messageId,
                         endReached = endReached
                     )

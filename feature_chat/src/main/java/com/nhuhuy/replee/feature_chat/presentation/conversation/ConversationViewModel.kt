@@ -11,11 +11,13 @@ import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.core.design_system.state.toScreenState
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
+import com.nhuhuy.replee.feature_chat.domain.usecase.account.FetchAccountListUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.account.ObserveAccountInConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.account.UpdateCurrentAccountUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetSearchHistoryUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.ListenConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.LoadConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationListUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.sync.UpsertConversationUseCase
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.BottomSheet
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationAction
@@ -34,10 +36,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @HiltViewModel(assistedFactory = ConversationViewModel.Factory::class)
 class ConversationViewModel @AssistedInject constructor(
@@ -47,10 +49,13 @@ class ConversationViewModel @AssistedInject constructor(
     private val upsertConversationUseCase: UpsertConversationUseCase,
     private val loadConversationUseCase: LoadConversationUseCase,
     private val saveConversationListUseCase: SaveConversationListUseCase,
-    private val saveConversationUserUseCase: SaveConversationUserUseCase,
+    private val updateCurrentAccountUseCase: UpdateCurrentAccountUseCase,
     private val getCurrentAccountUseCase: GetCurrentAccountUseCase,
     private val searchAccountByEmailUseCase: SearchAccountByEmailUseCase,
-) : BaseViewModel<ConversationAction, ConversationEvent, ConversationState>() {
+    private val fetchAccountListUseCase: FetchAccountListUseCase,
+    private val observeAccountInConversationUseCase: ObserveAccountInConversationUseCase,
+
+    ) : BaseViewModel<ConversationAction, ConversationEvent, ConversationState>() {
     private val _state = MutableStateFlow(ConversationState())
     override val state: StateFlow<ConversationState>
         get() = _state.asStateFlow()
@@ -60,13 +65,16 @@ class ConversationViewModel @AssistedInject constructor(
 
     init {
         listenToNetworkConversation()
+        listenToNewConversationUser()
         viewModelScope.launch {
-            saveConversationUserUseCase(currentUserId)
+            updateCurrentAccountUseCase(uid = currentUserId)
             val currentUser = getCurrentAccountUseCase()
             _state.reduce { copy(currentUser = currentUser) }
         }
 
     }
+
+
     val conversationState: StateFlow<ScreenState<List<Conversation>>> =
         loadConversationUseCase(ownerId = currentUserId).map { list ->
             ScreenState.Success(list)
@@ -80,10 +88,18 @@ class ConversationViewModel @AssistedInject constructor(
                 ownerId = currentUserId,
                 limit = 60
             )
-                .distinctUntilChanged()
                 .collect { dataChanges ->
                     upsertConversationUseCase(dataChanges)
                 }
+        }
+    }
+
+    private fun listenToNewConversationUser() {
+        viewModelScope.launch {
+            observeAccountInConversationUseCase(currentUserId).collect { uids ->
+                Timber.d("Uid List: $uids")
+                fetchAccountListUseCase(uids)
+            }
         }
     }
 
@@ -101,7 +117,7 @@ class ConversationViewModel @AssistedInject constructor(
                     onEvent(
                         NavigateToChatRoom(
                             currentUserId = currentUserId,
-                            otherUserId = conversation.otherUser.uid
+                            otherUserId = conversation.otherUserId
                         )
                     )
                 }

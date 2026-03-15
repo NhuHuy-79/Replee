@@ -9,25 +9,22 @@ import kotlinx.coroutines.flow.Flow
 interface MessageRepository {
     suspend fun sendMessage(message: Message): NetworkResult<String>
     suspend fun sendImage(rawMessage: Message, uriPath: String): NetworkResult<String>
-    fun observeNetworkMessageList(conversationId: String): Flow<NetworkResult<List<Message>>>
-    fun observeLocalMessages(conversationId: String) : Flow<List<Message>>
     suspend fun markMessagesAsRead(
         messageIds: List<String>,
         conversationId: String,
         receiverId: String
     ): NetworkResult<Unit>
 
-    suspend fun searchMessageWithQuery(conversationId: String, query: String) : List<Message>
     fun observeNetworkMessageChange(conversationId: String): Flow<List<DataChange<Message>>>
     suspend fun updateLocalDataChange(
         upsert: List<Message>,
         delete: List<String>
     )
 
-    fun observeMessageChangeWithPaging(
+    fun observeMessageChangeWithLimit(
         conversationId: String,
         limit: Int = 3
     ): Flow<List<DataChange<Message>>>
 
-    fun observeMessageWithPaging(conversationId: String): Flow<PagingData<Message>>
+    fun pagingLocalMessages(conversationId: String): Flow<PagingData<Message>>
 }

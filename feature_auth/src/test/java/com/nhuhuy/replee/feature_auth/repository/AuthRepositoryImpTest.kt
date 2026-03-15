@@ -2,10 +2,10 @@ package com.nhuhuy.replee.feature_auth.repository
 
 import com.google.common.truth.Truth
 import com.google.firebase.auth.FirebaseUser
+import com.nhuhuy.core.domain.model.AuthenticatedState
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.network.data_source.AuthenticatedState
 import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.core.network.data_source.GoogleAuthService
 import com.nhuhuy.replee.core.network.model.AccountDTO

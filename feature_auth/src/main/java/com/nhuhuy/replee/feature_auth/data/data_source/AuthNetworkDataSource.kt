@@ -3,7 +3,7 @@ package com.nhuhuy.replee.feature_auth.data.data_source
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.nhuhuy.core.domain.model.AuthServiceProvider
-import com.nhuhuy.replee.core.network.data_source.AuthenticatedState
+import com.nhuhuy.core.domain.model.AuthenticatedState
 import com.nhuhuy.replee.core.network.model.AccountDTO
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow

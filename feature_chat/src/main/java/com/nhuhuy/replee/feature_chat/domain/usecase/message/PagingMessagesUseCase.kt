@@ -10,6 +10,6 @@ class PagingMessagesUseCase @Inject constructor(
     private val messageRepository: MessageRepository
 ) {
     operator fun invoke(conversationId: String): Flow<PagingData<Message>> {
-        return messageRepository.observeMessageWithPaging(conversationId)
+        return messageRepository.pagingLocalMessages(conversationId)
     }
 }

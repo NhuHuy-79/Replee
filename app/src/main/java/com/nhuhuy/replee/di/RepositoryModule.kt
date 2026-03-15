@@ -1,10 +1,12 @@
 package com.nhuhuy.replee.di
 
+import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.repository.PresenceRepository
 import com.nhuhuy.replee.core.common.data.repository.AccountRepositoryImp
 import com.nhuhuy.replee.core.common.data.repository.PresenceRepositoryImp
 import com.nhuhuy.replee.core.common.data.repository.PushNotificationRepository
 import com.nhuhuy.replee.core.common.data.repository.PushNotificationRepositoryImp
+import com.nhuhuy.replee.core.network.manager.SessionManagerImp
 import com.nhuhuy.replee.feature_auth.data.repository.AuthRepositoryImp
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import com.nhuhuy.replee.feature_chat.data.NotifyService
@@ -39,6 +41,8 @@ abstract class RepositoryModuleBinder {
     @Binds
     abstract fun bindAccountRepository(imp: AccountRepositoryImp): com.nhuhuy.core.domain.repository.AccountRepository
 
+    @Binds
+    abstract fun bindSessionManager(imp: SessionManagerImp): SessionManager
     //Chat
     @Binds
     abstract fun bindNotifyService(notifyServiceImp: NotifyServiceImp): NotifyService

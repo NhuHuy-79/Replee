@@ -1,6 +1,5 @@
 package com.nhuhuy.replee.feature_chat.domain.repository
 
-import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
@@ -17,18 +16,17 @@ interface ConversationRepository {
     fun observeLocalConversations(ownerId: String): Flow<List<Conversation>>
     suspend fun saveConversations(conversations: List<Conversation>)
     fun observeConversationById(conversationId: String): Flow<Conversation>
-    fun observeNetworkConversation(): Flow<NetworkResult<List<Conversation>>>
-    suspend fun getOrCreateConversation(otherUser: Account): NetworkResult<String>
     suspend fun getOrCreateConversation(
         ownerId: String,
         otherUserId: String
     ): NetworkResult<String>
-    fun observeNetworkConversationChange(ownerId: String): Flow<List<DataChange<Conversation>>>
 
     suspend fun updateLocalDataChange(
         dataChanges: List<DataChange<Conversation>>
-    )
+    ): NetworkResult<Unit>
     suspend fun updateMetadataConversation(
         message: Message
     ): NetworkResult<Unit>
+
+    fun observeOtherUserInConversation(currentUserId: String): Flow<List<String>>
 }

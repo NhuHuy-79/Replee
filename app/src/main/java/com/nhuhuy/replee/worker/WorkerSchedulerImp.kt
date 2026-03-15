@@ -6,17 +6,12 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import com.nhuhuy.replee.worker.sync.ConversationSyncWorker
-import com.nhuhuy.replee.worker.sync.SyncImageMessageWorker
+import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
+import com.nhuhuy.replee.worker.sync.SyncConversationWorker
+import com.nhuhuy.replee.worker.sync.SyncFileWorker
 import com.nhuhuy.replee.worker.sync.SyncMessageWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
-
-interface WorkerScheduler {
-    fun scheduleFileSyncWorker()
-    fun scheduleMessageSyncWorker()
-    fun scheduleConversationSyncWorker()
-}
 
 const val MESSAGE_SYNC_WORKER = "message_sync_worker"
 const val FILE_SYNC_WORKER = "file_sync_worker"
@@ -24,11 +19,11 @@ const val CONVERSATION_SYNC_WORKER = "conversation_sync_worker"
 
 class WorkerSchedulerImp @Inject constructor(
     @ApplicationContext private val context: Context
-) : WorkerScheduler{
+) : WorkerScheduler {
+    private val workManager by lazy { WorkManager.getInstance(context) }
 
-    private val workManager = WorkManager.getInstance(context)
     override fun scheduleFileSyncWorker() {
-        val request = OneTimeWorkRequestBuilder<SyncImageMessageWorker>()
+        val request = OneTimeWorkRequestBuilder<SyncFileWorker>()
             .setConstraints(
                 Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -62,7 +57,7 @@ class WorkerSchedulerImp @Inject constructor(
     }
 
     override fun scheduleConversationSyncWorker() {
-        val request = OneTimeWorkRequestBuilder<ConversationSyncWorker>()
+        val request = OneTimeWorkRequestBuilder<SyncConversationWorker>()
             .setConstraints(
                 Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)

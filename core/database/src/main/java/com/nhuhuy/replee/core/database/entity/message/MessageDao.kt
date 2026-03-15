@@ -98,7 +98,7 @@ interface MessageDao : BaseDao<MessageEntity> {
     @Query("UPDATE message SET content = :remoteUrl WHERE messageId = :messageId")
     suspend fun updateRemoteUrl(messageId: String, remoteUrl: String)
 
-    @Query("UPDATE message SET content = :remoteUrl, status = :status WHERE messageId = :messageId")
+    @Query("UPDATE message SET remoteUrl = :remoteUrl, status = :status WHERE messageId = :messageId")
     suspend fun updateRemoteUrlAndStatus(messageId: String, remoteUrl: String, status: String)
 }
 

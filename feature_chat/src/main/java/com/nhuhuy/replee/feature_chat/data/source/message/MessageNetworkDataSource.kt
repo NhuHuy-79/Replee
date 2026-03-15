@@ -3,6 +3,7 @@ package com.nhuhuy.replee.feature_chat.data.source.message
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.toObjects
 import com.nhuhuy.replee.core.network.model.Constant
@@ -68,7 +69,8 @@ class MessageNetworkDataSourceImp @Inject constructor(
             update(data).await()
             collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
                 .document(message.messageId)
-                .set(message).await()
+                .set(message)
+                .await()
         }
     }
 
@@ -101,7 +103,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
                             .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
                             .document(message.messageId)
 
-                        batch.set(ref, message)
+                        batch.set(ref, message, SetOptions.merge())
                         conversationIds.add(message.conversationId)
                     }
                 }.await()
@@ -137,26 +139,27 @@ class MessageNetworkDataSourceImp @Inject constructor(
     ): Int {
         if (messageIds.isEmpty()) return 0
 
-        val snapshots = collection.document(conversationId)
+        val messageCollection = collection.document(conversationId)
             .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
-            .whereEqualTo(FieldPath.documentId(), messageIds)
-            .get()
-            .await()
 
-        val refs = snapshots.map { snapshot -> snapshot.reference }
+        val refs = messageIds.map { msgId ->
+            messageCollection.document(msgId)
+        }
+
         optimizedWrite(
             items = refs,
             singleWrite = { reference ->
-                reference.update("status", status).await()
+                val data = mapOf("status" to status.name)
+                reference.set(data, SetOptions.merge()).await()
             },
-            batchWrite = {
+            batchWrite = { chunkRefs ->
                 firestore.runBatch { batch ->
-                    for (snapshot in snapshots) {
-                        val messageRef = snapshot.reference
-                        batch.update(messageRef, "status", status)
+                    for (ref in chunkRefs) {
+                        val data = mapOf("status" to status.name)
+                        batch.set(ref, data, SetOptions.merge())
                     }
                 }.await()
-            }
+            },
         )
 
         return refs.size
@@ -252,7 +255,6 @@ class MessageNetworkDataSourceImp @Inject constructor(
                 .document(conversationId)
                 .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
                 .orderBy("sendAt", Query.Direction.DESCENDING)
-                .whereEqualTo("conversationId", conversationId)
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
                         trySend(emptyList())

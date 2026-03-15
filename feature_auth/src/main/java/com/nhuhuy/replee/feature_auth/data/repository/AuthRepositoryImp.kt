@@ -1,13 +1,13 @@
 package com.nhuhuy.replee.feature_auth.data.repository
 
 import com.nhuhuy.core.domain.model.Account
+import com.nhuhuy.core.domain.model.AuthenticatedState
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.common.mapper.toAccount
 import com.nhuhuy.replee.core.common.mapper.toAccountEntity
 import com.nhuhuy.replee.core.common.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.network.data_source.AuthenticatedState
 import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.feature_auth.data.data_source.AuthNetworkDataSource
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository

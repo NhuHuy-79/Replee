@@ -17,7 +17,7 @@ import coil3.request.CachePolicy
 import coil3.request.crossfade
 import coil3.util.DebugLogger
 import com.cloudinary.android.MediaManager
-import com.nhuhuy.replee.worker.WorkerScheduler
+import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 import java.io.File
@@ -100,7 +100,11 @@ class RepleeApp() : Application(), Configuration.Provider, SingletonImageLoader.
                     .directory(fileDirectory)
                     .build()
             }
-            .logger(DebugLogger())
+            .apply {
+                if (BuildConfig.DEBUG) {
+                    logger(DebugLogger())
+                }
+            }
             .build()
     }
 }

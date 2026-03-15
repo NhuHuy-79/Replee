@@ -11,7 +11,14 @@ import javax.inject.Inject
 interface ConversationLocalDataSource {
     suspend fun upsertConversations(entities: List<ConversationEntity>)
     suspend fun getOtherUserInConversation(uid: String): List<String>
-    suspend fun upsertAndDeleteConversations(upsert: List<ConversationEntity>, delete: List<String>)
+    suspend fun upsertAndDeleteConversations(
+        upsert: List<ConversationEntity>,
+        delete: List<String>,
+    )
+
+    fun observeOtherUserInConversation(currentUserId: String): Flow<List<String>>
+
+    suspend fun deleteConversationsByUid(uid: String)
     suspend fun upsertConversation(conversation: ConversationEntity)
     suspend fun deleteConversation(conversationId: String)
     fun observeConversationById(conversationId: String): Flow<ConversationAndUser?>
@@ -22,7 +29,7 @@ interface ConversationLocalDataSource {
     ): ConversationAndUser
 
     fun observeConversationAndUsers(uid: String): Flow<List<ConversationAndUser>>
-    suspend fun updateLastSyncedTime(conversationIds: List<String>, lastMessageTime: Long)
+    suspend fun updateLastSyncedTime(conversationIds: List<String>, lastSyncedTime: Long)
     suspend fun getConversationsCount(ownerId: String): Int
     suspend fun updateMutedStatus(conversationId: String, muted: Boolean)
     suspend fun updateDeleteStatus(conversationId: String, deleted: Boolean)
@@ -49,12 +56,20 @@ class ConversationLocalDataSourceImp @Inject constructor(
 
     override suspend fun upsertAndDeleteConversations(
         upsert: List<ConversationEntity>,
-        delete: List<String>
+        delete: List<String>,
     ) {
         conversationDao.upsertAndDeleteConversations(
             upsert = upsert,
-            delete = delete
+            delete = delete,
         )
+    }
+
+    override fun observeOtherUserInConversation(currentUserId: String): Flow<List<String>> {
+        return conversationDao.getOtherUserInConversationFlow(currentUserId)
+    }
+
+    override suspend fun deleteConversationsByUid(uid: String) {
+        conversationDao.deleteConversationsByOwnerId(uid)
     }
 
     override suspend fun upsertConversation(conversation: ConversationEntity) {
@@ -97,17 +112,15 @@ class ConversationLocalDataSourceImp @Inject constructor(
 
     override fun observeConversationAndUsers(uid: String): Flow<List<ConversationAndUser>> {
         return conversationDao.observeConversations(uid).map { conversationAndUsers ->
-            conversationAndUsers.filter { conversationAndUser ->
-                conversationAndUser.otherUser != null && conversationAndUser.owner != null
-            }
+            conversationAndUsers
         }
     }
 
     override suspend fun updateLastSyncedTime(
         conversationIds: List<String>,
-        lastMessageTime: Long
+        lastSyncedTime: Long
     ) {
-        conversationDao.updateSyncedTime(conversationIds, lastMessageTime)
+        conversationDao.updateSyncedTime(conversationIds, lastSyncedTime)
     }
 
     private fun createConversationId(uid1: String, uid2: String): String {

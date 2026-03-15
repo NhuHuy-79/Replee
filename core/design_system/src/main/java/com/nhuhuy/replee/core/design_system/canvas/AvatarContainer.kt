@@ -22,7 +22,7 @@ fun AvatarContainer(
     sizeAvatar: Dp = 56.dp,
     angle: Float = 315f,
     colorDot: Color = MaterialTheme.colorScheme.tertiary,
-    radiusDot: Float = 10f,
+    radiusDot: Float = 15f,
     showDot: Boolean = true,
     content: @Composable () -> Unit
 ) {

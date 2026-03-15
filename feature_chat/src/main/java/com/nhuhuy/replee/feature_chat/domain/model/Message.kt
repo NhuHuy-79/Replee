@@ -7,9 +7,10 @@ data class Message(
     val receiverId: String,
     val content: String,
     val seen: Boolean,
-    val sentAt: Long? = null,
+    val sentAt: Long,
     val status: MessageStatus,
     val type: MessageType = MessageType.TEXT,
+    val remoteUrl: String? = null,
     val localUriPath: String? = null,
 )
 

@@ -4,17 +4,12 @@ import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.messaging.FirebaseMessaging
+import com.nhuhuy.core.domain.model.AuthenticatedState
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
-
-sealed interface AuthenticatedState {
-    data object Loading : AuthenticatedState
-    data class Authenticated(val uid: String) : AuthenticatedState
-    data object Unauthenticated : AuthenticatedState
-}
 
 interface AuthService {
     fun getCurrentUser(): FirebaseUser?
@@ -26,7 +21,6 @@ interface AuthService {
     suspend fun deleteCurrentUser()
     fun observeAuthState(): Flow<String?>
     fun authState(): Flow<AuthenticatedState>
-    fun logOut()
 }
 
 class AuthServiceImp @Inject constructor(
@@ -83,5 +77,4 @@ class AuthServiceImp @Inject constructor(
         awaitClose { auth.removeAuthStateListener(listener) }
     }
 
-    override fun logOut() = auth.signOut()
 }
