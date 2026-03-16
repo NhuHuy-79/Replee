@@ -6,6 +6,7 @@ import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.replee.core.common.utils.andThen
 import com.nhuhuy.replee.feature_chat.data.NotifyService
 import com.nhuhuy.replee.feature_chat.data.SyncManager
+import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
 import com.nhuhuy.replee.feature_chat.domain.model.MessageType
@@ -18,6 +19,7 @@ class SendMessageUseCase @Inject constructor(
     private val messageRepository: MessageRepository,
     private val syncManager: SyncManager,
     private val notifyService: NotifyService,
+    private val workerScheduler: WorkerScheduler,
     private val conversationRepository: ConversationRepository,
 ) {
     suspend operator fun invoke(
@@ -52,6 +54,7 @@ class SendMessageUseCase @Inject constructor(
                             conversationId = conversationId,
                             synced = false
                         )
+                        workerScheduler.scheduleConversationSyncWorker()
                     }
             }
             .onSuccess {
@@ -66,6 +69,7 @@ class SendMessageUseCase @Inject constructor(
                     messageId = message.messageId,
                     status = MessageStatus.FAILED
                 )
+                workerScheduler.scheduleMessageSyncWorker()
             }
     }
 }

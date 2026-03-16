@@ -7,8 +7,8 @@ import androidx.core.net.toUri
 import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
-import com.nhuhuy.core.domain.model.FileState
 import com.nhuhuy.core.domain.model.FileUploadException
+import com.nhuhuy.core.domain.model.UploadFileState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -29,8 +29,9 @@ interface UploadFileService {
     suspend fun uploadMessageWithUri(messageAndUri: Map<String, String>): Map<String, String>
     suspend fun uploadImageWithByteArray(byteArray: ByteArray): String
     suspend fun uploadImageWithUriPath(uriPath: String): String
-    fun observeUploadFile(uriPath: String): Flow<FileState>
+    fun observeUploadFile(uriPath: String): Flow<UploadFileState>
 }
+
 
 class CloudinaryFileUploader @Inject constructor(
     private val mediaManager: MediaManager,
@@ -105,7 +106,7 @@ class CloudinaryFileUploader @Inject constructor(
 
     }
 
-    override fun observeUploadFile(uriPath: String): Flow<FileState> {
+    override fun observeUploadFile(uriPath: String): Flow<UploadFileState> {
         val uri = uriPath.toUri()
         return callbackFlow {
             val requestId = mediaManager
@@ -117,7 +118,7 @@ class CloudinaryFileUploader @Inject constructor(
                 .option("fetch_format", "auto")
                 .callback(object : UploadCallback {
                     override fun onStart(requestId: String?) {
-                        trySend(FileState.Loading)
+                        trySend(UploadFileState.Loading)
                     }
 
                     override fun onProgress(
@@ -128,7 +129,7 @@ class CloudinaryFileUploader @Inject constructor(
                         val progress = if (totalBytes > 0)
                             bytes.toFloat() / totalBytes.toFloat()
                         else 0f
-                        trySend(FileState.Progress(progress))
+                        trySend(UploadFileState.Progress(progress))
                     }
 
                     override fun onSuccess(
@@ -140,9 +141,9 @@ class CloudinaryFileUploader @Inject constructor(
                         if (secureUrl == null) {
                             val exception =
                                 FileUploadException("Cloudinary upload success but secure_url is null")
-                            trySend(FileState.Failure(exception))
+                            trySend(UploadFileState.Failure(exception))
                         } else {
-                            trySend(FileState.Success(secureUrl))
+                            trySend(UploadFileState.Success(secureUrl))
                         }
                         close()
                     }
@@ -152,7 +153,7 @@ class CloudinaryFileUploader @Inject constructor(
                         error: ErrorInfo?
                     ) {
                         val exception = FileUploadException(error?.description ?: "Unknow")
-                        trySend(FileState.Failure(exception))
+                        trySend(UploadFileState.Failure(exception))
                         close(exception)
                     }
 
@@ -160,7 +161,7 @@ class CloudinaryFileUploader @Inject constructor(
                         requestId: String?,
                         error: ErrorInfo?
                     ) {
-                        trySend(FileState.Failure(throwable = Exception("Reschedule")))
+                        trySend(UploadFileState.Failure(throwable = Exception("Reschedule")))
                         close()
                     }
 

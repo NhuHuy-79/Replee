@@ -4,8 +4,7 @@ package com.nhuhuy.replee.feature_chat.presentation.chat
 
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import com.nhuhuy.core.domain.model.onFailure
-import com.nhuhuy.core.domain.model.onSuccess
+import com.nhuhuy.core.domain.repository.ValidateFileResult
 import com.nhuhuy.core.domain.usecase.GetAccountByIdUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
@@ -13,10 +12,11 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.block.CheckBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.ObserveOwnerIsBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.UnblockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.file.ValidateFileSizeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ListenMessageChangeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.PagingMessagesUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ReadMessageUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendImageUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendFileUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.UpdateMessageChangeUseCase
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
@@ -53,7 +53,8 @@ class ChatViewModel @AssistedInject constructor(
     private val getConversationUseCase: GetConversationUseCase,
     private val pagingMessagesUseCase: PagingMessagesUseCase,
     private val checkBlockUseCase: CheckBlockUseCase,
-    private val sendImageUseCase: SendImageUseCase,
+    private val sendFileUseCase: SendFileUseCase,
+    private val validateFileSizeUseCase: ValidateFileSizeUseCase,
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
     private val conversationId
         get() = createConversationId(
@@ -162,20 +163,22 @@ class ChatViewModel @AssistedInject constructor(
                 }
 
                 is ChatAction.OnImageSend -> {
-                    sendImageUseCase(
-                        senderId = currentUserId,
-                        receiverId = otherUserId,
-                        uriPath = action.uri.toString(),
-                        conversationId = conversationId
-                    )
-                        .onFailure {
-                            Timber.e("Send image failed")
-                            onEvent(ChatEvent.SendImage.Failure)
+                    val validateFileResult =
+                        validateFileSizeUseCase(uriPath = action.uri.toString())
+                    when (validateFileResult) {
+                        ValidateFileResult.FileTooLarge -> {
+                            onEvent(ChatEvent.FileTooLarge)
                         }
-                        .onSuccess {
-                            Timber.d("Send image successfully!")
-                            onEvent(ChatEvent.SendImage.Success)
+
+                        ValidateFileResult.Valid -> {
+                            sendFileUseCase(
+                                senderId = currentUserId,
+                                receiverId = otherUserId,
+                                uriPath = action.uri.toString(),
+                                conversationId
+                            )
                         }
+                    }
                 }
 
                 ChatAction.OnDismiss -> {

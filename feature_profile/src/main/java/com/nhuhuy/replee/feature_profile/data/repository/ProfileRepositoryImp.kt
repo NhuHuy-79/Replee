@@ -7,6 +7,7 @@ import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
+import com.nhuhuy.replee.core.network.quailify.Cloudinary
 import com.nhuhuy.replee.feature_profile.domain.repository.ProfileRepository
 import timber.log.Timber
 import javax.inject.Inject
@@ -14,7 +15,7 @@ import javax.inject.Inject
 class ProfileRepositoryImp @Inject constructor(
     private val accountLocalDataSource: AccountLocalDataSource,
     private val accountNetworkDataSource: AccountNetworkDataSource,
-    private val uploadFileService: UploadFileService,
+    @Cloudinary private val uploadFileService: UploadFileService,
     private val firebaseAuthEmailService: FirebaseAuthEmailService
 ) : ProfileRepository {
     override suspend fun updateUserImage(uriPath: String): NetworkResult<String> {

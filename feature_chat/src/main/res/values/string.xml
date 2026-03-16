@@ -25,6 +25,7 @@
 
     <string name="full_img_dialog">Close</string>
     <string name="full_img_dialog_error">Cannot load image!</string>
+    <string name="file_too_large">Size of file cannot be larger than 100MB.</string>
 
     <!--Information Screen-->
     <string name="information_screen_pin">Pin</string>

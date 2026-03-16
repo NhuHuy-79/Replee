@@ -9,6 +9,8 @@ sealed interface ChatEvent : UiEvent{
         data object Success : SendImage
         data object Failure : SendImage
     }
+
+    data object FileTooLarge : ChatEvent
     data class NavigateToInformation(
         val otherUserImg: String,
         val currentUserId: String,

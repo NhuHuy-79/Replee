@@ -72,28 +72,6 @@ fun ConversationAndUser.toUpdatePatch(uid: String): Map<String, Any> {
 
 }
 
-fun ConversationAndUser.toFieldValueMap(): Map<String, FieldValue> {
-    val mutedList = unionOrRemoveArray(conversation.muted, conversation.ownerId)
-    val pinnedList = unionOrRemoveArray(conversation.pinned, conversation.ownerId)
-    val blockedList = unionOrRemoveArray(conversation.blocked, conversation.ownerId)
-    val deletedList = unionOrRemoveArray(conversation.deleted, conversation.ownerId)
-    return mapOf(
-        "mutedBy" to mutedList,
-        "pinnedBy" to pinnedList,
-        "blockedBy" to blockedList,
-        "deletedBy" to deletedList
-    )
-}
-
-fun ConversationAndUser.toLastMessageMap(): Map<String, Any?> {
-    return mapOf(
-        "lastSenderId" to conversation.lastSenderId,
-        "lastMessageTime" to conversation.lastMessageTime,
-        "lastMessageContent" to conversation.lastMessageContent,
-        "lastMessageType" to conversation.lastMessageType
-    )
-}
-
 //Download from network
 fun ConversationDTO.toConversation(
     ownerId: String
@@ -147,7 +125,3 @@ fun ConversationAndUser.toConversation(): Conversation {
     )
 }
 
-
-private fun unionOrRemoveArray(union: Boolean, element: String) : FieldValue {
-    return if (union) FieldValue.arrayUnion(element) else FieldValue.arrayRemove(element)
-}

@@ -10,9 +10,15 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 interface MessageLocalDataSource {
+    suspend fun getMessageById(messageId: String): MessageEntity?
     suspend fun upsertMessage(message: MessageEntity)
     suspend fun updateMessageStatus(status: MessageStatus, messageId: String)
     suspend fun updateRemoteUrlMessage(messageIdWithUrl: Map<String, String>)
+    suspend fun updateRemoteUrlMessage(
+        messageId: String,
+        remoteUrl: String,
+        status: MessageStatus
+    )
     suspend fun getUnsyncedMessageByType(messageType: MessageType): List<MessageEntity>
     suspend fun updateMessageListStatus(status: MessageStatus, messageIds: List<String>)
     suspend fun upsertMessages(messages: List<MessageEntity>)
@@ -28,6 +34,9 @@ class MessageLocalDataSourceImp @Inject constructor(
     private val coreDatabase: CoreDatabase
 ) : MessageLocalDataSource {
     private val messageDao: MessageDao = coreDatabase.provideMessageDao()
+    override suspend fun getMessageById(messageId: String): MessageEntity? {
+        return messageDao.getMessageById(messageId)
+    }
 
     override suspend fun upsertMessage(message: MessageEntity) {
         messageDao.upsert(message)
@@ -50,6 +59,18 @@ class MessageLocalDataSourceImp @Inject constructor(
                 )
             }
         }
+    }
+
+    override suspend fun updateRemoteUrlMessage(
+        messageId: String,
+        remoteUrl: String,
+        status: MessageStatus
+    ) {
+        return messageDao.updateRemoteUrlAndStatus(
+            messageId = messageId,
+            remoteUrl = remoteUrl,
+            status = status.name
+        )
     }
 
     override suspend fun getUnsyncedMessageByType(

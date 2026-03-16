@@ -1,6 +1,7 @@
 package com.nhuhuy.replee.navigation
 
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
@@ -8,7 +9,9 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.nhuhuy.replee.LocalNetworkStatus
+import com.nhuhuy.replee.core.common.utils.showShortToast
 import com.nhuhuy.replee.core.design_system.ObserveEffect
+import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatScreen
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatViewModel
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
@@ -92,6 +95,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
     }
 
     entry<HomeDestination.Chat> { screen ->
+        val context = LocalContext.current
         val viewModel: ChatViewModel = hiltViewModel(
             creationCallback = { factory: ChatViewModel.Factory ->
                 factory.create(
@@ -126,6 +130,12 @@ fun EntryProviderScope<NavKey>.chatGraph(
 
                 ChatEvent.SendImage.Success -> {
                     //toast failed
+                }
+
+                ChatEvent.FileTooLarge -> {
+                    context.showShortToast(
+                        message = R.string.file_too_large
+                    )
                 }
             }
         }

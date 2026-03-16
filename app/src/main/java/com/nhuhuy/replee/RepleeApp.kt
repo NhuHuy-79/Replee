@@ -45,10 +45,6 @@ class RepleeApp() : Application(), Configuration.Provider, SingletonImageLoader.
 
         //Timber for debug logging
         Timber.plant(Timber.DebugTree())
-
-        //Work manager Scheduling
-        workerScheduler.scheduleMessageSyncWorker()
-        workerScheduler.scheduleConversationSyncWorker()
     }
 
     /* private fun disableFirestoreCacheSetting() {

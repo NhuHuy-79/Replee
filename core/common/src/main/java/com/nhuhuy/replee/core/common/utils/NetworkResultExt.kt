@@ -51,6 +51,8 @@ suspend inline fun <T> execute(
     }
 }
 
+
+//Success - flatMap - Failure => Failure
 suspend inline fun <T, R> NetworkResult<T>.flatMap(
     transform: suspend (T) -> NetworkResult<R>
 ): NetworkResult<R> {
@@ -60,6 +62,7 @@ suspend inline fun <T, R> NetworkResult<T>.flatMap(
     }
 }
 
+// Success - andThen - Failure => Success
 suspend inline fun <T, R> NetworkResult<T>.andThen(
     transform: suspend (T) -> NetworkResult<R>
 ): NetworkResult<T> {

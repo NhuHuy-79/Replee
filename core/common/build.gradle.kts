@@ -44,6 +44,11 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     ksp(libs.hilt.android.compiler)
 
+    //Work Manager
+    api(libs.androidx.work.runtime.ktx)
+    api(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
+
     api( libs.androidx.datastore.preferences)
     api(libs.flow.operators)
     api(libs.androidx.material.icons.extended)

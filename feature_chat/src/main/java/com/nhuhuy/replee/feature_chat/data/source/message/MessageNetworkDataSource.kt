@@ -25,6 +25,7 @@ interface MessageNetworkDataSource {
     suspend fun fetchMessagesByConversationId(conversationId: String): List<MessageDTO>
     suspend fun deleteMessage(conversationId: String, messageId: String)
     suspend fun updateMessageStatus(
+        receiverId: String,
         conversationId: String,
         messageIds: List<String>,
         status: MessageStatus,
@@ -133,6 +134,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
     }
 
     override suspend fun updateMessageStatus(
+        receiverId: String,
         conversationId: String,
         messageIds: List<String>,
         status: MessageStatus,
@@ -171,38 +173,24 @@ class MessageNetworkDataSourceImp @Inject constructor(
         receiverId: String
     ): Int {
         if (messageIds.isEmpty()) return 0
-
         Timber.d("messages: $messageIds")
 
-        val snapshots = firestore
+        val messageCollection = firestore
             .collection(Constant.Firestore.CONVERSATION_COLLECTION)
             .document(conversationId)
             .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
-            .whereEqualTo("receiverId", receiverId)
-            .whereIn(FieldPath.documentId(), messageIds)
-            .whereEqualTo("seen", false)
-            .get()
-            .await()
 
-        val refs = snapshots.map { snapshot -> snapshot.reference }
-        optimizedWrite(
-            items = refs,
-            singleWrite = { reference ->
-                reference.update("seen", true).await()
-            },
-            batchWrite = {
-                firestore.runBatch { batch ->
-                    snapshots.forEach { snapshot ->
-                        val messageRef = snapshot.reference
-                        batch.update(messageRef, "seen", true)
-                    }
-                }.await()
-            }
-        )
-
-        Timber.d("snapshots size: ${snapshots.size()}")
-
-        return snapshots.size()
+        val updateData = mapOf("seen" to true)
+        val chunks = messageIds.distinct().chunked(500)
+        chunks.forEach { chunkIds ->
+            firestore.runBatch { batch ->
+                chunkIds.forEach { msgId ->
+                    val docRef = messageCollection.document(msgId)
+                    batch.set(docRef, updateData, SetOptions.merge())
+                }
+            }.await()
+        }
+        return messageIds.size
     }
 
     override fun listenMessageChangesByConversationId(conversationId: String): Flow<List<DataChange<MessageDTO>>> {

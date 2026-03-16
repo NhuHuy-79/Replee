@@ -36,6 +36,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import com.nhuhuy.replee.feature_chat.domain.model.Message
+import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
 import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import kotlinx.coroutines.FlowPreview
@@ -67,7 +68,6 @@ fun MessageScreen(
         }
     }
 
-
     LaunchedEffect(lazyListState, pagingItems) {
         snapshotFlow { lazyListState.layoutInfo.visibleItemsInfo }
             .map { visibleInfos ->
@@ -77,7 +77,11 @@ fun MessageScreen(
                     .mapNotNull { info ->
                         val idx = info.index
                         if (idx in 0 until count) {
-                            pagingItems.peek(idx)?.messageId
+                            pagingItems.peek(idx)?.takeIf { item ->
+                                item.receiverId == currentUserId &&
+                                        item.status != MessageStatus.SEEN
+                            }?.messageId
+
                         } else null
                     }
                     .toSet()

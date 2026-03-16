@@ -1,6 +1,7 @@
 package com.nhuhuy.replee.di
 
 import com.nhuhuy.core.domain.SessionManager
+import com.nhuhuy.core.domain.repository.FileRepository
 import com.nhuhuy.core.domain.repository.PresenceRepository
 import com.nhuhuy.replee.core.common.data.repository.AccountRepositoryImp
 import com.nhuhuy.replee.core.common.data.repository.PresenceRepositoryImp
@@ -15,6 +16,7 @@ import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.data.SyncManagerImp
 import com.nhuhuy.replee.feature_chat.data.repository.ConversationRepositoryImp
 import com.nhuhuy.replee.feature_chat.data.repository.ConversationSettingRepositoryImp
+import com.nhuhuy.replee.feature_chat.data.repository.FileRepositoryImp
 import com.nhuhuy.replee.feature_chat.data.repository.MessageRepositoryImp
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationSettingRepository
@@ -33,6 +35,8 @@ abstract class RepositoryModuleBinder {
     @Binds
     abstract fun bindAuthRepository(imp: AuthRepositoryImp): AuthRepository
 
+    @Binds
+    abstract fun bindFileRepository(imp: FileRepositoryImp): FileRepository
 
     //Core
     @Binds

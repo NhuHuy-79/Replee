@@ -11,6 +11,7 @@ import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
 import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.core.network.model.mapData
+import com.nhuhuy.replee.core.network.quailify.Cloudinary
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
@@ -33,7 +34,7 @@ import javax.inject.Inject
 
 class MessageRepositoryImp @Inject constructor(
     private val coreDatabase: CoreDatabase,
-    private val uploadFileService: UploadFileService,
+    @Cloudinary private val uploadFileService: UploadFileService,
     private val messageNetworkDataSource: MessageNetworkDataSource,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource,
@@ -96,6 +97,11 @@ class MessageRepositoryImp @Inject constructor(
         }
     }
 
+    override suspend fun saveMessage(message: Message): String {
+        messageLocalDataSource.upsertMessage(message.toMessageEntity())
+        return message.messageId
+    }
+
     override suspend fun markMessagesAsRead(
         messageIds: List<String>,
         conversationId: String,
@@ -107,9 +113,11 @@ class MessageRepositoryImp @Inject constructor(
         )
 
         val count = messageNetworkDataSource.updateMessageStatus(
+            receiverId = receiverId,
             conversationId = conversationId,
             messageIds = messageIds,
-            status = MessageStatus.SEEN
+            status = MessageStatus.SEEN,
+
         )
         conversationNetworkDataSource.updateUnreadMessageCount(
             conversationId = conversationId,
@@ -145,6 +153,22 @@ class MessageRepositoryImp @Inject constructor(
                     delete = delete
                 )
             }
+        }
+    }
+
+    override suspend fun updateRemoteUrlMessage(
+        messageId: String,
+        remoteUrl: String,
+        status: MessageStatus
+    ): Message? {
+        return withContext(ioDispatcher) {
+            messageLocalDataSource.updateRemoteUrlMessage(
+                messageId = messageId,
+                remoteUrl = remoteUrl,
+                status = status
+            )
+
+            messageLocalDataSource.getMessageById(messageId)?.toMessage()
         }
     }
 
