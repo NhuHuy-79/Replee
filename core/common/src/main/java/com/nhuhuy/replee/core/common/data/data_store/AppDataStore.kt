@@ -7,6 +7,6 @@ interface AppDataStore {
     suspend fun saveThemeMode(mode: ThemeMode)
     fun observeNotification(): Flow<NotificationMode>
     fun observeTheme(): Flow<ThemeMode>
-    suspend fun getAuthenticationToken(): String?
+    fun getAuthenticationToken(): Flow<String>
     suspend fun saveAuthenticationToken(token: String)
 }

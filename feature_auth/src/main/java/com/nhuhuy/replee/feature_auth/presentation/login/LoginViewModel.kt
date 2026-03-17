@@ -84,6 +84,7 @@ class LoginViewModel @Inject constructor(
                     _state.reduce { copy(showLoading = true) }
                     loginWithEmailUseCase(value.email.text, value.password.text)
                         .onSuccess { uid ->
+                            Timber.d("Uid: $uid")
                             _state.reduce { copy(showLoading = false) }
                             onEvent(LoginEvent.NavigateToHome(uid = uid))
                         }

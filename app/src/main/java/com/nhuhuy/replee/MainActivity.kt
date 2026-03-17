@@ -26,7 +26,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val viewModel: MainViewModel = hiltViewModel()
-            val authState by viewModel.authenticatedState.collectAsStateWithLifecycle()
             val theme by viewModel.theme.collectAsStateWithLifecycle()
             val network by viewModel.network.collectAsStateWithLifecycle()
             CompositionLocalProvider(
@@ -40,7 +39,6 @@ class MainActivity : ComponentActivity() {
                     }
                 ) {
                     MainGraph(
-                        authenticatedState = authState
                     )
                 }
             }

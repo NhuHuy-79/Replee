@@ -24,8 +24,18 @@ class SessionManagerImp @Inject constructor(
     private val credentialManager: CredentialManager,
     private val dataStore: AppDataStore,
     private val auth: FirebaseAuth,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : SessionManager {
+
+    override val userIdState: Flow<String?>
+        get() = callbackFlow {
+            val listener = FirebaseAuth.AuthStateListener { auth ->
+                val uid = auth.uid
+                trySend(uid)
+            }
+            auth.addAuthStateListener(listener)
+            awaitClose { auth.removeAuthStateListener(listener) }
+        }.flowOn(ioDispatcher)
 
     override val authenticatedState: Flow<AuthenticatedState>
         get() = callbackFlow {
@@ -49,7 +59,7 @@ class SessionManagerImp @Inject constructor(
         dataStore.saveAuthenticationToken(token)
     }
 
-    override suspend fun getAuthenticationToken(): String? {
+    override fun getAuthenticationToken(): Flow<String> {
         return dataStore.getAuthenticationToken()
     }
 

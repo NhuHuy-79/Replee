@@ -42,6 +42,8 @@ class PushNotificationService() : FirebaseMessagingService() {
                 return@launch
             }
 
+            Timber.d("Notification body: $notificationBody")
+
             serviceNotifier.showConversationNotification(notificationBody)
         }
         super.onMessageReceived(message)

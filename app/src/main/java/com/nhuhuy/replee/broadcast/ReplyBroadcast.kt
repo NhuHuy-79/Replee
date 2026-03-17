@@ -5,6 +5,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationManagerCompat
+import com.nhuhuy.core.domain.model.onFailure
+import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.replee.notification.EXTRA_NOTIFICATION_ID
 import com.nhuhuy.replee.notification.EXTRA_RECEIVER_ID
 import com.nhuhuy.replee.notification.EXTRA_SENDER_ID
@@ -20,7 +22,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ReplyBroadcast() : BroadcastReceiver() {
     @Inject
-    lateinit var handler: BroadcastDataMapper
+    lateinit var replyManager: ReplyManager
     private lateinit var notificationManager: NotificationManagerCompat
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -51,13 +53,17 @@ class ReplyBroadcast() : BroadcastReceiver() {
             try {
                 val input = replyText.toString()
                 if (senderId != null && receiverId != null && conversationId != null) {
-                    handler.handleReplyMessage(
+                    replyManager.handleReplyMessage(
                         conversationId = conversationId,
                         senderId = senderId,
                         receiverId = receiverId,
                         message = input
-                    )
-                    handler.showNotification(true)
+                    ).onSuccess {
+                        replyManager.showNotification(true)
+                    }.onFailure {
+                        replyManager.showNotification(false)
+                    }
+
                 }
                 else {
                     Timber.e("senderId: $senderId - receiverId: $receiverId - conversationId: $conversationId")
@@ -65,8 +71,7 @@ class ReplyBroadcast() : BroadcastReceiver() {
 
             } catch (e: Exception) {
                 Timber.e(e)
-                //TODO("Add to sync data")
-                handler.showNotification(false)
+                replyManager.showNotification(false)
             } finally {
                 notificationManager.cancel(notificationId)
                 pendingResult.finish()

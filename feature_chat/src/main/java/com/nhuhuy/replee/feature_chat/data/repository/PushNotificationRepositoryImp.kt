@@ -12,6 +12,10 @@ import com.nhuhuy.replee.core.network.data_source.PushNotificationNetworkDataSou
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 import com.nhuhuy.replee.feature_chat.domain.repository.PushNotificationRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -20,31 +24,35 @@ class PushNotificationRepositoryImp @Inject constructor(
     private val accountLocalDataSource: AccountLocalDataSource,
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val pushNotificationNetworkDataSource: PushNotificationNetworkDataSource,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : PushNotificationRepository {
 
     private suspend fun createConversationRequest(
         message: Message
     ): Pair<String, ConversationNotificationRequest>? {
-        return try {
-            val sender = accountLocalDataSource.getAccountWithId(message.senderId)?.toAccount()
-                ?: accountNetworkDataSource.fetchAccountById(message.senderId).toAccount()
-            //Get new token
-            val receiver = accountNetworkDataSource.fetchAccountById(message.receiverId).toAccount()
+        return withContext(ioDispatcher) {
+            try {
+                val sender = accountLocalDataSource.getAccountWithId(message.senderId)?.toAccount()
+                    ?: accountNetworkDataSource.fetchAccountById(message.senderId).toAccount()
+                //Get new token
+                val receiver =
+                    accountNetworkDataSource.fetchAccountById(message.receiverId).toAccount()
 
-            val token = sender.currentToken
-            val request = ConversationNotificationRequest(
-                senderName = sender.name,
-                receiverId = receiver.id,
-                content = message.content,
-                contentType = getContentTypeFromMessage(message),
-                imgUrl = sender.imageUrl,
-                conversationId = message.conversationId
-            )
+                val token = receiver.currentToken
+                val request = ConversationNotificationRequest(
+                    senderName = sender.name,
+                    receiverId = receiver.id,
+                    content = message.content,
+                    contentType = getContentTypeFromMessage(message),
+                    imgUrl = sender.imageUrl,
+                    conversationId = message.conversationId
+                )
 
-            token to request
-        } catch (e: Exception) {
-            Timber.e(e)
-            null
+                token to request
+            } catch (e: Exception) {
+                Timber.e(e)
+                null
+            }
         }
     }
 
@@ -57,7 +65,8 @@ class PushNotificationRepositoryImp @Inject constructor(
     ): NetworkResult<Unit> {
         return execute {
             val authenticationId = sessionManager.getAuthenticationToken()
-                ?: throw Exception("User not authenticated")
+                .first()
+                .ifEmpty { throw Exception("User not authenticated") }
 
             val tokenWithRequest = createConversationRequest(message)
 

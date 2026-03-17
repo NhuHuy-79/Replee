@@ -13,6 +13,7 @@ import com.nhuhuy.replee.core.design_system.state.toScreenState
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.domain.usecase.account.FetchAccountListUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.account.ObserveAccountInConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.account.SetUserOnlineUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.account.UpdateCurrentAccountUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetSearchHistoryUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.ListenConversationUseCase
@@ -44,6 +45,7 @@ import timber.log.Timber
 @HiltViewModel(assistedFactory = ConversationViewModel.Factory::class)
 class ConversationViewModel @AssistedInject constructor(
     @Assisted private val currentUserId: String,
+    private val setUserOnelineUseCase: SetUserOnlineUseCase,
     private val getSearchHistoryUseCase: GetSearchHistoryUseCase,
     private val listenConversationUseCase: ListenConversationUseCase,
     private val upsertConversationUseCase: UpsertConversationUseCase,
@@ -68,6 +70,7 @@ class ConversationViewModel @AssistedInject constructor(
         listenToNewConversationUser()
         viewModelScope.launch {
             updateCurrentAccountUseCase(uid = currentUserId)
+            setUserOnelineUseCase(uid = currentUserId)
             val currentUser = getCurrentAccountUseCase()
             _state.reduce { copy(currentUser = currentUser) }
         }

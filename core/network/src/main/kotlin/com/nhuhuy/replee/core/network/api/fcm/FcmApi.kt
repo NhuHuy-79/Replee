@@ -6,13 +6,13 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 
 
-const val FCM_URL = "http://192.168.1.5:3000/api/v1/notifications/"
+const val FCM_URL = "http://192.168.1.5:5000/api/v1/notifications/"
 
 interface FcmApi {
-    @POST("/send")
+    @POST("send")
     suspend fun sendNotification(
         @Header("Authorization") bearerToken: String,
         @Header("device-token") deviceToken: String,
         @Body request: ConversationNotificationRequest
-    ): Response<ConversationNotificationRequest>
+    ): Response<NotificationResponse>
 }

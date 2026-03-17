@@ -42,7 +42,7 @@ object AppModuleProvider {
 
     @Provides
     @Singleton
-    fun provideParser(mapper: RequestMapper) = NotificationParser(mapper)
+    fun provideParser(mapper: RequestMapper) = NotificationParser()
 
     @Provides
     @Singleton

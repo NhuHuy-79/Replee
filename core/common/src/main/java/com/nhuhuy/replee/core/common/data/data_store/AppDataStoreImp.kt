@@ -5,8 +5,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 import javax.inject.Inject
 
 private val Context.dataStore by preferencesDataStore("setting_pref")
@@ -15,7 +15,7 @@ class AppDataStoreImp @Inject constructor(
     private val context: Context
 ) : AppDataStore {
     companion object {
-        val AUTH_TOKEN = stringPreferencesKey("auth_token")
+        val AUTH_TOKEN = stringPreferencesKey("authentication_token")
         val NOTIFICATION_KEY = stringPreferencesKey("notification_key")
         val THEME_KEY = stringPreferencesKey("theme_key")
     }
@@ -46,14 +46,17 @@ class AppDataStoreImp @Inject constructor(
         }
     }
 
-    override suspend fun getAuthenticationToken(): String? {
+    override fun getAuthenticationToken(): Flow<String> {
         return context.dataStore.data.map { preferences ->
-            preferences[AUTH_TOKEN]
-        }.first()
+            val token = preferences[AUTH_TOKEN] ?: ""
+            Timber.d("DATASTORE_INTERNAL: Đang phát ra Token: '$token'")
+            token
+        }
     }
 
     override suspend fun saveAuthenticationToken(token: String) {
         context.dataStore.edit { preferences ->
+            Timber.d("SAVE_CHECK: Đã lưu Token mới: $token")
             preferences[AUTH_TOKEN] = token
         }
     }

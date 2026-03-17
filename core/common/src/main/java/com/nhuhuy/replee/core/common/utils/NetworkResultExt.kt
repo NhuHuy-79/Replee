@@ -69,8 +69,12 @@ suspend inline fun <T, R> NetworkResult<T>.then(
     return when (this) {
         is NetworkResult.Failure -> this
         is NetworkResult.Success -> {
-            transform(this.data)
-            this
+            val sideEffect = transform(this.data)
+            if (sideEffect is NetworkResult.Failure) {
+                NetworkResult.Failure(sideEffect.throwable)
+            } else {
+                this
+            }
         }
     }
 }

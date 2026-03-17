@@ -1,22 +1,29 @@
 package com.nhuhuy.replee.notification
 
 import com.google.firebase.messaging.RemoteMessage
+import com.nhuhuy.replee.core.network.api.fcm.ContentType
 import com.nhuhuy.replee.core.network.api.fcm.NotificationResponse
-import com.nhuhuy.replee.core.network.api.mapper.RequestMapper
 import timber.log.Timber
 import javax.inject.Inject
 
-class NotificationParser @Inject constructor(
-    private val requestMapper: RequestMapper,
-){
+class NotificationParser @Inject constructor() {
     fun getNotificationBody(remoteMessage: RemoteMessage): NotificationResponse? {
         val data = remoteMessage.data
-        Timber.d("Response: $data")
-        val json = data["payload"] ?: run {
-            Timber.e("No payload found!")
-            return null
-        }
 
-        return requestMapper.parseToNetworkMessage(json)
+        if (data.isEmpty()) return null
+
+        return try {
+            val type = data["type"] ?: "PLAIN_TEXT"
+            NotificationResponse(
+                conversationId = data["conversationId"] ?: "",
+                senderName = data["senderName"] ?: "Unknown",
+                senderImg = data["senderImg"] ?: "",
+                content = data["content"] ?: "",
+                type = ContentType.valueOf(type)
+            )
+        } catch (e: Exception) {
+            Timber.e("Lỗi map dữ liệu: ${e.message}")
+            null
+        }
     }
 }
