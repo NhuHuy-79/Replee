@@ -67,7 +67,7 @@ class ConversationNotificationFactory @Inject constructor(
 
         val bitmap = loadBitmapForNotification(
             context = context,
-            url = response.imgUrl
+            url = response.senderImg
         )
 
         val person = Person.Builder()
@@ -80,7 +80,7 @@ class ConversationNotificationFactory @Inject constructor(
         val messagingStyle = Notification.MessagingStyle(person)
             .setConversationTitle(response.senderName)
             .addMessage(
-                response.message,
+                response.content,
                 System.currentTimeMillis(),
                 person
             )
@@ -90,8 +90,8 @@ class ConversationNotificationFactory @Inject constructor(
             .build()
 
         val replyIntent = Intent(context, ReplyBroadcast::class.java).apply {
-            putExtra(EXTRA_SENDER_ID, response.receiverId)
-            putExtra(EXTRA_RECEIVER_ID, response.senderId)
+            putExtra(EXTRA_SENDER_ID, "")
+            putExtra(EXTRA_RECEIVER_ID, " ")
             putExtra(EXTRA_CONVERSATION_ID, response.conversationId)
             putExtra(EXTRA_NOTIFICATION_ID, response.hashCode())
         }

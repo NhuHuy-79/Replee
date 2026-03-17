@@ -38,7 +38,7 @@ import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
 @Composable
 fun ImageMessageContainer(
     modifier: Modifier = Modifier,
-    isLast: Boolean = false,
+    showStatus: Boolean = false,
     onClick: (url: String) -> Unit,
     message: Message,
     containerColor: Color,
@@ -88,7 +88,7 @@ fun ImageMessageContainer(
             }
         )
 
-        if (stringRes != null && isLast) {
+        if (stringRes != null && showStatus) {
             Text(
                 text = stringResource(stringRes),
                 style = MaterialTheme.typography.labelLarge,

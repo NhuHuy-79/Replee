@@ -12,9 +12,9 @@ data class ConversationNotificationRequest(
     val conversationId: String,
 ) : FcmRequest
 
+
 enum class ContentType {
     PLAIN_TEXT,
     IMAGE_URL,
     VIDEO_URL,
-
 }

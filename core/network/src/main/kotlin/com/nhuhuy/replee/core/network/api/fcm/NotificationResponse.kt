@@ -1,19 +1,17 @@
 package com.nhuhuy.replee.core.network.api.fcm
 
-import kotlinx.serialization.SerialName
+import com.google.gson.annotations.SerializedName
 
 
 data class NotificationResponse(
-    @SerialName("imgUrl")
-    val imgUrl: String? = null,
-    @SerialName("conversationId")
+    @SerializedName("conversationId")
     val conversationId: String,
-    @SerialName("senderId")
-    val senderId: String,
-    @SerialName("receiverId")
-    val receiverId: String,
-    @SerialName("senderName")
-    val senderName: String,
-    @SerialName("message")
-    val message: String,
+    @SerializedName("senderImg")
+    val senderImg: String = "",
+    @SerializedName("senderName")
+    val senderName: String = "",
+    @SerializedName("content")
+    val content: String = "",
+    @SerializedName("type")
+    val type: ContentType
 )

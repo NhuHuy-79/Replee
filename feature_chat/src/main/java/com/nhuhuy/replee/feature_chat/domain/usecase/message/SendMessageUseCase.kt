@@ -4,7 +4,6 @@ import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.model.onFailure
 import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.replee.core.common.utils.then
-import com.nhuhuy.replee.feature_chat.data.NotifyService
 import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
 import com.nhuhuy.replee.feature_chat.domain.model.Message
@@ -12,13 +11,14 @@ import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
 import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
+import com.nhuhuy.replee.feature_chat.domain.repository.PushNotificationRepository
 import java.util.UUID
 import javax.inject.Inject
 
 class SendMessageUseCase @Inject constructor(
     private val messageRepository: MessageRepository,
     private val syncManager: SyncManager,
-    private val notifyService: NotifyService,
+    private val pushNotificationRepository: PushNotificationRepository,
     private val workerScheduler: WorkerScheduler,
     private val conversationRepository: ConversationRepository,
 ) {
@@ -62,7 +62,7 @@ class SendMessageUseCase @Inject constructor(
                     messageId = message.messageId,
                     status = MessageStatus.SYNCED
                 )
-                notifyService.sendNotification(message)
+                pushNotificationRepository.pushNotification(message)
             }
             .onFailure {
                 syncManager.updateMessageStatus(

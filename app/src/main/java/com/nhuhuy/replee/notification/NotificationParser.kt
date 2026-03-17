@@ -11,6 +11,7 @@ class NotificationParser @Inject constructor(
 ){
     fun getNotificationBody(remoteMessage: RemoteMessage): NotificationResponse? {
         val data = remoteMessage.data
+        Timber.d("Response: $data")
         val json = data["payload"] ?: run {
             Timber.e("No payload found!")
             return null

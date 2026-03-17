@@ -1,6 +1,7 @@
 package com.nhuhuy.core.domain
 
 import com.nhuhuy.core.domain.model.AuthenticatedState
+import com.nhuhuy.core.domain.model.NetworkResult
 import kotlinx.coroutines.flow.Flow
 
 interface SessionManager {
@@ -9,6 +10,7 @@ interface SessionManager {
     suspend fun refreshAuthenticationToken(token: String)
     suspend fun getAuthenticationToken(): String?
     fun getUserIdOrNull(): String?
+    suspend fun getCurrentDeviceToken(): NetworkResult<String>
     suspend fun logout()
 }
 

@@ -13,3 +13,12 @@ annotation class Ktor
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class Retrofit
+
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class FcmBackendUrl
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class CloudinaryUrl

@@ -6,13 +6,11 @@ import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.model.onFailure
 import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.core.domain.repository.AccountRepository
-import com.nhuhuy.replee.core.common.data.repository.PushNotificationRepository
 import com.nhuhuy.replee.core.common.utils.then
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import javax.inject.Inject
 
 class SignUpWithEmailUseCase @Inject constructor(
-    private val pushNotificationRepository: PushNotificationRepository,
     private val authRepository: AuthRepository,
     private val accountRepository: AccountRepository,
     private val sessionManager: SessionManager,
@@ -27,7 +25,7 @@ class SignUpWithEmailUseCase @Inject constructor(
             email = email,
             password = password
         ).then { account ->
-            pushNotificationRepository.getCurrentToken()
+            sessionManager.getCurrentDeviceToken()
                 .then { token ->
                     accountRepository.createAccount(
                         token = token,

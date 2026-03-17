@@ -21,7 +21,6 @@ fun SenderImageMessageItem(
     onImagePress: (urlKey: String) -> Unit,
     message: Message,
     modifier: Modifier,
-    isLast: Boolean,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -36,7 +35,7 @@ fun SenderImageMessageItem(
         Spacer(Modifier.width(4.dp))
 
         ImageMessageContainer(
-            isLast = isLast,
+            showStatus = false,
             message = message,
             contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
             containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -48,6 +47,7 @@ fun SenderImageMessageItem(
 @Composable
 fun ReceiverImageMessageItem(
     message: Message,
+    isLast: Boolean,
     modifier: Modifier = Modifier,
     onImagePress: (urlKey: String) -> Unit
 ) {
@@ -56,6 +56,7 @@ fun ReceiverImageMessageItem(
         horizontalArrangement = Arrangement.End
     ) {
         ImageMessageContainer(
+            showStatus = isLast,
             message = message,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
             containerColor = MaterialTheme.colorScheme.primaryContainer,

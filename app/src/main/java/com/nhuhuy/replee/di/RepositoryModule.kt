@@ -5,8 +5,6 @@ import com.nhuhuy.core.domain.repository.FileRepository
 import com.nhuhuy.core.domain.repository.PresenceRepository
 import com.nhuhuy.replee.core.common.data.repository.AccountRepositoryImp
 import com.nhuhuy.replee.core.common.data.repository.PresenceRepositoryImp
-import com.nhuhuy.replee.core.common.data.repository.PushNotificationRepository
-import com.nhuhuy.replee.core.common.data.repository.PushNotificationRepositoryImp
 import com.nhuhuy.replee.feature_auth.data.repository.AuthRepositoryImp
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import com.nhuhuy.replee.feature_chat.data.NotifyService
@@ -17,10 +15,12 @@ import com.nhuhuy.replee.feature_chat.data.repository.ConversationRepositoryImp
 import com.nhuhuy.replee.feature_chat.data.repository.ConversationSettingRepositoryImp
 import com.nhuhuy.replee.feature_chat.data.repository.FileRepositoryImp
 import com.nhuhuy.replee.feature_chat.data.repository.MessageRepositoryImp
+import com.nhuhuy.replee.feature_chat.data.repository.PushNotificationRepositoryImp
 import com.nhuhuy.replee.feature_chat.data.repository.SessionManagerImp
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationSettingRepository
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
+import com.nhuhuy.replee.feature_chat.domain.repository.PushNotificationRepository
 import com.nhuhuy.replee.feature_profile.data.repository.ProfileRepositoryImp
 import com.nhuhuy.replee.feature_profile.domain.repository.ProfileRepository
 import dagger.Binds

@@ -1,5 +1,7 @@
 package com.nhuhuy.replee.di
 
+import android.content.Context
+import androidx.credentials.CredentialManager
 import com.cloudinary.android.MediaManager
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -11,10 +13,13 @@ import com.nhuhuy.replee.core.network.api.KtorServiceImp
 import com.nhuhuy.replee.core.network.api.cloudinary.CloudinaryApi
 import com.nhuhuy.replee.core.network.api.fcm.FCM_URL
 import com.nhuhuy.replee.core.network.api.fcm.FcmApi
+import com.nhuhuy.replee.core.network.quailify.CloudinaryUrl
+import com.nhuhuy.replee.core.network.quailify.FcmBackendUrl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -39,6 +44,13 @@ object NetworkModuleProvider {
 
     @Provides
     @Singleton
+    fun provideCredentialManager(
+        @ApplicationContext context: Context
+    ): CredentialManager {
+        return CredentialManager.create(context)
+    }
+    @Provides
+    @Singleton
     fun provideLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
@@ -56,6 +68,7 @@ object NetworkModuleProvider {
     }
 
     @Provides
+    @FcmBackendUrl
     @Singleton
     fun provideFcmRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
@@ -67,11 +80,12 @@ object NetworkModuleProvider {
 
     @Provides
     @Singleton
-    fun provideFcmApi(retrofit: Retrofit): FcmApi {
+    fun provideFcmApi(@FcmBackendUrl retrofit: Retrofit): FcmApi {
         return retrofit.create(FcmApi::class.java)
     }
 
     @Provides
+    @CloudinaryUrl
     @Singleton
     fun provideCloudinaryRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
@@ -84,7 +98,7 @@ object NetworkModuleProvider {
 
     @Provides
     @Singleton
-    fun provideCloudinaryApi(retrofit: Retrofit): CloudinaryApi {
+    fun provideCloudinaryApi(@CloudinaryUrl retrofit: Retrofit): CloudinaryApi {
         return retrofit.create(CloudinaryApi::class.java)
     }
 

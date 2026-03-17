@@ -143,6 +143,7 @@ fun MessageScreen(
                     MessageType.IMAGE -> {
                         if (message.senderId == currentUserId) {
                             ReceiverImageMessageItem(
+                                isLast = index == pagingItems.itemCount - 1,
                                 message = message,
                                 onImagePress = { url: String ->
                                     onAction(ChatAction.OnImagePress(urlKey = url))
@@ -151,7 +152,6 @@ fun MessageScreen(
                             )
                         } else {
                             SenderImageMessageItem(
-                                isLast = index == pagingItems.itemCount - 1,
                                 senderName = otherUserName,
                                 senderImgUrl = otherUserImg,
                                 message = message,
