@@ -15,7 +15,7 @@ import coil3.request.SuccessResult
 import coil3.request.allowHardware
 import com.nhuhuy.replee.R
 import com.nhuhuy.replee.broadcast.ReplyBroadcast
-import com.nhuhuy.replee.core.network.api.model.NotificationResponse
+import com.nhuhuy.replee.core.network.api.fcm.NotificationResponse
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

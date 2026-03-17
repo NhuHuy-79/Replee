@@ -2,13 +2,13 @@ package com.nhuhuy.replee
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.model.AuthenticatedState
-import com.nhuhuy.core.domain.repository.PresenceRepository
-import com.nhuhuy.replee.core.common.data.data_store.AppDataStore
 import com.nhuhuy.replee.core.common.data.data_store.ThemeMode
 import com.nhuhuy.replee.core.network.manager.ConnectivityObserver
 import com.nhuhuy.replee.core.network.manager.NetworkStatus
+import com.nhuhuy.replee.usecase.CheckAuthenticatedUseCase
+import com.nhuhuy.replee.usecase.ObserveThemeUseCase
+import com.nhuhuy.replee.usecase.SetUserOnlineUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,9 +20,9 @@ import timber.log.Timber
 @HiltViewModel
 class MainViewModel @Inject constructor(
     connectionObserver: ConnectivityObserver,
-    appDataStore: AppDataStore,
-    private val presenceRepository: PresenceRepository,
-    sessionManager: SessionManager,
+    observeThemeUseCase: ObserveThemeUseCase,
+    checkAuthenticatedUseCase: CheckAuthenticatedUseCase,
+    private val setUserOnlineUseCase: SetUserOnlineUseCase,
 ) : ViewModel(){
     val network = connectionObserver.observe()
         .stateIn(
@@ -30,7 +30,7 @@ class MainViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = NetworkStatus.Online
         )
-    val authenticatedState: StateFlow<AuthenticatedState> = sessionManager.authenticatedState
+    val authenticatedState: StateFlow<AuthenticatedState> = checkAuthenticatedUseCase()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
@@ -46,18 +46,20 @@ class MainViewModel @Inject constructor(
             authenticatedState.collect { state ->
                 when (state) {
                     is AuthenticatedState.Authenticated -> {
-                        presenceRepository.setOnline(state.uid)
+                        setUserOnlineUseCase(state.uid)
                         Timber.d("User is online!")
                     }
 
-                    else -> Unit
+                    else -> {
+
+                    }
                 }
             }
         }
     }
 
 
-    val theme = appDataStore.observeTheme()
+    val theme = observeThemeUseCase()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ThemeMode.DEFAULT)
 
 

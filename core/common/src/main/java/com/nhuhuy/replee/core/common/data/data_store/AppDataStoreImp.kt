@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -14,6 +15,7 @@ class AppDataStoreImp @Inject constructor(
     private val context: Context
 ) : AppDataStore {
     companion object {
+        val AUTH_TOKEN = stringPreferencesKey("auth_token")
         val NOTIFICATION_KEY = stringPreferencesKey("notification_key")
         val THEME_KEY = stringPreferencesKey("theme_key")
     }
@@ -41,6 +43,18 @@ class AppDataStoreImp @Inject constructor(
         return context.dataStore.data.map { pref ->
             val string = pref[THEME_KEY] ?: ThemeMode.DEFAULT.name
             ThemeMode.valueOf(string)
+        }
+    }
+
+    override suspend fun getAuthenticationToken(): String? {
+        return context.dataStore.data.map { preferences ->
+            preferences[AUTH_TOKEN]
+        }.first()
+    }
+
+    override suspend fun saveAuthenticationToken(token: String) {
+        context.dataStore.edit { preferences ->
+            preferences[AUTH_TOKEN] = token
         }
     }
 

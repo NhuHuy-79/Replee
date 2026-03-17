@@ -63,7 +63,7 @@ suspend inline fun <T, R> NetworkResult<T>.flatMap(
 }
 
 // Success - andThen - Failure => Success
-suspend inline fun <T, R> NetworkResult<T>.andThen(
+suspend inline fun <T, R> NetworkResult<T>.then(
     transform: suspend (T) -> NetworkResult<R>
 ): NetworkResult<T> {
     return when (this) {

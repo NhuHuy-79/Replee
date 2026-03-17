@@ -5,6 +5,7 @@ import com.nhuhuy.core.domain.model.AuthenticatedState
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.common.mapper.toAccount
 import com.nhuhuy.replee.core.common.mapper.toAccountEntity
+import com.nhuhuy.replee.core.common.utils.execute
 import com.nhuhuy.replee.core.common.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
@@ -66,6 +67,12 @@ class AuthRepositoryImp @Inject constructor(
         executeWithTimeout(dispatcher = ioDispatcher) {
             authNetworkDataSource.sendRecoverPasswordEmail(email)
         }
+
+    override suspend fun provideAuthenticateToken(): NetworkResult<String> {
+        return execute(dispatcher = ioDispatcher) {
+            authNetworkDataSource.getCurrentAuthToken()
+        }
+    }
 
     override fun observeAuthState(): Flow<String?> {
         return firebaseAuthEmailService.observeAuthState()

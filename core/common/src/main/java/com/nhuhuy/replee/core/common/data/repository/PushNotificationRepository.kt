@@ -2,7 +2,7 @@ package com.nhuhuy.replee.core.common.data.repository
 
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.common.utils.execute
-import com.nhuhuy.replee.core.network.api.model.ConversationNotificationRequest
+import com.nhuhuy.replee.core.network.api.fcm.ConversationNotificationRequest
 import com.nhuhuy.replee.core.network.data_source.PushNotificationNetworkDataSource
 import javax.inject.Inject
 

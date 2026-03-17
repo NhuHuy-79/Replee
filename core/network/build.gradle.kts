@@ -64,6 +64,11 @@ dependencies {
     debugImplementation(libs.ui.tooling)
     ksp(libs.hilt.android.compiler)
 
+
+    //Retrofit
+    api("com.squareup.retrofit2:retrofit:2.9.0")
+    api("com.squareup.retrofit2:converter-gson:2.9.0")
+    api("com.squareup.okhttp3:logging-interceptor:4.12.0")
     //KTOR
     api(libs.ktor.okhttp)
     api(libs.ktor.core)

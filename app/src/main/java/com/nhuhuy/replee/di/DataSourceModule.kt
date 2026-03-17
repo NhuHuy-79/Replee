@@ -11,8 +11,10 @@ import com.nhuhuy.replee.core.network.data_source.PushNotificationNetworkDataSou
 import com.nhuhuy.replee.core.network.data_source.PushNotificationNetworkDataSourceImp
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
 import com.nhuhuy.replee.core.network.imp.KtorFileUploader
+import com.nhuhuy.replee.core.network.imp.RetrofitUploader
 import com.nhuhuy.replee.core.network.quailify.Cloudinary
 import com.nhuhuy.replee.core.network.quailify.Ktor
+import com.nhuhuy.replee.core.network.quailify.Retrofit
 import com.nhuhuy.replee.feature_auth.data.data_source.AuthNetworkDataSource
 import com.nhuhuy.replee.feature_auth.data.data_source.AuthNetworkDataSourceImp
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
@@ -66,6 +68,10 @@ abstract class DataSourceModuleBinder {
     @Binds
     @Ktor
     abstract fun bindKtorFileUploader(impl: KtorFileUploader): UploadFileService
+
+    @Binds
+    @Retrofit
+    abstract fun bindRetrofitFileUploader(imp: RetrofitUploader): UploadFileService
 
     @Binds
     abstract fun bindAuthNetworkDataSource(imp: AuthNetworkDataSourceImp): AuthNetworkDataSource

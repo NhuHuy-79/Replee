@@ -6,17 +6,21 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.core.domain.model.onFailure
+import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.core.domain.repository.FileRepository
 import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.data.repository.MESSAGE_ID_INPUT
 import com.nhuhuy.replee.feature_chat.data.repository.URI_PATH_INPUT
 import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
+import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.io.File
 
 @HiltWorker
@@ -26,6 +30,7 @@ class UploadFileWorker @AssistedInject constructor(
     private val sessionManager: SessionManager,
     private val fileRepository: FileRepository,
     private val messageRepository: MessageRepository,
+    private val conversationRepository: ConversationRepository,
     private val syncManager: SyncManager,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : CoroutineWorker(context, params) {
@@ -35,14 +40,13 @@ class UploadFileWorker @AssistedInject constructor(
         val file = File(uriPath)
 
 
-        if (runAttemptCount > 5) {
+        if (runAttemptCount >= 5) {
             cleanup(file)
             syncManager.updateMessageStatus(messageId = messageId, status = MessageStatus.FAILED)
             return@withContext Result.failure()
         }
 
         sessionManager.getUserIdOrNull() ?: return@withContext Result.failure()
-
 
         //TODO("Need check message is Exist or not)
 
@@ -52,6 +56,7 @@ class UploadFileWorker @AssistedInject constructor(
             is NetworkResult.Failure -> Result.retry()
             is NetworkResult.Success -> {
                 val remoteUrl = uploadFileResult.data
+                Timber.d("RemoteURL : $remoteUrl")
                 val message = messageRepository.updateRemoteUrlMessage(
                     messageId = messageId,
                     remoteUrl = remoteUrl,
@@ -61,11 +66,26 @@ class UploadFileWorker @AssistedInject constructor(
 
                 when (messageRepository.sendMessage(message)) {
                     is NetworkResult.Success -> {
+                        cleanup(file)
                         syncManager.updateMessageStatus(
                             messageId = messageId,
                             status = MessageStatus.SYNCED
                         )
-                        cleanup(file)
+
+                        conversationRepository.updateMetadataConversation(message)
+                            .onSuccess {
+                                syncManager.updateConversationStatus(
+                                    conversationId = message.conversationId,
+                                    synced = true
+                                )
+                            }
+                            .onFailure {
+                                syncManager.updateConversationStatus(
+                                    conversationId = message.conversationId,
+                                    synced = false
+                                )
+                            }
+
                         Result.success()
                     }
 

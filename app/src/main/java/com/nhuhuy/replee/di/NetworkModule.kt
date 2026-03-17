@@ -8,6 +8,9 @@ import com.google.firebase.firestore.firestore
 import com.google.firebase.messaging.messaging
 import com.nhuhuy.replee.core.network.api.KtorService
 import com.nhuhuy.replee.core.network.api.KtorServiceImp
+import com.nhuhuy.replee.core.network.api.cloudinary.CloudinaryApi
+import com.nhuhuy.replee.core.network.api.fcm.FCM_URL
+import com.nhuhuy.replee.core.network.api.fcm.FcmApi
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -22,12 +25,69 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModuleProvider {
+
+    @Provides
+    @Singleton
+    fun provideLoggingInterceptor(): HttpLoggingInterceptor {
+        return HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+    }
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideFcmRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(FCM_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideFcmApi(retrofit: Retrofit): FcmApi {
+        return retrofit.create(FcmApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCloudinaryRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl("https://api.cloudinary.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
+            .build()
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideCloudinaryApi(retrofit: Retrofit): CloudinaryApi {
+        return retrofit.create(CloudinaryApi::class.java)
+    }
+
     @Provides
     @Singleton
     fun provideMediaManager(): MediaManager {

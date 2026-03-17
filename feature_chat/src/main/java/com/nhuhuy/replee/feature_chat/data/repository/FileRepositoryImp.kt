@@ -17,7 +17,7 @@ import com.nhuhuy.core.domain.repository.FileRepository
 import com.nhuhuy.core.domain.repository.ValidateFileResult
 import com.nhuhuy.replee.core.common.utils.execute
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
-import com.nhuhuy.replee.core.network.quailify.Ktor
+import com.nhuhuy.replee.core.network.quailify.Retrofit
 import com.nhuhuy.replee.feature_chat.data.worker.UploadFileWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
@@ -36,7 +36,7 @@ const val URI_PATH_INPUT = "uri_path_input"
 class FileRepositoryImp @Inject constructor(
     @ApplicationContext private val context: Context,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    @Ktor private val uploadFileService: UploadFileService,
+    @Retrofit private val uploadFileService: UploadFileService,
 ) : FileRepository {
     override suspend fun validateFileSize(uriPath: String): ValidateFileResult {
         return withContext(ioDispatcher) {

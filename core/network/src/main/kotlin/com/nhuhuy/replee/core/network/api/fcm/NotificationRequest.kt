@@ -1,10 +1,8 @@
-package com.nhuhuy.replee.core.network.api.model
+package com.nhuhuy.replee.core.network.api.fcm
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-@SerialName("conversation")
 data class ConversationNotificationRequest(
     val senderName: String,
     val receiverId: String,
@@ -12,7 +10,7 @@ data class ConversationNotificationRequest(
     val contentType: ContentType,
     val imgUrl: String,
     val conversationId: String,
-) : FCMRequest
+) : FcmRequest
 
 enum class ContentType {
     PLAIN_TEXT,

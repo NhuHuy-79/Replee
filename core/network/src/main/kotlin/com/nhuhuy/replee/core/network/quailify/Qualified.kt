@@ -9,3 +9,7 @@ annotation class Cloudinary
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class Ktor
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class Retrofit

@@ -3,7 +3,7 @@ package com.nhuhuy.replee.feature_chat.domain.usecase.message
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.model.onFailure
 import com.nhuhuy.core.domain.model.onSuccess
-import com.nhuhuy.replee.core.common.utils.andThen
+import com.nhuhuy.replee.core.common.utils.then
 import com.nhuhuy.replee.feature_chat.data.NotifyService
 import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
@@ -41,7 +41,7 @@ class SendMessageUseCase @Inject constructor(
         )
 
         return messageRepository.sendMessage(message = message)
-            .andThen {
+            .then {
                 conversationRepository.updateMetadataConversation(message)
                     .onSuccess {
                         syncManager.updateConversationStatus(

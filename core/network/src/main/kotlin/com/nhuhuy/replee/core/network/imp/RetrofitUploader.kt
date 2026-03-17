@@ -1,19 +1,18 @@
 package com.nhuhuy.replee.core.network.imp
 
-import android.content.Context
-import android.webkit.MimeTypeMap
 import com.nhuhuy.core.domain.model.UploadFileState
-import com.nhuhuy.replee.core.network.api.KtorService
+import com.nhuhuy.replee.core.network.api.cloudinary.CloudinaryApi
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
 
-class KtorFileUploader @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val ktorService: KtorService
+class RetrofitUploader @Inject constructor(
+    private val api: CloudinaryApi
 ) : UploadFileService {
     override suspend fun uploadFiles(uriPaths: List<String>): List<String> {
         TODO("Not yet implemented")
@@ -28,33 +27,32 @@ class KtorFileUploader @Inject constructor(
     }
 
     override suspend fun uploadImageWithUriPath(uriPath: String): String {
-        //Path of tempFile
         val file = File(uriPath)
 
         if (!file.exists()) throw IOException("File tạm không tồn tại: $uriPath")
 
-        return try {
-            val response = ktorService.uploadFile(
-                cloudName = "dgq6g8u5h",
-                uploadPreset = "replee_chat_img",
-                fileBytes = file.readBytes(),
-                fileName = file.name,
-                mimeType = "image/jpeg"
-            )
-            response.secureUrl
-        } catch (e: Exception) {
-            throw e
-        }
+        val requestFile = RequestBody.create(
+            "image/jpeg".toMediaTypeOrNull(),
+            file.readBytes()
+        )
+
+        val filePart = MultipartBody.Part.createFormData(
+            "file",
+            "${file.name}.jpg",
+            requestFile
+        )
+
+        val presetPart = RequestBody.create(
+            "text/plain".toMediaTypeOrNull(),
+            "replee_chat_img"
+        )
+
+        return api.uploadImage(filePart, presetPart).body()?.secureUrl
+            ?: throw IOException("Upload failed")
     }
 
     override fun observeUploadFile(uriPath: String): Flow<UploadFileState> {
         TODO("Not yet implemented")
-    }
-
-    private fun getMimeType(fileName: String): String {
-        val extension = fileName.substringAfterLast(".", "")
-        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
-            ?: "application/octet-stream"
     }
 
 }

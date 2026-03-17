@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.core.network.api
 
-import com.nhuhuy.replee.core.network.api.model.CloudinaryResponse
-import com.nhuhuy.replee.core.network.api.model.ConversationNotificationRequest
+import com.nhuhuy.replee.core.network.api.cloudinary.CloudinaryResponse
+import com.nhuhuy.replee.core.network.api.fcm.ConversationNotificationRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -14,7 +14,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
-import io.ktor.utils.io.core.Input
 import javax.inject.Inject
 
 object Route{
@@ -31,7 +30,7 @@ interface KtorService{
     suspend fun uploadFile(
         cloudName: String,
         uploadPreset: String,
-        fileInput: Input,
+        fileBytes: ByteArray,
         fileName: String,
         mimeType: String,
     ): CloudinaryResponse
@@ -48,24 +47,20 @@ class KtorServiceImp @Inject constructor(
     override suspend fun uploadFile(
         cloudName: String,
         uploadPreset: String,
-        fileInput: Input,
+        fileBytes: ByteArray,
         fileName: String,
         mimeType: String
     ): CloudinaryResponse {
-        val url = "https://api.cloudinary.com/v1_1/dgq6g8u5h/image/upload"
+        val url = "https://api.cloudinary.com/v1_1/dgq6g8u5h/auto/upload"
 
         val response = client.submitFormWithBinaryData(
             url = url,
             formData = formData {
-                append("upload_preset", uploadPreset.trim())
-                appendInput(
-                    key = "file",
-                    headers = Headers.build {
-                        append(HttpHeaders.ContentType, mimeType)
-                        append(HttpHeaders.ContentDisposition, "filename=\"$fileName\"")
-                    },
-                    block = { fileInput }
-                )
+                append("upload_preset", uploadPreset)
+                append("file", fileBytes, Headers.build {
+                    append(HttpHeaders.ContentType, mimeType)
+                    append(HttpHeaders.ContentDisposition, "filename=\"$fileName.jpg\"")
+                })
             }
         )
 

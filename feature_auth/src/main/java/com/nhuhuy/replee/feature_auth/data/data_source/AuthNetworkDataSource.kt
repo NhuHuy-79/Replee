@@ -12,6 +12,7 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 interface AuthNetworkDataSource {
+    suspend fun getCurrentAuthToken(): String
     suspend fun getCurrentUid(): String
     suspend fun signInWithEmail(email: String, password: String): String
     suspend fun signInWithGoogle(idToken: String): AccountDTO
@@ -23,6 +24,11 @@ interface AuthNetworkDataSource {
 class AuthNetworkDataSourceImp @Inject constructor(
     private val firebaseAuth: FirebaseAuth
 ) : AuthNetworkDataSource {
+    override suspend fun getCurrentAuthToken(): String {
+        return firebaseAuth.currentUser?.getIdToken(true)?.await()?.token
+            ?: throw IllegalStateException("Token not found!")
+    }
+
     override suspend fun getCurrentUid(): String {
         return firebaseAuth.uid ?: throw IllegalStateException("Uid not found!")
     }
