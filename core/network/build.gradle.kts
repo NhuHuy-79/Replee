@@ -5,9 +5,6 @@ plugins {
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     id ("org.jetbrains.kotlin.plugin.serialization") version "1.9.23"
-    alias(libs.plugins.google.gms.google.services)
-
-
 }
 
 android {
@@ -69,13 +66,6 @@ dependencies {
     api("com.squareup.retrofit2:retrofit:2.9.0")
     api("com.squareup.retrofit2:converter-gson:2.9.0")
     api("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    //KTOR
-    api(libs.ktor.okhttp)
-    api(libs.ktor.core)
-    api(libs.ktor.json)
-    api(libs.ktor.okhttp)
-    api(libs.ktor.content.negotiation)
-    api(libs.ktor.logging)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

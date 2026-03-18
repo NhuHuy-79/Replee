@@ -7,8 +7,6 @@ import com.nhuhuy.replee.core.common.data.repository.AccountRepositoryImp
 import com.nhuhuy.replee.core.common.data.repository.PresenceRepositoryImp
 import com.nhuhuy.replee.feature_auth.data.repository.AuthRepositoryImp
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
-import com.nhuhuy.replee.feature_chat.data.NotifyService
-import com.nhuhuy.replee.feature_chat.data.NotifyServiceImp
 import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.data.SyncManagerImp
 import com.nhuhuy.replee.feature_chat.data.repository.ConversationRepositoryImp
@@ -48,8 +46,6 @@ abstract class RepositoryModuleBinder {
     @Binds
     abstract fun bindSessionManager(imp: SessionManagerImp): SessionManager
     //Chat
-    @Binds
-    abstract fun bindNotifyService(notifyServiceImp: NotifyServiceImp): NotifyService
 
     @Binds
     abstract fun bindPresenceRepository(presenceRepositoryImp: PresenceRepositoryImp): PresenceRepository
