@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.core.common.data.repository
 
+import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.model.SearchHistoryResult
@@ -23,6 +24,7 @@ import javax.inject.Inject
 
 class AccountRepositoryImp @Inject constructor(
     private val ioDispatcher: CoroutineDispatcher,
+    private val sessionManager: SessionManager,
     private val firebaseAuthEmailService: FirebaseAuthEmailService,
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val accountLocalDataSource: AccountLocalDataSource,
@@ -72,8 +74,13 @@ class AccountRepositoryImp @Inject constructor(
 
     override suspend fun updateDeviceToken(token: String): NetworkResult<Unit> {
         return execute {
-            val uid = firebaseAuthEmailService.getCurrentUser()?.uid ?: return@execute
-            accountNetworkDataSource.updateDeviceToken(uid, token)
+            val uid = sessionManager.getUserIdOrNull()
+
+            if (uid != null) {
+                accountLocalDataSource.updateDeviceToken(uid = uid, token = token)
+                accountNetworkDataSource.updateDeviceToken(uid, token)
+            }
+            Timber.e("Uid is nullable, need to work manager!")
         }
     }
 

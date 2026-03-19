@@ -7,6 +7,7 @@ import android.content.Intent
 import androidx.core.app.NotificationManagerCompat
 import com.nhuhuy.core.domain.model.onFailure
 import com.nhuhuy.core.domain.model.onSuccess
+import com.nhuhuy.replee.notification.EXTRA_CONVERSATION_ID
 import com.nhuhuy.replee.notification.EXTRA_NOTIFICATION_ID
 import com.nhuhuy.replee.notification.EXTRA_RECEIVER_ID
 import com.nhuhuy.replee.notification.EXTRA_SENDER_ID
@@ -14,7 +15,6 @@ import com.nhuhuy.replee.notification.REMOTE_INPUT_KEY
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -24,8 +24,6 @@ class ReplyBroadcast() : BroadcastReceiver() {
     @Inject
     lateinit var replyManager: ReplyManager
     private lateinit var notificationManager: NotificationManagerCompat
-
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     override fun onReceive(context: Context?, intent: Intent?){
         if (context == null || intent == null) {
@@ -37,19 +35,19 @@ class ReplyBroadcast() : BroadcastReceiver() {
 
         val senderId = intent.getStringExtra(EXTRA_SENDER_ID)
         val receiverId = intent.getStringExtra(EXTRA_RECEIVER_ID)
-        val conversationId = intent.getStringExtra(com.nhuhuy.replee.notification.EXTRA_CONVERSATION_ID)
+        val conversationId = intent.getStringExtra(EXTRA_CONVERSATION_ID)
         val notificationId = intent.getIntExtra(EXTRA_NOTIFICATION_ID, 0)
 
         val pendingResult = goAsync()
         val replyText = RemoteInput.getResultsFromIntent(intent).getCharSequence(REMOTE_INPUT_KEY)
 
-        if (replyText == null) {
+        if (replyText.isNullOrBlank()) {
             Timber.e("Reply text is null")
             pendingResult.finish()
             return
         }
 
-        scope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
                 val input = replyText.toString()
                 if (senderId != null && receiverId != null && conversationId != null) {

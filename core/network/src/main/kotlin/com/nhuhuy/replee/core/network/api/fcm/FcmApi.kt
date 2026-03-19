@@ -6,7 +6,7 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 
 
-const val FCM_URL = "http://192.168.1.5:5000/api/v1/notifications/"
+const val FCM_URL = "https://replee-deploy.vercel.app/api/v1/notifications/"
 
 interface FcmApi {
     @POST("send")

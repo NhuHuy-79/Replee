@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ConversationDao : BaseDao<ConversationEntity> {
 
+    @Query("SELECT COUNT(*) FROM conversation WHERE id = :conversationId AND deleted = 0")
+    suspend fun clearUnreadMessages(conversationId: String)
+
     @Transaction
     @Query("SELECT * FROM conversation WHERE id = :id")
     suspend fun getConversationById(id: String): ConversationAndUser?

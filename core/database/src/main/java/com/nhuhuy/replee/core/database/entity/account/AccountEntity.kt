@@ -21,5 +21,9 @@ data class AccountEntity(
     @ColumnInfo(name = "isOnline", defaultValue = "0")
     val isOnline: Boolean = false,
     @ColumnInfo(name = "lastSeen", defaultValue = "0")
-    val lastSeen: Long = 0L
+    val lastSeen: Long = 0L,
+    @ColumnInfo(name = "deviceToken", defaultValue = "")
+    val deviceToken: String = "",
+    @ColumnInfo(name = "isTokenUpdate", defaultValue = "false")
+    val isTokenUpdate: Boolean = false,
 )

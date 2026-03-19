@@ -2,12 +2,13 @@ package com.nhuhuy.replee.notification
 
 import android.app.Notification
 import android.app.PendingIntent
-import android.app.Person
-import android.app.RemoteInput
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.drawable.Icon
+import androidx.core.app.NotificationCompat
+import androidx.core.app.Person
+import androidx.core.app.RemoteInput
+import androidx.core.graphics.drawable.IconCompat
 import coil3.BitmapImage
 import coil3.imageLoader
 import coil3.request.ImageRequest
@@ -62,63 +63,84 @@ const val EXTRA_NOTIFICATION_ID = "notification_id"
 class ConversationNotificationFactory @Inject constructor(
     @ApplicationContext private val context: Context
 ) : NotificationFactory() {
+
     override suspend fun execute(response: NotificationResponse): Notification {
         val channelId = context.getString(R.string.notification_channel)
+        val bitmap = loadBitmapForNotification(context, response.senderImg)
 
-        val bitmap = loadBitmapForNotification(
-            context = context,
-            url = response.senderImg
-        )
-
-        val person = Person.Builder()
+        val sender = Person.Builder()
             .setName(response.senderName)
-            .setIcon(
-                bitmap?.let { Icon.createWithBitmap(it) }
-            )
+            .setIcon(bitmap?.let { IconCompat.createWithBitmap(it) })
+            .setKey(response.senderId)
+            .setImportant(true)
             .build()
 
-        val messagingStyle = Notification.MessagingStyle(person)
+        val user = Person.Builder()
+            .setName(context.getString(R.string.app_name))
+            .setKey(response.receiverId)
+            .build()
+
+        val messagingStyle = NotificationCompat.MessagingStyle(user)
             .setConversationTitle(response.senderName)
             .addMessage(
                 response.content,
                 System.currentTimeMillis(),
-                person
+                sender
             )
+
+        val contentIntent =
+            context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
+                putExtra(EXTRA_CONVERSATION_ID, response.conversationId)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+
+        val contentPendingIntent = PendingIntent.getActivity(
+            context,
+            response.conversationId.hashCode(),
+            contentIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
 
         val remoteInput = RemoteInput.Builder(REMOTE_INPUT_KEY)
             .setLabel(context.getString(R.string.action_reply))
             .build()
 
         val replyIntent = Intent(context, ReplyBroadcast::class.java).apply {
-            putExtra(EXTRA_SENDER_ID, "")
-            putExtra(EXTRA_RECEIVER_ID, " ")
             putExtra(EXTRA_CONVERSATION_ID, response.conversationId)
+            putExtra(EXTRA_SENDER_ID, response.receiverId)
+            putExtra(EXTRA_RECEIVER_ID, response.senderId)
             putExtra(EXTRA_NOTIFICATION_ID, response.hashCode())
         }
 
-        val requestCode = response.hashCode()
-
         val replyPendingIntent = PendingIntent.getBroadcast(
             context,
-            requestCode,
+            response.conversationId.hashCode(),
             replyIntent,
             PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val replyAction = Notification.Action.Builder(
+        val replyAction = NotificationCompat.Action.Builder(
             R.drawable.ic_notification_msg,
             context.getString(R.string.action_reply),
             replyPendingIntent
         )
             .addRemoteInput(remoteInput)
+            .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)
             .build()
 
-        return Notification.Builder(context, channelId)
+        return NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification_msg)
+            .setLargeIcon(bitmap)
             .setStyle(messagingStyle)
-            .setAutoCancel(true)
+            .setContentIntent(contentPendingIntent)
             .setGroup(response.conversationId)
+            .setShortcutId(response.conversationId)
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setOnlyAlertOnce(true)
+            .addPerson(sender)
             .addAction(replyAction)
+            .setAutoCancel(true)
             .build()
     }
 
@@ -127,12 +149,11 @@ class ConversationNotificationFactory @Inject constructor(
         val contentText = if (success) context.getString(R.string.notification_success)
         else context.getString(R.string.notification_failure)
 
-        return Notification.Builder(context, context.getString(R.string.notification_channel))
+        return NotificationCompat.Builder(context, context.getString(R.string.notification_channel))
             .setSmallIcon(R.drawable.ic_notification_msg)
             .setContentTitle(title)
             .setContentText(contentText)
             .setAutoCancel(true)
             .build()
     }
-
 }

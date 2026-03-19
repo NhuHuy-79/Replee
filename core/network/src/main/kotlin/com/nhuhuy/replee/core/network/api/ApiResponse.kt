@@ -1,7 +1,8 @@
 package com.nhuhuy.replee.core.network.api
 
 import com.google.gson.annotations.SerializedName
-import kotlinx.io.IOException
+import java.io.IOException
+
 
 data class ApiError(
     @SerializedName("message")

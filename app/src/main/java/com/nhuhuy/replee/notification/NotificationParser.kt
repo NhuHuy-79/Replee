@@ -15,6 +15,8 @@ class NotificationParser @Inject constructor() {
         return try {
             val type = data["type"] ?: "PLAIN_TEXT"
             NotificationResponse(
+                senderId = data["senderId"] ?: "",
+                receiverId = data["receiverId"] ?: "",
                 conversationId = data["conversationId"] ?: "",
                 senderName = data["senderName"] ?: "Unknown",
                 senderImg = data["senderImg"] ?: "",

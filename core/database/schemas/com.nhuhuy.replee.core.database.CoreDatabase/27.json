@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 27,
-    "identityHash": "fba81f35147eb6ee9825f7add80dfd10",
+    "identityHash": "c68dd31dd62f2bdd6d62f819b9917d09",
     "entities": [
       {
         "tableName": "accounts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` TEXT NOT NULL, `name` TEXT NOT NULL, `email` TEXT NOT NULL, `createAt` INTEGER, `imageUrl` TEXT NOT NULL DEFAULT '', `blockedUserList` TEXT NOT NULL DEFAULT '[]', `provider` TEXT NOT NULL DEFAULT 'EMAIL', `logOut` INTEGER NOT NULL, `isOnline` INTEGER NOT NULL DEFAULT 0, `lastSeen` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`uid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` TEXT NOT NULL, `name` TEXT NOT NULL, `email` TEXT NOT NULL, `createAt` INTEGER, `imageUrl` TEXT NOT NULL DEFAULT '', `blockedUserList` TEXT NOT NULL DEFAULT '[]', `provider` TEXT NOT NULL DEFAULT 'EMAIL', `logOut` INTEGER NOT NULL, `isOnline` INTEGER NOT NULL DEFAULT 0, `lastSeen` INTEGER NOT NULL DEFAULT 0, `deviceToken` TEXT NOT NULL DEFAULT '', `isTokenUpdate` INTEGER NOT NULL DEFAULT false, PRIMARY KEY(`uid`))",
         "fields": [
           {
             "fieldPath": "uid",
@@ -71,6 +71,20 @@
             "affinity": "INTEGER",
             "notNull": true,
             "defaultValue": "0"
+          },
+          {
+            "fieldPath": "deviceToken",
+            "columnName": "deviceToken",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "isTokenUpdate",
+            "columnName": "isTokenUpdate",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "false"
           }
         ],
         "primaryKey": {
@@ -246,7 +260,7 @@
       },
       {
         "tableName": "message",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`conversationId` TEXT NOT NULL, `messageId` TEXT NOT NULL, `senderId` TEXT NOT NULL, `receiverId` TEXT NOT NULL, `content` TEXT NOT NULL, `seen` INTEGER NOT NULL, `sentAt` INTEGER, `type` TEXT NOT NULL, `status` TEXT NOT NULL, `localUriPath` TEXT, PRIMARY KEY(`messageId`), FOREIGN KEY(`conversationId`) REFERENCES `conversation`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`conversationId` TEXT NOT NULL, `messageId` TEXT NOT NULL, `senderId` TEXT NOT NULL, `receiverId` TEXT NOT NULL, `content` TEXT NOT NULL, `seen` INTEGER NOT NULL, `sentAt` INTEGER, `type` TEXT NOT NULL, `status` TEXT NOT NULL, `localUriPath` TEXT, `remoteUrl` TEXT, PRIMARY KEY(`messageId`), FOREIGN KEY(`conversationId`) REFERENCES `conversation`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "conversationId",
@@ -304,6 +318,11 @@
           {
             "fieldPath": "localUriPath",
             "columnName": "localUriPath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "remoteUrl",
+            "columnName": "remoteUrl",
             "affinity": "TEXT"
           }
         ],
@@ -490,7 +509,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fba81f35147eb6ee9825f7add80dfd10')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c68dd31dd62f2bdd6d62f819b9917d09')"
     ]
   }
 }

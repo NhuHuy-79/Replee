@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.feature_chat.data.source.conversation
 
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -20,6 +21,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 interface ConversationNetworkDataSource {
+    suspend fun deleteAllUnreadMessages(conversationId: String, uid: String)
     suspend fun updateUnreadMessageCount(conversationId: String, receiverId: String, count: Int)
     suspend fun sendConversation(conversationDTO: ConversationDTO)
     suspend fun getConversationUserIdsWithOwner(ownerId: String): List<String>
@@ -51,6 +53,17 @@ class ConversationNetworkDataSourceImp @Inject constructor(
     private val firestore: FirebaseFirestore,
 ) : ConversationNetworkDataSource {
     private val collection = firestore.collection(Constant.Firestore.CONVERSATION_COLLECTION)
+    override suspend fun deleteAllUnreadMessages(
+        conversationId: String,
+        uid: String
+    ) {
+        val fieldPath = FieldPath.of("unReadMessages", uid)
+
+        collection.document(conversationId)
+            .update(fieldPath, 0)
+            .await()
+
+    }
 
     override suspend fun updateUnreadMessageCount(
         conversationId: String,

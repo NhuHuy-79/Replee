@@ -15,7 +15,7 @@ interface ConversationLocalDataSource {
         upsert: List<ConversationEntity>,
         delete: List<String>,
     )
-
+    suspend fun clearUnreadMessages(conversationId: String)
     fun observeOtherUserInConversation(currentUserId: String): Flow<List<String>>
 
     suspend fun deleteConversationsByUid(uid: String)
@@ -62,6 +62,10 @@ class ConversationLocalDataSourceImp @Inject constructor(
             upsert = upsert,
             delete = delete,
         )
+    }
+
+    override suspend fun clearUnreadMessages(conversationId: String) {
+        conversationDao.clearUnreadMessages(conversationId)
     }
 
     override fun observeOtherUserInConversation(currentUserId: String): Flow<List<String>> {

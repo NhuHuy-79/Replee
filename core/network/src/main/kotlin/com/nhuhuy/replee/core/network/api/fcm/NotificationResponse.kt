@@ -4,6 +4,10 @@ import com.google.gson.annotations.SerializedName
 
 
 data class NotificationResponse(
+    @SerializedName("senderId")
+    val senderId: String,
+    @SerializedName("receiverId")
+    val receiverId: String,
     @SerializedName("conversationId")
     val conversationId: String,
     @SerializedName("senderImg")

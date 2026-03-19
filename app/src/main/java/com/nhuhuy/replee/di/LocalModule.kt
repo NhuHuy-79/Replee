@@ -32,7 +32,7 @@ object LocalModuleProvider {
             klass = CoreDatabase::class.java,
             name = "replee_db"
         ).addMigrations(Migration_15_16)
-            .fallbackToDestructiveMigration(false)
+            /* .fallbackToDestructiveMigration(false)*/
             .build()
     }
 

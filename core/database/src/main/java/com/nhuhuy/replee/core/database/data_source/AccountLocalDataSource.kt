@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 interface AccountLocalDataSource {
+    suspend fun updateDeviceToken(uid: String, token: String)
     suspend fun upsertAccount(accountEntity: AccountEntity)
     suspend fun updateImageUrl(uid: String, imgUrl: String)
     suspend fun getAccountWithId(uid: String): AccountEntity?
@@ -28,6 +29,9 @@ class AccountLocalDataSourceImp @Inject constructor(
 ) : AccountLocalDataSource {
     private val accountDao = coreDatabase.provideAccountDao()
     private val searchHistoryDao = coreDatabase.provideSearchHistoryDao()
+    override suspend fun updateDeviceToken(uid: String, token: String) {
+        accountDao.updateDeviceToken(uid = uid, token = token)
+    }
 
     override suspend fun upsertAccount(accountEntity: AccountEntity) {
         accountDao.upsert(accountEntity)

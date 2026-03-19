@@ -10,6 +10,9 @@ interface AccountDao : BaseDao<AccountEntity>{
     @Query("SELECT * FROM accounts WHERE uid = :uid")
     suspend fun getAccountWithUid(uid: String): AccountEntity?
 
+    @Query("UPDATE accounts SET deviceToken = :token WHERE uid = :uid")
+    suspend fun updateDeviceToken(uid: String, token: String)
+
     @Query("UPDATE accounts SET logOut = true WHERE uid = :uid")
     suspend fun updateLogoutStatus(uid: String)
 

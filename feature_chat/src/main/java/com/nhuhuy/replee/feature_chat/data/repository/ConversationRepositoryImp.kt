@@ -86,6 +86,10 @@ class ConversationRepositoryImp @Inject constructor(
                 Timber.d("${entity.toConversation()}")
                 entity.toConversation()
             }
+                .filter { conversation ->
+                    conversation.lastMessageContent.isNotBlank()
+
+                }
         }
             .flowOn(ioDispatcher)
     }
@@ -164,6 +168,17 @@ class ConversationRepositoryImp @Inject constructor(
 
     override fun observeOtherUserInConversation(currentUserId: String): Flow<List<String>> {
         return conversationLocalDataSource.observeOtherUserInConversation(currentUserId)
+    }
+
+    override suspend fun markAllMessagesRead(
+        conversationId: String,
+        currentUserId: String
+    ): NetworkResult<String> {
+        return execute {
+            conversationLocalDataSource.clearUnreadMessages(conversationId)
+            conversationNetworkDataSource.deleteAllUnreadMessages(conversationId, currentUserId)
+            conversationId
+        }
     }
 
 }
