@@ -11,13 +11,18 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import androidx.work.workDataOf
+import com.nhuhuy.core.domain.model.FilePath
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.model.UploadFileState
+import com.nhuhuy.core.domain.model.ValidateFileResult
+import com.nhuhuy.core.domain.repository.FileMetadata
 import com.nhuhuy.core.domain.repository.FileRepository
-import com.nhuhuy.core.domain.repository.ValidateFileResult
+import com.nhuhuy.replee.core.common.data.data_source.FileStorageDataSource
+import com.nhuhuy.replee.core.common.data.data_source.FileValidator
 import com.nhuhuy.replee.core.common.utils.execute
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
 import com.nhuhuy.replee.core.network.quailify.Retrofit
+import com.nhuhuy.replee.feature_chat.data.source.file_path.FilePathLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.worker.UploadFileWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
@@ -34,20 +39,36 @@ const val URI_PATH_INPUT = "uri_path_input"
 
 
 class FileRepositoryImp @Inject constructor(
+    private val filePathLocalDataSourceIm: FilePathLocalDataSource,
+    private val fileValidator: FileValidator,
+    private val fileStorageDataSource: FileStorageDataSource,
     @ApplicationContext private val context: Context,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     @Retrofit private val uploadFileService: UploadFileService,
 ) : FileRepository {
+    override suspend fun getUriPathWithMessageId(messageId: String): FilePath? {
+        return withContext(ioDispatcher) {
+            filePathLocalDataSourceIm.getFilePathByMessageId(messageId)
+        }
+    }
+
+    override suspend fun upsertFilePath(filePath: FilePath) {
+        return withContext(ioDispatcher) {
+            filePathLocalDataSourceIm.upsertFilePath(filePath)
+        }
+    }
+
+    override suspend fun saveFileToInternalStorage(uriPath: String): String {
+        return withContext(ioDispatcher) {
+            fileStorageDataSource.saveToInternalStorage(
+                uri = uriPath.toUri()
+            )
+        }
+    }
+
     override suspend fun validateFileSize(uriPath: String): ValidateFileResult {
         return withContext(ioDispatcher) {
-            val uri = uriPath.toUri()
-            val maxSize = 100 * 1024 * 1024
-            val fileSize = context.contentResolver.openAssetFileDescriptor(uri, "r")?.use {
-                it.length
-            } ?: 0L
-
-            if (fileSize > maxSize) return@withContext ValidateFileResult.FileTooLarge
-            return@withContext ValidateFileResult.Valid
+            fileValidator.validate(uriPath)
         }
     }
 
@@ -58,10 +79,13 @@ class FileRepositoryImp @Inject constructor(
     }
 
     override suspend fun scheduleUploadFile(messageId: String, uriPath: String) {
+
+        //Scheduler now only take a messageId for do Work and needn't take a uriPath
+
         val uri = uriPath.toUri()
         val uploadDir = File(context.cacheDir, "upload")
         if (!uploadDir.exists()) {
-            uploadDir.mkdirs() // Lệnh này sẽ tạo thư mục /upload
+            uploadDir.mkdirs()
         }
         val tempFile = File(uploadDir, "${messageId}.jpg")
         try {
@@ -105,6 +129,13 @@ class FileRepositoryImp @Inject constructor(
 
     override fun observeUploadFile(messageId: String, uriPath: String): Flow<UploadFileState> {
         TODO("Not implemented")
+    }
+
+    override suspend fun getFileMetadata(uriPath: String): FileMetadata {
+        return withContext(ioDispatcher) {
+            fileStorageDataSource.getFileMetadata(uriPath)
+        }
+
     }
 
 }

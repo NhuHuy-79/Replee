@@ -9,6 +9,6 @@ class LoadConversationUseCase @Inject constructor(
     private val conversationRepository: ConversationRepository
 ) {
     operator fun invoke(ownerId: String): Flow<List<Conversation>> {
-        return conversationRepository.observeLocalConversations(ownerId)
+        return conversationRepository.observeLocalConversationList(ownerId)
     }
 }

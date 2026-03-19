@@ -47,10 +47,7 @@ class AuthRepositoryImpTest {
         googleAuthService = mockk(relaxed = true)
 
         authRepositoryImp = AuthRepositoryImp(
-            ioDispatcher = ioDispatcher,
-            firebaseAuthEmailService = firebaseAuthEmailService,
-            accountNetworkDataSource = accountNetworkDataSource,
-            accountLocalDataSource = accountLocalDataSource
+            ioDispatcher = ioDispatcher
         )
 
     }

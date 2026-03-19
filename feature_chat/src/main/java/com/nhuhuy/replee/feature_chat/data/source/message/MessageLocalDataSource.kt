@@ -10,6 +10,11 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 interface MessageLocalDataSource {
+    suspend fun updateMessageStatusInConversation(
+        conversationId: String,
+        receiverId: String,
+        status: MessageStatus
+    )
     suspend fun getMessageById(messageId: String): MessageEntity?
     suspend fun upsertMessage(message: MessageEntity)
     suspend fun updateMessageStatus(status: MessageStatus, messageId: String)
@@ -34,6 +39,14 @@ class MessageLocalDataSourceImp @Inject constructor(
     private val coreDatabase: CoreDatabase
 ) : MessageLocalDataSource {
     private val messageDao: MessageDao = coreDatabase.provideMessageDao()
+    override suspend fun updateMessageStatusInConversation(
+        conversationId: String,
+        receiverId: String,
+        status: MessageStatus,
+    ) {
+        messageDao.updateMessageStatusInConversation(conversationId, receiverId, status.name)
+    }
+
     override suspend fun getMessageById(messageId: String): MessageEntity? {
         return messageDao.getMessageById(messageId)
     }

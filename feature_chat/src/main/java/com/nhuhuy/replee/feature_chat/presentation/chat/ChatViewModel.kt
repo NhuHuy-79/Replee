@@ -4,7 +4,7 @@ package com.nhuhuy.replee.feature_chat.presentation.chat
 
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import com.nhuhuy.core.domain.repository.ValidateFileResult
+import com.nhuhuy.core.domain.model.ValidateFileResult
 import com.nhuhuy.core.domain.usecase.GetAccountByIdUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
@@ -12,11 +12,11 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.block.CheckBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.ObserveOwnerIsBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.UnblockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.file.SendFileMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.ValidateFileSizeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ListenMessageChangeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.PagingMessagesUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ReadMessageUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendFileUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.UpdateMessageChangeUseCase
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
@@ -53,9 +53,13 @@ class ChatViewModel @AssistedInject constructor(
     private val getConversationUseCase: GetConversationUseCase,
     private val pagingMessagesUseCase: PagingMessagesUseCase,
     private val checkBlockUseCase: CheckBlockUseCase,
-    private val sendFileUseCase: SendFileUseCase,
+    private val sendFileMessageUseCase: SendFileMessageUseCase,
     private val validateFileSizeUseCase: ValidateFileSizeUseCase,
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
+
+
+    //Need to get a combineModel MessageWithLocalUri For Ui. Then
+
     private val conversationId
         get() = createConversationId(
             uid1 = currentUserId,
@@ -138,7 +142,7 @@ class ChatViewModel @AssistedInject constructor(
                     readMessageUseCase(
                         messageIds = action.ids.toList(),
                         conversationId = conversationId,
-                        receiverId = otherUserId
+                        receiverId = currentUserId
                     )
                 }
 
@@ -166,17 +170,27 @@ class ChatViewModel @AssistedInject constructor(
                     val validateFileResult =
                         validateFileSizeUseCase(uriPath = action.uri.toString())
                     when (validateFileResult) {
-                        ValidateFileResult.FileTooLarge -> {
+                        is ValidateFileResult.FileTooLarge -> {
+                            Timber.e("File oo large")
                             onEvent(ChatEvent.FileTooLarge)
                         }
 
-                        ValidateFileResult.Valid -> {
-                            sendFileUseCase(
+                        is ValidateFileResult.Valid -> {
+                            Timber.d("Call")
+                            sendFileMessageUseCase(
                                 senderId = currentUserId,
                                 receiverId = otherUserId,
                                 uriPath = action.uri.toString(),
                                 conversationId
                             )
+                        }
+
+                        is ValidateFileResult.UnSupported -> {
+                            onEvent(ChatEvent.UnSupportedFile)
+                        }
+
+                        else -> {
+                            onEvent(ChatEvent.Unknown)
                         }
                     }
                 }

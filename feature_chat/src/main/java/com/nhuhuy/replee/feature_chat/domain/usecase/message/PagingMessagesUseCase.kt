@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.message
 
 import androidx.paging.PagingData
-import com.nhuhuy.replee.feature_chat.domain.model.Message
+import com.nhuhuy.replee.feature_chat.domain.model.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -9,7 +9,7 @@ import javax.inject.Inject
 class PagingMessagesUseCase @Inject constructor(
     private val messageRepository: MessageRepository
 ) {
-    operator fun invoke(conversationId: String): Flow<PagingData<Message>> {
-        return messageRepository.pagingLocalMessages(conversationId)
+    operator fun invoke(conversationId: String): Flow<PagingData<LocalPathMessage>> {
+        return messageRepository.observeLocalMessageWithPaging(conversationId)
     }
 }

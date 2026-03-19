@@ -38,6 +38,11 @@ object LocalModuleProvider {
 
     @Provides
     @Singleton
+    fun provideFilePathDao(database: CoreDatabase) = database.provideFilePathDao()
+
+
+    @Provides
+    @Singleton
     fun provideMessageRemoteKeyDao(database: CoreDatabase) = database.provideMessageRemoteKeyDao()
 
     @Provides

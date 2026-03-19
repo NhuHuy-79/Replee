@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.design_system.component.UserImage
-import com.nhuhuy.replee.feature_chat.domain.model.Message
+import com.nhuhuy.replee.feature_chat.domain.model.LocalPathMessage
 
 
 @Composable
@@ -19,7 +19,7 @@ fun SenderImageMessageItem(
     senderName: String,
     senderImgUrl: String,
     onImagePress: (urlKey: String) -> Unit,
-    message: Message,
+    localPathMessage: LocalPathMessage,
     modifier: Modifier,
 ) {
     Row(
@@ -36,7 +36,10 @@ fun SenderImageMessageItem(
 
         ImageMessageContainer(
             showStatus = false,
-            message = message,
+            localPath = localPathMessage.localPath,
+            width = localPathMessage.width,
+            height = localPathMessage.height,
+            message = localPathMessage.message,
             contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
             containerColor = MaterialTheme.colorScheme.secondaryContainer,
             onClick = onImagePress
@@ -46,7 +49,7 @@ fun SenderImageMessageItem(
 
 @Composable
 fun ReceiverImageMessageItem(
-    message: Message,
+    localPathMessage: LocalPathMessage,
     isLast: Boolean,
     modifier: Modifier = Modifier,
     onImagePress: (urlKey: String) -> Unit
@@ -57,7 +60,10 @@ fun ReceiverImageMessageItem(
     ) {
         ImageMessageContainer(
             showStatus = isLast,
-            message = message,
+            message = localPathMessage.message,
+            localPath = localPathMessage.localPath,
+            width = localPathMessage.width,
+            height = localPathMessage.height,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             onClick = onImagePress

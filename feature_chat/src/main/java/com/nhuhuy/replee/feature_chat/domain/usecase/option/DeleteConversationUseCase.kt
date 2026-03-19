@@ -4,15 +4,15 @@ import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.model.onFailure
 import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.replee.feature_chat.data.SyncManager
-import com.nhuhuy.replee.feature_chat.domain.repository.ConversationSettingRepository
+import com.nhuhuy.replee.feature_chat.domain.repository.OptionRepository
 import javax.inject.Inject
 
 class DeleteConversationUseCase @Inject constructor(
     private val syncManager: SyncManager,
-    private val conversationSettingRepository: ConversationSettingRepository
+    private val optionRepository: OptionRepository
 ) {
     suspend operator fun invoke(conversationId: String): NetworkResult<Unit> {
-        return conversationSettingRepository.deleteConversation(conversationId)
+        return optionRepository.deleteConversation(conversationId)
             .onSuccess {
                 syncManager.updateConversationStatus(conversationId, synced = true)
             }

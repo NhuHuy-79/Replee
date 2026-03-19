@@ -11,6 +11,8 @@ import com.nhuhuy.replee.core.database.entity.account.AccountDao
 import com.nhuhuy.replee.core.database.entity.account.AccountEntity
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationDao
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationEntity
+import com.nhuhuy.replee.core.database.entity.file_path.FilePathDao
+import com.nhuhuy.replee.core.database.entity.file_path.FilePathEntity
 import com.nhuhuy.replee.core.database.entity.message.MessageDao
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
 import com.nhuhuy.replee.core.database.entity.pager.MessageRemoteKey
@@ -19,9 +21,14 @@ import com.nhuhuy.replee.core.database.entity.search_history.SearchHistoryDao
 import com.nhuhuy.replee.core.database.entity.search_history.SearchHistoryEntity
 
 @Database(
-    entities = [AccountEntity::class, ConversationEntity::class, MessageEntity::class,
-        MessageRemoteKey::class, SearchHistoryEntity::class],
-    version = 27,
+    entities = [
+        AccountEntity::class,
+        ConversationEntity::class,
+        MessageEntity::class,
+        MessageRemoteKey::class,
+        SearchHistoryEntity::class,
+        FilePathEntity::class],
+    version = 28,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(
@@ -35,6 +42,9 @@ import com.nhuhuy.replee.core.database.entity.search_history.SearchHistoryEntity
         ),
         AutoMigration(
             from = 26, to = 27
+        ),
+        AutoMigration(
+            from = 27, to = 28
         )
     ]
 )
@@ -45,6 +55,8 @@ abstract class CoreDatabase() : RoomDatabase(){
     abstract fun provideConversationDao() : ConversationDao
     abstract fun provideMessageDao() : MessageDao
     abstract fun provideMessageRemoteKeyDao(): MessageRemoteKeyDao
+
+    abstract fun provideFilePathDao(): FilePathDao
 
 }
 

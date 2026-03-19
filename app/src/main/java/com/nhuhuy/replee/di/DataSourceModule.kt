@@ -19,10 +19,16 @@ import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocal
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSourceImp
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSourceImp
+import com.nhuhuy.replee.feature_chat.data.source.file_path.FilePathLocalDataSource
+import com.nhuhuy.replee.feature_chat.data.source.file_path.FilePathLocalDataSourceImp
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSourceImp
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSourceImp
+import com.nhuhuy.replee.feature_profile.data.source.ProfileLocalDataSource
+import com.nhuhuy.replee.feature_profile.data.source.ProfileLocalDataSourceImp
+import com.nhuhuy.replee.feature_profile.data.source.ProfileNetworkDataSource
+import com.nhuhuy.replee.feature_profile.data.source.ProfileNetworkDataSourceImp
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -57,12 +63,21 @@ abstract class DataSourceModuleBinder {
         imp: ConversationNetworkDataSourceImp
     ): ConversationNetworkDataSource
 
+    @Binds
+    abstract fun bindFilePathLocalDataSource(
+        imp: FilePathLocalDataSourceImp
+    ): FilePathLocalDataSource
 
     //Profile Module
     @Binds
     @Cloudinary
     abstract fun bindCloudinaryFileUploader(impl: CloudinaryFileUploader): UploadFileService
 
+    @Binds
+    abstract fun bindProfileLocalDataSource(imp: ProfileLocalDataSourceImp): ProfileLocalDataSource
+
+    @Binds
+    abstract fun bindProfileNetworkDataSource(imp: ProfileNetworkDataSourceImp): ProfileNetworkDataSource
 
     @Binds
     @Retrofit

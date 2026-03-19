@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.paging.compose.LazyPagingItems
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.feature_chat.R
-import com.nhuhuy.replee.feature_chat.domain.model.Message
+import com.nhuhuy.replee.feature_chat.domain.model.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.BlockOverlay
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.dialog.FullImageDialog
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageInput
@@ -50,7 +50,7 @@ import timber.log.Timber
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChatScreen(
-    pagedMessages: LazyPagingItems<Message>,
+    pagedMessages: LazyPagingItems<LocalPathMessage>,
     blocked: Boolean,
     state: ChatState,
     onAction: (ChatAction) -> Unit,
@@ -120,9 +120,6 @@ fun ChatScreen(
                     otherUserName = state.otherUser.name,
                     currentUserId = state.currentUserId,
                     pagingItems = pagedMessages,
-                    markMessagesRead = { ids ->
-                        onAction(ChatAction.OnReadMessage(ids))
-                    },
                     onAction = onAction,
                     modifier = Modifier
                         .weight(1f)

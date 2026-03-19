@@ -6,6 +6,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.common.utils.execute
 import com.nhuhuy.replee.core.common.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
@@ -17,12 +18,15 @@ import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
+import com.nhuhuy.replee.feature_chat.data.source.message.LocalPathMessageRemoteMediator
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageRemoteMediator
+import com.nhuhuy.replee.feature_chat.domain.model.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
 import com.nhuhuy.replee.feature_chat.domain.model.MessageType
+import com.nhuhuy.replee.feature_chat.domain.model.toLocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -211,4 +215,50 @@ class MessageRepositoryImp @Inject constructor(
             }
         }
     }
+
+    @OptIn(ExperimentalPagingApi::class)
+    override fun observeLocalMessageWithPaging(conversationId: String): Flow<PagingData<LocalPathMessage>> {
+        val messageDao = coreDatabase.provideMessageDao()
+        return Pager(
+            config = PagingConfig(
+                pageSize = 20,
+                initialLoadSize = 20,
+                enablePlaceholders = false,
+                prefetchDistance = 1
+            ),
+            remoteMediator = LocalPathMessageRemoteMediator(
+                conversationId = conversationId,
+                coreDatabase = coreDatabase,
+                messageNetworkDataSource = messageNetworkDataSource
+            )
+        ) {
+            messageDao.getMessagesPagingSource(conversationId)
+        }.flow.map { pagingData ->
+            pagingData.map { messageEntity ->
+                messageEntity.toLocalPathMessage()
+            }
+        }
+
+    }
+
+    override suspend fun markAllMessagesRead(
+        conversationId: String,
+        receiverId: String
+    ): NetworkResult<Unit> {
+        return execute {
+            messageLocalDataSource.updateMessageStatusInConversation(
+                conversationId = conversationId,
+                receiverId = receiverId,
+                status = MessageStatus.SEEN
+            )
+
+            messageNetworkDataSource.updateReceiverMessageStatus(
+                conversationId = conversationId,
+                receiverId = receiverId,
+                status = MessageStatus.SEEN
+            )
+        }
+
+    }
+
 }

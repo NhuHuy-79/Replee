@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ConversationDao : BaseDao<ConversationEntity> {
 
-    @Query("SELECT COUNT(*) FROM conversation WHERE id = :conversationId AND deleted = 0")
+    @Query("Update conversation SET unreadMessageCount = 0 WHERE id = :conversationId")
     suspend fun clearUnreadMessages(conversationId: String)
 
     @Transaction
@@ -32,7 +32,6 @@ interface ConversationDao : BaseDao<ConversationEntity> {
     ) {
         upsertAll(upsert)
         deleteConversationsById(delete)
-
     }
 
     @Query("DELETE FROM conversation WHERE ownerId = :uid")

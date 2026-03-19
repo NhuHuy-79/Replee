@@ -18,6 +18,7 @@ import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocal
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.domain.model.Message
+import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -80,14 +81,15 @@ class ConversationRepositoryImp @Inject constructor(
         }
     }
 
-    override fun observeLocalConversations(ownerId: String): Flow<List<Conversation>> {
+    override fun observeLocalConversationList(ownerId: String): Flow<List<Conversation>> {
         return conversationLocalDataSource.observeConversationAndUsers(ownerId).map { entities ->
             entities.map { entity ->
                 Timber.d("${entity.toConversation()}")
                 entity.toConversation()
             }
-                .filter { conversation ->
-                    conversation.lastMessageContent.isNotBlank()
+                .filterNot { conversation ->
+                    conversation.lastMessageType == MessageType.TEXT &&
+                            conversation.lastMessageContent.isBlank()
 
                 }
         }

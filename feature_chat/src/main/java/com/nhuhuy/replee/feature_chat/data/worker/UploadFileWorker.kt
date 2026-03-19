@@ -11,7 +11,6 @@ import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.core.domain.repository.FileRepository
 import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.data.repository.MESSAGE_ID_INPUT
-import com.nhuhuy.replee.feature_chat.data.repository.URI_PATH_INPUT
 import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
@@ -31,18 +30,35 @@ class UploadFileWorker @AssistedInject constructor(
     private val fileRepository: FileRepository,
     private val messageRepository: MessageRepository,
     private val conversationRepository: ConversationRepository,
+    private val workerScheduler: WorkerScheduler,
     private val syncManager: SyncManager,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : CoroutineWorker(context, params) {
+
+    //Worker now has to get messageId from inputData, Then it wil call a query from database to get
+    // a combined model between MessageEntity and LocalPathEntity
+
+    //Call FileRepository to uploadFileWithUriPath and pass a localPath in combined model.
+
+    //If request is failed, return Retry, else update MessageUrl and Conversation in network and return Success
+
+    //Then send Message and updateConversation. If Failed then
+
     override suspend fun doWork(): Result = withContext(ioDispatcher) {
         val messageId = inputData.getString(MESSAGE_ID_INPUT) ?: return@withContext Result.retry()
-        val uriPath = inputData.getString(URI_PATH_INPUT) ?: return@withContext Result.retry()
+        /*val uriPath = inputData.getString(URI_PATH_INPUT) ?: return@withContext Result.retry()
         val file = File(uriPath)
-
+*/
 
         if (runAttemptCount >= 5) {
-            cleanup(file)
             syncManager.updateMessageStatus(messageId = messageId, status = MessageStatus.FAILED)
+            return@withContext Result.failure()
+        }
+
+        val filePath = fileRepository.getUriPathWithMessageId(messageId)
+
+        if (filePath == null) {
+            Timber.e("Uri Path is null")
             return@withContext Result.failure()
         }
 
@@ -50,7 +66,7 @@ class UploadFileWorker @AssistedInject constructor(
 
         //TODO("Need check message is Exist or not)
 
-        val uploadFileResult = fileRepository.uploadFile(uriPath)
+        val uploadFileResult = fileRepository.uploadFile(filePath.localPath)
 
         return@withContext when (uploadFileResult) {
             is NetworkResult.Failure -> Result.retry()
@@ -66,7 +82,6 @@ class UploadFileWorker @AssistedInject constructor(
 
                 when (messageRepository.sendMessage(message)) {
                     is NetworkResult.Success -> {
-                        cleanup(file)
                         syncManager.updateMessageStatus(
                             messageId = messageId,
                             status = MessageStatus.SYNCED
@@ -84,6 +99,7 @@ class UploadFileWorker @AssistedInject constructor(
                                     conversationId = message.conversationId,
                                     synced = false
                                 )
+                                workerScheduler.scheduleConversationSyncWorker()
                             }
 
                         Result.success()

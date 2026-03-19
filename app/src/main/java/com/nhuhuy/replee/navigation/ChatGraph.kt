@@ -137,6 +137,18 @@ fun EntryProviderScope<NavKey>.chatGraph(
                         message = R.string.file_too_large
                     )
                 }
+
+                ChatEvent.UnSupportedFile -> {
+                    context.showShortToast(
+                        message = R.string.file_unsupported
+                    )
+                }
+
+                ChatEvent.Unknown -> {
+                    context.showShortToast(
+                        message = R.string.file_unknown
+                    )
+                }
             }
         }
 

@@ -7,6 +7,14 @@
     <string name="conversation_my_last_message_image">You \'ve send an image</string>
     <string name="conversation_other_last_message_image"> %1$s sent an image</string>
 
+    <!--Notification Permission-->
+    <string name="notification_permission_denied">
+        Notifications are off. You can enable them in Settings to stay updated on new messages
+    </string>
+    <string name="notification_permission_allowed">
+        Great! You\'ll now receive instant alerts for every new message.
+    </string>
+
     <!--Synchronizing Screen-->
     <string name="sync_screen">Synchronizing…</string>
     <!--Retry Screen-->
@@ -26,6 +34,8 @@
     <string name="full_img_dialog">Close</string>
     <string name="full_img_dialog_error">Cannot load image!</string>
     <string name="file_too_large">Size of file cannot be larger than 100MB.</string>
+    <string name="file_unsupported">File is not supported!</string>
+    <string name="file_unknown">File unknown</string>
 
     <!--Information Screen-->
     <string name="information_screen_pin">Pin</string>
@@ -76,6 +86,5 @@
     <string name="btn_unblock">Unblock</string>
     <!--Validate Nick name-->
     <string name="validate_result_nick_name">Nick name is too long!</string>
-
 
 </resources>

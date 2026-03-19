@@ -20,6 +20,12 @@ import timber.log.Timber
 import javax.inject.Inject
 
 interface MessageNetworkDataSource {
+    suspend fun updateReceiverMessageStatus(
+        conversationId: String,
+        status: MessageStatus,
+        receiverId: String,
+    )
+
     suspend fun sendMessage(message: MessageDTO)
     suspend fun sendMessages(list: List<MessageDTO>): List<String>
     suspend fun fetchMessagesByConversationId(conversationId: String): List<MessageDTO>
@@ -57,6 +63,39 @@ class MessageNetworkDataSourceImp @Inject constructor(
     private val firestore: FirebaseFirestore
 ) : MessageNetworkDataSource {
     private val collection = firestore.collection(Constant.Firestore.CONVERSATION_COLLECTION)
+    override suspend fun updateReceiverMessageStatus(
+        conversationId: String,
+        status: MessageStatus,
+        receiverId: String
+    ) {
+        val snapshots = collection.document(conversationId)
+            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            .whereEqualTo("receiverId", receiverId)
+            .whereEqualTo("status", MessageStatus.SYNCED.name)
+            .get()
+            .await()
+
+        if (snapshots.isEmpty) {
+            Timber.d("Không có tin nhắn nào cần cập nhật trạng thái.")
+            return
+        }
+
+        val documents = snapshots.documents
+
+        optimizedWrite(
+            items = documents,
+            singleWrite = { snapshot ->
+                snapshot.reference.update("status", status.name).await()
+            },
+            batchWrite = { listDocs ->
+                firestore.runBatch { batch ->
+                    listDocs.forEach { doc ->
+                        batch.update(doc.reference, "status", status.name)
+                    }
+                }.await()
+            },
+        )
+    }
 
     override suspend fun sendMessage(message: MessageDTO) {
         val data = mapOf(

@@ -89,16 +89,16 @@ class OptionViewModel @AssistedInject constructor(
                 is OptionAction.OnMute -> {
                     muteUserUseCase(
                         conversationId = conversationId,
-                        otherUserId = otherUserId,
+                        currentUserId = currentUserId,
                         muted = action.enable
                     )
                 }
 
                 is OptionAction.OnPin -> {
                     pinConversationUseCase(
-                        conversationId,
-                        otherUserId,
-                        action.enable
+                        conversationId = conversationId,
+                        currentUserId = currentUserId,
+                        pinned = action.enable
                     )
                 }
 

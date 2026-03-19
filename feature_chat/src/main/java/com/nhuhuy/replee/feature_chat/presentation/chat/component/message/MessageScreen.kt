@@ -23,27 +23,20 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
-import com.nhuhuy.replee.feature_chat.domain.model.Message
-import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
+import com.nhuhuy.replee.feature_chat.domain.model.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -56,8 +49,7 @@ fun MessageScreen(
     onAction: (ChatAction) -> Unit,
     modifier: Modifier = Modifier,
     currentUserId: String,
-    pagingItems: LazyPagingItems<Message>,
-    markMessagesRead: (ids: Set<String>) -> Unit,
+    pagingItems: LazyPagingItems<LocalPathMessage>,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -68,43 +60,10 @@ fun MessageScreen(
         }
     }
 
-    LaunchedEffect(lazyListState, pagingItems) {
-        snapshotFlow { lazyListState.layoutInfo.visibleItemsInfo }
-            .map { visibleInfos ->
-                val count = pagingItems.itemCount
 
-                visibleInfos
-                    .mapNotNull { info ->
-                        val idx = info.index
-                        if (idx in 0 until count) {
-                            pagingItems.peek(idx)?.takeIf { item ->
-                                item.receiverId == currentUserId &&
-                                        item.status != MessageStatus.SEEN
-                            }?.messageId
-
-                        } else null
-                    }
-                    .toSet()
-            }
-            .filter { it.isNotEmpty() }
-            .distinctUntilChanged()
-            .debounce(300)
-            .collect { visibleIds ->
-                Timber.d("visibleIds = $visibleIds")
-                markMessagesRead(visibleIds)
-            }
-    }
-
-    // =========================
-    // 3) Auto scroll to bottom khi có tin nhắn mới
-    //    - chỉ scroll nếu user đang ở bottom
-    // =========================
     val refreshState = pagingItems.loadState.refresh
     val appendState = pagingItems.loadState.append
 
-    // =========================
-    // UI
-    // =========================
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
@@ -118,22 +77,22 @@ fun MessageScreen(
 
             items(
                 count = pagingItems.itemCount,
-                key = pagingItems.itemKey { item -> item.messageId }
+                key = pagingItems.itemKey { item -> item.message.messageId }
             ) { index ->
-                val message = pagingItems[index] ?: return@items
+                val localPathMessage = pagingItems[index] ?: return@items
 
-                when (message.type) {
+                when (localPathMessage.message.type) {
                     MessageType.TEXT -> {
-                        if (message.senderId == currentUserId) {
+                        if (localPathMessage.message.senderId == currentUserId) {
                             MyMessageItem(
                                 isLast = index == 0,
-                                message = message,
+                                message = localPathMessage.message,
                                 modifier = Modifier
                             )
                         } else {
                             OtherMessageItem(
                                 userName = otherUserName,
-                                message = message,
+                                message = localPathMessage.message,
                                 imgUrl = otherUserImg,
                                 modifier = Modifier
                             )
@@ -141,10 +100,10 @@ fun MessageScreen(
                     }
 
                     MessageType.IMAGE -> {
-                        if (message.senderId == currentUserId) {
+                        if (localPathMessage.message.senderId == currentUserId) {
                             ReceiverImageMessageItem(
                                 isLast = index == pagingItems.itemCount - 1,
-                                message = message,
+                                localPathMessage = localPathMessage,
                                 onImagePress = { url: String ->
                                     onAction(ChatAction.OnImagePress(urlKey = url))
                                 },
@@ -154,7 +113,7 @@ fun MessageScreen(
                             SenderImageMessageItem(
                                 senderName = otherUserName,
                                 senderImgUrl = otherUserImg,
-                                message = message,
+                                localPathMessage = localPathMessage,
                                 onImagePress = { url: String ->
                                     onAction(ChatAction.OnImagePress(urlKey = url))
                                 },

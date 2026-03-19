@@ -5,6 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -27,7 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
 import com.nhuhuy.replee.feature_chat.R
@@ -41,12 +42,28 @@ fun ImageMessageContainer(
     showStatus: Boolean = false,
     onClick: (url: String) -> Unit,
     message: Message,
+    localPath: String? = null,
+    width: Int = 0,
+    height: Int = 0,
     containerColor: Color,
     contentColor: Color,
 ) {
-    val imageModel = message.remoteUrl ?: message.localUriPath
+    val imageModel = message.remoteUrl ?: localPath
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val maxWidth: Dp = screenWidth * 0.7f
+    val maxWidth = screenWidth * 0.7f
+    val maxHeight = 350.dp
+
+    val imageModifier = remember(width, height) {
+        if (width > 0 && height > 0) {
+            Modifier
+                .widthIn(max = maxWidth)
+                .aspectRatio((width.toFloat() / height).coerceIn(0.5f, 2f))
+        } else {
+            Modifier
+                .widthIn(max = maxWidth)
+                .heightIn(max = maxHeight)
+        }
+    }
     val shape = RoundedCornerShape(8.dp)
 
     val stringRes: Int? = remember(message.status) {
@@ -67,23 +84,22 @@ fun ImageMessageContainer(
         SubcomposeAsyncImage(
             model = imageModel,
             contentDescription = null,
-            contentScale = ContentScale.Fit,
-            modifier = Modifier
-                .widthIn(max = maxWidth)
-                .heightIn(max = 350.dp)
-                .clip(shape),
+            contentScale = ContentScale.Crop,
+            modifier = imageModifier.clip(shape),
 
             loading = {
                 LoadingStateImage(
                     containerColor = containerColor,
-                    contentColor = contentColor
+                    contentColor = contentColor,
+                    modifier = Modifier.fillMaxSize()
                 )
             },
 
             error = {
                 FailureStateImage(
                     containerColor = containerColor,
-                    contentColor = contentColor
+                    contentColor = contentColor,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         )

@@ -57,10 +57,9 @@ class ConversationNetworkDataSourceImp @Inject constructor(
         conversationId: String,
         uid: String
     ) {
-        val fieldPath = FieldPath.of("unReadMessages", uid)
-
+        val field = mapOf("unReadMessages.${uid}" to 0)
         collection.document(conversationId)
-            .update(fieldPath, 0)
+            .update(field)
             .await()
 
     }
@@ -203,30 +202,22 @@ class ConversationNetworkDataSourceImp @Inject constructor(
     }
 
     override suspend fun updateMutedStatus(conversationId: String, uid: String, muted: Boolean) {
-        val documentRef = collection.document(conversationId)
-        if (muted) {
-            documentRef.update(
-                "isMuted.$uid", true,
-            ).await()
-        } else {
-            documentRef.update(
-                "isMuted.$uid", false,
-            ).await()
-        }
+        val field = FieldPath.of("isMuted", uid)
+        collection.document(conversationId)
+            .update(field, muted)
+            .await()
+
     }
 
     override suspend fun updatePinnedStatus(conversationId: String, uid: String, pinned: Boolean) {
-        val documentRef = collection.document(conversationId)
-        if (pinned) {
-            documentRef.update("isPinned.$uid", true).await()
-        } else {
-            documentRef.update("isPinned.$uid", false).await()
-        }
+        val field = FieldPath.of("isPinned", uid)
+        collection.document(conversationId)
+            .update(field, pinned)
+            .await()
     }
 
     override fun streamConversationsByOwner(ownerId: String): Flow<List<ConversationDTO>> {
         return callbackFlow {
-            // Sửa: Loại bỏ filter rỗng và orderBy thừa để tránh lỗi Index
             val listener = collection
                 .whereArrayContains("memberIds", ownerId)
                 .orderBy("lastMessageTime", Query.Direction.DESCENDING)

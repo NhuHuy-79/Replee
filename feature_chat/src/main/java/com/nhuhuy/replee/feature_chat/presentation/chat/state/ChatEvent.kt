@@ -11,6 +11,8 @@ sealed interface ChatEvent : UiEvent{
     }
 
     data object FileTooLarge : ChatEvent
+    data object UnSupportedFile : ChatEvent
+    data object Unknown : ChatEvent
     data class NavigateToInformation(
         val otherUserImg: String,
         val currentUserId: String,

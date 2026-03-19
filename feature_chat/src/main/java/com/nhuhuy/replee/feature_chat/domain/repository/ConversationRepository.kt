@@ -13,7 +13,7 @@ interface ConversationRepository {
     ): Flow<List<DataChange<Conversation>>>
     suspend fun fetchOtherUserInConversations(ownerId: String)
     suspend fun fetchConversations(): NetworkResult<List<Conversation>>
-    fun observeLocalConversations(ownerId: String): Flow<List<Conversation>>
+    fun observeLocalConversationList(ownerId: String): Flow<List<Conversation>>
     suspend fun saveConversations(conversations: List<Conversation>)
     fun observeConversationById(conversationId: String): Flow<Conversation>
     suspend fun getOrCreateConversation(
@@ -27,6 +27,7 @@ interface ConversationRepository {
     suspend fun updateMetadataConversation(
         message: Message
     ): NetworkResult<Unit>
+
 
     fun observeOtherUserInConversation(currentUserId: String): Flow<List<String>>
     suspend fun markAllMessagesRead(

@@ -2,7 +2,7 @@ package com.nhuhuy.replee.feature_chat.domain.repository
 
 import com.nhuhuy.core.domain.model.NetworkResult
 
-interface ConversationSettingRepository {
+interface OptionRepository {
     suspend fun updateOtherUserNickname(
         uid: String,
         conversationId: String,

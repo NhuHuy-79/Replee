@@ -16,10 +16,12 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.core.domain.model.SearchHistoryResult
@@ -31,11 +33,11 @@ import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.presentation.conversation.component.ConversationList
 import com.nhuhuy.replee.feature_chat.presentation.conversation.component.ConversationSearchBar
+import com.nhuhuy.replee.feature_chat.presentation.conversation.component.NotificationPermissionHandler
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationAction
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationState
 import com.nhuhuy.replee.feature_chat.presentation.shared.Banner
 import com.nhuhuy.replee.feature_chat.presentation.shared.RetryScreen
-import timber.log.Timber
 
 @Composable
 fun ConversationScreen(
@@ -45,8 +47,11 @@ fun ConversationScreen(
     searchHistory: List<SearchHistoryResult>,
     onAction: (ConversationAction) -> Unit
 ) = BoxContainer {
+    val snackBarHost = remember { SnackbarHostState() }
+    val localResource = LocalResources.current
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        snackbarHost = { snackBarHost }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -59,9 +64,22 @@ fun ConversationScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
 
         ) {
-            LaunchedEffect(networkStatus) {
-                Timber.d("Status: $networkStatus")
-            }
+
+            NotificationPermissionHandler(
+                onDeny = {
+                    snackBarHost.showSnackbar(
+                        message = localResource.getString(R.string.notification_permission_denied),
+                        actionLabel = null
+                    )
+                },
+                onAllow = {
+                    snackBarHost.showSnackbar(
+                        message = localResource.getString(R.string.notification_permission_allowed),
+                        actionLabel = null
+                    )
+                }
+            )
+
             AnimatedVisibility(
                 visible = networkStatus is NetworkStatus.Offline,
                 enter = fadeIn(),

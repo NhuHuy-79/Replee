@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import com.nhuhuy.replee.core.database.base.BaseDao
+import com.nhuhuy.replee.core.database.entity.file_path.MessageWithLocalPath
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -82,6 +83,10 @@ interface MessageDao : BaseDao<MessageEntity> {
     @Query("DELETE FROM message WHERE conversationId = :conversationId")
     suspend fun clearByConversationId(conversationId: String)
 
+    @Transaction
+    @Query("SELECT * FROM message WHERE conversationId = :conversationId ORDER BY sentAt DESC, messageId DESC ")
+    fun getMessagesPagingSource(conversationId: String): PagingSource<Int, MessageWithLocalPath>
+
     @Query(
         """
         SELECT sentAt FROM message
@@ -100,5 +105,12 @@ interface MessageDao : BaseDao<MessageEntity> {
 
     @Query("UPDATE message SET remoteUrl = :remoteUrl, status = :status WHERE messageId = :messageId")
     suspend fun updateRemoteUrlAndStatus(messageId: String, remoteUrl: String, status: String)
+
+    @Query("UPDATE message SET status = :status WHERE conversationId = :conversationId AND receiverId = :receiverId AND status != :status")
+    fun updateMessageStatusInConversation(
+        conversationId: String,
+        receiverId: String,
+        status: String
+    )
 }
 

@@ -1,19 +1,20 @@
 package com.nhuhuy.replee.feature_chat.data.repository
 
 import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.common.utils.execute
 import com.nhuhuy.replee.core.common.utils.executeWithTimeout
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
-import com.nhuhuy.replee.feature_chat.domain.repository.ConversationSettingRepository
+import com.nhuhuy.replee.feature_chat.domain.repository.OptionRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import timber.log.Timber
 import javax.inject.Inject
 
-class ConversationSettingRepositoryImp @Inject constructor(
+class OptionRepositoryImp @Inject constructor(
     private val ioDispatcher: CoroutineDispatcher,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource
-) : ConversationSettingRepository {
+) : OptionRepository {
 
     override suspend fun updateOtherUserNickname(
         uid: String,
@@ -38,9 +39,13 @@ class ConversationSettingRepositoryImp @Inject constructor(
         otherUser: String,
         muted: Boolean
     ): NetworkResult<Unit> {
-        return executeWithTimeout {
+        return execute {
             conversationLocalDataSource.updateMutedStatus(conversationId, muted)
-            conversationNetworkDataSource.updateMutedStatus(conversationId, otherUser, muted)
+            conversationNetworkDataSource.updateMutedStatus(
+                conversationId = conversationId,
+                uid = otherUser,
+                muted = muted
+            )
         }
     }
 
@@ -49,12 +54,12 @@ class ConversationSettingRepositoryImp @Inject constructor(
         currentUser: String,
         pinned: Boolean
     ): NetworkResult<Unit> {
-        return executeWithTimeout {
+        return execute {
             conversationLocalDataSource.updatePinnedStatus(conversationId, pinned)
             conversationNetworkDataSource.updatePinnedStatus(
-                conversationId,
-                currentUser,
-                pinned
+                conversationId = conversationId,
+                uid = currentUser,
+                pinned = pinned
             )
         }
     }
