@@ -28,15 +28,15 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 import timber.log.Timber
 
 @HiltViewModel(assistedFactory = ChatViewModel.Factory::class)
@@ -56,10 +56,6 @@ class ChatViewModel @AssistedInject constructor(
     private val sendFileMessageUseCase: SendFileMessageUseCase,
     private val validateFileSizeUseCase: ValidateFileSizeUseCase,
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
-
-
-    //Need to get a combineModel MessageWithLocalUri For Ui. Then
-
     private val conversationId
         get() = createConversationId(
             uid1 = currentUserId,
@@ -68,7 +64,6 @@ class ChatViewModel @AssistedInject constructor(
     val blocked = observeOwnerIsBlockUseCase(ownerId = currentUserId, otherUserId = otherUserId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
     private val _state = MutableStateFlow(ChatState(currentUserId = currentUserId))
-    private var listenJob: Job? = null
 
     val pagedMessages = pagingMessagesUseCase(conversationId)
         .cachedIn(viewModelScope)
@@ -86,32 +81,38 @@ class ChatViewModel @AssistedInject constructor(
 
     private fun loadInitialData() {
         viewModelScope.launch {
-            launch {
-                isOwnerBLock()
-                val otherUser = getAccountByIdUseCase(uid = otherUserId)
-                _state.reduce { copy(otherUser = otherUser) }
-            }
+            supervisorScope {
+                launch {
+                    val blockedDeferred = async {
+                        checkBlockUseCase(currentUserId, otherUserId)
+                    }
 
-            launch {
-                getConversationUseCase(ownerId = currentUserId, otherUserId = otherUserId)
+                    val userDeferred = async {
+                        getAccountByIdUseCase(otherUserId)
+                    }
+
+                    val blocked = blockedDeferred.await()
+                    val user = userDeferred.await()
+
+                    _state.reduce {
+                        copy(
+                            isBlocked = blocked,
+                            otherUser = user
+                        )
+                    }
+                }
+
+                launch {
+                    getConversationUseCase(currentUserId, otherUserId)
+                }
             }
         }
     }
 
-    private suspend fun isOwnerBLock() {
-        val blocked = checkBlockUseCase(ownerId = currentUserId, otherUserId = otherUserId)
-        _state.reduce { copy(isBlocked = blocked) }
-    }
-
     private fun listenToMessageChange() {
-        listenJob?.cancel()
-        listenJob = viewModelScope.launch(Dispatchers.IO) {
-            Timber.d("Message Listen Thread: ${Thread.currentThread()}")
-            Timber.d("Start Listen to Message")
-
+        viewModelScope.launch {
             listenMessageChangeUseCase(conversationId = conversationId)
                 .collect { dataChanges ->
-                    Timber.d("Message Change: $dataChanges")
                     updateMessageChangeUseCase(dataChanges)
                 }
         }
@@ -216,13 +217,6 @@ class ChatViewModel @AssistedInject constructor(
             @Assisted("otherUserId") otherUserId: String,
             @Assisted("currentUserId") currentUserId: String,
         ): ChatViewModel
-    }
-
-    override fun onCleared() {
-        Timber.e("ViewModel Cancel and Stop Listening")
-        listenJob?.cancel()
-        listenJob = null
-        super.onCleared()
     }
 
     private fun createConversationId(uid1: String, uid2: String): String {
