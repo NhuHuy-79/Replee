@@ -35,6 +35,8 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import com.nhuhuy.replee.feature_chat.domain.model.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.model.MessageType
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.image.ReceiverImageMessageItem
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.image.SenderImageMessageItem
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch

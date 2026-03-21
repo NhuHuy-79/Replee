@@ -175,8 +175,6 @@ fun EntryProviderScope<NavKey>.chatGraph(
         )
 
         val state by viewModel.state.collectAsStateWithLifecycle()
-        val conversation by viewModel.conversation.collectAsStateWithLifecycle()
-
         ObserveEffect(viewModel.event) { event ->
             when (event) {
                 OptionEvent.NavigateBack -> backstack.removeLastOrNull()
@@ -187,7 +185,6 @@ fun EntryProviderScope<NavKey>.chatGraph(
         }
 
         OptionScreen(
-            conversation = conversation,
             state = state,
             onAction = viewModel::onAction
         )

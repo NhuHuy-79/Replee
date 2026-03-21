@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.chat.component.message
+package com.nhuhuy.replee.feature_chat.presentation.chat.component.image
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
@@ -50,14 +50,14 @@ fun ImageMessageContainer(
 ) {
     val imageModel = message.remoteUrl ?: localPath
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val maxWidth = screenWidth * 0.7f
+    val maxWidth = screenWidth * 0.6f
     val maxHeight = 350.dp
 
     val imageModifier = remember(width, height) {
         if (width > 0 && height > 0) {
             Modifier
                 .widthIn(max = maxWidth)
-                .aspectRatio((width.toFloat() / height).coerceIn(0.5f, 2f))
+                .aspectRatio((width.toFloat() / height).coerceIn(0.3f, 2f))
         } else {
             Modifier
                 .widthIn(max = maxWidth)
@@ -84,7 +84,7 @@ fun ImageMessageContainer(
         SubcomposeAsyncImage(
             model = imageModel,
             contentDescription = null,
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.FillWidth,
             modifier = imageModifier.clip(shape),
 
             loading = {

@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.chat.component.message
+package com.nhuhuy.replee.feature_chat.presentation.chat.component.image
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row

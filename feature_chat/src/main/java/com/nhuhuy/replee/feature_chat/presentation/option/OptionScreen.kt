@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.design_system.component.AlertDialogContainer
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.feature_chat.R
-import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.presentation.option.component.InformationUser
 import com.nhuhuy.replee.feature_chat.presentation.option.component.SecondaryOption
 import com.nhuhuy.replee.feature_chat.presentation.option.component.SecondaryOptionItem
@@ -37,7 +36,6 @@ import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionState
 
 @Composable
 fun OptionScreen(
-    conversation: Conversation,
     state: OptionState,
     onAction: (OptionAction) -> Unit
 ) = BoxContainer {
@@ -73,7 +71,7 @@ fun OptionScreen(
                 ToggleableItem(
                     res = R.string.setting_pin_conversation,
                     subRes = R.string.setting_pin_conversation_sub,
-                    checked = conversation.pinned,
+                    checked = state.pinConversation,
                     onCheckedChange = { pinned ->
                         onAction(OptionAction.OnPin(pinned))
                     },
@@ -91,7 +89,7 @@ fun OptionScreen(
                 ToggleableItem(
                     res = R.string.setting_mute_conversation,
                     subRes = R.string.setting_mute_conversation_sub,
-                    checked = conversation.muted,
+                    checked = state.muteConversation,
                     onCheckedChange = { muted ->
                         onAction(OptionAction.OnMute(muted))
                     },

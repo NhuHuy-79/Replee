@@ -16,6 +16,9 @@ data class OptionState(
     val otherUserImg: String = "",
     val overlay: OptionOverlay = OptionOverlay.NONE,
     val otherUserNickName: ValidatableInput = ValidatableInput(),
+
+    val muteConversation: Boolean = false,
+    val pinConversation: Boolean = false,
 ) : UiState
 
 enum class OptionOverlay {

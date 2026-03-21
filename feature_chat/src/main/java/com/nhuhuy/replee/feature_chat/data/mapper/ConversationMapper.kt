@@ -76,6 +76,7 @@ fun ConversationAndUser.toUpdatePatch(uid: String): Map<String, Any> {
 fun ConversationDTO.toConversation(
     ownerId: String
 ): Conversation? {
+
     val otherUserId = memberIds.firstOrNull { it != ownerId }
 
     if (otherUserId == null) {

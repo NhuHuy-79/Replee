@@ -28,6 +28,7 @@ interface ConversationRepository {
         message: Message
     ): NetworkResult<Unit>
 
+    suspend fun getConversationById(conversationId: String): Conversation
 
     fun observeOtherUserInConversation(currentUserId: String): Flow<List<String>>
     suspend fun markAllMessagesRead(

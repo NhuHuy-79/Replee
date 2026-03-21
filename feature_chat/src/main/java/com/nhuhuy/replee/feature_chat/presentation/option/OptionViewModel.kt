@@ -5,7 +5,6 @@ import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
-import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.BlockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.option.DeleteConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.option.LoadConversationInformationUseCase
@@ -22,10 +21,8 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = OptionViewModel.Factory::class)
@@ -44,9 +41,6 @@ class OptionViewModel @AssistedInject constructor(
     private val updateOtherNickNameUseCase: UpdateOtherNickNameUseCase,
     private val inputValidator: InputValidator,
 ) : BaseViewModel<OptionAction, OptionEvent, OptionState>() {
-    val conversation = loadConversationInformationUseCase(conversationId)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Conversation())
-
     private val _state = MutableStateFlow(
         OptionState(
             otherUserImg = otherUserImg,
@@ -55,6 +49,19 @@ class OptionViewModel @AssistedInject constructor(
             otherUserEmail = otherUserEmail
         )
     )
+
+    init {
+        viewModelScope.launch {
+            val conversation = loadConversationInformationUseCase(conversationId)
+            _state.reduce {
+                copy(
+                    pinConversation = conversation.pinned,
+                    muteConversation = conversation.muted
+                )
+            }
+        }
+    }
+
     override val state: StateFlow<OptionState>
         get() = _state.asStateFlow()
 
@@ -87,6 +94,7 @@ class OptionViewModel @AssistedInject constructor(
                 }
 
                 is OptionAction.OnMute -> {
+                    _state.reduce { copy(muteConversation = action.enable) }
                     muteUserUseCase(
                         conversationId = conversationId,
                         currentUserId = currentUserId,
@@ -95,6 +103,7 @@ class OptionViewModel @AssistedInject constructor(
                 }
 
                 is OptionAction.OnPin -> {
+                    _state.reduce { copy(pinConversation = action.enable) }
                     pinConversationUseCase(
                         conversationId = conversationId,
                         currentUserId = currentUserId,
@@ -126,6 +135,12 @@ class OptionViewModel @AssistedInject constructor(
 
                 OptionAction.OnNickNameSet -> {
                     val otherUserNickname = state.value.otherUserNickName
+                    _state.reduce {
+                        copy(
+                            otherUserNickName = ValidatableInput(),
+                            overlay = OptionOverlay.NONE
+                        )
+                    }
                     if (otherUserNickname.text.isNotEmpty()) {
                         updateOtherNickNameUseCase(
                             uid = otherUserId,
@@ -133,12 +148,7 @@ class OptionViewModel @AssistedInject constructor(
                             nickName = otherUserNickname.text
                         )
                     }
-                    _state.reduce {
-                        copy(
-                            otherUserNickName = ValidatableInput(),
-                            overlay = OptionOverlay.NONE
-                        )
-                    }
+
                 }
             }
         }

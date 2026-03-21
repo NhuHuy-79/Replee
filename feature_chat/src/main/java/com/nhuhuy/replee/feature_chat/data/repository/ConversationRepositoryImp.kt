@@ -4,7 +4,6 @@ import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.common.mapper.toAccountEntity
 import com.nhuhuy.replee.core.common.utils.execute
-import com.nhuhuy.replee.core.common.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.network.model.DataChange
@@ -115,7 +114,7 @@ class ConversationRepositoryImp @Inject constructor(
         ownerId: String,
         otherUserId: String
     ): NetworkResult<String> {
-        return executeWithTimeout {
+        return execute(ioDispatcher) {
             val entity = conversationLocalDataSource.getConversationAndUserById(
                 ownerId = ownerId,
                 otherUserId = otherUserId
@@ -165,6 +164,13 @@ class ConversationRepositoryImp @Inject constructor(
                 message = messageDTO,
                 conversation = conversationDTO
             )
+        }
+    }
+
+    override suspend fun getConversationById(conversationId: String): Conversation {
+        return withContext(ioDispatcher) {
+            conversationLocalDataSource.getConversationById(conversationId)?.toConversation()
+                ?: Conversation()
         }
     }
 
