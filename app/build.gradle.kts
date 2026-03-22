@@ -84,8 +84,6 @@ dependencies {
     implementation("androidx.paging:paging-runtime:3.3.0")
     implementation("androidx.paging:paging-compose:3.3.0")
 
-    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
-
     //Hilt
     implementation(libs.dagger.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)

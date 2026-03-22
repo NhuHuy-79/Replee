@@ -16,7 +16,7 @@ kotlinxCoroutinesTest = "1.10.2"
 kotlinxSerializationJson = "1.7.3"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.2"
-composeBom = "2024.09.00"
+composeBom = "2025.12.00"
 appcompat = "1.7.1"
 material = "1.13.0"
 
@@ -42,7 +42,6 @@ turbine = "1.2.1"
 uiTooling = "1.10.0"
 jetbrainsKotlinJvm = "2.0.21"
 junitJunit = "4.12"
-uiTextGoogleFonts = "1.10.0"
 workRuntimeKtx = "2.11.0"
 firebaseDatabase = "22.0.1"
 
@@ -102,7 +101,6 @@ truth = { module = "com.google.truth:truth", version.ref = "truth" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "uiTooling" }
 junit-junit = { group = "junit", name = "junit", version.ref = "junitJunit" }
-androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 
 

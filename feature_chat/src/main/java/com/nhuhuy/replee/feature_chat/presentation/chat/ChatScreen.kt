@@ -177,7 +177,6 @@ fun ChatTopBar(
     onBackClick: () -> Unit,
     onSearchClick: () -> Unit,
     onMoreClick: () -> Unit,
-
     ) {
     TopAppBar(
         modifier = modifier,

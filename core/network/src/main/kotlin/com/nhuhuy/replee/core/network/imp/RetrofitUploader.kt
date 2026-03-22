@@ -6,7 +6,7 @@ import com.nhuhuy.replee.core.network.data_source.UploadFileService
 import kotlinx.coroutines.flow.Flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
@@ -31,9 +31,10 @@ class RetrofitUploader @Inject constructor(
 
         if (!file.exists()) throw IOException("File tạm không tồn tại: $uriPath")
 
-        val requestFile = RequestBody.create(
+        val content = file.readBytes()
+        val requestFile = content.toRequestBody(
             "image/jpeg".toMediaTypeOrNull(),
-            file.readBytes()
+            0, content.size
         )
 
         val filePart = MultipartBody.Part.createFormData(
@@ -42,10 +43,8 @@ class RetrofitUploader @Inject constructor(
             requestFile
         )
 
-        val presetPart = RequestBody.create(
-            "text/plain".toMediaTypeOrNull(),
-            "replee_chat_img"
-        )
+        val presetPart = "replee_chat_img"
+            .toRequestBody("text/plain".toMediaTypeOrNull())
 
         return api.uploadImage(filePart, presetPart).body()?.secureUrl
             ?: throw IOException("Upload failed")
