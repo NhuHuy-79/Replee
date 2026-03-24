@@ -1,17 +1,17 @@
 package com.nhuhuy.replee.di
 
+import com.nhuhuy.replee.core.common.data.data_source.file_path.FilePathLocalDataSource
+import com.nhuhuy.replee.core.common.data.data_source.file_path.FilePathLocalDataSourceImp
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSourceImp
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSourceImp
-import com.nhuhuy.replee.core.network.data_source.CloudinaryFileUploader
 import com.nhuhuy.replee.core.network.data_source.FirebasePresenceDataSource
 import com.nhuhuy.replee.core.network.data_source.PresenceNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.PushNotificationNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.PushNotificationNetworkDataSourceImp
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
 import com.nhuhuy.replee.core.network.imp.RetrofitUploader
-import com.nhuhuy.replee.core.network.quailify.Cloudinary
 import com.nhuhuy.replee.core.network.quailify.Retrofit
 import com.nhuhuy.replee.feature_auth.data.data_source.AuthNetworkDataSource
 import com.nhuhuy.replee.feature_auth.data.data_source.AuthNetworkDataSourceImp
@@ -19,8 +19,6 @@ import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocal
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSourceImp
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSourceImp
-import com.nhuhuy.replee.feature_chat.data.source.file_path.FilePathLocalDataSource
-import com.nhuhuy.replee.feature_chat.data.source.file_path.FilePathLocalDataSourceImp
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSourceImp
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
@@ -68,10 +66,6 @@ abstract class DataSourceModuleBinder {
         imp: FilePathLocalDataSourceImp
     ): FilePathLocalDataSource
 
-    //Profile Module
-    @Binds
-    @Cloudinary
-    abstract fun bindCloudinaryFileUploader(impl: CloudinaryFileUploader): UploadFileService
 
     @Binds
     abstract fun bindProfileLocalDataSource(imp: ProfileLocalDataSourceImp): ProfileLocalDataSource

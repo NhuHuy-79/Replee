@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.core.network.imp
 
+import android.webkit.MimeTypeMap
 import com.nhuhuy.core.domain.model.UploadFileState
 import com.nhuhuy.replee.core.network.api.cloudinary.CloudinaryApi
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
@@ -14,22 +15,62 @@ import javax.inject.Inject
 class RetrofitUploader @Inject constructor(
     private val api: CloudinaryApi
 ) : UploadFileService {
-    override suspend fun uploadFiles(uriPaths: List<String>): List<String> {
-        TODO("Not yet implemented")
+
+    override suspend fun uploadImageWithOption(
+        uriPath: String,
+        folder: String,
+        option: Map<String, String>
+    ): String {
+        val file = File(uriPath)
+        if (!file.exists()) throw IOException("Fil doesn't exist: $uriPath")
+
+        val extension = MimeTypeMap.getFileExtensionFromUrl(uriPath)
+        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension) ?: "image/*"
+
+        val requestFile = file.readBytes().toRequestBody(
+            mimeType.toMediaTypeOrNull(),
+            0, file.length().toInt()
+        )
+
+        val filePart = MultipartBody.Part.createFormData(
+            "file",
+            file.name,
+            requestFile
+        )
+
+        val presetPart = "replee_chat_img".toRequestBody("text/plain".toMediaTypeOrNull())
+        val folderPart = folder.toRequestBody("text/plain".toMediaTypeOrNull())
+
+        val qualityPart = "auto".toRequestBody("text/plain".toMediaTypeOrNull())
+
+        return try {
+            val response = api.uploadImage(
+                cloudName = "dgq6g8u5h",
+                file = filePart,
+                preset = presetPart,
+
+                folder = folderPart,
+                quality = qualityPart
+            )
+
+            response.body()?.secureUrl ?: throw IOException(
+                "Upload failed: ${
+                    response.errorBody()?.string()
+                }"
+            )
+        } catch (e: Exception) {
+            throw IOException("Error: ${e.message}")
+        }
     }
 
     override suspend fun uploadMessageWithUri(messageAndUri: Map<String, String>): Map<String, String> {
         TODO("Not yet implemented")
     }
 
-    override suspend fun uploadImageWithByteArray(byteArray: ByteArray): String {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun uploadImageWithUriPath(uriPath: String): String {
         val file = File(uriPath)
 
-        if (!file.exists()) throw IOException("File tạm không tồn tại: $uriPath")
+        if (!file.exists()) throw IOException("File doesn't exist : $uriPath")
 
         val content = file.readBytes()
         val requestFile = content.toRequestBody(

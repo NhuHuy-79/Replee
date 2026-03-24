@@ -7,13 +7,13 @@ import com.nhuhuy.core.domain.model.onFailure
 import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
+import com.nhuhuy.replee.core.common.base.ScreenState
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.core.common.data.data_store.AppDataStore
-import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.common.utils.InputValidator
+import com.nhuhuy.replee.core.data.data_store.AppDataStore
+import com.nhuhuy.replee.core.data.mapper.toRemoteFailure
+import com.nhuhuy.replee.core.data.mapper.toScreenState
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
-import com.nhuhuy.replee.core.design_system.state.ScreenState
-import com.nhuhuy.replee.core.design_system.state.toScreenState
 import com.nhuhuy.replee.feature_profile.domain.usecase.LogOutUseCase
 import com.nhuhuy.replee.feature_profile.domain.usecase.UpdatePasswordUseCase
 import com.nhuhuy.replee.feature_profile.domain.usecase.UploadAvatarUseCase
@@ -166,16 +166,10 @@ class ProfileViewModel @Inject constructor(
 
                 is ProfileAction.OnPhotoPicker.Select -> {
                     _profileActionResult.reduce { copy(updateAvatarLoading = true) }
-                    uploadAvatarUseCase(action.uri.toString())
-                        .onSuccess {
-                            _profileActionResult.reduce { copy(updateAvatarLoading = false) }
-                            onEvent(ProfileEvent.UpdateAvatar.Success)
-                        }
-                        .onFailure {
-                            _profileActionResult.reduce { copy(updateAvatarLoading = false) }
-                            onEvent(ProfileEvent.UpdateAvatar.Failure)
-                        }
-
+                    uploadAvatarUseCase(
+                        uid = state.value.account.id,
+                        uriPath = action.uri.toString()
+                    )
                 }
 
                 ProfileAction.OnEditDialogOpen -> {

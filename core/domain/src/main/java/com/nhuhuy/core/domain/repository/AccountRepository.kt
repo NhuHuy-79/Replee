@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface AccountRepository {
     suspend fun createAccount(token: String, account: Account): NetworkResult<Account>
-    suspend fun createAccount(account: Account): NetworkResult<Account>
     suspend fun fetchAccount(uid: String): NetworkResult<String>
     suspend fun fetchAccountList(uids: List<String>): NetworkResult<Unit>
     suspend fun updateDeviceToken(token: String): NetworkResult<Unit>
@@ -20,4 +19,5 @@ interface AccountRepository {
     suspend fun isBlocked(owner: String, otherUser: String): Boolean
     suspend fun updateHistory(ownerId: String, list: List<SearchHistoryResult>)
     fun getSearchHistory(owner: String): Flow<List<SearchHistoryResult>>
+    suspend fun updateUserImage(uid: String, remoteUrl: String): NetworkResult<String>
 }

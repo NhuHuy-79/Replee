@@ -3,9 +3,9 @@ package com.nhuhuy.replee.feature_profile
 import android.content.Context
 import app.cash.turbine.test
 import com.google.common.truth.Truth
-import com.nhuhuy.replee.core.common.data.data_store.AppDataStore
-import com.nhuhuy.replee.core.common.data.data_store.AppDataStoreImp
-import com.nhuhuy.replee.core.common.data.data_store.NotificationMode
+import com.nhuhuy.replee.core.data.data_store.AppDataStore
+import com.nhuhuy.replee.core.data.data_store.AppDataStoreImp
+import com.nhuhuy.replee.core.data.data_store.NotificationMode
 import com.nhuhuy.replee.core.test.DispatcherRuleTest
 import io.mockk.coEvery
 import kotlinx.coroutines.test.runTest

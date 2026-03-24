@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_auth.presentation.login
 
 import com.nhuhuy.replee.core.common.base.UiEvent
-import com.nhuhuy.replee.core.common.data.model.RemoteFailure
+import com.nhuhuy.replee.core.common.error.RemoteFailure
 import com.nhuhuy.replee.feature_auth.data.model.GoogleCredentialResult
 
 sealed interface LoginEvent : UiEvent{

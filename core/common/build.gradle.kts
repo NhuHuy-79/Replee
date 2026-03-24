@@ -35,24 +35,16 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:network"))
-    implementation(project(":core:database"))
-    implementation(project(":core:domain"))
 
     //Hilt
-    implementation(libs.dagger.hilt.android)
-    implementation(libs.androidx.hilt.navigation.compose)
+    api(libs.dagger.hilt.android)
     ksp(libs.hilt.android.compiler)
 
-    //Work Manager
-    api(libs.androidx.work.runtime.ktx)
-    api(libs.androidx.hilt.work)
-    ksp(libs.androidx.hilt.compiler)
-
-    api( libs.androidx.datastore.preferences)
     api(libs.flow.operators)
-    api(libs.androidx.material.icons.extended)
     api(libs.timber)
+
+    // UI related (keep if common UI is here, otherwise move to design-system)
+    api(libs.androidx.material.icons.extended)
     api(libs.coil.compose)
     api(libs.coil.network.okhttp)
 
@@ -60,6 +52,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

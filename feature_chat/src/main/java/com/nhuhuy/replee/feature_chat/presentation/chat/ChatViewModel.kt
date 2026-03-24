@@ -15,7 +15,7 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversatio
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.SendFileMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.ValidateFileSizeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ListenMessageChangeUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.message.PagingMessagesUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveLocalMessagesUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ReadMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.UpdateMessageChangeUseCase
@@ -51,7 +51,7 @@ class ChatViewModel @AssistedInject constructor(
     private val listenMessageChangeUseCase: ListenMessageChangeUseCase,
     private val updateMessageChangeUseCase: UpdateMessageChangeUseCase,
     private val getConversationUseCase: GetConversationUseCase,
-    private val pagingMessagesUseCase: PagingMessagesUseCase,
+    private val observeLocalMessagesUseCase: ObserveLocalMessagesUseCase,
     private val checkBlockUseCase: CheckBlockUseCase,
     private val sendFileMessageUseCase: SendFileMessageUseCase,
     private val validateFileSizeUseCase: ValidateFileSizeUseCase,
@@ -65,7 +65,7 @@ class ChatViewModel @AssistedInject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
     private val _state = MutableStateFlow(ChatState(currentUserId = currentUserId))
 
-    val pagedMessages = pagingMessagesUseCase(conversationId)
+    val pagedMessages = observeLocalMessagesUseCase(conversationId)
         .cachedIn(viewModelScope)
 
 
@@ -73,6 +73,7 @@ class ChatViewModel @AssistedInject constructor(
         get() = _state.asStateFlow()
 
     init {
+
         loadInitialData()
 
         //Listen to Message
@@ -104,6 +105,13 @@ class ChatViewModel @AssistedInject constructor(
 
                 launch {
                     getConversationUseCase(currentUserId, otherUserId)
+                }
+
+                launch {
+                    readMessageUseCase(
+                        conversationId = conversationId,
+                        receiverId = currentUserId
+                    )
                 }
             }
         }
@@ -139,14 +147,6 @@ class ChatViewModel @AssistedInject constructor(
                 }
 
                 ChatAction.OnBackClick -> onEvent(ChatEvent.NavigateBack)
-                is ChatAction.OnReadMessage -> {
-                    readMessageUseCase(
-                        messageIds = action.ids.toList(),
-                        conversationId = conversationId,
-                        receiverId = currentUserId
-                    )
-                }
-
                 ChatAction.OnMoreClick -> {
                     val otherUser = state.value.otherUser
                     onEvent(

@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.core.design_system.component
 
 import androidx.compose.runtime.Immutable
-import com.nhuhuy.replee.core.common.data.model.ValidateResult
+import com.nhuhuy.replee.core.common.base.ValidateResult
 
 @Immutable
 data class ValidatableInput(

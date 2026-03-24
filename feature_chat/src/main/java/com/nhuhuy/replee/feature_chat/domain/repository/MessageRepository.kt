@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface MessageRepository {
     suspend fun sendMessage(message: Message): NetworkResult<String>
-    suspend fun sendImage(rawMessage: Message, uriPath: String): NetworkResult<String>
     suspend fun saveMessage(message: Message): String
     suspend fun markMessagesAsRead(
         messageIds: List<String>,

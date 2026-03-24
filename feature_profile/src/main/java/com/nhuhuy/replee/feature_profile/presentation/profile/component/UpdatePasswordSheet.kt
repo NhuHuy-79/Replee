@@ -26,10 +26,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.nhuhuy.replee.core.common.base.ScreenState
+import com.nhuhuy.replee.core.design_system.ScreenStateHost
 import com.nhuhuy.replee.core.design_system.component.CommonButton
 import com.nhuhuy.replee.core.design_system.component.SecureTextField
-import com.nhuhuy.replee.core.design_system.state.ScreenState
-import com.nhuhuy.replee.core.design_system.state.ScreenStateHost
 import com.nhuhuy.replee.feature_profile.R
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileState
 import com.nhuhuy.replee.feature_profile.utils.toUiText

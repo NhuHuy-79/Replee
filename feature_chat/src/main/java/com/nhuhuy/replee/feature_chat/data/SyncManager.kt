@@ -1,9 +1,9 @@
 package com.nhuhuy.replee.feature_chat.data
 
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.replee.core.common.utils.execute
+import com.nhuhuy.replee.core.data.utils.execute
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
-import com.nhuhuy.replee.core.network.quailify.Cloudinary
+import com.nhuhuy.replee.core.network.quailify.Retrofit
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toUpdatePatch
@@ -31,7 +31,7 @@ interface SyncManager {
 private const val CLEAN_UP_LIMIT: Int = 250
 
 class SyncManagerImp @Inject constructor(
-    @Cloudinary private val uploadFileService: UploadFileService,
+    @Retrofit private val uploadFileService: UploadFileService,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val messageLocalDataSource: MessageLocalDataSource,
     private val messageNetworkDataSource: MessageNetworkDataSource,

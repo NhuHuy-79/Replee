@@ -5,8 +5,8 @@ import com.google.common.truth.Truth
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
-import com.nhuhuy.replee.core.common.data.data_store.AppDataStore
 import com.nhuhuy.replee.core.common.utils.InputValidator
+import com.nhuhuy.replee.core.data.data_store.AppDataStore
 import com.nhuhuy.replee.core.test.DispatcherRuleTest
 import com.nhuhuy.replee.feature_profile.domain.usecase.LogOutUseCase
 import com.nhuhuy.replee.feature_profile.domain.usecase.UpdatePasswordUseCase

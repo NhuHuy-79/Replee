@@ -20,7 +20,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.io.File
 
 @HiltWorker
 class UploadFileWorker @AssistedInject constructor(
@@ -34,21 +33,8 @@ class UploadFileWorker @AssistedInject constructor(
     private val syncManager: SyncManager,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : CoroutineWorker(context, params) {
-
-    //Worker now has to get messageId from inputData, Then it wil call a query from database to get
-    // a combined model between MessageEntity and LocalPathEntity
-
-    //Call FileRepository to uploadFileWithUriPath and pass a localPath in combined model.
-
-    //If request is failed, return Retry, else update MessageUrl and Conversation in network and return Success
-
-    //Then send Message and updateConversation. If Failed then
-
     override suspend fun doWork(): Result = withContext(ioDispatcher) {
         val messageId = inputData.getString(MESSAGE_ID_INPUT) ?: return@withContext Result.retry()
-        /*val uriPath = inputData.getString(URI_PATH_INPUT) ?: return@withContext Result.retry()
-        val file = File(uriPath)
-*/
 
         if (runAttemptCount >= 5) {
             syncManager.updateMessageStatus(messageId = messageId, status = MessageStatus.FAILED)
@@ -64,13 +50,12 @@ class UploadFileWorker @AssistedInject constructor(
 
         sessionManager.getUserIdOrNull() ?: return@withContext Result.failure()
 
-        //TODO("Need check message is Exist or not)
-
-        val uploadFileResult = fileRepository.uploadFile(filePath.localPath)
+        val uploadFileResult = fileRepository.uploadFile(uriPath = filePath.localPath)
 
         return@withContext when (uploadFileResult) {
             is NetworkResult.Failure -> Result.retry()
             is NetworkResult.Success -> {
+
                 val remoteUrl = uploadFileResult.data
                 Timber.d("RemoteURL : $remoteUrl")
                 val message = messageRepository.updateRemoteUrlMessage(
@@ -78,7 +63,6 @@ class UploadFileWorker @AssistedInject constructor(
                     remoteUrl = remoteUrl,
                     status = MessageStatus.PENDING
                 ) ?: return@withContext Result.retry()
-
 
                 when (messageRepository.sendMessage(message)) {
                     is NetworkResult.Success -> {
@@ -111,9 +95,5 @@ class UploadFileWorker @AssistedInject constructor(
                 }
             }
         }
-    }
-
-    private fun cleanup(file: File) {
-        if (file.exists()) file.delete()
     }
 }

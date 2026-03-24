@@ -1,9 +1,9 @@
 package com.nhuhuy.replee.feature_chat.presentation.option.state
 
 import androidx.compose.runtime.Immutable
+import com.nhuhuy.replee.core.common.base.ScreenState
 import com.nhuhuy.replee.core.common.base.UiState
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
-import com.nhuhuy.replee.core.design_system.state.ScreenState
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
 
 @Immutable

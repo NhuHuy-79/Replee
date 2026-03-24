@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_auth.presentation.recover_password
 
 import com.nhuhuy.replee.core.common.base.UiEvent
-import com.nhuhuy.replee.core.common.data.model.RemoteFailure
+import com.nhuhuy.replee.core.common.error.RemoteFailure
 
 sealed interface RecoverPasswordEvent : UiEvent{
     data object SendEmailSuccessfully : RecoverPasswordEvent

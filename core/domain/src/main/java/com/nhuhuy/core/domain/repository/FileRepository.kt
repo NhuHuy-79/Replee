@@ -9,6 +9,13 @@ import kotlinx.coroutines.flow.Flow
 
 
 interface FileRepository {
+    suspend fun uploadImageWithOption(
+        uriPath: String,
+        folder: String,
+        option: Map<String, String>
+    ): NetworkResult<String>
+
+    suspend fun getUriPathWithUserId(userId: String): FilePath?
     suspend fun getUriPathWithMessageId(messageId: String): FilePath?
     suspend fun upsertFilePath(filePath: FilePath)
     suspend fun saveFileToInternalStorage(uriPath: String): String

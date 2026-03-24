@@ -1,9 +1,7 @@
 package com.nhuhuy.replee.feature_auth.domain.repository
 
 import com.nhuhuy.core.domain.model.Account
-import com.nhuhuy.core.domain.model.AuthenticatedState
 import com.nhuhuy.core.domain.model.NetworkResult
-import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
     suspend fun signInWithGoogle(idToken: String): NetworkResult<Account>
@@ -15,7 +13,4 @@ interface AuthRepository {
     suspend fun sendRecoverPasswordEmail(email: String): NetworkResult<Unit>
 
     suspend fun provideAuthenticateToken(): NetworkResult<String>
-
-    fun observeAuthState(): Flow<String?>
-    fun observeAuthenticationState(): Flow<AuthenticatedState>
 }

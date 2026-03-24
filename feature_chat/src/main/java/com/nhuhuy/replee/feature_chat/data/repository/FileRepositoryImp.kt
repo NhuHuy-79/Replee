@@ -17,12 +17,12 @@ import com.nhuhuy.core.domain.model.UploadFileState
 import com.nhuhuy.core.domain.model.ValidateFileResult
 import com.nhuhuy.core.domain.repository.FileMetadata
 import com.nhuhuy.core.domain.repository.FileRepository
-import com.nhuhuy.replee.core.common.data.data_source.FileStorageDataSource
-import com.nhuhuy.replee.core.common.data.data_source.FileValidator
-import com.nhuhuy.replee.core.common.utils.execute
+import com.nhuhuy.replee.core.data.data_source.FileStorageDataSource
+import com.nhuhuy.replee.core.data.data_source.FileValidator
+import com.nhuhuy.replee.core.data.data_source.file_path.FilePathLocalDataSource
+import com.nhuhuy.replee.core.data.utils.execute
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
 import com.nhuhuy.replee.core.network.quailify.Retrofit
-import com.nhuhuy.replee.feature_chat.data.source.file_path.FilePathLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.worker.UploadFileWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
@@ -39,22 +39,44 @@ const val URI_PATH_INPUT = "uri_path_input"
 
 
 class FileRepositoryImp @Inject constructor(
-    private val filePathLocalDataSourceIm: FilePathLocalDataSource,
+    private val filePathLocalDataSourceImp: FilePathLocalDataSource,
     private val fileValidator: FileValidator,
     private val fileStorageDataSource: FileStorageDataSource,
     @ApplicationContext private val context: Context,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     @Retrofit private val uploadFileService: UploadFileService,
 ) : FileRepository {
+    override suspend fun uploadImageWithOption(
+        uriPath: String,
+        folder: String,
+        option: Map<String, String>
+    ): NetworkResult<String> {
+        return execute {
+            val url = uploadFileService.uploadImageWithOption(
+                uriPath = uriPath,
+                folder = folder,
+                option = option
+            )
+
+            url
+        }
+    }
+
+    override suspend fun getUriPathWithUserId(userId: String): FilePath? {
+        return withContext(ioDispatcher) {
+            filePathLocalDataSourceImp.getFilePathByUserId(userId)
+        }
+    }
+
     override suspend fun getUriPathWithMessageId(messageId: String): FilePath? {
         return withContext(ioDispatcher) {
-            filePathLocalDataSourceIm.getFilePathByMessageId(messageId)
+            filePathLocalDataSourceImp.getFilePathByMessageId(messageId)
         }
     }
 
     override suspend fun upsertFilePath(filePath: FilePath) {
         return withContext(ioDispatcher) {
-            filePathLocalDataSourceIm.upsertFilePath(filePath)
+            filePathLocalDataSourceImp.upsertFilePath(filePath)
         }
     }
 

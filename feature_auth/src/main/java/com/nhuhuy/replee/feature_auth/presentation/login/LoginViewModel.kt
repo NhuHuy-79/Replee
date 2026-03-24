@@ -8,8 +8,8 @@ import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.UiAction
 import com.nhuhuy.replee.core.common.base.UiState
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.core.common.toRemoteFailure
 import com.nhuhuy.replee.core.common.utils.InputValidator
+import com.nhuhuy.replee.core.data.mapper.toRemoteFailure
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 import com.nhuhuy.replee.feature_auth.data.model.GoogleCredentialResult
 import com.nhuhuy.replee.feature_auth.domain.usecase.LoginWithEmailUseCase

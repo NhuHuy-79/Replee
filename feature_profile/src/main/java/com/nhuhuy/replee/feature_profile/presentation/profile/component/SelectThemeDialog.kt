@@ -13,7 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import com.nhuhuy.replee.core.common.data.data_store.ThemeMode
+import com.nhuhuy.replee.core.data.data_store.ThemeMode
 import com.nhuhuy.replee.feature_profile.R
 
 @Composable

@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import javax.inject.Inject
 
 sealed class NetworkStatus {
-    data object Idle : NetworkStatus()
     data object Online : NetworkStatus()
     data object Offline : NetworkStatus()
 }

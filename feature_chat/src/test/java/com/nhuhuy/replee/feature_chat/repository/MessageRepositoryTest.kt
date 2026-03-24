@@ -68,7 +68,6 @@ class MessageRepositoryTest {
         repositoryImp = MessageRepositoryImp(
             ioDispatcher = ioDispatcher,
             coreDatabase = coreDatabase,
-            uploadFileService = uploadFileService,
             messageLocalDataSource = messageLocalDatabase,
             messageNetworkDataSource = messageNetworkDataSource,
             conversationLocalDataSource = conversationLocalDataSource,

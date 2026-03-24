@@ -120,7 +120,7 @@ class ConversationNotificationFactory @Inject constructor(
         )
 
         val replyAction = NotificationCompat.Action.Builder(
-            R.drawable.ic_notification_msg,
+            R.drawable.ic_circle_notification,
             context.getString(R.string.action_reply),
             replyPendingIntent
         )

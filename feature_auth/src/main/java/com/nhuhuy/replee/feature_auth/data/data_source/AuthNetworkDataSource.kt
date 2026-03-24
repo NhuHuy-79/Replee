@@ -3,11 +3,7 @@ package com.nhuhuy.replee.feature_auth.data.data_source
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.nhuhuy.core.domain.model.AuthServiceProvider
-import com.nhuhuy.core.domain.model.AuthenticatedState
 import com.nhuhuy.replee.core.network.model.AccountDTO
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -18,7 +14,6 @@ interface AuthNetworkDataSource {
     suspend fun signInWithGoogle(idToken: String): AccountDTO
     suspend fun signUpWithEmail(name: String, email: String, password: String): AccountDTO
     suspend fun sendRecoverPasswordEmail(email: String)
-    fun observeAuthenticatedState(): Flow<AuthenticatedState>
 }
 
 class AuthNetworkDataSourceImp @Inject constructor(
@@ -82,23 +77,6 @@ class AuthNetworkDataSourceImp @Inject constructor(
 
     override suspend fun sendRecoverPasswordEmail(email: String) {
         firebaseAuth.sendPasswordResetEmail(email)
-    }
-
-    override fun observeAuthenticatedState(): Flow<AuthenticatedState> = callbackFlow {
-        val listener = FirebaseAuth.AuthStateListener { auth ->
-            val user = auth.currentUser
-            if (user == null) {
-                trySend(AuthenticatedState.Unauthenticated)
-            } else {
-                trySend(AuthenticatedState.Authenticated(user.uid))
-            }
-        }
-
-        firebaseAuth.addAuthStateListener(listener)
-
-        awaitClose {
-            firebaseAuth.removeAuthStateListener(listener)
-        }
     }
 
 }

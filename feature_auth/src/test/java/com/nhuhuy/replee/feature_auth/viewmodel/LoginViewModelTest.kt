@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.feature_auth.viewmodel
 
-import com.nhuhuy.replee.core.common.data.model.ValidateResult
+import com.nhuhuy.replee.core.common.base.ValidateResult
 import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.test.DispatcherRuleTest
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository

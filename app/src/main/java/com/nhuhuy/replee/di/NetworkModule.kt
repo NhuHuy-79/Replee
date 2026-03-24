@@ -2,7 +2,6 @@ package com.nhuhuy.replee.di
 
 import android.content.Context
 import androidx.credentials.CredentialManager
-import com.cloudinary.android.MediaManager
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.database
@@ -76,7 +75,7 @@ object NetworkModuleProvider {
     @Singleton
     fun provideCloudinaryRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://api.cloudinary.com/")
+            .baseUrl("https://api.cloudinary.com/v1_1/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()
@@ -87,12 +86,6 @@ object NetworkModuleProvider {
     @Singleton
     fun provideCloudinaryApi(@CloudinaryUrl retrofit: Retrofit): CloudinaryApi {
         return retrofit.create(CloudinaryApi::class.java)
-    }
-
-    @Provides
-    @Singleton
-    fun provideMediaManager(): MediaManager {
-        return MediaManager.get()
     }
 
     @Provides

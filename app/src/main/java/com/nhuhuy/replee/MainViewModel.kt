@@ -10,7 +10,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
-import timber.log.Timber
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -28,8 +27,4 @@ class MainViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ThemeMode.DEFAULT)
 
 
-    override fun onCleared() {
-        Timber.e("Main ViewModel is cleared, stop listening")
-        super.onCleared()
-    }
 }

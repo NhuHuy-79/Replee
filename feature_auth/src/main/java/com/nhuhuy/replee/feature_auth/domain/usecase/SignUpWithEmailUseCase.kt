@@ -6,7 +6,7 @@ import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.model.onFailure
 import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.core.domain.repository.AccountRepository
-import com.nhuhuy.replee.core.common.utils.then
+import com.nhuhuy.replee.core.data.utils.then
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import javax.inject.Inject
 

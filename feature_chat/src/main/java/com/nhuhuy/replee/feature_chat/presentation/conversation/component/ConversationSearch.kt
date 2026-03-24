@@ -33,9 +33,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.SearchHistoryResult
+import com.nhuhuy.replee.core.common.base.ScreenState
+import com.nhuhuy.replee.core.design_system.ScreenStateHost
 import com.nhuhuy.replee.core.design_system.component.UserImage
-import com.nhuhuy.replee.core.design_system.state.ScreenState
-import com.nhuhuy.replee.core.design_system.state.ScreenStateHost
 import com.nhuhuy.replee.feature_chat.R
 import java.util.Locale
 

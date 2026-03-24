@@ -6,13 +6,11 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.replee.core.common.utils.execute
-import com.nhuhuy.replee.core.common.utils.executeWithTimeout
+import com.nhuhuy.replee.core.data.utils.execute
+import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.CoreDatabase
-import com.nhuhuy.replee.core.network.data_source.UploadFileService
 import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.core.network.model.mapData
-import com.nhuhuy.replee.core.network.quailify.Cloudinary
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
@@ -25,7 +23,6 @@ import com.nhuhuy.replee.feature_chat.data.source.message.MessageRemoteMediator
 import com.nhuhuy.replee.feature_chat.domain.model.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
-import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 import com.nhuhuy.replee.feature_chat.domain.model.toLocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -38,7 +35,6 @@ import javax.inject.Inject
 
 class MessageRepositoryImp @Inject constructor(
     private val coreDatabase: CoreDatabase,
-    @Cloudinary private val uploadFileService: UploadFileService,
     private val messageNetworkDataSource: MessageNetworkDataSource,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource,
@@ -57,47 +53,6 @@ class MessageRepositoryImp @Inject constructor(
             messageNetworkDataSource.sendMessage(message = dto)
 
             message.messageId
-        }
-    }
-
-    override suspend fun sendImage(
-        rawMessage: Message,
-        uriPath: String,
-    ): NetworkResult<String> {
-        return executeWithTimeout(dispatcher = ioDispatcher) {
-            messageLocalDataSource.upsertMessage(rawMessage.toMessageEntity())
-            val url = uploadFileService.uploadImageWithUriPath(uriPath)
-
-            if (url.isBlank()) {
-                val failure = rawMessage.copy(
-                    content = url,
-                    type = MessageType.IMAGE,
-                    status = MessageStatus.FAILED
-                )
-                messageLocalDataSource.upsertMessage(failure.toMessageEntity())
-            } else {
-                val message = rawMessage.copy(
-                    content = url,
-                    type = MessageType.IMAGE,
-                )
-                messageLocalDataSource.upsertMessage(message.toMessageEntity())
-                messageNetworkDataSource.sendMessage(message.toMessageDTO())
-
-                val conversationDTO =
-                    conversationNetworkDataSource.fetchConversationById(message.conversationId)
-                val messageDTO = message.toMessageDTO()
-
-                if (conversationDTO == null) {
-                    conversationLocalDataSource.updateSyncStatusOfConversations(
-                        conversationIds = listOf(message.conversationId),
-                        synced = false
-                    )
-                } else {
-                    conversationNetworkDataSource.updateLastMessage(messageDTO, conversationDTO)
-                }
-            }
-
-            url
         }
     }
 

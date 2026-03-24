@@ -16,7 +16,6 @@ import coil3.memory.MemoryCache
 import coil3.request.CachePolicy
 import coil3.request.crossfade
 import coil3.util.DebugLogger
-import com.cloudinary.android.MediaManager
 import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
@@ -39,28 +38,10 @@ class RepleeApp() : Application(), Configuration.Provider, SingletonImageLoader.
         super.onCreate()
         //Create notification channel
         createNotificationChannel(this)
-
-        //Initialize cloudinary for file uploading
-        initializeCloudinary()
-
         //Timber for debug logging
-        Timber.plant(Timber.DebugTree())
-    }
-
-    /* private fun disableFirestoreCacheSetting() {
-         val settings = FirebaseFirestoreSettings.Builder()
-             .setPersistenceEnabled(false)
-             .build()
-
-         FirebaseFirestore.getInstance().firestoreSettings = settings
-     }*/
-
-    private fun initializeCloudinary() {
-        val config = mapOf(
-            "cloud_name" to "dgq6g8u5h"
-        )
-
-        MediaManager.init(this, config)
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
     }
 
     private fun createNotificationChannel(context: Context) {

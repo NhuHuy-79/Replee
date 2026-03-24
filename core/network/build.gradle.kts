@@ -51,9 +51,6 @@ dependencies {
     api(libs.firebase.messaging)
     api(libs.kotlinx.serialization.json)
 
-    //CLOUDINARY
-    api(libs.cloudinary.android)
-
     //Hilt
     implementation(libs.dagger.hilt.android)
     implementation(libs.firebase.database)

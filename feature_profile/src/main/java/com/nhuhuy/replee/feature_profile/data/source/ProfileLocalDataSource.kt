@@ -1,8 +1,8 @@
 package com.nhuhuy.replee.feature_profile.data.source
 
-import com.nhuhuy.replee.core.common.data.data_store.AppDataStore
-import com.nhuhuy.replee.core.common.data.data_store.NotificationMode
-import com.nhuhuy.replee.core.common.data.data_store.ThemeMode
+import com.nhuhuy.replee.core.data.data_store.AppDataStore
+import com.nhuhuy.replee.core.data.data_store.NotificationMode
+import com.nhuhuy.replee.core.data.data_store.ThemeMode
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

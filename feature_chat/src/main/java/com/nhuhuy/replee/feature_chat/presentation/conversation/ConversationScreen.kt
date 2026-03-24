@@ -25,9 +25,9 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.core.domain.model.SearchHistoryResult
+import com.nhuhuy.replee.core.common.base.ScreenState
+import com.nhuhuy.replee.core.design_system.ScreenStateHost
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
-import com.nhuhuy.replee.core.design_system.state.ScreenState
-import com.nhuhuy.replee.core.design_system.state.ScreenStateHost
 import com.nhuhuy.replee.core.network.manager.NetworkStatus
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation

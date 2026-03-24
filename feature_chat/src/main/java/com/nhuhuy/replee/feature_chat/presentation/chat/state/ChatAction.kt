@@ -8,7 +8,6 @@ sealed interface ChatAction : UiAction{
     object OnSendMessageClicked : ChatAction
     data class OnImageSend(val uri: Uri) : ChatAction
     object OnBackClick: ChatAction
-    data class OnReadMessage(val ids: Set<String>) : ChatAction
     data object OnUnblockUser : ChatAction
     data object OnMoreClick: ChatAction
     data object OnDismiss : ChatAction

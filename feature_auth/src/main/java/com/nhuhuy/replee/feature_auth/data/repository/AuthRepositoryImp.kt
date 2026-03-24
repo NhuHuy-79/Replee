@@ -1,20 +1,17 @@
 package com.nhuhuy.replee.feature_auth.data.repository
 
-import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.model.Account
-import com.nhuhuy.core.domain.model.AuthenticatedState
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.replee.core.common.mapper.toAccount
-import com.nhuhuy.replee.core.common.utils.execute
-import com.nhuhuy.replee.core.common.utils.executeWithTimeout
+import com.nhuhuy.replee.core.data.mapper.toAccount
+
+import com.nhuhuy.replee.core.data.utils.execute
+import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.feature_auth.data.data_source.AuthNetworkDataSource
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class AuthRepositoryImp @Inject constructor(
-    private val sessionManager: SessionManager,
     private val authNetworkDataSource: AuthNetworkDataSource,
     private val ioDispatcher: CoroutineDispatcher
 ) : AuthRepository {
@@ -48,13 +45,5 @@ class AuthRepositoryImp @Inject constructor(
         return execute(dispatcher = ioDispatcher) {
             authNetworkDataSource.getCurrentAuthToken()
         }
-    }
-
-    override fun observeAuthState(): Flow<String?> {
-        return sessionManager.userIdState
-    }
-
-    override fun observeAuthenticationState(): Flow<AuthenticatedState> {
-        return sessionManager.authenticatedState
     }
 }

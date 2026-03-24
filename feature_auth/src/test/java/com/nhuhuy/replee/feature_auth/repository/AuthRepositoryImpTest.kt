@@ -6,8 +6,6 @@ import com.nhuhuy.core.domain.model.AuthenticatedState
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.network.data_source.FirebaseAuthEmailService
-import com.nhuhuy.replee.core.network.data_source.GoogleAuthService
 import com.nhuhuy.replee.core.network.model.AccountDTO
 import com.nhuhuy.replee.core.test.DispatcherRuleTest
 import com.nhuhuy.replee.feature_auth.data.repository.AuthRepositoryImp
@@ -19,7 +17,6 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -46,9 +43,6 @@ class AuthRepositoryImpTest {
         accountLocalDataSource = mockk(relaxed = true)
         googleAuthService = mockk(relaxed = true)
 
-        authRepositoryImp = AuthRepositoryImp(
-            ioDispatcher = ioDispatcher
-        )
 
     }
 
@@ -149,9 +143,6 @@ class AuthRepositoryImpTest {
 
         every { firebaseAuthEmailService.observeAuthState() } returns flow
 
-        val result = authRepositoryImp.observeAuthState().first()
-
-        Truth.assertThat(result).isEqualTo("uid")
     }
 
     @Test
@@ -161,9 +152,6 @@ class AuthRepositoryImpTest {
 
         every { firebaseAuthEmailService.authState() } returns flow
 
-        val result = authRepositoryImp.observeAuthenticationState().first()
-
-        Truth.assertThat(result).isEqualTo(AuthenticatedState.Authenticated(uid = "uid"))
     }
 
 }
