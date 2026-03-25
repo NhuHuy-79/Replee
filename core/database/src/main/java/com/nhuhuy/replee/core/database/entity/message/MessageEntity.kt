@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.core.database.entity.message
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
@@ -33,4 +34,14 @@ data class MessageEntity(
     val status: String = "PENDING",
     val localUriPath: String? = null,
     val remoteUrl: String? = null,
+    @ColumnInfo("repliedMessageContent")
+    val repliedMessageContent: String? = null,
+    @ColumnInfo("repliedMessageId")
+    val repliedMessageId: String? = null,
+    @ColumnInfo("repliedMessageSenderId")
+    val repliedMessageSenderId: String? = null,
+    @ColumnInfo("repliedMessageType")
+    val repliedMessageType: String? = null,
+    @ColumnInfo("repliedMessageRemoteUrl")
+    val repliedMessageRemoteUrl: String? = null,
 )

@@ -3,8 +3,8 @@ package com.nhuhuy.replee.service
 import android.content.Context
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
-import com.nhuhuy.replee.core.common.data.data_store.AppDataStore
-import com.nhuhuy.replee.core.common.data.data_store.NotificationMode
+import com.nhuhuy.replee.core.data.data_store.AppDataStore
+import com.nhuhuy.replee.core.data.data_store.NotificationMode
 import com.nhuhuy.replee.core.network.api.fcm.NotificationResponse
 import com.nhuhuy.replee.notification.NotificationFactory
 import dagger.hilt.android.qualifiers.ApplicationContext

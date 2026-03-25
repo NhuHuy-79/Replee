@@ -26,7 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.replee.core.common.utils.formatToString
+import com.nhuhuy.replee.core.common.utils.formatToChatTime
 import com.nhuhuy.replee.core.design_system.canvas.AvatarContainer
 import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.feature_chat.R
@@ -123,7 +123,7 @@ fun ConversationItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = conversation.lastMessageTime?.formatToString().orEmpty(),
+                    text = conversation.lastMessageTime?.formatToChatTime().orEmpty(),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.outline,
                 )

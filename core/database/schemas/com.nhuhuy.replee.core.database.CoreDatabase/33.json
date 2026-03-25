@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 28,
-    "identityHash": "be22318081545b0a61aefc1bf3ed39f5",
+    "version": 33,
+    "identityHash": "dae82947d3e870f9aa9d010bdb626fbe",
     "entities": [
       {
         "tableName": "accounts",
@@ -260,7 +260,7 @@
       },
       {
         "tableName": "message",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`conversationId` TEXT NOT NULL, `messageId` TEXT NOT NULL, `senderId` TEXT NOT NULL, `receiverId` TEXT NOT NULL, `content` TEXT NOT NULL, `seen` INTEGER NOT NULL, `sentAt` INTEGER, `type` TEXT NOT NULL, `status` TEXT NOT NULL, `localUriPath` TEXT, `remoteUrl` TEXT, `repliedMessageContent` TEXT, `repliedMessageId` TEXT, `repliedMessageSenderId` TEXT, `repliedMessageType` TEXT, `pinned` INTEGER NOT NULL, PRIMARY KEY(`messageId`), FOREIGN KEY(`conversationId`) REFERENCES `conversation`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`conversationId` TEXT NOT NULL, `messageId` TEXT NOT NULL, `senderId` TEXT NOT NULL, `receiverId` TEXT NOT NULL, `content` TEXT NOT NULL, `seen` INTEGER NOT NULL, `sentAt` INTEGER, `type` TEXT NOT NULL, `status` TEXT NOT NULL, `localUriPath` TEXT, `remoteUrl` TEXT, `repliedMessageContent` TEXT, `repliedMessageId` TEXT, `repliedMessageSenderId` TEXT, `repliedMessageType` TEXT, `repliedMessageRemoteUrl` TEXT, PRIMARY KEY(`messageId`), FOREIGN KEY(`conversationId`) REFERENCES `conversation`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "conversationId",
@@ -346,10 +346,9 @@
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "pinned",
-            "columnName": "pinned",
-            "affinity": "INTEGER",
-            "notNull": true
+            "fieldPath": "repliedMessageRemoteUrl",
+            "columnName": "repliedMessageRemoteUrl",
+            "affinity": "TEXT"
           }
         ],
         "primaryKey": {
@@ -643,7 +642,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'be22318081545b0a61aefc1bf3ed39f5')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dae82947d3e870f9aa9d010bdb626fbe')"
     ]
   }
 }

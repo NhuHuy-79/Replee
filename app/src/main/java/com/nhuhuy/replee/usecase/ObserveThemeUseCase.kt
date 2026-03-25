@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.usecase
 
-import com.nhuhuy.replee.core.common.data.data_store.AppDataStore
+import com.nhuhuy.replee.core.data.data_store.AppDataStore
 import javax.inject.Inject
 
 class ObserveThemeUseCase @Inject constructor(

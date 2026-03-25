@@ -2,6 +2,7 @@
 
 package com.nhuhuy.replee.feature_chat.presentation.chat
 
+import android.content.ClipData
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -27,8 +28,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -38,13 +46,17 @@ import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.BlockOverlay
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.ReplyBanner
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.dialog.FullImageDialog
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageInput
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageScreen
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageSheet
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatDialog
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
 import com.nhuhuy.replee.feature_chat.presentation.shared.Banner
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -55,6 +67,21 @@ fun ChatScreen(
     state: ChatState,
     onAction: (ChatAction) -> Unit,
 ) = BoxContainer {
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(state.isReplying) {
+        if (state.isReplying) {
+            delay(100)
+            focusRequester.requestFocus()
+            keyboardController?.show()
+        } else {
+            keyboardController?.hide()
+        }
+    }
+
+    val localClipboard = LocalClipboard.current
+    val scope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
@@ -92,7 +119,6 @@ fun ChatScreen(
                 .imePadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             if (state.isBlocked) {
                 Banner(
                     label = stringResource(R.string.chat_screen_block_banner),
@@ -127,8 +153,18 @@ fun ChatScreen(
                 )
             }
 
+            ReplyBanner(
+                onCancelReply = {
+                    onAction(ChatAction.OnMessageCancelReply)
+                },
+                sender = if (state.currentMessage?.senderId == state.currentUserId) state.otherUser.name else state.otherUser.name,
+                currentMessage = state.currentMessage,
+                isReplying = state.isReplying
+            )
+
             if (!blocked && !state.isBlocked) {
                 MessageInput(
+                    focusRequester = focusRequester,
                     value = state.messageInput,
                     onValueChange = { value ->
                         onAction(ChatAction.OnMessageInputChanged(value))
@@ -146,15 +182,14 @@ fun ChatScreen(
 
                     },
                     scrollCallback = { lazyListState.animateScrollToItem(0) },
-                    onFocusChange = {},
                     modifier = Modifier
                         .fillMaxWidth()
                 )
             }
         }
 
-        when (val dialog = state.dialog) {
-            is ChatDialog.FullImage -> {
+        when (val dialog = state.overlay) {
+            is ChatOverlay.FullImage -> {
                 FullImageDialog(
                     url = dialog.url,
                     onDismiss = {
@@ -163,7 +198,35 @@ fun ChatScreen(
                 )
             }
 
-            ChatDialog.None -> Unit
+            ChatOverlay.None -> Unit
+            ChatOverlay.MessageOption -> {
+                MessageSheet(
+                    onDismiss = {
+                        onAction(ChatAction.OnDismiss)
+                    },
+                    onMessagePin = {
+                        onAction(ChatAction.OnMessagePin)
+                    },
+                    onMessageReply = {
+                        onAction(ChatAction.OnMessageReply)
+                    },
+                    onMessageDelete = {
+                        onAction(ChatAction.OnMessageDelete)
+                    },
+                    onMessageCopy = {
+                        scope.launch {
+                            val clipData = ClipData.newPlainText(
+                                "plain text",
+                                state.currentMessage?.content.orEmpty()
+                            )
+                            val clipEntry = ClipEntry(clipData)
+                            localClipboard.setClipEntry(clipEntry)
+                            onAction(ChatAction.OnDismiss)
+                        }
+
+                    }
+                )
+            }
         }
     }
 }
@@ -177,7 +240,7 @@ fun ChatTopBar(
     onBackClick: () -> Unit,
     onSearchClick: () -> Unit,
     onMoreClick: () -> Unit,
-    ) {
+) {
     TopAppBar(
         modifier = modifier,
         title = {

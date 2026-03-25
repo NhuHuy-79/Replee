@@ -2,8 +2,8 @@ package com.nhuhuy.replee.di
 
 import android.content.Context
 import androidx.room.Room
-import com.nhuhuy.replee.core.common.data.data_store.AppDataStore
-import com.nhuhuy.replee.core.common.data.data_store.AppDataStoreImp
+import com.nhuhuy.replee.core.data.data_store.AppDataStore
+import com.nhuhuy.replee.core.data.data_store.AppDataStoreImp
 import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.database.Migration_15_16
 import com.nhuhuy.replee.core.database.entity.account.AccountDao
@@ -32,7 +32,7 @@ object LocalModuleProvider {
             klass = CoreDatabase::class.java,
             name = "replee_db"
         ).addMigrations(Migration_15_16)
-            /* .fallbackToDestructiveMigration(false)*/
+            .fallbackToDestructiveMigration(false)
             .build()
     }
 

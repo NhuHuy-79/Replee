@@ -2,14 +2,11 @@ package com.nhuhuy.replee.feature_chat.presentation.chat.component.image
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -18,8 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BrokenImage
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -28,93 +23,65 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
-import com.nhuhuy.replee.feature_chat.R
-import com.nhuhuy.replee.feature_chat.domain.model.Message
-import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
+import com.nhuhuy.replee.feature_chat.domain.model.LocalPathMessage
 
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun ImageMessageContainer(
     modifier: Modifier = Modifier,
-    showStatus: Boolean = false,
-    onClick: (url: String) -> Unit,
-    message: Message,
-    localPath: String? = null,
-    width: Int = 0,
-    height: Int = 0,
+    localPathMessage: LocalPathMessage,
     containerColor: Color,
     contentColor: Color,
 ) {
-    val imageModel = message.remoteUrl ?: localPath
+    val message = localPathMessage.message
+    val imageModel = message.remoteUrl ?: localPathMessage.localPath
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val maxWidth = screenWidth * 0.6f
     val maxHeight = 350.dp
 
-    val imageModifier = remember(width, height) {
-        if (width > 0 && height > 0) {
-            Modifier
+    val imageModifier = remember(localPathMessage.width, localPathMessage.height) {
+        if (localPathMessage.width > 0 && localPathMessage.height > 0) {
+            modifier
                 .widthIn(max = maxWidth)
-                .aspectRatio((width.toFloat() / height).coerceIn(0.3f, 2f))
+                .aspectRatio(
+                    (localPathMessage.width.toFloat() / localPathMessage.height).coerceIn(
+                        0.3f,
+                        2f
+                    )
+                )
         } else {
-            Modifier
+            modifier
                 .widthIn(max = maxWidth)
                 .heightIn(max = maxHeight)
         }
     }
     val shape = RoundedCornerShape(8.dp)
 
-    val stringRes: Int? = remember(message.status) {
-        when (message.status) {
-            MessageStatus.FAILED -> R.string.message_status_failed
-            MessageStatus.SEEN -> R.string.message_status_seen
-            MessageStatus.SYNCED -> R.string.message_status_sent
-            else -> null
-        }
-    }
+    SubcomposeAsyncImage(
+        model = imageModel,
+        contentDescription = null,
+        contentScale = ContentScale.FillWidth,
+        modifier = imageModifier
+            .clip(shape),
 
-    Column(
-        modifier = modifier.clickable {
-            onClick(imageModel.orEmpty())
-        }
-    ) {
+        loading = {
+            LoadingStateImage(
+                containerColor = containerColor,
+                contentColor = contentColor,
+                modifier = Modifier.fillMaxSize()
+            )
+        },
 
-        SubcomposeAsyncImage(
-            model = imageModel,
-            contentDescription = null,
-            contentScale = ContentScale.FillWidth,
-            modifier = imageModifier.clip(shape),
-
-            loading = {
-                LoadingStateImage(
-                    containerColor = containerColor,
-                    contentColor = contentColor,
-                    modifier = Modifier.fillMaxSize()
-                )
-            },
-
-            error = {
-                FailureStateImage(
-                    containerColor = containerColor,
-                    contentColor = contentColor,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-        )
-
-        if (stringRes != null && showStatus) {
-            Text(
-                text = stringResource(stringRes),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(end = 10.dp, top = 4.dp)
+        error = {
+            FailureStateImage(
+                containerColor = containerColor,
+                contentColor = contentColor,
+                modifier = Modifier.fillMaxSize()
             )
         }
-    }
+    )
 }
 
 @Composable

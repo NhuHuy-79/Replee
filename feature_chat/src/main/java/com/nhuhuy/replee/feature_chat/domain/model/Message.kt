@@ -9,9 +9,15 @@ data class Message(
     val seen: Boolean,
     val sentAt: Long,
     val status: MessageStatus,
+    val pinned: Boolean = false,
     val type: MessageType = MessageType.TEXT,
     val remoteUrl: String? = null,
     val localUriPath: String? = null,
+    val repliedMessageContent: String? = null,
+    val repliedMessageId: String? = null,
+    val repliedMessageSenderId: String? = null,
+    val repliedMessageType: MessageType? = null,
+    val repliedMessageRemoteUrl: String? = null,
 )
 
 enum class MessageType {

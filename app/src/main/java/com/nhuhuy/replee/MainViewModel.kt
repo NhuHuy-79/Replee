@@ -2,7 +2,7 @@ package com.nhuhuy.replee
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nhuhuy.replee.core.common.data.data_store.ThemeMode
+import com.nhuhuy.replee.core.data.data_store.ThemeMode
 import com.nhuhuy.replee.core.network.manager.ConnectivityObserver
 import com.nhuhuy.replee.core.network.manager.NetworkStatus
 import com.nhuhuy.replee.usecase.ObserveThemeUseCase

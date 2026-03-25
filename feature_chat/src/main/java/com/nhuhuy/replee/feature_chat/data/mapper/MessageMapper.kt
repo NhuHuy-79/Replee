@@ -19,7 +19,12 @@ fun MessageEntity.toMessage() : Message{
         type = MessageType.valueOf(type),
         status = MessageStatus.valueOf(this.status),
         localUriPath = localUriPath,
-        remoteUrl = remoteUrl
+        remoteUrl = remoteUrl,
+        repliedMessageContent = repliedMessageContent,
+        repliedMessageId = repliedMessageId,
+        repliedMessageSenderId = repliedMessageSenderId,
+        repliedMessageType = repliedMessageType?.let { MessageType.valueOf(it) },
+        repliedMessageRemoteUrl = repliedMessageRemoteUrl
     )
 }
 
@@ -34,7 +39,12 @@ fun MessageDTO.toMessage() : Message{
         sentAt = sendAt?.toMilliseconds() ?: System.currentTimeMillis(),
         status = MessageStatus.SYNCED,
         type = type,
-        remoteUrl = url
+        remoteUrl = url,
+        repliedMessageContent = repliedMessageContent,
+        repliedMessageId = repliedMessageId,
+        repliedMessageSenderId = repliedMessageSenderId,
+        repliedMessageType = repliedMessageType,
+        repliedMessageRemoteUrl = repliedMessageRemoteUrl
     )
 }
 
@@ -48,7 +58,12 @@ fun Message.toMessageDTO() : MessageDTO {
         seen = seen,
         type = type,
         url = remoteUrl,
-        status = status
+        status = status,
+        repliedMessageId = repliedMessageId,
+        repliedMessageContent = repliedMessageContent,
+        repliedMessageSenderId = repliedMessageSenderId,
+        repliedMessageType = repliedMessageType,
+        repliedMessageRemoteUrl = repliedMessageRemoteUrl
     )
 }
 
@@ -64,6 +79,11 @@ fun Message.toMessageEntity() : MessageEntity{
         status = status.name,
         type = type.name,
         localUriPath = localUriPath,
-        remoteUrl = remoteUrl
+        remoteUrl = remoteUrl,
+        repliedMessageContent = repliedMessageContent,
+        repliedMessageId = repliedMessageId,
+        repliedMessageSenderId = repliedMessageSenderId,
+        repliedMessageType = repliedMessageType?.name,
+        repliedMessageRemoteUrl = repliedMessageRemoteUrl
     )
 }

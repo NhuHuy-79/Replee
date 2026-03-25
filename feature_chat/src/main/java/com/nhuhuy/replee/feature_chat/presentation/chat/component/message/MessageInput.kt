@@ -23,7 +23,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,9 +35,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MessageInput(
+    focusRequester: FocusRequester,
     value: String,
     onValueChange: (value: String) -> Unit,
-    onFocusChange: (focus: Boolean) -> Unit,
     scrollCallback: suspend () -> Unit,
     onCameraClick:() -> Unit,
     onImageClick: () -> Unit,
@@ -72,8 +73,9 @@ fun MessageInput(
         MessageTextField(
             value = value,
             onValueChange = onValueChange,
-            onFocusChange = onFocusChange,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .focusRequester(focusRequester)
         )
 
         IconButton(
@@ -101,7 +103,6 @@ fun MessageInput(
 fun MessageTextField(
     value: String,
     onValueChange: (value: String) -> Unit,
-    onFocusChange: (value: Boolean) -> Unit,
     modifier: Modifier = Modifier){
     BasicTextField(
         value = value,
@@ -112,9 +113,6 @@ fun MessageTextField(
                 shape = RoundedCornerShape(32.dp)
             )
             .padding(horizontal = 16.dp, vertical = 14.dp)
-            .onFocusChanged { focusState ->
-                onFocusChange(focusState.isFocused)
-            }
         ,
         textStyle = MaterialTheme.typography.bodyLarge.copy(
             color = MaterialTheme.colorScheme.onSurfaceVariant

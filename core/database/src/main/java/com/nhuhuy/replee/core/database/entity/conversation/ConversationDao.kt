@@ -90,18 +90,7 @@ interface ConversationDao : BaseDao<ConversationEntity> {
     suspend fun updateSyncedStatus(conversationId: String, synced: Boolean)
 
     @Transaction
-    @Query(
-        """
-    SELECT 
-    c.*,
-    o.uid AS owner_uid, o.name AS owner_name, o.imageUrl AS owner_imageUrl, o.isOnline AS owner_isOnline,
-    u.uid AS other_uid, u.name AS other_name, u.imageUrl AS other_imageUrl, u.isOnline AS other_isOnline
-    FROM conversation c
-    LEFT JOIN accounts o ON c.ownerId = o.uid
-    LEFT JOIN accounts u ON c.otherUserId = u.uid
-    WHERE c.synced = 0
-    """
-    )
+    @Query("SELECT * FROM conversation WHERE synced = 0")
     suspend fun getUnSyncedConversation(): List<ConversationAndUser>
 
     @Query("UPDATE conversation SET synced = :synced WHERE id in (:conversations)")

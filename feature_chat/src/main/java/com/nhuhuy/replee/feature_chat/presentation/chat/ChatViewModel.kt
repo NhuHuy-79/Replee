@@ -20,9 +20,12 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.message.ReadMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.UpdateMessageChangeUseCase
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatDialog
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToInformation
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.FullImage
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.MessageOption
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.None
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -136,14 +139,15 @@ class ChatViewModel @AssistedInject constructor(
 
                 ChatAction.OnSendMessageClicked -> {
                     val messageInput: String = state.value.messageInput
-                    _state.reduce { copy(messageInput = "") }
+                    val currentMessage = state.value.currentMessage
+                    _state.reduce { copy(messageInput = "", currentMessage = null) }
                     sendMessageUseCase(
+                        repliedMessage = currentMessage,
                         senderId = currentUserId,
                         receiverId = otherUserId,
                         conversationId = conversationId,
                         text = messageInput
                     )
-
                 }
 
                 ChatAction.OnBackClick -> onEvent(ChatEvent.NavigateBack)
@@ -161,8 +165,15 @@ class ChatViewModel @AssistedInject constructor(
                     )
                 }
 
-                is ChatAction.OnMessageDelete -> TODO()
-                is ChatAction.OnMessagePin -> TODO()
+                is ChatAction.OnMessageDelete -> {
+                    //TODO("Delete Message)
+                    _state.reduce { copy(currentMessage = null, overlay = None) }
+                }
+
+                is ChatAction.OnMessagePin -> {
+                    //TODO("Pin message)
+                    _state.reduce { copy(currentMessage = null, overlay = None) }
+                }
                 ChatAction.OnUnblockUser -> {
                     unblockUserUseCase(otherUserId = otherUserId)
                 }
@@ -198,13 +209,35 @@ class ChatViewModel @AssistedInject constructor(
 
                 ChatAction.OnDismiss -> {
                     _state.reduce {
-                        copy(dialog = ChatDialog.None)
+                        copy(overlay = None, currentMessage = null)
                     }
                 }
 
                 is ChatAction.OnImagePress -> {
                     _state.reduce {
-                        copy(dialog = ChatDialog.FullImage(action.urlKey))
+                        copy(overlay = FullImage(action.urlKey))
+                    }
+                }
+
+                is ChatAction.OnMessageLongPress -> {
+                    _state.reduce {
+                        copy(
+                            overlay = MessageOption,
+                            isReplying = false,
+                            currentMessage = action.message
+                        )
+                    }
+                }
+
+                ChatAction.OnMessageReply -> {
+                    _state.reduce {
+                        copy(isReplying = true, overlay = None)
+                    }
+                }
+
+                ChatAction.OnMessageCancelReply -> {
+                    _state.reduce {
+                        copy(isReplying = false, currentMessage = null)
                     }
                 }
             }

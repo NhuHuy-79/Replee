@@ -75,7 +75,7 @@ fun ConversationSearchBar(
                 },
                 colors = TextFieldDefaults.colors(
                     focusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    focusedContainerColor = MaterialTheme.colorScheme.secondary,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                 ),
                 trailingIcon = {
                     UserImage(

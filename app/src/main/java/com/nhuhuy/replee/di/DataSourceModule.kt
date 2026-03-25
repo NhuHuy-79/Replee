@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.di
 
-import com.nhuhuy.replee.core.common.data.data_source.file_path.FilePathLocalDataSource
-import com.nhuhuy.replee.core.common.data.data_source.file_path.FilePathLocalDataSourceImp
+import com.nhuhuy.replee.core.data.data_source.file_path.FilePathLocalDataSource
+import com.nhuhuy.replee.core.data.data_source.file_path.FilePathLocalDataSourceImp
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSourceImp
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
@@ -65,7 +65,6 @@ abstract class DataSourceModuleBinder {
     abstract fun bindFilePathLocalDataSource(
         imp: FilePathLocalDataSourceImp
     ): FilePathLocalDataSource
-
 
     @Binds
     abstract fun bindProfileLocalDataSource(imp: ProfileLocalDataSourceImp): ProfileLocalDataSource

@@ -23,6 +23,7 @@ class SendMessageUseCase @Inject constructor(
     private val conversationRepository: ConversationRepository,
 ) {
     suspend operator fun invoke(
+        repliedMessage: Message? = null,
         senderId: String,
         receiverId: String,
         conversationId: String,
@@ -37,7 +38,11 @@ class SendMessageUseCase @Inject constructor(
             status = MessageStatus.PENDING,
             sentAt = System.currentTimeMillis(),
             seen = false,
-            type = MessageType.TEXT
+            type = MessageType.TEXT,
+            repliedMessageId = repliedMessage?.messageId,
+            repliedMessageContent = repliedMessage?.content,
+            repliedMessageSenderId = repliedMessage?.senderId,
+            repliedMessageType = repliedMessage?.type
         )
 
         return messageRepository.sendMessage(message = message)

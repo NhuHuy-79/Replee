@@ -17,4 +17,9 @@ data class MessageDTO(
     val type: MessageType = MessageType.TEXT,
     val status: MessageStatus = MessageStatus.SYNCED,
     val url: String? = null,
+    val repliedMessageContent: String? = null,
+    val repliedMessageId: String? = null,
+    val repliedMessageSenderId: String? = null,
+    val repliedMessageType: MessageType? = null,
+    val repliedMessageRemoteUrl: String? = null,
 )

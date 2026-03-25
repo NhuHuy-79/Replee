@@ -1,6 +1,5 @@
 package com.nhuhuy.replee.core.database
 
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -28,36 +27,17 @@ import com.nhuhuy.replee.core.database.entity.search_history.SearchHistoryEntity
         MessageRemoteKey::class,
         SearchHistoryEntity::class,
         FilePathEntity::class],
-    version = 28,
-    exportSchema = true,
-    autoMigrations = [
-        AutoMigration(
-            from = 19, to = 20
-        ),
-        AutoMigration(
-            from = 20, to = 21
-        ),
-        AutoMigration(
-            from = 24, to = 25
-        ),
-        AutoMigration(
-            from = 26, to = 27
-        ),
-        AutoMigration(
-            from = 27, to = 28
-        )
-    ]
+    version = 34,
+    exportSchema = true
 )
 @TypeConverters(CoreConverter::class)
-abstract class CoreDatabase() : RoomDatabase(){
-    abstract fun provideAccountDao() : AccountDao
+abstract class CoreDatabase : RoomDatabase() {
+    abstract fun provideAccountDao(): AccountDao
     abstract fun provideSearchHistoryDao(): SearchHistoryDao
-    abstract fun provideConversationDao() : ConversationDao
-    abstract fun provideMessageDao() : MessageDao
+    abstract fun provideConversationDao(): ConversationDao
+    abstract fun provideMessageDao(): MessageDao
     abstract fun provideMessageRemoteKeyDao(): MessageRemoteKeyDao
-
     abstract fun provideFilePathDao(): FilePathDao
-
 }
 
 val Migration_15_16 = object : Migration(15, 16) {

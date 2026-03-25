@@ -45,7 +45,7 @@ import timber.log.Timber
 @HiltViewModel(assistedFactory = ConversationViewModel.Factory::class)
 class ConversationViewModel @AssistedInject constructor(
     @Assisted private val currentUserId: String,
-    private val setUserOnelineUseCase: SetUserOnlineUseCase,
+    private val setUserOnlineUseCase: SetUserOnlineUseCase,
     private val getSearchHistoryUseCase: GetSearchHistoryUseCase,
     private val listenConversationUseCase: ListenConversationUseCase,
     private val upsertConversationUseCase: UpsertConversationUseCase,
@@ -70,7 +70,7 @@ class ConversationViewModel @AssistedInject constructor(
         listenToNewConversationUser()
         viewModelScope.launch {
             updateCurrentAccountUseCase(uid = currentUserId)
-            setUserOnelineUseCase(uid = currentUserId)
+            setUserOnlineUseCase(uid = currentUserId)
             val currentUser = getCurrentAccountUseCase()
             _state.reduce { copy(currentUser = currentUser) }
         }

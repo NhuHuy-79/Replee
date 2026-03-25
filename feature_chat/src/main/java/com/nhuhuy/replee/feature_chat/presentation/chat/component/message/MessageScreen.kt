@@ -1,15 +1,20 @@
 package com.nhuhuy.replee.feature_chat.presentation.chat.component.message
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandIn
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,6 +27,7 @@ import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -29,18 +35,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
+import com.nhuhuy.replee.core.common.utils.formatToChatTime
+import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.feature_chat.domain.model.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.model.MessageType
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.image.ReceiverImageMessageItem
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.image.SenderImageMessageItem
+import com.nhuhuy.replee.feature_chat.presentation.chat.message.MessageContainer
+import com.nhuhuy.replee.feature_chat.presentation.chat.message.MessageLayout
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @OptIn(FlowPreview::class)
 @Composable
@@ -64,7 +72,7 @@ fun MessageScreen(
 
 
     val refreshState = pagingItems.loadState.refresh
-    val appendState = pagingItems.loadState.append
+    pagingItems.loadState.append
 
     Box(
         modifier = modifier,
@@ -74,63 +82,60 @@ fun MessageScreen(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState,
             reverseLayout = true,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
 
             items(
                 count = pagingItems.itemCount,
-                key = pagingItems.itemKey { item -> item.message.messageId }
+                key = pagingItems.itemKey { item -> item.message.messageId },
             ) { index ->
                 val localPathMessage = pagingItems[index] ?: return@items
+                val isMine = localPathMessage.message.senderId == currentUserId
+                val replyTo = if (localPathMessage.message.repliedMessageId == currentUserId) "You"
+                else otherUserName
 
-                when (localPathMessage.message.type) {
-                    MessageType.TEXT -> {
-                        if (localPathMessage.message.senderId == currentUserId) {
-                            MyMessageItem(
-                                isLast = index == 0,
-                                message = localPathMessage.message,
-                                modifier = Modifier
-                            )
-                        } else {
-                            OtherMessageItem(
-                                userName = otherUserName,
-                                message = localPathMessage.message,
-                                imgUrl = otherUserImg,
-                                modifier = Modifier
-                            )
-                        }
+                MessageLayout(
+                    isMine = isMine,
+                    showTimeContent = false,
+                    userImage = {
+                        UserImage(
+                            userName = otherUserName,
+                            photoUrl = otherUserImg,
+                            modifier = Modifier.size(36.dp)
+                        )
+                    },
+                    timeContent = {
+                        Text(
+                            text = localPathMessage.message.sentAt.formatToChatTime()
+                        )
+                    },
+                    messageContent = {
+                        MessageContainer(
+                            replyTo = replyTo,
+                            localPathMessage = localPathMessage,
+                            isMine = isMine,
+                            onClick = {
+                                when (localPathMessage.message.type) {
+                                    MessageType.TEXT -> {
+
+                                    }
+
+                                    MessageType.IMAGE -> {
+                                        onAction(
+                                            ChatAction.OnImagePress(
+                                                urlKey = localPathMessage.localPath
+                                                    ?: localPathMessage.message.remoteUrl.orEmpty(),
+                                            )
+                                        )
+                                    }
+                                }
+                            },
+                            onLongClick = {
+                                onAction(ChatAction.OnMessageLongPress(message = localPathMessage.message))
+                            }
+                        )
                     }
-
-                    MessageType.IMAGE -> {
-                        if (localPathMessage.message.senderId == currentUserId) {
-                            ReceiverImageMessageItem(
-                                isLast = index == pagingItems.itemCount - 1,
-                                localPathMessage = localPathMessage,
-                                onImagePress = { url: String ->
-                                    onAction(ChatAction.OnImagePress(urlKey = url))
-                                },
-                                modifier = Modifier
-                            )
-                        } else {
-                            SenderImageMessageItem(
-                                senderName = otherUserName,
-                                senderImgUrl = otherUserImg,
-                                localPathMessage = localPathMessage,
-                                onImagePress = { url: String ->
-                                    onAction(ChatAction.OnImagePress(urlKey = url))
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                            )
-                        }
-                    }
-                }
-            }
-
-            // Error load older
-            val appendError = appendState as? LoadState.Error
-            if (appendError != null) {
-                Timber.d("Load more failed: ${appendError.error.message}")
+                )
             }
         }
 
@@ -159,8 +164,14 @@ fun MessageScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(16.dp),
-            enter = fadeIn() + expandIn(expandFrom = Alignment.BottomCenter),
-            exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.BottomCenter)
+            enter = slideInVertically(
+                initialOffsetY = { it },
+                animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing)
+            ) + fadeIn(animationSpec = tween(250)),
+            exit = slideOutVertically(
+                targetOffsetY = { it },
+                animationSpec = tween(durationMillis = 200, easing = FastOutLinearInEasing)
+            ) + fadeOut(animationSpec = tween(200))
         ) {
             FilledTonalIconButton(
                 onClick = {
@@ -180,4 +191,22 @@ fun MessageScreen(
             }
         }
     }
+}
+
+fun Modifier.onMessageLongPress(
+    onLongClick: () -> Unit,
+    onClick: () -> Unit = {}
+): Modifier = composed {
+    val interactionSource = remember { MutableInteractionSource() }
+
+    this.combinedClickable(
+        interactionSource = interactionSource,
+        indication = LocalIndication.current,
+        onClick = {
+            onClick()
+        },
+        onLongClick = {
+            onLongClick()
+        }
+    )
 }
