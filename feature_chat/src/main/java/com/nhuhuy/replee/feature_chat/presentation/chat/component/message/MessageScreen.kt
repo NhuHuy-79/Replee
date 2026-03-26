@@ -71,8 +71,7 @@ fun MessageScreen(
     }
 
 
-    val refreshState = pagingItems.loadState.refresh
-    pagingItems.loadState.append
+    val refreshState = pagingItems.loadState.append
 
     Box(
         modifier = modifier,

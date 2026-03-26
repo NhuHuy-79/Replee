@@ -22,7 +22,6 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.message.UpdateMessageChange
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToInformation
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.FullImage
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.MessageOption
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.None
@@ -140,7 +139,9 @@ class ChatViewModel @AssistedInject constructor(
                 ChatAction.OnSendMessageClicked -> {
                     val messageInput: String = state.value.messageInput
                     val currentMessage = state.value.currentMessage
-                    _state.reduce { copy(messageInput = "", currentMessage = null) }
+
+                    Timber.d("Reply message: $currentMessage")
+
                     sendMessageUseCase(
                         repliedMessage = currentMessage,
                         senderId = currentUserId,
@@ -148,6 +149,7 @@ class ChatViewModel @AssistedInject constructor(
                         conversationId = conversationId,
                         text = messageInput
                     )
+                    _state.reduce { copy(messageInput = "", currentMessage = null) }
                 }
 
                 ChatAction.OnBackClick -> onEvent(ChatEvent.NavigateBack)
@@ -209,7 +211,7 @@ class ChatViewModel @AssistedInject constructor(
 
                 ChatAction.OnDismiss -> {
                     _state.reduce {
-                        copy(overlay = None, currentMessage = null)
+                        copy(overlay = None)
                     }
                 }
 

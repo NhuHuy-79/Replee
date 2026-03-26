@@ -19,7 +19,6 @@ import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetwo
 import com.nhuhuy.replee.feature_chat.data.source.message.LocalPathMessageRemoteMediator
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
-import com.nhuhuy.replee.feature_chat.data.source.message.MessageRemoteMediator
 import com.nhuhuy.replee.feature_chat.domain.model.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
@@ -143,32 +142,6 @@ class MessageRepositoryImp @Inject constructor(
                     }
                 }
             }
-    }
-
-    @OptIn(ExperimentalPagingApi::class)
-    override fun pagingLocalMessages(
-        conversationId: String,
-    ): Flow<PagingData<Message>> {
-        val messageDao = coreDatabase.provideMessageDao()
-        return Pager(
-            config = PagingConfig(
-                pageSize = 20,
-                initialLoadSize = 20,
-                enablePlaceholders = false,
-                prefetchDistance = 1
-            ),
-            remoteMediator = MessageRemoteMediator(
-                conversationId = conversationId,
-                db = coreDatabase,
-                network = messageNetworkDataSource
-            )
-        ) {
-            messageDao.pagingSource(conversationId)
-        }.flow.map { pagingData ->
-            pagingData.map { messageEntity ->
-                messageEntity.toMessage()
-            }
-        }
     }
 
     @OptIn(ExperimentalPagingApi::class)

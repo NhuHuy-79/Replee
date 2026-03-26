@@ -3,7 +3,7 @@ package com.nhuhuy.replee.feature_profile.presentation.profile.component
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -30,7 +30,7 @@ fun SelectThemeDialog(
         dismissButton = {},
         icon = {
             Icon(
-                imageVector = Icons.Outlined.Notifications,
+                imageVector = Icons.Outlined.DarkMode,
                 contentDescription = null
             )
         },

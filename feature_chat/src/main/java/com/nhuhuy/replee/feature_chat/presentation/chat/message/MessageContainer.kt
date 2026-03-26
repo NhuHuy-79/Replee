@@ -6,9 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,7 +28,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.AsyncImage
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.model.Message
@@ -49,7 +49,7 @@ fun MessageContainer(
     val density = LocalDensity.current
 
     Column(
-        modifier = Modifier.wrapContentSize(),
+        modifier = Modifier,
         horizontalAlignment = if (isMine) Alignment.End else Alignment.Start
     ) {
         if (isReplying) {
@@ -129,11 +129,12 @@ fun ReplyContent(
         }
 
         if (type == MessageType.IMAGE) {
-            SubcomposeAsyncImage(
+            AsyncImage(
                 model = remoteUrl,
                 contentDescription = null,
                 modifier = Modifier
                     .padding(start = 8.dp)
+                    .size(48.dp)
                     .sizeIn(maxWidth = 60.dp, maxHeight = 60.dp)
                     .clip(RoundedCornerShape(4.dp)),
                 contentScale = ContentScale.Fit

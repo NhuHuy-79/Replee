@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
@@ -88,7 +88,7 @@ fun ProfileUserCard(
             onClick = onEditClick,
         ) {
             Icon(
-                imageVector = Icons.Rounded.Edit,
+                imageVector = Icons.Rounded.Menu,
                 contentDescription = null
             )
         }

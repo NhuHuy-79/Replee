@@ -36,10 +36,10 @@ fun ImageMessageContainer(
     contentColor: Color,
 ) {
     val message = localPathMessage.message
-    val imageModel = message.remoteUrl ?: localPathMessage.localPath
+    val imageModel = localPathMessage.localPath ?: message.remoteUrl
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val maxWidth = screenWidth * 0.6f
-    val maxHeight = 350.dp
+    val maxHeight = 250.dp
 
     val imageModifier = remember(localPathMessage.width, localPathMessage.height) {
         if (localPathMessage.width > 0 && localPathMessage.height > 0) {
@@ -48,7 +48,7 @@ fun ImageMessageContainer(
                 .aspectRatio(
                     (localPathMessage.width.toFloat() / localPathMessage.height).coerceIn(
                         0.3f,
-                        2f
+                        1f
                     )
                 )
         } else {
@@ -57,12 +57,12 @@ fun ImageMessageContainer(
                 .heightIn(max = maxHeight)
         }
     }
-    val shape = RoundedCornerShape(8.dp)
+    val shape = RoundedCornerShape(16.dp)
 
     SubcomposeAsyncImage(
         model = imageModel,
         contentDescription = null,
-        contentScale = ContentScale.FillWidth,
+        contentScale = ContentScale.FillHeight,
         modifier = imageModifier
             .clip(shape),
 

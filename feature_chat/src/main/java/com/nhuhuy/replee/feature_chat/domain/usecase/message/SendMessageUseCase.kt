@@ -42,7 +42,8 @@ class SendMessageUseCase @Inject constructor(
             repliedMessageId = repliedMessage?.messageId,
             repliedMessageContent = repliedMessage?.content,
             repliedMessageSenderId = repliedMessage?.senderId,
-            repliedMessageType = repliedMessage?.type
+            repliedMessageType = repliedMessage?.type,
+            repliedMessageRemoteUrl = repliedMessage?.remoteUrl
         )
 
         return messageRepository.sendMessage(message = message)

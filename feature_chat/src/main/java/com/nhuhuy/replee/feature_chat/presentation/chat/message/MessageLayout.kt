@@ -33,7 +33,7 @@ fun MessageLayout(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.Top,
             horizontalArrangement = if (isMine) Arrangement.End else Arrangement.Start
         ) {
             if (!isMine) {

@@ -15,20 +15,20 @@ suspend inline fun <T> executeWithTimeout(
     timeout: Long = 10_000L,
     crossinline body: suspend () -> T
 ): NetworkResult<T> {
-    return withTimeout(timeout) {
-        withContext(dispatcher) {
-            try {
+    return withContext(dispatcher) {
+        try {
+            withTimeout(timeout) {
                 val data = body()
                 NetworkResult.Success(data)
-            } catch (e: TimeoutCancellationException) {
-                NetworkResult.Failure(e)
-            } catch (e: CancellationException) {
-                Timber.e(e)
-                throw e
-            } catch (e: Exception) {
-                Timber.e(e)
-                NetworkResult.Failure(e)
             }
+        } catch (e: TimeoutCancellationException) {
+            Timber.e("Timeout: ${e.message}")
+            NetworkResult.Failure(e)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Timber.e(e)
+            NetworkResult.Failure(e)
         }
     }
 }

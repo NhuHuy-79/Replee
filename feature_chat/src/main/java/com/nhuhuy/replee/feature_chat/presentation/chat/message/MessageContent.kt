@@ -1,9 +1,13 @@
 package com.nhuhuy.replee.feature_chat.presentation.chat.message
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.feature_chat.domain.model.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.model.Message
 import com.nhuhuy.replee.feature_chat.domain.model.MessageType
@@ -42,7 +46,12 @@ fun MessageContent(
 
             MessageType.IMAGE -> {
                 ImageMessage(
-                    localPathMessage = localPathMessage
+                    localPathMessage = localPathMessage,
+                    modifier = Modifier.border(
+                        width = 2.dp,
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        shape = RoundedCornerShape(16.dp)
+                    )
                 )
             }
         }

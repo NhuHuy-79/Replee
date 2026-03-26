@@ -5,7 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -39,6 +42,12 @@ fun EditDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
+                Icon(
+                    imageVector = Icons.Rounded.Menu,
+                    contentDescription = null
+                )
+
                 Text(
                     text = stringResource(R.string.edit_dialog_title),
                     style = MaterialTheme.typography.titleLarge,

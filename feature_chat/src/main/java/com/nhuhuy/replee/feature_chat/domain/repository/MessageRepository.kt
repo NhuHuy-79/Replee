@@ -34,8 +34,6 @@ interface MessageRepository {
         limit: Int = 3
     ): Flow<List<DataChange<Message>>>
 
-    fun pagingLocalMessages(conversationId: String): Flow<PagingData<Message>>
-
     fun observeLocalMessageWithPaging(conversationId: String): Flow<PagingData<LocalPathMessage>>
 
     suspend fun markAllMessagesRead(conversationId: String, receiverId: String): NetworkResult<Unit>

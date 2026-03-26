@@ -19,7 +19,6 @@ class LocalPathMessageRemoteMediator(
     private val coreDatabase: CoreDatabase,
     private val messageNetworkDataSource: MessageNetworkDataSource,
 ) : RemoteMediator<Int, MessageWithLocalPath>() {
-
     private val messageDao = coreDatabase.provideMessageDao()
     private val messageKeyDao = coreDatabase.provideMessageRemoteKeyDao()
     override suspend fun load(

@@ -1,7 +1,9 @@
 package com.nhuhuy.replee.feature_chat.presentation.chat.message.image
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.nhuhuy.replee.feature_chat.domain.model.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.image.ImageMessageContainer
@@ -11,10 +13,15 @@ fun ImageMessage(
     modifier: Modifier = Modifier,
     localPathMessage: LocalPathMessage,
 ) {
-    ImageMessageContainer(
+    Box(
         modifier = modifier,
-        localPathMessage = localPathMessage,
-        contentColor = MaterialTheme.colorScheme.onPrimary,
-        containerColor = MaterialTheme.colorScheme.primary
-    )
+        contentAlignment = Alignment.Center
+    ) {
+        ImageMessageContainer(
+            modifier = Modifier,
+            localPathMessage = localPathMessage,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            containerColor = MaterialTheme.colorScheme.primary
+        )
+    }
 }
