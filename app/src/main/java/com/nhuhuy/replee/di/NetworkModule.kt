@@ -1,32 +1,93 @@
 package com.nhuhuy.replee.di
 
+import android.content.Context
+import androidx.credentials.CredentialManager
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.google.firebase.database.database
 import com.google.firebase.firestore.firestore
-import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.messaging
-import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.firebase.network.KtorService
-import com.nhuhuy.replee.core.firebase.network.KtorServiceImp
-import com.nhuhuy.replee.feature_chat.data.NotifyService
-import com.nhuhuy.replee.feature_chat.data.NotifyServiceImp
+import com.nhuhuy.replee.core.network.api.cloudinary.CloudinaryApi
+import com.nhuhuy.replee.core.network.api.fcm.FCM_URL
+import com.nhuhuy.replee.core.network.api.fcm.FcmApi
+import com.nhuhuy.replee.core.network.quailify.CloudinaryUrl
+import com.nhuhuy.replee.core.network.quailify.FcmBackendUrl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logging
-import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class NetworkModule{
+object NetworkModuleProvider {
+
+    @Provides
+    @Singleton
+    fun provideCredentialManager(
+        @ApplicationContext context: Context
+    ): CredentialManager {
+        return CredentialManager.create(context)
+    }
+    @Provides
+    @Singleton
+    fun provideLoggingInterceptor(): HttpLoggingInterceptor {
+        return HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+    }
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build()
+    }
+
+    @Provides
+    @FcmBackendUrl
+    @Singleton
+    fun provideFcmRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(FCM_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideFcmApi(@FcmBackendUrl retrofit: Retrofit): FcmApi {
+        return retrofit.create(FcmApi::class.java)
+    }
+
+    @Provides
+    @CloudinaryUrl
+    @Singleton
+    fun provideCloudinaryRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl("https://api.cloudinary.com/v1_1/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
+            .build()
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideCloudinaryApi(@CloudinaryUrl retrofit: Retrofit): CloudinaryApi {
+        return retrofit.create(CloudinaryApi::class.java)
+    }
+
     @Provides
     @Singleton
     fun provideFirebaseAuth() = Firebase.auth
@@ -37,39 +98,11 @@ class NetworkModule{
 
     @Provides
     @Singleton
+    fun provideFirebaseDatabase() = Firebase.database
+
+    @Provides
+    @Singleton
     fun provideFirebaseMessaging() = Firebase.messaging
-    @Provides
-    @Singleton
-    fun provideKtorClient() = HttpClient(OkHttp){
-        install(Logging){
-            level = LogLevel.ALL
-        }
-        install(ContentNegotiation){
-            json(
-                json = Json {
-                    ignoreUnknownKeys = true
-                }
-            )
-        }
-    }
 
-    @Provides
-    @Singleton
-    fun provideKtorService(client: HttpClient): KtorService = KtorServiceImp(client)
-
-    @Provides
-    @Singleton
-    fun provideSendMessageService(
-        logger: com.nhuhuy.core.domain.utils.Logger,
-        ioDispatcher: CoroutineDispatcher,
-        messaging: FirebaseMessaging,
-        accountNetworkDataSource: AccountNetworkDataSource,
-        service: KtorServiceImp
-    ): NotifyService = NotifyServiceImp(
-        logger = logger,
-        dispatcher = ioDispatcher,
-        messaging = messaging,
-        accountNetworkDataSource = accountNetworkDataSource,
-        service = service
-    )
 }
+

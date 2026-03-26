@@ -1,3 +1,4 @@
+
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.nhuhuy.replee.feature_profile.presentation
@@ -11,12 +12,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Logout
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.feature_profile.R
@@ -38,21 +38,22 @@ import com.nhuhuy.replee.feature_profile.presentation.profile.component.EditDial
 import com.nhuhuy.replee.feature_profile.presentation.profile.component.NotificationDialog
 import com.nhuhuy.replee.feature_profile.presentation.profile.component.ProfileUserCard
 import com.nhuhuy.replee.feature_profile.presentation.profile.component.SelectThemeDialog
-import com.nhuhuy.replee.feature_profile.presentation.profile.component.UpdateAccountSheet
+import com.nhuhuy.replee.feature_profile.presentation.profile.component.UpdatePasswordSheet
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.Overlay
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction.OnNewPasswordChange
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction.OnOldPasswordChange
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction.OnUpdatePassword
+import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileActionResult
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileState
 import timber.log.Timber
 
 @Composable
 fun ProfileScreen(
+    profileActionResult: ProfileActionResult,
     state: ProfileState,
     onAction: (ProfileAction) -> Unit
 )= BoxContainer {
-
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -62,7 +63,6 @@ fun ProfileScreen(
             Timber.e("No media selected")
         }
     }
-
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -75,7 +75,7 @@ fun ProfileScreen(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                             contentDescription = null
                         )
                     }
@@ -96,6 +96,7 @@ fun ProfileScreen(
         ) {
             item {
                 ProfileUserCard(
+                    loading = profileActionResult.updateAvatarLoading,
                     user = state.account,
                     onEditClick = {
                         onAction(ProfileAction.OnEditDialogOpen)
@@ -195,7 +196,8 @@ fun ProfileScreen(
                     onAction(ProfileAction.OnDismiss)
                 },
             )
-            Overlay.UPDATE_PASSWORD -> UpdateAccountSheet(
+            Overlay.UPDATE_PASSWORD -> UpdatePasswordSheet(
+                result = profileActionResult.updatePassword,
                 state = state,
                 onOldPasswordChange = { value ->
                     onAction(OnOldPasswordChange(value))
@@ -265,14 +267,4 @@ fun ProfileItem(
             )
         },
     )
-}
-
-@Preview
-@Composable
-fun ProfilePreview(){
-    ProfileScreen(
-        state = ProfileState(),
-        onAction = {}
-    )
-
 }

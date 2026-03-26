@@ -10,7 +10,7 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.nhuhuy.replee.feature_auth.R
-import com.nhuhuy.replee.feature_auth.data.GoogleCredentialResult
+import com.nhuhuy.replee.feature_auth.data.model.GoogleCredentialResult
 import timber.log.Timber
 
 class GoogleCredentialProvider {
@@ -39,15 +39,19 @@ class GoogleCredentialProvider {
             GoogleCredentialResult.Success(googleIdTokenCredential.idToken)
 
         } catch (e: GetCredentialCancellationException) {
+            Timber.e(e)
             GoogleCredentialResult.Cancelled
 
         } catch (e: NoCredentialException) {
+            Timber.e(e)
             GoogleCredentialResult.NoCredential
 
         } catch (e: GetCredentialProviderConfigurationException) {
+            Timber.e(e)
             GoogleCredentialResult.ProviderUnavailable
 
         } catch (e: GoogleIdTokenParsingException) {
+            Timber.e(e)
             GoogleCredentialResult.InvalidCredential
 
         } catch (e: Exception) {

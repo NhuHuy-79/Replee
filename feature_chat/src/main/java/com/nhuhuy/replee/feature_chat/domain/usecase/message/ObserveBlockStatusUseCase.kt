@@ -8,9 +8,9 @@ class ObserveBlockStatusUseCase @Inject constructor(
     private val accountRepository: AccountRepository
 ) {
     operator fun invoke(ownerId: String, otherUserId: String): Flow<Boolean> {
-        return accountRepository.observeBlockStatus(
-            owner = ownerId,
-            otherUser = otherUserId
+        return accountRepository.observeWhoIsBlock(
+            block = ownerId,
+            isBlocked = otherUserId
         )
     }
 }

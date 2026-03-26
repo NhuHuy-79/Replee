@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
         android:usesCleartextTraffic="true"
         android:name=".RepleeApp"
@@ -19,14 +20,21 @@
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
-            tools:node="remove"/>
+            android:exported="false"
+            tools:node="merge">
+
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                tools:node="remove" />
+
+        </provider>
         <service android:name=".service.PushNotificationService" android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
         <receiver
-            android:name=".broadcast.ReplyReceiver"
+            android:name=".broadcast.ReplyBroadcast"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

@@ -1,31 +1,36 @@
 package com.nhuhuy.replee.navigation
 
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import androidx.paging.compose.collectAsLazyPagingItems
+import com.nhuhuy.replee.LocalNetworkStatus
+import com.nhuhuy.replee.core.common.utils.showShortToast
 import com.nhuhuy.replee.core.design_system.ObserveEffect
+import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatScreen
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatViewModel
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
+import com.nhuhuy.replee.feature_chat.presentation.conversation.ConversationScreen
 import com.nhuhuy.replee.feature_chat.presentation.conversation.ConversationViewModel
-import com.nhuhuy.replee.feature_chat.presentation.conversation.component.ConversationScreen
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent
-import com.nhuhuy.replee.feature_chat.presentation.setting.OptionScreen
-import com.nhuhuy.replee.feature_chat.presentation.setting.OptionViewModel
-import com.nhuhuy.replee.feature_chat.presentation.setting.state.OptionEvent
+import com.nhuhuy.replee.feature_chat.presentation.option.OptionScreen
+import com.nhuhuy.replee.feature_chat.presentation.option.OptionViewModel
+import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionEvent
+import com.nhuhuy.replee.navigation.HomeDestination.Information
 import kotlinx.serialization.Serializable
 
 @Serializable
 sealed interface HomeDestination : NavKey {
     @Serializable
-    data object ConversationList : HomeDestination
+    data class ConversationList(val currentUserId: String) : HomeDestination
 
     @Serializable
     data class Chat(
-        val conversationId: String,
         val ownerId: String,
         val otherUserId: String,
     ) : HomeDestination
@@ -44,10 +49,18 @@ sealed interface HomeDestination : NavKey {
 fun EntryProviderScope<NavKey>.chatGraph(
     backstack: NavBackStack<NavKey>,
 ) {
-    entry<HomeDestination.ConversationList> {
-        val viewModel: ConversationViewModel = hiltViewModel()
+    entry<HomeDestination.ConversationList> { screen ->
+        val localNetworkStatus = LocalNetworkStatus.current
+        val viewModel: ConversationViewModel = hiltViewModel(
+            creationCallback = { factory: ConversationViewModel.Factory ->
+                factory.create(
+                    currentUserId = screen.currentUserId
+                )
+            }
+        )
         val conversationList by viewModel.conversationState.collectAsStateWithLifecycle()
         val state by viewModel.state.collectAsStateWithLifecycle()
+        val searchHistory by viewModel.searchHistory.collectAsStateWithLifecycle()
         val event = viewModel.event
         val onAction = viewModel::onAction
 
@@ -56,7 +69,6 @@ fun EntryProviderScope<NavKey>.chatGraph(
                 is ConversationEvent.NavigateToChatRoom -> {
                     backstack.add(
                         HomeDestination.Chat(
-                            conversationId = event.conversationId,
                             ownerId = event.currentUserId,
                             otherUserId = event.otherUserId
                         )
@@ -74,18 +86,19 @@ fun EntryProviderScope<NavKey>.chatGraph(
         }
 
         ConversationScreen(
+            networkStatus = localNetworkStatus,
+            conversationListState = conversationList,
             state = state,
-            conversationList = conversationList,
+            searchHistory = searchHistory,
             onAction = onAction
         )
     }
 
     entry<HomeDestination.Chat> { screen ->
+        val context = LocalContext.current
         val viewModel: ChatViewModel = hiltViewModel(
-            key = screen.conversationId,
             creationCallback = { factory: ChatViewModel.Factory ->
                 factory.create(
-                    conversationId = screen.conversationId,
                     currentUserId = screen.ownerId,
                     otherUserId = screen.otherUserId
                 )
@@ -93,14 +106,14 @@ fun EntryProviderScope<NavKey>.chatGraph(
         )
         val blocked by viewModel.blocked.collectAsStateWithLifecycle()
         val state by viewModel.state.collectAsStateWithLifecycle()
-        val message by viewModel.messageList.collectAsStateWithLifecycle()
+        val messagePagingState = viewModel.pagedMessages.collectAsLazyPagingItems()
 
         ObserveEffect(viewModel.event) { event ->
             when (event) {
                 ChatEvent.NavigateBack -> backstack.removeLastOrNull()
                 is ChatEvent.NavigateToInformation -> {
                     backstack.add(
-                        HomeDestination.Information(
+                        Information(
                             otherUserId = event.otherUserId,
                             otherUserName = event.otherUserName,
                             otherUserEmail = event.otherUserEmail,
@@ -110,18 +123,44 @@ fun EntryProviderScope<NavKey>.chatGraph(
                         )
                     )
                 }
+
+                ChatEvent.SendImage.Failure -> {
+                    //toast success
+                }
+
+                ChatEvent.SendImage.Success -> {
+                    //toast failed
+                }
+
+                ChatEvent.FileTooLarge -> {
+                    context.showShortToast(
+                        message = R.string.file_too_large
+                    )
+                }
+
+                ChatEvent.UnSupportedFile -> {
+                    context.showShortToast(
+                        message = R.string.file_unsupported
+                    )
+                }
+
+                ChatEvent.Unknown -> {
+                    context.showShortToast(
+                        message = R.string.file_unknown
+                    )
+                }
             }
         }
 
         ChatScreen(
             blocked = blocked,
             state = state,
-            messages = message,
+            pagedMessages = messagePagingState,
             onAction = viewModel::onAction
         )
     }
 
-    entry<HomeDestination.Information> { screen ->
+    entry<Information> { screen ->
         val viewModel: OptionViewModel = hiltViewModel(
             creationCallback = { factory: OptionViewModel.Factory ->
                 factory.create(
@@ -136,8 +175,6 @@ fun EntryProviderScope<NavKey>.chatGraph(
         )
 
         val state by viewModel.state.collectAsStateWithLifecycle()
-        val conversation by viewModel.conversation.collectAsStateWithLifecycle()
-
         ObserveEffect(viewModel.event) { event ->
             when (event) {
                 OptionEvent.NavigateBack -> backstack.removeLastOrNull()
@@ -148,7 +185,6 @@ fun EntryProviderScope<NavKey>.chatGraph(
         }
 
         OptionScreen(
-            conversation = conversation,
             state = state,
             onAction = viewModel::onAction
         )

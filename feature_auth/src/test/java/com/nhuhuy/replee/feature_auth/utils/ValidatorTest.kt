@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_auth.utils
 
-import com.nhuhuy.replee.core.common.data.model.ValidateResult
-import com.nhuhuy.replee.core.common.utils.Validator
+import com.nhuhuy.replee.core.common.base.ValidateResult
+import com.nhuhuy.replee.core.common.utils.InputValidator
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -10,18 +10,18 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class ValidatorTest {
-    private lateinit var validator: Validator
+    private lateinit var inputValidator: InputValidator
 
     @Before
     fun setUp() {
-        validator = Validator()
+        inputValidator = InputValidator()
     }
 
     @Test
     fun validateEmail_WhenMatchPattern_ReturnValid(){
         val email = "mm@gmail.com"
         val expected = ValidateResult.Valid
-        val actual = validator.validateEmail(email)
+        val actual = inputValidator.validateEmail(email)
 
         assertEquals(expected, actual)
     }
@@ -30,7 +30,7 @@ class ValidatorTest {
     fun validatePassword_WhenMatchPattern_ReturnValid(){
         val password = "Password20@"
         val expected = ValidateResult.Valid
-        val actual = validator.validatePassword(password)
+        val actual = inputValidator.validatePassword(password)
 
         assertEquals(expected, actual)
     }

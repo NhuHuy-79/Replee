@@ -1,11 +1,18 @@
 package com.nhuhuy.replee.feature_profile.domain.repository
 
 import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.data.data_store.NotificationMode
+import com.nhuhuy.replee.core.data.data_store.ThemeMode
+import kotlinx.coroutines.flow.Flow
 
 interface ProfileRepository {
-    suspend fun updateUserImage(byteArray: ByteArray): NetworkResult<String>
-
-    suspend fun logOut()
-
-    suspend fun updatePassword(oldPassword: String, newPassword: String): NetworkResult<Unit>
+    suspend fun updateNotification(mode: NotificationMode)
+    suspend fun updateThemeMode(mode: ThemeMode)
+    fun observeNotification(): Flow<NotificationMode>
+    fun observeTheme(): Flow<ThemeMode>
+    suspend fun updatePassword(
+        email: String,
+        oldPassword: String,
+        newPassword: String
+    ): NetworkResult<Unit>
 }

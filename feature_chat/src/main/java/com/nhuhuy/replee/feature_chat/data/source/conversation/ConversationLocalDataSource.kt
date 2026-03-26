@@ -5,32 +5,94 @@ import com.nhuhuy.replee.core.database.entity.conversation.ConversationDao
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationEntity
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class ConversationLocalDataSource @Inject constructor(
+interface ConversationLocalDataSource {
+    suspend fun upsertConversations(entities: List<ConversationEntity>)
+    suspend fun getOtherUserInConversation(uid: String): List<String>
+    suspend fun upsertAndDeleteConversations(
+        upsert: List<ConversationEntity>,
+        delete: List<String>,
+    )
+    suspend fun clearUnreadMessages(conversationId: String)
+    fun observeOtherUserInConversation(currentUserId: String): Flow<List<String>>
+
+    suspend fun deleteConversationsByUid(uid: String)
+    suspend fun upsertConversation(conversation: ConversationEntity)
+    suspend fun deleteConversation(conversationId: String)
+    fun observeConversationById(conversationId: String): Flow<ConversationAndUser?>
+    suspend fun getConversationById(conversationId: String): ConversationAndUser?
+    suspend fun getConversationAndUserById(
+        ownerId: String,
+        otherUserId: String
+    ): ConversationAndUser
+
+    fun observeConversationAndUsers(uid: String): Flow<List<ConversationAndUser>>
+    suspend fun updateLastSyncedTime(conversationIds: List<String>, lastSyncedTime: Long)
+    suspend fun getConversationsCount(ownerId: String): Int
+    suspend fun updateMutedStatus(conversationId: String, muted: Boolean)
+    suspend fun updateDeleteStatus(conversationId: String, deleted: Boolean)
+    suspend fun updateBlockStatus(conversationId: String, blocked: Boolean)
+    suspend fun updateConversationSyncedStatus(conversationId: String, synced: Boolean)
+    suspend fun updateSyncStatusOfConversations(conversationIds: List<String>, synced: Boolean)
+    suspend fun updatePinnedStatus(conversationId: String, pinned: Boolean)
+    suspend fun updateLastMessage(message: MessageEntity)
+    suspend fun getUnSyncedConversations(): List<ConversationAndUser>
+    suspend fun updateOwnerNickName(conversationId: String, nickname: String)
+    suspend fun updateOtherUserNickname(conversationId: String, nickname: String)
+}
+
+class ConversationLocalDataSourceImp @Inject constructor(
     private val conversationDao: ConversationDao
-) {
-    suspend fun upsertConversations(entities: List<ConversationEntity>){
+) : ConversationLocalDataSource {
+    override suspend fun upsertConversations(entities: List<ConversationEntity>) {
         conversationDao.upsertAll(entities)
     }
 
-    suspend fun upsertConversation(conversation: ConversationEntity) {
+    override suspend fun getOtherUserInConversation(uid: String): List<String> {
+        return conversationDao.getOtherUserInConversationList(uid)
+    }
+
+    override suspend fun upsertAndDeleteConversations(
+        upsert: List<ConversationEntity>,
+        delete: List<String>,
+    ) {
+        conversationDao.upsertAndDeleteConversations(
+            upsert = upsert,
+            delete = delete,
+        )
+    }
+
+    override suspend fun clearUnreadMessages(conversationId: String) {
+        conversationDao.clearUnreadMessages(conversationId)
+    }
+
+    override fun observeOtherUserInConversation(currentUserId: String): Flow<List<String>> {
+        return conversationDao.getOtherUserInConversationFlow(currentUserId)
+    }
+
+    override suspend fun deleteConversationsByUid(uid: String) {
+        conversationDao.deleteConversationsByOwnerId(uid)
+    }
+
+    override suspend fun upsertConversation(conversation: ConversationEntity) {
         conversationDao.upsert(conversation)
     }
 
-    suspend fun deleteConversation(conversationId: String) {
+    override suspend fun deleteConversation(conversationId: String) {
         conversationDao.deleteConversationById(conversationId)
     }
 
-    fun observeConversationById(conversationId: String): Flow<ConversationAndUser?> {
+    override fun observeConversationById(conversationId: String): Flow<ConversationAndUser?> {
         return conversationDao.observeConversationById(conversationId)
     }
 
-    suspend fun getConversationById(conversationId: String): ConversationAndUser? {
+    override suspend fun getConversationById(conversationId: String): ConversationAndUser? {
         return conversationDao.getConversationById(conversationId)
     }
 
-    suspend fun getConversationAndUserById(
+    override suspend fun getConversationAndUserById(
         ownerId: String,
         otherUserId: String
     ): ConversationAndUser {
@@ -51,64 +113,74 @@ class ConversationLocalDataSource @Inject constructor(
             )
     }
 
-    fun observeConversationAndUsers(uid: String) : Flow<List<ConversationAndUser>>{
-        return conversationDao.observeConversations(uid)
+
+    override fun observeConversationAndUsers(uid: String): Flow<List<ConversationAndUser>> {
+        return conversationDao.observeConversations(uid).map { conversationAndUsers ->
+            conversationAndUsers
+        }
     }
 
-    suspend fun updateLastSyncedTime(conversationIds: List<String>, lastMessageTime: Long) {
-        conversationDao.updateSyncedTime(conversationIds, lastMessageTime)
+    override suspend fun updateLastSyncedTime(
+        conversationIds: List<String>,
+        lastSyncedTime: Long
+    ) {
+        conversationDao.updateSyncedTime(conversationIds, lastSyncedTime)
     }
 
     private fun createConversationId(uid1: String, uid2: String): String {
         return listOf(uid1, uid2).sorted().joinToString(separator = "_")
     }
 
-    suspend fun getConversationsCount(ownerId: String): Int{
+    override suspend fun getConversationsCount(ownerId: String): Int {
         return conversationDao.getConversationListCount(ownerId)
     }
 
-    suspend fun updateMutedStatus(conversationId: String, muted: Boolean) {
+    override suspend fun updateMutedStatus(conversationId: String, muted: Boolean) {
         conversationDao.updateMutedStatus(conversationId, muted)
     }
 
-    suspend fun updateDeleteStatus(conversationId: String, deleted: Boolean) {
+    override suspend fun updateDeleteStatus(conversationId: String, deleted: Boolean) {
         conversationDao.updateDeleteStatus(conversationId, deleted)
     }
 
-    suspend fun updateBlockStatus(conversationId: String, blocked: Boolean) {
+    override suspend fun updateBlockStatus(conversationId: String, blocked: Boolean) {
         conversationDao.updateBlockStatus(conversationId, blocked)
     }
 
-    suspend fun updateConversationSyncedStatus(conversationId: String, synced: Boolean) {
+    override suspend fun updateConversationSyncedStatus(conversationId: String, synced: Boolean) {
         conversationDao.updateSyncedStatus(conversationId, synced)
     }
 
-    suspend fun updateSyncStatusOfConversations(conversationIds: List<String>, synced: Boolean) {
+    override suspend fun updateSyncStatusOfConversations(
+        conversationIds: List<String>,
+        synced: Boolean
+    ) {
         conversationDao.updateSyncedStatusOfConversations(conversationIds, synced)
     }
 
-    suspend fun updatePinnedStatus(conversationId: String, pinned: Boolean) {
+    override suspend fun updatePinnedStatus(conversationId: String, pinned: Boolean) {
         conversationDao.updatePinnedStatus(conversationId, pinned)
     }
 
-    suspend fun updateLastMessage(message: MessageEntity){
+    override suspend fun updateLastMessage(message: MessageEntity) {
         conversationDao.updateLastMessage(
             conversationId = message.conversationId,
             lastMessageTime = message.sentAt ?: -1L,
             lastMessageContent = message.content,
-            lastSenderId = message.senderId
+            lastSenderId = message.senderId,
+            lastMessageType = message.type
         )
     }
 
-    suspend fun getUnSyncedConversations(): List<ConversationAndUser> {
+    override suspend fun getUnSyncedConversations(): List<ConversationAndUser> {
         return conversationDao.getUnSyncedConversation()
     }
 
-    suspend fun updateOwnerNickName(conversationId: String, nickname: String) {
+    override suspend fun updateOwnerNickName(conversationId: String, nickname: String) {
         return conversationDao.updateOwnerNickname(conversationId = conversationId, nickname)
     }
 
-    suspend fun updateOtherUserNickname(conversationId: String, nickname: String) {
+    override suspend fun updateOtherUserNickname(conversationId: String, nickname: String) {
         return conversationDao.updateOtherUserNickname(conversationId = conversationId, nickname)
     }
 

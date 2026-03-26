@@ -37,7 +37,8 @@ fun AuthLayout(
     content: LazyListScope.() -> Unit,
 ) {
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
                 title = {

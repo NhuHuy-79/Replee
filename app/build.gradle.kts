@@ -40,6 +40,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
 
         debug {
@@ -66,9 +67,10 @@ android {
 
 dependencies {
     implementation(project(":core:common"))
-    implementation(project(":core:firebase"))
+    implementation(project(":core:network"))
     implementation(project(":core:domain"))
     implementation(project(":core:database"))
+    implementation(project(":core:data"))
     implementation(project(":core:design_system"))
     implementation(project(":feature_chat"))
     implementation(project(":feature_auth"))
@@ -79,6 +81,9 @@ dependencies {
     implementation(libs.androidx.hilt.work)
     ksp(libs.androidx.hilt.compiler)
 
+    //Paging for Ui
+    implementation("androidx.paging:paging-runtime:3.3.0")
+    implementation("androidx.paging:paging-compose:3.3.0")
 
     //Hilt
     implementation(libs.dagger.hilt.android)

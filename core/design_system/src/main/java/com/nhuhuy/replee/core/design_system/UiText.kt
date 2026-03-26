@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.core.design_system
 
-import com.nhuhuy.replee.core.common.data.model.ValidateResult
+import com.nhuhuy.replee.core.common.base.ValidateResult
 
 fun ValidateResult.toUiText(): Int? {
     return when (this) {

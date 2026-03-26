@@ -8,10 +8,10 @@ import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.UiAction
 import com.nhuhuy.replee.core.common.base.UiState
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.core.common.toRemoteFailure
-import com.nhuhuy.replee.core.common.utils.Validator
+import com.nhuhuy.replee.core.common.utils.InputValidator
+import com.nhuhuy.replee.core.data.mapper.toRemoteFailure
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
-import com.nhuhuy.replee.feature_auth.data.GoogleCredentialResult
+import com.nhuhuy.replee.feature_auth.data.model.GoogleCredentialResult
 import com.nhuhuy.replee.feature_auth.domain.usecase.LoginWithEmailUseCase
 import com.nhuhuy.replee.feature_auth.domain.usecase.SignInWithGoogleUseCase
 import com.nhuhuy.replee.feature_auth.presentation.login.LoginEvent.Failure
@@ -27,7 +27,7 @@ import javax.inject.Inject
 data class LoginState(
     val email: ValidatableInput = ValidatableInput(),
     val password: ValidatableInput = ValidatableInput(),
-    val showLoading: Boolean = false
+    val showLoading: Boolean = false,
 ) : UiState {
     val inputValid: Boolean
         get() {
@@ -46,7 +46,7 @@ sealed interface LoginAction : UiAction {
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val validator: Validator,
+    private val inputValidator: InputValidator,
     private val loginWithEmailUseCase: LoginWithEmailUseCase,
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
 ) : BaseViewModel<LoginAction, LoginEvent, LoginState>() {
@@ -62,7 +62,7 @@ class LoginViewModel @Inject constructor(
                         copy(
                             email = ValidatableInput(
                                 text = action.email,
-                                validateResult = validator.validateEmail(action.email)
+                                validateResult = inputValidator.validateEmail(action.email)
                             )
                         )
                     }
@@ -73,7 +73,7 @@ class LoginViewModel @Inject constructor(
                         copy(
                             password = ValidatableInput(
                                 text = action.password,
-                                validateResult = validator.validatePassword(action.password)
+                                validateResult = inputValidator.validatePassword(action.password)
                             )
                         )
                     }
@@ -83,9 +83,10 @@ class LoginViewModel @Inject constructor(
                     val value = state.value
                     _state.reduce { copy(showLoading = true) }
                     loginWithEmailUseCase(value.email.text, value.password.text)
-                        .onSuccess {
+                        .onSuccess { uid ->
+                            Timber.d("Uid: $uid")
                             _state.reduce { copy(showLoading = false) }
-                            onEvent(LoginEvent.NavigateToHome)
+                            onEvent(LoginEvent.NavigateToHome(uid = uid))
                         }
                         .onFailure { throwable ->
                             _state.reduce { copy(showLoading = false) }
@@ -105,16 +106,18 @@ class LoginViewModel @Inject constructor(
                     val googleCredentialResult = action.result
                     when (googleCredentialResult) {
                         is GoogleCredentialResult.Success -> {
+                            _state.reduce { copy(showLoading = true) }
                             signInWithGoogleUseCase(googleCredentialResult.idToken)
-                                .onSuccess {
-                                    onEvent(LoginEvent.NavigateToHome)
+                                .onSuccess { account ->
+                                    _state.reduce { copy(showLoading = false) }
+                                    onEvent(LoginEvent.NavigateToHome(uid = account.id))
                                 }
                                 .onFailure { throwable ->
                                     Timber.e(throwable)
+                                    _state.reduce { copy(showLoading = false) }
                                     onEvent(Failure(throwable.toRemoteFailure()))
                                 }
                         }
-
                         else -> {
                             onEvent(LoginEvent.GoogleErrorSnackBar(googleCredentialResult))
                         }

@@ -21,7 +21,7 @@ class PushNotificationService() : FirebaseMessagingService() {
     lateinit var updateDeviceTokenUseCase: UpdateDeviceTokenUseCase
 
     @Inject
-    lateinit var pushNotificationHandler: PushNotificationHandler
+    lateinit var serviceNotifier: ServiceNotifier
 
     @Inject
     lateinit var notificationParser: NotificationParser
@@ -42,7 +42,9 @@ class PushNotificationService() : FirebaseMessagingService() {
                 return@launch
             }
 
-            pushNotificationHandler.showConversationNotification(notificationBody)
+            Timber.d("Notification body: $notificationBody")
+
+            serviceNotifier.showConversationNotification(notificationBody)
         }
         super.onMessageReceived(message)
     }

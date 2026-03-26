@@ -37,4 +37,12 @@
     <string name="edit_dialog_title">Edit Options</string>
     <string name="edit_dialog_avatar">Edit Avatar</string>
     <string name="edit_dialog_password">Edit Password</string>
+
+    <!--Update Password Result-->
+    <string name="update_password_success">Update your password successfully!</string>
+    <string name="update_password_failed">Update your password failed!</string>
+
+    <!--Upload Avatar Result-->
+    <string name="update_avatar_success">Upload your avatar successfully! Please wait for a while!</string>
+    <string name="update_avatar_failed">Upload avatar failed! Please try again!</string>
 </resources>

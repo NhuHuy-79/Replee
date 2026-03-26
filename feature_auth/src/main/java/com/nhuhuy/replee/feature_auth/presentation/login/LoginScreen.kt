@@ -148,7 +148,7 @@ fun LoginScreen(
                     ),
                 ),
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.clickable{
+                modifier = Modifier.clickable {
                     onAction(LoginAction.NavigateToSignUp)
                 }
             )
@@ -160,6 +160,7 @@ fun LoginScreen(
 
         item {
             GoogleSignInContent(
+                loadingState = googleButtonClicked,
                 onClick = {
                     googleButtonClicked = true
                 }

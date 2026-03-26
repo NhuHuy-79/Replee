@@ -32,9 +32,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.core.domain.model.Account
+import com.nhuhuy.core.domain.model.SearchHistoryResult
+import com.nhuhuy.replee.core.common.base.ScreenState
+import com.nhuhuy.replee.core.design_system.ScreenStateHost
 import com.nhuhuy.replee.core.design_system.component.UserImage
-import com.nhuhuy.replee.core.design_system.state.ScreenState
-import com.nhuhuy.replee.core.design_system.state.ScreenStateHost
 import com.nhuhuy.replee.feature_chat.R
 import java.util.Locale
 
@@ -43,9 +44,11 @@ import java.util.Locale
 fun ConversationSearchBar(
     currentUser: Account,
     state: ScreenState<List<Account>>,
+    searchHistory: List<SearchHistoryResult>,
     expand: Boolean,
     input: String,
     onAvatarClick: (account: Account) -> Unit,
+    onSearchResultClick: (result: SearchHistoryResult) -> Unit,
     goToProfile: () -> Unit,
     onSearch: (String) -> Unit,
     onValueChange: (String) -> Unit,
@@ -72,7 +75,7 @@ fun ConversationSearchBar(
                 },
                 colors = TextFieldDefaults.colors(
                     focusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    focusedContainerColor = MaterialTheme.colorScheme.secondary,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                 ),
                 trailingIcon = {
                     UserImage(
@@ -112,6 +115,29 @@ fun ConversationSearchBar(
         ScreenStateHost(
             state = state,
             modifier = Modifier.fillMaxWidth(),
+            idle = {
+                LazyRow(
+                    modifier = modifier,
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                ) {
+                    items(
+                        items = searchHistory,
+                        key = { result -> result.uid }
+                    ) { item ->
+                        UserItem(
+                            userName = item.name,
+                            imgUrl = item.imgUrl,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .animateItem()
+                                .clickable {
+                                    onSearchResultClick(item)
+                                }
+
+                        )
+                    }
+                }
+            },
             success = { users ->
                 SearchResultContent(
                     userList = users,

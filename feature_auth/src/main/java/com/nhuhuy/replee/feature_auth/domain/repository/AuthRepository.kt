@@ -11,7 +11,6 @@ interface AuthRepository {
     ): NetworkResult<Account>
 
     suspend fun sendRecoverPasswordEmail(email: String): NetworkResult<Unit>
-    suspend fun provideCurrentUser(): NetworkResult<String>
 
-    fun isUserLogged(): Boolean
+    suspend fun provideAuthenticateToken(): NetworkResult<String>
 }

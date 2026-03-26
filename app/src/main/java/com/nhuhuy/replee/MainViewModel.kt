@@ -2,26 +2,29 @@ package com.nhuhuy.replee
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
-import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStore
-import com.nhuhuy.replee.feature_profile.data.data_store.ThemeMode
+import com.nhuhuy.replee.core.data.data_store.ThemeMode
+import com.nhuhuy.replee.core.network.manager.ConnectivityObserver
+import com.nhuhuy.replee.core.network.manager.NetworkStatus
+import com.nhuhuy.replee.usecase.ObserveThemeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val authRepository: AuthRepository,
-    private val settingDataStore: SettingDataStore,
+    connectionObserver: ConnectivityObserver,
+    observeThemeUseCase: ObserveThemeUseCase,
 ) : ViewModel(){
+    val network = connectionObserver.observe()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = NetworkStatus.Online
+        )
 
-    val logged = authRepository.isUserLogged()
-    private val _loggedFlow = MutableStateFlow(logged)
-    val loggedFlow = _loggedFlow.asStateFlow()
+    val theme = observeThemeUseCase()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ThemeMode.DEFAULT)
 
-    val theme = settingDataStore.observeTheme().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ThemeMode.DEFAULT)
 
 }

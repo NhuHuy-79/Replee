@@ -2,19 +2,56 @@ package com.nhuhuy.replee.notification
 
 import android.app.Notification
 import android.app.PendingIntent
-import android.app.RemoteInput
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import androidx.core.app.NotificationCompat
+import androidx.core.app.Person
+import androidx.core.app.RemoteInput
+import androidx.core.graphics.drawable.IconCompat
+import coil3.BitmapImage
+import coil3.imageLoader
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import coil3.request.allowHardware
 import com.nhuhuy.replee.R
-import com.nhuhuy.replee.broadcast.ReplyReceiver
-import com.nhuhuy.replee.deeplink.DOMAIN_URI
+import com.nhuhuy.replee.broadcast.ReplyBroadcast
+import com.nhuhuy.replee.core.network.api.fcm.NotificationResponse
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-interface NotificationFactory {
-    fun execute(notificationBody: NotificationBody): Notification
+abstract class NotificationFactory() {
+    abstract suspend fun execute(response: NotificationResponse): Notification
 
-    fun showResult(success: Boolean) : Notification
+    abstract fun showResult(success: Boolean): Notification
+
+    suspend fun loadBitmapForNotification(
+        context: Context,
+        url: String?
+    ): Bitmap? {
+        return withContext(Dispatchers.IO) {
+            val request = ImageRequest.Builder(context)
+                .data(url)
+                .allowHardware(false)
+                .size(128, 128)
+                .build()
+
+            val result = context.imageLoader.execute(request)
+
+            if (result is SuccessResult) {
+                val image = result.image
+
+                return@withContext when (image) {
+                    is BitmapImage -> image.bitmap
+                    else -> null
+                }
+            }
+
+            null
+        }
+    }
 }
 
 const val REMOTE_INPUT_KEY = "conversation_key"
@@ -25,43 +62,85 @@ const val EXTRA_NOTIFICATION_ID = "notification_id"
 
 class ConversationNotificationFactory @Inject constructor(
     @ApplicationContext private val context: Context
-) : NotificationFactory {
-    override fun execute(notificationBody: NotificationBody): Notification {
-        "$DOMAIN_URI/${notificationBody.conversationId}?senderId=${notificationBody.senderId}&receiverId=${notificationBody.receiverId}"
-        /*val intent = Intent(ACTION_VIEW, uri.toUri() ).apply {
+) : NotificationFactory() {
 
-        }
+    override suspend fun execute(response: NotificationResponse): Notification {
+        val channelId = context.getString(R.string.notification_channel)
+        val bitmap = loadBitmapForNotification(context, response.senderImg)
 
-        val activityIntent = Intent(context, MainActivity::class.java)
-        val pendingIntent = TaskStackBuilder.create(context).run {
-            addNextIntentWithParentStack(activityIntent)
-            getPendingIntent(0, PendingIntent.FLAG_IMMUTABLE)
-        }*/
+        val sender = Person.Builder()
+            .setName(response.senderName)
+            .setIcon(bitmap?.let { IconCompat.createWithBitmap(it) })
+            .setKey(response.senderId)
+            .setImportant(true)
+            .build()
+
+        val user = Person.Builder()
+            .setName(context.getString(R.string.app_name))
+            .setKey(response.receiverId)
+            .build()
+
+        val messagingStyle = NotificationCompat.MessagingStyle(user)
+            .setConversationTitle(response.senderName)
+            .addMessage(
+                response.content,
+                System.currentTimeMillis(),
+                sender
+            )
+
+        val contentIntent =
+            context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
+                putExtra(EXTRA_CONVERSATION_ID, response.conversationId)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+
+        val contentPendingIntent = PendingIntent.getActivity(
+            context,
+            response.conversationId.hashCode(),
+            contentIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
 
         val remoteInput = RemoteInput.Builder(REMOTE_INPUT_KEY)
             .setLabel(context.getString(R.string.action_reply))
             .build()
 
-        val replyIntent = Intent(context, ReplyReceiver::class.java).apply {
-            putExtra(EXTRA_SENDER_ID, notificationBody.receiverId)
-            putExtra(EXTRA_RECEIVER_ID, notificationBody.senderId)
-            putExtra(EXTRA_CONVERSATION_ID, notificationBody.conversationId)
-            putExtra(EXTRA_NOTIFICATION_ID, notificationBody.hashCode())
+        val replyIntent = Intent(context, ReplyBroadcast::class.java).apply {
+            putExtra(EXTRA_CONVERSATION_ID, response.conversationId)
+            putExtra(EXTRA_SENDER_ID, response.receiverId)
+            putExtra(EXTRA_RECEIVER_ID, response.senderId)
+            putExtra(EXTRA_NOTIFICATION_ID, response.hashCode())
         }
-        val replyPendingIntent = PendingIntent.getBroadcast(context, 0, replyIntent, PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-        val replyAction = Notification.Action.Builder(
-            R.drawable.ic_notification_msg,
+
+        val replyPendingIntent = PendingIntent.getBroadcast(
+            context,
+            response.conversationId.hashCode(),
+            replyIntent,
+            PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val replyAction = NotificationCompat.Action.Builder(
+            R.drawable.ic_circle_notification,
             context.getString(R.string.action_reply),
             replyPendingIntent
-        ).addRemoteInput(remoteInput)
+        )
+            .addRemoteInput(remoteInput)
+            .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)
             .build()
 
-        return Notification.Builder(context, context.getString(R.string.notification_channel))
+        return NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification_msg)
-            .setContentTitle(notificationBody.senderName)
-            .setContentText(notificationBody.message)
-            .setAutoCancel(true)
+            .setLargeIcon(bitmap)
+            .setStyle(messagingStyle)
+            .setContentIntent(contentPendingIntent)
+            .setGroup(response.conversationId)
+            .setShortcutId(response.conversationId)
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setOnlyAlertOnce(true)
+            .addPerson(sender)
             .addAction(replyAction)
+            .setAutoCancel(true)
             .build()
     }
 
@@ -70,12 +149,11 @@ class ConversationNotificationFactory @Inject constructor(
         val contentText = if (success) context.getString(R.string.notification_success)
         else context.getString(R.string.notification_failure)
 
-        return Notification.Builder(context, context.getString(R.string.notification_channel))
+        return NotificationCompat.Builder(context, context.getString(R.string.notification_channel))
             .setSmallIcon(R.drawable.ic_notification_msg)
             .setContentTitle(title)
             .setContentText(contentText)
             .setAutoCancel(true)
             .build()
     }
-
 }

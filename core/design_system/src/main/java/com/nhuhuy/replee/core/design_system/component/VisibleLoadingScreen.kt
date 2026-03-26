@@ -3,6 +3,7 @@ package com.nhuhuy.replee.core.design_system.component
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -51,10 +52,11 @@ fun VisibleLoadingScreen(
 ){
     AnimatedVisibility(
         visible = show,
-        modifier = modifier
+        modifier = modifier.clickable(enabled = false, onClick = {})
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .background(color = MaterialTheme.colorScheme.surface),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center

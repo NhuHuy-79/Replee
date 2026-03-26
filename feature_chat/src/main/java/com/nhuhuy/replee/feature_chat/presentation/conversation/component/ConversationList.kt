@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,10 +26,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.replee.core.common.utils.formatToString
+import com.nhuhuy.replee.core.common.utils.formatToChatTime
+import com.nhuhuy.replee.core.design_system.canvas.AvatarContainer
 import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
+import com.nhuhuy.replee.feature_chat.domain.model.MessageType
+import com.nhuhuy.replee.feature_chat.utils.getMainName
 
 @Composable
 fun ConversationList(
@@ -89,17 +91,25 @@ fun ConversationItem(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        UserImage(
-            photoUrl = conversation.otherUser.imgUrl,
-            userName = conversation.otherUser.nick.ifEmpty { conversation.otherUser.name },
-        )
-        ConversationBody(
-            isLastSender = conversation.lastSenderId == conversation.owner.uid,
-            userName = conversation.otherUser.nick.ifEmpty { conversation.otherUser.name },
-            messageContent = conversation.lastMessageContent,
-        )
 
-        Spacer(Modifier.weight(1f))
+        AvatarContainer(
+            showDot = conversation.otherUserOnline,
+            colorDot = MaterialTheme.colorScheme.primary,
+            sizeAvatar = 56.dp
+        ) {
+            UserImage(
+                photoUrl = conversation.otherUserImg,
+                userName = conversation.otherUserName,
+            )
+        }
+
+        ConversationBody(
+            isLastSender = conversation.lastSenderId == conversation.ownerUserId,
+            userName = conversation.otherUserNickName.ifEmpty { conversation.otherUserName },
+            messageType = conversation.lastMessageType,
+            messageContent = conversation.lastMessageContent,
+            modifier = Modifier.weight(1f)
+        )
 
         Column(
             modifier = Modifier.fillMaxHeight(),
@@ -113,7 +123,7 @@ fun ConversationItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = conversation.lastMessageTime?.formatToString().orEmpty(),
+                    text = conversation.lastMessageTime?.formatToChatTime().orEmpty(),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.outline,
                 )
@@ -157,9 +167,30 @@ fun ConversationItem(
 fun ConversationBody(
     isLastSender: Boolean,
     userName: String,
+    messageType: MessageType,
     messageContent: String,
     modifier: Modifier = Modifier
 ) {
+    val lastMessageContent: String = when (messageType) {
+        MessageType.TEXT -> {
+            if (isLastSender) {
+                stringResource(R.string.conversation_last_message_text, messageContent)
+            } else {
+                messageContent
+            }
+        }
+
+        MessageType.IMAGE -> {
+            if (isLastSender) {
+                stringResource(R.string.conversation_my_last_message_image)
+            } else {
+                stringResource(
+                    R.string.conversation_other_last_message_image,
+                    userName.getMainName()
+                )
+            }
+        }
+    }
     Column(
         modifier = modifier
     ) {
@@ -167,10 +198,11 @@ fun ConversationBody(
             text = userName,
             maxLines = 1,
             style = MaterialTheme.typography.titleMedium,
+            overflow = TextOverflow.Ellipsis
         )
 
         Text(
-            text = if (isLastSender) "You: $messageContent" else messageContent,
+            text = lastMessageContent,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.outline,
             maxLines = 1,

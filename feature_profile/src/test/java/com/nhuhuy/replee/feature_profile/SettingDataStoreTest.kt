@@ -3,10 +3,10 @@ package com.nhuhuy.replee.feature_profile
 import android.content.Context
 import app.cash.turbine.test
 import com.google.common.truth.Truth
+import com.nhuhuy.replee.core.data.data_store.AppDataStore
+import com.nhuhuy.replee.core.data.data_store.AppDataStoreImp
+import com.nhuhuy.replee.core.data.data_store.NotificationMode
 import com.nhuhuy.replee.core.test.DispatcherRuleTest
-import com.nhuhuy.replee.feature_profile.data.data_store.NotificationMode
-import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStore
-import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStoreImp
 import io.mockk.coEvery
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -22,11 +22,11 @@ class SettingDataStoreTest {
 
     private lateinit var context: Context
 
-    private lateinit var settingDataStore: SettingDataStore
+    private lateinit var appDataStore: AppDataStore
 
     @Before
     fun setUp(){
-        settingDataStore = SettingDataStoreImp(context.applicationContext)
+        appDataStore = AppDataStoreImp(context.applicationContext)
     }
 
     @Test
@@ -36,9 +36,9 @@ class SettingDataStoreTest {
 
         } returns context
         val mode: NotificationMode = NotificationMode.PRIVATE
-        settingDataStore.saveNotificationMode(mode)
+        appDataStore.saveNotificationMode(mode)
 
-        settingDataStore.observeNotification().test {
+        appDataStore.observeNotification().test {
             val actual = awaitItem()
             Truth.assertThat(actual).isEqualTo(mode)
         }

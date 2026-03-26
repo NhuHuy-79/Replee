@@ -16,8 +16,7 @@ import coil3.memory.MemoryCache
 import coil3.request.CachePolicy
 import coil3.request.crossfade
 import coil3.util.DebugLogger
-import com.cloudinary.android.MediaManager
-import com.nhuhuy.replee.worker.WorkerScheduler
+import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 import java.io.File
@@ -37,28 +36,12 @@ class RepleeApp() : Application(), Configuration.Provider, SingletonImageLoader.
 
     override fun onCreate() {
         super.onCreate()
+        //Create notification channel
         createNotificationChannel(this)
-        initializeCloudinary()
-        Timber.plant(Timber.DebugTree())
-        workerScheduler.scheduleMessageSyncWorker()
-        workerScheduler.scheduleConversationSyncWorker()
-
-    }
-
-    /* private fun disableFirestoreCacheSetting() {
-         val settings = FirebaseFirestoreSettings.Builder()
-             .setPersistenceEnabled(false)
-             .build()
-
-         FirebaseFirestore.getInstance().firestoreSettings = settings
-     }*/
-
-    private fun initializeCloudinary() {
-        val config = mapOf(
-            "cloud_name" to "dgq6g8u5h"
-        )
-
-        MediaManager.init(this, config)
+        //Timber for debug logging
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
     }
 
     private fun createNotificationChannel(context: Context) {
@@ -80,21 +63,25 @@ class RepleeApp() : Application(), Configuration.Provider, SingletonImageLoader.
             "replee_image"
         )
         return ImageLoader.Builder(context)
-            .crossfade(true)
+            .crossfade(false)
             .memoryCachePolicy(CachePolicy.ENABLED)
             .memoryCache {
                 MemoryCache.Builder()
-                    .maxSizePercent(context = context, percent = 0.1)
+                    .maxSizePercent(context = context, percent = 0.25)
                     .build()
             }
             .diskCachePolicy(CachePolicy.ENABLED)
             .diskCache {
                 DiskCache.Builder()
-                    .maxSizePercent(0.1)
+                    .maxSizePercent(0.25)
                     .directory(fileDirectory)
                     .build()
             }
-            .logger(DebugLogger())
+            .apply {
+                if (BuildConfig.DEBUG) {
+                    logger(DebugLogger())
+                }
+            }
             .build()
     }
 }

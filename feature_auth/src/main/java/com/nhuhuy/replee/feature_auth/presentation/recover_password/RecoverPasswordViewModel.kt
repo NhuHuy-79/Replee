@@ -8,8 +8,8 @@ import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.UiAction
 import com.nhuhuy.replee.core.common.base.UiState
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.core.common.toRemoteFailure
-import com.nhuhuy.replee.core.common.utils.Validator
+import com.nhuhuy.replee.core.common.utils.InputValidator
+import com.nhuhuy.replee.core.data.mapper.toRemoteFailure
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 import com.nhuhuy.replee.feature_auth.domain.usecase.SendRecoveryEmailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,7 +37,7 @@ sealed interface RecoverPasswordAction : UiAction {
 
 @HiltViewModel
 class RecoverPasswordViewModel @Inject constructor(
-    private val validator: Validator,
+    private val inputValidator: InputValidator,
     private val sendRecoveryEmailUseCase: SendRecoveryEmailUseCase,
 ) : BaseViewModel<RecoverPasswordAction, RecoverPasswordEvent, RecoveryPasswordState>() {
     private val _state = MutableStateFlow(RecoveryPasswordState())
@@ -73,7 +73,7 @@ class RecoverPasswordViewModel @Inject constructor(
                         copy(
                             email = ValidatableInput(
                                 text = action.email,
-                                validateResult = validator.validateEmail(action.email)
+                                validateResult = inputValidator.validateEmail(action.email)
                             )
                         )
                     }

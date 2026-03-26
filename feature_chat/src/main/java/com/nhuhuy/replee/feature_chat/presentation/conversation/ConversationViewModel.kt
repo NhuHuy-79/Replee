@@ -1,30 +1,38 @@
 package com.nhuhuy.replee.feature_chat.presentation.conversation
 
 import androidx.lifecycle.viewModelScope
+import com.nhuhuy.core.domain.model.SearchHistoryResult
 import com.nhuhuy.core.domain.model.onFailure
 import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
 import com.nhuhuy.core.domain.usecase.SearchAccountByEmailUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
+import com.nhuhuy.replee.core.common.base.ScreenState
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.core.common.toRemoteFailure
-import com.nhuhuy.replee.core.design_system.state.ScreenState
-import com.nhuhuy.replee.core.design_system.state.toScreenState
+import com.nhuhuy.replee.core.data.mapper.toScreenState
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.account.FetchAccountListUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.account.ObserveAccountInConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.account.SetUserOnlineUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.account.UpdateCurrentAccountUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetSearchHistoryUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.ListenConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.LoadConversationUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.ObserveConversationsUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationListUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationUserUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.sync.UpsertConversationUseCase
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.BottomSheet
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationAction
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent.GoToProfile
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent.NavigateToChatRoom
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationState
+import com.nhuhuy.replee.feature_chat.presentation.conversation.state.Dialog
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.SynchronizingState
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -32,68 +40,71 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import timber.log.Timber
 
-@HiltViewModel
-class ConversationViewModel @Inject constructor(
-    private val getConversationUseCase: GetConversationUseCase,
+@HiltViewModel(assistedFactory = ConversationViewModel.Factory::class)
+class ConversationViewModel @AssistedInject constructor(
+    @Assisted private val currentUserId: String,
+    private val setUserOnlineUseCase: SetUserOnlineUseCase,
+    private val getSearchHistoryUseCase: GetSearchHistoryUseCase,
+    private val listenConversationUseCase: ListenConversationUseCase,
+    private val upsertConversationUseCase: UpsertConversationUseCase,
     private val loadConversationUseCase: LoadConversationUseCase,
     private val saveConversationListUseCase: SaveConversationListUseCase,
-    private val saveConversationUserUseCase: SaveConversationUserUseCase,
-    private val observeConversationsUseCase: ObserveConversationsUseCase,
-    private val saveConversationUseCase: SaveConversationUseCase,
+    private val updateCurrentAccountUseCase: UpdateCurrentAccountUseCase,
     private val getCurrentAccountUseCase: GetCurrentAccountUseCase,
-    private val searchAccountByEmailUseCase: SearchAccountByEmailUseCase
-) : BaseViewModel<ConversationAction, ConversationEvent, ConversationState>() {
-    private var firstSync = false
+    private val searchAccountByEmailUseCase: SearchAccountByEmailUseCase,
+    private val fetchAccountListUseCase: FetchAccountListUseCase,
+    private val observeAccountInConversationUseCase: ObserveAccountInConversationUseCase,
+
+    ) : BaseViewModel<ConversationAction, ConversationEvent, ConversationState>() {
     private val _state = MutableStateFlow(ConversationState())
     override val state: StateFlow<ConversationState>
         get() = _state.asStateFlow()
 
+    val searchHistory: StateFlow<List<SearchHistoryResult>> = getSearchHistoryUseCase(currentUserId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     init {
+        listenToNetworkConversation()
+        listenToNewConversationUser()
         viewModelScope.launch {
-            observeConversationFromNetwork()
+            updateCurrentAccountUseCase(uid = currentUserId)
+            setUserOnlineUseCase(uid = currentUserId)
             val currentUser = getCurrentAccountUseCase()
-            saveConversationUserUseCase(currentUser.id)
-            _state.reduce {
-                copy(currentUser = currentUser)
-            }
+            _state.reduce { copy(currentUser = currentUser) }
         }
+
     }
 
-    private fun observeConversationFromNetwork() {
-        viewModelScope.launch {
-            observeConversationsUseCase().collect { result ->
-                if (firstSync) {
-                    _state.reduce {
-                        copy(synchronizingState = SynchronizingState.SYNC)
-                    }
-                    firstSync = false
-                }
-                result.onSuccess { conversation ->
-                    saveConversationUseCase(conversation)
-                    _state.reduce {
-                        copy(
-                            synchronizingState = SynchronizingState.NONE
-                        )
-                    }
-                }.onFailure {
-                    _state.reduce {
-                        copy(
-                            synchronizingState = SynchronizingState.FAILURE
-                        )
-                    }
-                }
-            }
-        }
-    }
 
     val conversationState: StateFlow<ScreenState<List<Conversation>>> =
-        loadConversationUseCase().map { list ->
+        loadConversationUseCase(ownerId = currentUserId).map { list ->
             ScreenState.Success(list)
         }.stateIn(
             viewModelScope, SharingStarted.WhileSubscribed(5000), ScreenState.Loading
         )
+
+    private fun listenToNetworkConversation() {
+        viewModelScope.launch(Dispatchers.IO) {
+            listenConversationUseCase(
+                ownerId = currentUserId,
+                limit = 60
+            )
+                .collect { dataChanges ->
+                    upsertConversationUseCase(dataChanges)
+                }
+        }
+    }
+
+    private fun listenToNewConversationUser() {
+        viewModelScope.launch {
+            observeAccountInConversationUseCase(currentUserId).collect { uids ->
+                Timber.d("Uid List: $uids")
+                fetchAccountListUseCase(uids)
+            }
+        }
+    }
 
     override fun onAction(action: ConversationAction) {
         viewModelScope.launch {
@@ -108,16 +119,15 @@ class ConversationViewModel @Inject constructor(
                     val conversation = action.conversation
                     onEvent(
                         NavigateToChatRoom(
-                            conversationId = conversation.id,
-                            currentUserId = conversation.owner.uid,
-                            otherUserId = conversation.otherUser.uid
+                            currentUserId = currentUserId,
+                            otherUserId = conversation.otherUserId
                         )
                     )
                 }
 
                 ConversationAction.OnDismissPress -> {
                     _state.reduce {
-                        copy(bottomSheet = BottomSheet.CLOSE)
+                        copy(bottomSheet = BottomSheet.CLOSE, dialog = Dialog.NONE)
                     }
                 }
 
@@ -126,7 +136,10 @@ class ConversationViewModel @Inject constructor(
                         copy(searchState = ScreenState.Loading)
                     }
                     val query = state.value.searchQuery
-                    val result = searchAccountByEmailUseCase(email = query)
+                    val result = searchAccountByEmailUseCase(
+                        ownerId = currentUserId,
+                        email = query
+                    )
                     _state.reduce {
                         copy(searchState = result.toScreenState())
                     }
@@ -134,7 +147,11 @@ class ConversationViewModel @Inject constructor(
 
                 ConversationAction.OnSearchBarClose -> {
                     _state.reduce {
-                        copy(expandSearchBar = false, searchQuery = "")
+                        copy(
+                            expandSearchBar = false,
+                            searchQuery = "",
+                            searchState = ScreenState.Idle
+                        )
                     }
                 }
 
@@ -155,31 +172,45 @@ class ConversationViewModel @Inject constructor(
                     _state.reduce {
                         copy(expandSearchBar = action.expand)
                     }
+                    if (!action.expand) {
+                        _state.reduce {
+                            copy(searchQuery = "", searchState = ScreenState.Idle)
+                        }
+                    }
                 }
 
                 is ConversationAction.OnAvatarClick -> {
-                    getConversationUseCase(action.account)
-                        .onSuccess { id ->
-                            _state.reduce {
-                                copy(expandSearchBar = false, searchQuery = "")
-                            }
-                            onEvent(
-                                NavigateToChatRoom(
-                                    conversationId = id,
-                                    currentUserId = state.value.currentUser.id,
-                                    otherUserId = action.account.id
-                                )
-                            )
-                        }
-                        .onFailure { throwable ->
-                            onEvent(
-                                ConversationEvent.Error(throwable.toRemoteFailure())
-                            )
-                        }
+                    onEvent(
+                        NavigateToChatRoom(
+                            currentUserId = currentUserId,
+                            otherUserId = action.account.id
+                        )
+                    )
                 }
 
                 ConversationAction.OnOwnerClick -> {
                     onEvent(GoToProfile)
+                }
+
+                ConversationAction.OnImagePress -> {
+                    _state.reduce {
+                        copy(dialog = Dialog.FULL_IMAGE)
+                    }
+                }
+
+                ConversationAction.OnMessageLongPress -> {
+                    _state.reduce {
+                        copy(dialog = Dialog.MESSAGE)
+                    }
+                }
+
+                is ConversationAction.OnSearchResultClick -> {
+                    onEvent(
+                        NavigateToChatRoom(
+                            currentUserId = currentUserId,
+                            otherUserId = action.historyResult.uid
+                        )
+                    )
                 }
             }
         }
@@ -207,5 +238,12 @@ class ConversationViewModel @Inject constructor(
                 }
             }
 
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(
+            @Assisted currentUserId: String
+        ): ConversationViewModel
     }
 }

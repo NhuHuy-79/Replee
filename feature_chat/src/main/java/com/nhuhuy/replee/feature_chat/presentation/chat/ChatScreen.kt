@@ -2,13 +2,20 @@
 
 package com.nhuhuy.replee.feature_chat.presentation.chat
 
+import android.content.ClipData
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.MoreVert
@@ -16,36 +23,76 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nhuhuy.replee.core.design_system.state.ScreenStateHost
+import androidx.paging.compose.LazyPagingItems
+import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.feature_chat.R
-import com.nhuhuy.replee.feature_chat.domain.model.Message
+import com.nhuhuy.replee.feature_chat.domain.model.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.BlockOverlay
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.ChatContent
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.MessageInput
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.ReplyBanner
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.dialog.FullImageDialog
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageInput
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageScreen
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageSheet
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
 import com.nhuhuy.replee.feature_chat.presentation.shared.Banner
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChatScreen(
+    pagedMessages: LazyPagingItems<LocalPathMessage>,
     blocked: Boolean,
     state: ChatState,
-    messages: List<Message>,
     onAction: (ChatAction) -> Unit,
-) {
+) = BoxContainer {
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(state.isReplying) {
+        if (state.isReplying) {
+            delay(100)
+            focusRequester.requestFocus()
+            keyboardController?.show()
+        } else {
+            keyboardController?.hide()
+        }
+    }
+
+    val localClipboard = LocalClipboard.current
+    val scope = rememberCoroutineScope()
+    val lazyListState = rememberLazyListState()
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            onAction(ChatAction.OnImageSend(uri))
+        } else {
+            Timber.e("No media selected")
+        }
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -72,29 +119,16 @@ fun ChatScreen(
                 .imePadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ScreenStateHost(
-                modifier = Modifier.fillMaxWidth(),
-                state = state.sendMessageState,
-                success = {
-                    Banner(
-                        label = stringResource(R.string.chat_screen_success_banner),
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                },
-                failure = {
-                    Banner(
-                        label = stringResource(R.string.chat_screen_failure_banner),
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                },
-                loading = {
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                },
-            )
+            if (state.isBlocked) {
+                Banner(
+                    label = stringResource(R.string.chat_screen_block_banner),
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                    modifier = Modifier.fillMaxWidth()
+
+                )
+            }
+            Spacer(Modifier.height(16.dp))
 
             if (blocked) {
                 BlockOverlay(
@@ -106,22 +140,31 @@ fun ChatScreen(
                         .padding(horizontal = 16.dp)
                 )
             } else {
-                ChatContent(
+                MessageScreen(
+                    lazyListState = lazyListState,
                     otherUserImg = state.otherUser.imageUrl,
                     otherUserName = state.otherUser.name,
                     currentUserId = state.currentUserId,
-                    messageList = messages,
-                    markMessagesRead = { ids ->
-                        onAction(ChatAction.OnReadMessage(ids))
-                    },
+                    pagingItems = pagedMessages,
+                    onAction = onAction,
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 16.dp)
                 )
             }
 
-            if (!blocked) {
+            ReplyBanner(
+                onCancelReply = {
+                    onAction(ChatAction.OnMessageCancelReply)
+                },
+                sender = if (state.currentMessage?.senderId == state.currentUserId) state.otherUser.name else state.otherUser.name,
+                currentMessage = state.currentMessage,
+                isReplying = state.isReplying
+            )
+
+            if (!blocked && !state.isBlocked) {
                 MessageInput(
+                    focusRequester = focusRequester,
                     value = state.messageInput,
                     onValueChange = { value ->
                         onAction(ChatAction.OnMessageInputChanged(value))
@@ -130,14 +173,58 @@ fun ChatScreen(
                         //TODO("camera clicked")
                     },
                     onImageClick = {
-                        //TODO("image clicked")
+                        launcher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
                     },
                     onSendMessage = {
                         onAction(ChatAction.OnSendMessageClicked)
+
                     },
-                    onFocusChange = {},
+                    scrollCallback = { lazyListState.animateScrollToItem(0) },
                     modifier = Modifier
                         .fillMaxWidth()
+                )
+            }
+        }
+
+        when (val dialog = state.overlay) {
+            is ChatOverlay.FullImage -> {
+                FullImageDialog(
+                    url = dialog.url,
+                    onDismiss = {
+                        onAction(ChatAction.OnDismiss)
+                    }
+                )
+            }
+
+            ChatOverlay.None -> Unit
+            ChatOverlay.MessageOption -> {
+                MessageSheet(
+                    onDismiss = {
+                        onAction(ChatAction.OnDismiss)
+                    },
+                    onMessagePin = {
+                        onAction(ChatAction.OnMessagePin)
+                    },
+                    onMessageReply = {
+                        onAction(ChatAction.OnMessageReply)
+                    },
+                    onMessageDelete = {
+                        onAction(ChatAction.OnMessageDelete)
+                    },
+                    onMessageCopy = {
+                        scope.launch {
+                            val clipData = ClipData.newPlainText(
+                                "plain text",
+                                state.currentMessage?.content.orEmpty()
+                            )
+                            val clipEntry = ClipEntry(clipData)
+                            localClipboard.setClipEntry(clipEntry)
+                            onAction(ChatAction.OnDismiss)
+                        }
+
+                    }
                 )
             }
         }
@@ -147,12 +234,12 @@ fun ChatScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatTopBar(
+    modifier: Modifier = Modifier,
     otherUserName: String,
     enable: Boolean = true,
     onBackClick: () -> Unit,
     onSearchClick: () -> Unit,
     onMoreClick: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     TopAppBar(
         modifier = modifier,

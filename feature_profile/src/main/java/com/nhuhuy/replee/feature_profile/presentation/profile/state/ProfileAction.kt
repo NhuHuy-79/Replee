@@ -2,8 +2,8 @@ package com.nhuhuy.replee.feature_profile.presentation.profile.state
 
 import android.net.Uri
 import com.nhuhuy.replee.core.common.base.UiAction
-import com.nhuhuy.replee.feature_profile.data.data_store.NotificationMode
-import com.nhuhuy.replee.feature_profile.data.data_store.ThemeMode
+import com.nhuhuy.replee.core.data.data_store.NotificationMode
+import com.nhuhuy.replee.core.data.data_store.ThemeMode
 
 sealed interface ProfileAction : UiAction {
 

@@ -8,7 +8,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface AccountDao : BaseDao<AccountEntity>{
     @Query("SELECT * FROM accounts WHERE uid = :uid")
-    suspend fun getAccountWithUid(uid: String) : AccountEntity
+    suspend fun getAccountWithUid(uid: String): AccountEntity?
+
+    @Query("UPDATE accounts SET deviceToken = :token WHERE uid = :uid")
+    suspend fun updateDeviceToken(uid: String, token: String)
 
     @Query("UPDATE accounts SET logOut = true WHERE uid = :uid")
     suspend fun updateLogoutStatus(uid: String)
@@ -19,6 +22,12 @@ interface AccountDao : BaseDao<AccountEntity>{
     @Query("UPDATE accounts SET imageUrl = :imgUrl WHERE uid = :uid ")
     suspend fun updateImageUrl(uid: String, imgUrl: String)
 
+    @Query("UPDATE accounts SET isOnline = :isOnline, lastSeen = :lastSeen WHERE uid = :uid")
+    suspend fun updateOnlineStatus(uid: String, isOnline: Boolean, lastSeen: Long)
+
+    @Query("SELECT * FROM accounts WHERE uid = :uid")
+    fun observeAccount(uid: String): Flow<AccountEntity?>
+    
     @Query("SELECT * FROM accounts WHERE uid = :uid")
     fun observeBlockStatus(uid: String): Flow<AccountEntity?>
 }

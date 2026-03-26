@@ -48,13 +48,15 @@ android {
 dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:design_system"))
-    implementation(project(":core:firebase"))
+    implementation(project(":core:network"))
     testImplementation(project(":core:test"))
     implementation(project(":core:database"))
     implementation(project(":core:domain"))
+    implementation(project(":core:data"))
 
     //Hilt
     implementation(libs.dagger.hilt.android)
+    testImplementation(libs.junit.junit)
     testImplementation(libs.junit.junit)
     debugImplementation(libs.ui.tooling)
     ksp(libs.hilt.android.compiler)

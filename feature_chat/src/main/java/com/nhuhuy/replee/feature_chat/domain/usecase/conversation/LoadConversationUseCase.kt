@@ -8,7 +8,7 @@ import javax.inject.Inject
 class LoadConversationUseCase @Inject constructor(
     private val conversationRepository: ConversationRepository
 ) {
-    operator fun invoke(): Flow<List<Conversation>> {
-        return conversationRepository.observeLocalConversations()
+    operator fun invoke(ownerId: String): Flow<List<Conversation>> {
+        return conversationRepository.observeLocalConversationList(ownerId)
     }
 }

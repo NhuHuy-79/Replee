@@ -3,156 +3,126 @@ package com.nhuhuy.replee.feature_chat.data.mapper
 import com.google.firebase.firestore.FieldValue
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationAndUser
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationEntity
-import com.nhuhuy.replee.core.firebase.utils.toMilliseconds
+import com.nhuhuy.replee.core.network.utils.toMilliseconds
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTO
-import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTOUser
-import com.nhuhuy.replee.feature_chat.data.model.network.ConversationPatch
 import com.nhuhuy.replee.feature_chat.domain.model.Conversation
-import com.nhuhuy.replee.feature_chat.domain.model.ConversationOtherUser
+import com.nhuhuy.replee.feature_chat.domain.model.MessageType
 
-fun ConversationDTOUser.toUserInConversation() : ConversationOtherUser {
-    return ConversationOtherUser(
-        imgUrl = imgUrl,
-        nick = nick,
-        uid = uid,
-        name = name
-    )
-}
-
-
+//Domain save to local
 fun Conversation.toConversationEntity(): ConversationEntity {
     return ConversationEntity(
         id = this.id,
-        ownerId = this.owner.uid,
-        otherUserId = this.otherUser.uid,
+        ownerId = this.ownerUserId,
+        otherUserId = this.otherUserId,
         createdAt = this.createdAt,
         lastSenderId = this.lastSenderId,
         lastMessageTime = this.lastMessageTime,
         lastMessageContent = this.lastMessageContent,
         unreadMessageCount = this.unreadMessageCount,
-        ownerNick = this.owner.nick,
-        otherUserNick = this.otherUser.nick,
+        ownerNick = this.ownerNickName,
+        otherUserNick = this.otherUserNickName,
+        otherUserImg = this.otherUserImg,
         muted = this.muted,
-        ownerImg = this.owner.imgUrl,
-        otherUserImg = this.otherUser.imgUrl,
         blocked = this.blocked,
         pinned = this.pinned,
         deleted = this.deleted,
-        synced = false,
-        lastTimeSyncs = System.currentTimeMillis()
+        synced = true,
+        lastTimeSyncs = System.currentTimeMillis(),
+        lastMessageType = this.lastMessageType.name,
     )
 }
 
-fun ConversationAndUser.toConversationDTO() : ConversationDTO {
-    val user1 = ConversationDTOUser(
-        nick = conversation.ownerNick,
-        uid = owner?.uid.orEmpty(),
-        name = owner?.name.orEmpty(),
-        imgUrl = owner?.imageUrl.orEmpty()
-    )
-
-    val user2 = ConversationDTOUser(
-        nick = conversation.otherUserNick,
-        uid = otherUser?.uid.orEmpty(),
-        name = otherUser?.name.orEmpty(),
-        imgUrl = otherUser?.imageUrl.orEmpty()
-    )
+//Create new object to upload
+fun ConversationAndUser.createConversationDTO(): ConversationDTO {
     return ConversationDTO(
         id = conversation.id,
-        user1 = user1,
-        user2 = user2,
-        memberIds = listOf(user1.uid, user2.uid),
+        nickName = mapOf(
+            conversation.ownerId to conversation.ownerNick,
+            conversation.otherUserId to conversation.otherUserNick
+        ),
         lastSenderId = conversation.lastSenderId,
         lastMessageTime = conversation.lastMessageTime,
-        lastMessageContent = conversation.lastMessageContent
+        lastMessageContent = conversation.lastMessageContent,
+        lastMessageType = MessageType.valueOf(conversation.lastMessageType),
+        isBlocked = mapOf(conversation.ownerId to conversation.blocked),
+        isPinned = mapOf(conversation.ownerId to conversation.pinned),
+        isMuted = mapOf(conversation.ownerId to conversation.muted),
+        isDeleted = mapOf(conversation.ownerId to conversation.deleted),
+        memberIds = listOf(conversation.ownerId, conversation.otherUserId),
+        unReadMessages = mapOf(conversation.ownerId to conversation.unreadMessageCount)
     )
 }
 
-fun ConversationAndUser.toConversationPatch(): ConversationPatch {
-    return ConversationPatch(
-        id = this.conversation.id,
-        mapFieldValue = this.toFieldValueMap(),
-        mapLastMessage = this.toLastMessageMap()
-    )
+fun ConversationAndUser.toUpdatePatch(uid: String): Map<String, Any> {
+    val map = mutableMapOf<String, Any>()
+    map["id"] = conversation.id
+    map["isMuted.$uid"] = conversation.muted
+    map["isPinned.$uid"] = conversation.pinned
+    map["isBlocked.$uid"] = conversation.blocked
+    map["isDeleted.$uid"] = conversation.deleted
+    map["nickName.$uid"] = conversation.otherUserNick
+    map["unReadMessages.$uid"] = conversation.unreadMessageCount
+
+    map["lastSenderId"] = conversation.lastSenderId
+    map["lastMessageTime"] = FieldValue.serverTimestamp()
+    map["lastMessageContent"] = conversation.lastMessageContent
+    map["lastMessageType"] = conversation.lastMessageType
+
+    return map
+
 }
 
-fun ConversationAndUser.toFieldValueMap(): Map<String, FieldValue> {
-    val mutedList = unionOrRemoveArray(conversation.muted, conversation.ownerId)
-    val pinnedList = unionOrRemoveArray(conversation.pinned, conversation.ownerId)
-    val blockedList = unionOrRemoveArray(conversation.blocked, conversation.ownerId)
-    val deletedList = unionOrRemoveArray(conversation.deleted, conversation.ownerId)
-    return mapOf(
-        "mutedBy" to mutedList,
-        "pinnedBy" to pinnedList,
-        "blockedBy" to blockedList,
-        "deletedBy" to deletedList
-    )
-}
-
-fun ConversationAndUser.toLastMessageMap(): Map<String, Any?> {
-    return mapOf(
-        "lastSenderId" to conversation.lastSenderId,
-        "lastMessageTime" to conversation.lastMessageTime,
-        "lastMessageContent" to conversation.lastMessageContent
-    )
-}
-
+//Download from network
 fun ConversationDTO.toConversation(
     ownerId: String
-) : Conversation {
-    val owner = if (user1.uid == ownerId) user1 else user2
-    val otherUser = if (user1.uid == ownerId) user2 else user1
-    val unreadMessageCount = if (user1.uid == ownerId) unreadMessageCount.user1 else unreadMessageCount.user2
+): Conversation? {
+
+    val otherUserId = memberIds.firstOrNull { it != ownerId }
+
+    if (otherUserId == null) {
+        return null
+    }
 
     return Conversation(
         id = id,
-        owner =  owner.toUserInConversation(),
-        otherUser = otherUser.toUserInConversation(),
+        otherUserNickName = nickName[otherUserId] ?: "",
+        ownerNickName = nickName[ownerId] ?: "",
+        ownerUserId = ownerId,
+        otherUserId = otherUserId,
         createdAt = createdAt?.toMilliseconds(),
+        lastMessageContent = lastMessageContent,
         lastSenderId = lastSenderId,
         lastMessageTime = lastMessageTime,
-        lastMessageContent = lastMessageContent,
-        unreadMessageCount = unreadMessageCount,
-        seedColor = seedColor,
-        muted = mutedBy.contains(otherUser.uid),
-        pinned = pinnedBy.contains(otherUser.uid),
-        blocked = blockedBy.contains(otherUser.uid),
-        deleted = deletedBy.contains(otherUser.uid)
+        lastMessageType = lastMessageType,
+        unreadMessageCount = unReadMessages[ownerId] ?: 0,
+        deleted = isDeleted[ownerId] ?: false,
+        blocked = isBlocked[ownerId] ?: false,
+        muted = isMuted[ownerId] ?: false,
+        pinned = isPinned[ownerId] ?: false,
     )
 }
 
+//Map from local to domain
 fun ConversationAndUser.toConversation(): Conversation {
-
-    val owner = ConversationOtherUser(
-        imgUrl = conversation.ownerImg,
-        nick = conversation.ownerNick,
-        uid = owner?.uid.orEmpty(),
-        name = owner?.name.orEmpty()
-    )
-    val otherUser = ConversationOtherUser(
-        imgUrl = conversation.otherUserImg,
-        nick = conversation.otherUserNick,
-        uid = otherUser?.uid.orEmpty(),
-        name = otherUser?.name.orEmpty()
-    )
-
     return Conversation(
         id = conversation.id,
-        owner = owner,
-        otherUser = otherUser,
+        otherUserNickName = conversation.otherUserNick,
+        ownerNickName = conversation.ownerNick,
+        ownerUserId = conversation.ownerId,
+        otherUserId = conversation.otherUserId,
         unreadMessageCount = conversation.unreadMessageCount,
         createdAt = conversation.createdAt,
         lastMessageContent = conversation.lastMessageContent,
         lastSenderId = conversation.lastSenderId,
         lastMessageTime = conversation.lastMessageTime,
+        lastMessageType = MessageType.valueOf(conversation.lastMessageType),
         muted = conversation.muted,
         pinned = conversation.pinned,
+        otherUserName = otherUser?.name.orEmpty(),
+        otherUserImg = otherUser?.imageUrl.orEmpty(),
         blocked = conversation.blocked,
-        deleted = conversation.deleted
+        deleted = conversation.deleted,
+        otherUserOnline = otherUser?.isOnline ?: false
     )
 }
 
-
-private fun unionOrRemoveArray(union: Boolean, element: String) : FieldValue {
-    return if (union) FieldValue.arrayUnion(element) else FieldValue.arrayRemove(element)
-}

@@ -3,6 +3,17 @@
     <!--Conversation Screen-->
     <string name="conversation_screen_empty">You haven\'t opened any conversation yet.\nlease add someone to message.</string>
     <string name="conversation_screen_search_empty">No result.</string>
+    <string name="conversation_last_message_text">You: %1$s</string>
+    <string name="conversation_my_last_message_image">You \'ve send an image</string>
+    <string name="conversation_other_last_message_image"> %1$s sent an image</string>
+
+    <!--Notification Permission-->
+    <string name="notification_permission_denied">
+        Notifications are off. You can enable them in Settings to stay updated on new messages
+    </string>
+    <string name="notification_permission_allowed">
+        Great! You\'ll now receive instant alerts for every new message.
+    </string>
 
     <!--Synchronizing Screen-->
     <string name="sync_screen">Synchronizing…</string>
@@ -13,9 +24,18 @@
     <!--Chat Screen-->
     <string name="chat_screen_placeholder">Message</string>
     <string name="chat_screen_success_banner">Send message successfully!</string>
+    <string name="chat_screen_block_banner">You cannot contact this user.</string>
     <string name="chat_screen_failure_banner">Something went wrong!</string>
     <string name="message_status_seen">Seen</string>
+    <string name="message_status_sending">Sending…</string>
+    <string name="message_status_failed">Failed</string>
     <string name="message_status_sent">Sent</string>
+
+    <string name="full_img_dialog">Close</string>
+    <string name="full_img_dialog_error">Cannot load image!</string>
+    <string name="file_too_large">Size of file cannot be larger than 100MB.</string>
+    <string name="file_unsupported">File is not supported!</string>
+    <string name="file_unknown">File unknown</string>
 
     <!--Information Screen-->
     <string name="information_screen_pin">Pin</string>
@@ -57,6 +77,9 @@
         This action cannot be undone. The conversation will be removed from your account.
     </string>
 
+    <!--Network Status-->
+    <string name="network_failed">You are offline! Please check your connection!</string>
+
     <!--Blocked-->
     <string name="banner_blocked_user">You have blocked this user. If you want to contact to them, please
     unblock them in Setting.</string>
@@ -64,5 +87,14 @@
     <!--Validate Nick name-->
     <string name="validate_result_nick_name">Nick name is too long!</string>
 
+    <!--Message Sheet-->
+    <string name="message_sheet_copy">Copy Text</string>
+    <string name="message_sheet_reply">Reply</string>
+    <string name="message_sheet_pin">Pin Message</string>
+    <string name="message_sheet_delete">Delete Message</string>
+
+    <!--Reply Message-->
+    <string name="reply_image">Image</string>
+    <string name="reply_title">Replying to %1$s</string>
 
 </resources>

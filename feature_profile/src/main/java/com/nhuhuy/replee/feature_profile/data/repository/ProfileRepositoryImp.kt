@@ -1,65 +1,41 @@
 package com.nhuhuy.replee.feature_profile.data.repository
 
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.repository.NetworkResultCaller
-import com.nhuhuy.core.domain.utils.Logger
-import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
-import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
-import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.firebase.data_source.CloudifyFileUploadService
-import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
+import com.nhuhuy.replee.core.data.data_store.NotificationMode
+import com.nhuhuy.replee.core.data.data_store.ThemeMode
+import com.nhuhuy.replee.core.data.utils.execute
+import com.nhuhuy.replee.feature_profile.data.source.ProfileLocalDataSource
+import com.nhuhuy.replee.feature_profile.data.source.ProfileNetworkDataSource
 import com.nhuhuy.replee.feature_profile.domain.repository.ProfileRepository
-import kotlinx.coroutines.CoroutineDispatcher
-import timber.log.Timber
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class ProfileRepositoryImp @Inject constructor(
-    private val logger: Logger,
-    private val ioDispatcher: CoroutineDispatcher,
-    private val accountLocalDataSource: AccountLocalDataSource,
-    private val accountNetworkDataSource: AccountNetworkDataSource,
-    private val cloudifyFileUploadService: CloudifyFileUploadService,
-    private val firebaseAuthEmailService: FirebaseAuthEmailService,
-    private val appPreferences: AppPreferences
-) : ProfileRepository,
-    NetworkResultCaller(ioDispatcher, logger) {
-    override suspend fun updateUserImage(byteArray: ByteArray): NetworkResult<String> {
-        return safeCall {
-            val ownerId = firebaseAuthEmailService.getCurrentUser().uid
-            val url = cloudifyFileUploadService.uploadImage(byteArray)
-            Timber.d(url)
-            accountLocalDataSource.updateImageUrl(
-                uid = ownerId,
-                imgUrl = url
-            )
-            accountNetworkDataSource.updateImageUrl(
-                uid = ownerId,
-                imgUrl = url
-            )
-            url
-        }
+    private val profileNetworkDataSource: ProfileNetworkDataSource,
+    private val profileLocalDataSource: ProfileLocalDataSource,
+) : ProfileRepository {
+    override suspend fun updateNotification(mode: NotificationMode) {
+        profileLocalDataSource.updateNotification(mode)
     }
 
-    override suspend fun logOut() {
-        val uid = try {
-            firebaseAuthEmailService.getCurrentUser().uid
-        } catch (e: Exception) {
-            Timber.e(e)
-            null
-        }
-        firebaseAuthEmailService.logOut()
-        appPreferences.saveLoggedStatus(false)
+    override suspend fun updateThemeMode(mode: ThemeMode) {
+        profileLocalDataSource.updateTheme(mode)
+    }
 
-        uid?.let { uid ->
-            accountLocalDataSource.updateLogoutStatus(uid)
-        }
+    override fun observeNotification(): Flow<NotificationMode> {
+        return profileLocalDataSource.observeNotification()
+    }
+
+    override fun observeTheme(): Flow<ThemeMode> {
+        return profileLocalDataSource.observerTheme()
     }
 
     override suspend fun updatePassword(
+        email: String,
         oldPassword: String,
         newPassword: String
-    ): NetworkResult<Unit> = safeCallWithTimeout {
-        firebaseAuthEmailService.updateNewPassword(oldPassword, newPassword)
+    ): NetworkResult<Unit> = execute {
+        profileNetworkDataSource.updatePassword(email, oldPassword, newPassword)
     }
 
 }

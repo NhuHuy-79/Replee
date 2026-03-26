@@ -7,17 +7,19 @@ import com.nhuhuy.core.domain.model.onFailure
 import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
+import com.nhuhuy.replee.core.common.base.ScreenState
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.core.common.data.UriConverter
-import com.nhuhuy.replee.core.common.toRemoteFailure
-import com.nhuhuy.replee.core.common.utils.Validator
+import com.nhuhuy.replee.core.common.utils.InputValidator
+import com.nhuhuy.replee.core.data.data_store.AppDataStore
+import com.nhuhuy.replee.core.data.mapper.toRemoteFailure
+import com.nhuhuy.replee.core.data.mapper.toScreenState
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
-import com.nhuhuy.replee.feature_profile.data.data_store.SettingDataStore
 import com.nhuhuy.replee.feature_profile.domain.usecase.LogOutUseCase
 import com.nhuhuy.replee.feature_profile.domain.usecase.UpdatePasswordUseCase
 import com.nhuhuy.replee.feature_profile.domain.usecase.UploadAvatarUseCase
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.Overlay
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction
+import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileActionResult
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileEvent
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileEvent.UpdatePassword.Failure
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileState
@@ -35,15 +37,15 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val validator: Validator,
+    private val inputValidator: InputValidator,
     private val updatePasswordUseCase: UpdatePasswordUseCase,
     private val logOutUseCase: LogOutUseCase,
     private val getCurrentAccountUseCase: GetCurrentAccountUseCase,
     private val uploadAvatarUseCase: UploadAvatarUseCase,
-    private val uriConverter: UriConverter,
-    private val dataStore: SettingDataStore,
+    private val dataStore: AppDataStore,
 ) : BaseViewModel<ProfileAction, ProfileEvent, ProfileState>() {
-
+    private val _profileActionResult = MutableStateFlow(ProfileActionResult())
+    val profileActionResult = _profileActionResult.asStateFlow()
     private val _inputState = MutableStateFlow(InputState())
     private val inputState : StateFlow<InputState> = _inputState.asStateFlow()
 
@@ -99,18 +101,18 @@ class ProfileViewModel @Inject constructor(
                         copy(
                             oldPassword = ValidatableInput(
                                 text = action.password,
-                                validateResult = validator.validatePassword(action.password)
+                                validateResult = inputValidator.validatePassword(action.password)
                             )
                         )
                     }
                 }
                 is ProfileAction.OnNewPasswordChange -> {
-                    val old = inputState.value.oldPassword.text
                     _inputState.reduce {
+                        val old = oldPassword.text
                         copy(
                             newPassword = ValidatableInput(
-                                action.password,
-                                validateResult = validator.validateNewPassword(
+                                text = action.password,
+                                validateResult = inputValidator.validateNewPassword(
                                     old = old,
                                     new = action.password
                                 )
@@ -124,6 +126,7 @@ class ProfileViewModel @Inject constructor(
                 }
 
                 ProfileAction.OnDismiss -> {
+                    _profileActionResult.reduce { copy(updatePassword = ScreenState.Idle) }
                     _overlayState.update { Overlay.NONE }
                 }
                 ProfileAction.OnLogOut -> {
@@ -137,14 +140,24 @@ class ProfileViewModel @Inject constructor(
                 ProfileAction.OnUpdatePassword.Confirm -> {
                     val old = inputState.value.oldPassword.text
                     val new = inputState.value.newPassword.text
-                    updatePasswordUseCase(oldPassword = old, newPassword = new)
+                    _profileActionResult.reduce { copy(updatePassword = ScreenState.Loading) }
+                    val screenState = updatePasswordUseCase(oldPassword = old, newPassword = new)
                         .onSuccess {
                             onEvent(ProfileEvent.UpdatePassword.Success)
                             _overlayState.update { Overlay.NONE }
                         }
                         .onFailure { throwable ->
+                            _inputState.reduce {
+                                copy(
+                                    oldPassword = ValidatableInput(),
+                                    newPassword = ValidatableInput()
+
+                                )
+                            }
                             onEvent(Failure(throwable.toRemoteFailure()))
                         }
+                        .toScreenState()
+                    _profileActionResult.reduce { copy(updatePassword = screenState) }
                 }
 
                 is ProfileAction.OnPhotoPicker.Launcher -> {
@@ -152,11 +165,11 @@ class ProfileViewModel @Inject constructor(
                 }
 
                 is ProfileAction.OnPhotoPicker.Select -> {
-                    val byteArray = uriConverter.toByteArray(action.uri)
-                    byteArray?.let { byteArray ->
-                        uploadAvatarUseCase(byteArray)
-                    }
-
+                    _profileActionResult.reduce { copy(updateAvatarLoading = true) }
+                    uploadAvatarUseCase(
+                        uid = state.value.account.id,
+                        uriPath = action.uri.toString()
+                    )
                 }
 
                 ProfileAction.OnEditDialogOpen -> {

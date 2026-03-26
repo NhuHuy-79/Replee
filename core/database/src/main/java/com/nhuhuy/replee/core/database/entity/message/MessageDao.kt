@@ -1,8 +1,11 @@
 package com.nhuhuy.replee.core.database.entity.message
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import com.nhuhuy.replee.core.database.base.BaseDao
+import com.nhuhuy.replee.core.database.entity.file_path.MessageWithLocalPath
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -23,10 +26,30 @@ interface MessageDao : BaseDao<MessageEntity> {
     @Query("UPDATE message SET status = :status WHERE messageId in (:messageIds)")
     suspend fun updateStatusOfMessages(messageIds: List<String>, status: String)
 
+    @Query("SELECT * FROM message WHERE type = :messageType & status = 'FAILED'")
+    suspend fun getUnSyncedMessageByType(messageType: String): List<MessageEntity>
+
+    @Transaction
+    suspend fun upsertAndDeleteMessages(
+        upsert: List<MessageEntity>,
+        delete: List<String>
+    ) {
+        upsertAll(upsert)
+        deleteMessagesByIds(delete)
+    }
+
     //MarkMessageRead
     @Query("UPDATE message SET seen = 1 WHERE messageId IN (:messageIds) AND conversationId = :conversationId " +
             "AND receiverId = :receiverId")
     suspend fun markMessageAsRead(messageIds: List<String>, conversationId: String, receiverId: String)
+
+    //Update Message Status
+    @Query("UPDATE message SET status = :status WHERE messageId = :messageId")
+    suspend fun updateStatusOfMessage(messageId: String, status: String)
+
+    @Query("UPDATE message SET status = :status WHERE messageId IN (:messageIds)")
+    suspend fun updateStatusOfMessageList(messageIds: List<String>, status: String)
+
 
     @Query("DELETE\n" +
             "    FROM message\n" +
@@ -37,6 +60,7 @@ interface MessageDao : BaseDao<MessageEntity> {
             "    PARTITION BY conversationId\n" +
             "    ORDER BY sentAt DESC\n" +
             "    ) AS rn\n" +
+
             "    FROM message\n" +
             "    )\n" +
             "    WHERE rn > :limit\n" +
@@ -44,7 +68,49 @@ interface MessageDao : BaseDao<MessageEntity> {
     )
     suspend fun deleteMessageByConversationId(limit: Int)
 
+    @Query("DELETE FROM message WHERE messageId IN (:messageIds)")
+    suspend fun deleteMessagesByIds(messageIds: List<String>)
+
+    @Query(
+        """
+    SELECT * FROM message 
+    WHERE conversationId = :conversationId
+    ORDER BY sentAt DESC, messageId DESC
+    """
+    )
+    fun pagingSource(conversationId: String): PagingSource<Int, MessageEntity>
+
+    @Query("DELETE FROM message WHERE conversationId = :conversationId")
+    suspend fun clearByConversationId(conversationId: String)
+
+    @Transaction
+    @Query("SELECT * FROM message WHERE conversationId = :conversationId ORDER BY sentAt DESC, messageId DESC ")
+    fun getMessagesPagingSource(conversationId: String): PagingSource<Int, MessageWithLocalPath>
+
+    @Query(
+        """
+        SELECT sentAt FROM message
+        WHERE conversationId = :conversationId
+        ORDER BY sentAt ASC
+        LIMIT 1
+    """
+    )
+    suspend fun getOldestCreatedAt(conversationId: String): Long?
+
     @Query("SELECT * FROM message WHERE conversationId = :conversationId AND content LIKE :query")
     suspend fun getMessageByQuery(conversationId: String, query: String): List<MessageEntity>
+
+    @Query("UPDATE message SET content = :remoteUrl WHERE messageId = :messageId")
+    suspend fun updateRemoteUrl(messageId: String, remoteUrl: String)
+
+    @Query("UPDATE message SET remoteUrl = :remoteUrl, status = :status WHERE messageId = :messageId")
+    suspend fun updateRemoteUrlAndStatus(messageId: String, remoteUrl: String, status: String)
+
+    @Query("UPDATE message SET status = :status WHERE conversationId = :conversationId AND receiverId = :receiverId AND status != :status")
+    fun updateMessageStatusInConversation(
+        conversationId: String,
+        receiverId: String,
+        status: String
+    )
 }
 

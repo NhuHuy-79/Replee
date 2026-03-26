@@ -2,91 +2,48 @@ package com.nhuhuy.replee.feature_auth.data.repository
 
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.repository.NetworkResultCaller
-import com.nhuhuy.core.domain.utils.Logger
-import com.nhuhuy.replee.core.common.data.preferences.AppPreferences
-import com.nhuhuy.replee.core.common.mapper.toAccount
-import com.nhuhuy.replee.core.common.mapper.toAccountEntity
-import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
-import com.nhuhuy.replee.core.firebase.data.AccountDTO
-import com.nhuhuy.replee.core.firebase.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.firebase.data_source.FirebaseAuthEmailService
-import com.nhuhuy.replee.core.firebase.data_source.GoogleAuthService
+import com.nhuhuy.replee.core.data.mapper.toAccount
+
+import com.nhuhuy.replee.core.data.utils.execute
+import com.nhuhuy.replee.core.data.utils.executeWithTimeout
+import com.nhuhuy.replee.feature_auth.data.data_source.AuthNetworkDataSource
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import timber.log.Timber
 import javax.inject.Inject
 
 class AuthRepositoryImp @Inject constructor(
-    logger: Logger,
-    ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val googleAuthService: GoogleAuthService,
-    private val firebaseAuthEmailService: FirebaseAuthEmailService,
-    private val accountNetworkDataSource: AccountNetworkDataSource,
-    private val accountLocalDataSource: AccountLocalDataSource,
-    private val appPreferences: AppPreferences
-) : AuthRepository, NetworkResultCaller(dispatcher = ioDispatcher, logger = logger) {
+    private val authNetworkDataSource: AuthNetworkDataSource,
+    private val ioDispatcher: CoroutineDispatcher
+) : AuthRepository {
     override suspend fun signInWithGoogle(idToken: String): NetworkResult<Account> {
-        return safeCallWithTimeout {
-            val accountDTO = googleAuthService.signIn(idToken)
-            appPreferences.saveLoggedStatus(true)
+        return executeWithTimeout(dispatcher = ioDispatcher) {
+            val accountDTO = authNetworkDataSource.signInWithGoogle(idToken)
             accountDTO.toAccount()
         }
     }
 
     override suspend fun loginWithEmail(
         email: String, password: String
-    ): NetworkResult<String> = safeCallWithTimeout {
-        firebaseAuthEmailService.loginWithEmail(email, password)
-
-        val userId = firebaseAuthEmailService.getCurrentUser().uid
-        val account = accountNetworkDataSource.fetchAccountById(userId).toAccountEntity()
-        accountLocalDataSource.upsertAccount(account.copy(logOut = false))
-
-        val token = firebaseAuthEmailService.getDeviceToken()
-        accountNetworkDataSource.updateDeviceToken(userId, token)
-
-        appPreferences.saveLoggedStatus(true)
+    ): NetworkResult<String> = executeWithTimeout(dispatcher = ioDispatcher) {
+        val userId = authNetworkDataSource.signInWithEmail(email, password)
         userId
     }
 
     override suspend fun signUpWithEmail(
         name: String, email: String, password: String
-    ): NetworkResult<Account> = safeCallWithTimeout {
-        firebaseAuthEmailService.signUpWithEmail(email, password)
-        val id = firebaseAuthEmailService.getCurrentUser().uid
-        val account = AccountDTO(
-            id = id,
-            name = name,
-            email = email,
-        )
-        try {
-            accountNetworkDataSource.sendAccount(account)
-            accountLocalDataSource.upsertAccount(account.toAccountEntity().copy(logOut = false))
-
-            val token = firebaseAuthEmailService.getDeviceToken()
-            accountNetworkDataSource.updateDeviceToken(id, token)
-
-        } catch (e: Exception) {
-            Timber.e(e)
-            firebaseAuthEmailService.deleteCurrentUser()
-        }
-
-        appPreferences.saveLoggedStatus(true)
+    ): NetworkResult<Account> = executeWithTimeout(dispatcher = ioDispatcher) {
+        val account = authNetworkDataSource.signUpWithEmail(name = name, email, password)
         account.toAccount()
     }
 
     override suspend fun sendRecoverPasswordEmail(email: String): NetworkResult<Unit> =
-        safeCallWithTimeout {
-            firebaseAuthEmailService.sendRecoverPasswordEmail(email)
+        executeWithTimeout(dispatcher = ioDispatcher) {
+            authNetworkDataSource.sendRecoverPasswordEmail(email)
         }
 
-    override suspend fun provideCurrentUser(): NetworkResult<String> = safeCallWithTimeout {
-        firebaseAuthEmailService.getCurrentUser().uid
-    }
-
-    override fun isUserLogged(): Boolean {
-        return appPreferences.getLoggedStatus()
+    override suspend fun provideAuthenticateToken(): NetworkResult<String> {
+        return execute(dispatcher = ioDispatcher) {
+            authNetworkDataSource.getCurrentAuthToken()
+        }
     }
 }

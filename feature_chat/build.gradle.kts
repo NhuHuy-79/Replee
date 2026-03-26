@@ -41,19 +41,30 @@ android {
 
 dependencies {
     implementation(project(":core:common"))
-    implementation(project(":core:firebase"))
+    implementation(project(":core:network"))
     implementation(project(":core:database"))
     implementation(project(":core:test"))
     implementation(project(":core:design_system"))
     implementation(project(":core:domain"))
+    implementation(project(":core:data"))
 
 
     implementation(libs.dagger.hilt.android)
     debugImplementation(libs.ui.tooling)
     ksp(libs.hilt.android.compiler)
 
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
+    //Paging for Ui
+    implementation("androidx.paging:paging-runtime:3.3.0")
+    implementation("androidx.paging:paging-compose:3.3.0")
+
     //Room
     ksp(libs.androidx.room.compiler)
+
+    //Zoomable for Image zoonm
+    implementation("net.engawapg.lib:zoomable:2.8.0")
 
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
