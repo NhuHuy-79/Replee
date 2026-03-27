@@ -23,6 +23,7 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.message.UpdateMessageChange
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToInformation
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.FullImage
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.MessageOption
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.None
@@ -171,12 +172,13 @@ class ChatViewModel @AssistedInject constructor(
 
                 is ChatAction.OnMessageDelete -> {
                     val currentMessage = _state.value.currentMessage
+                    _state.reduce { copy(overlay = None) }
 
                     currentMessage?.let { message ->
                         deleteMessageUseCase(message = message)
                     }
 
-                    _state.reduce { copy(currentMessage = null, overlay = None) }
+                    _state.reduce { copy(currentMessage = null) }
                 }
 
                 is ChatAction.OnMessagePin -> {
@@ -231,7 +233,7 @@ class ChatViewModel @AssistedInject constructor(
                 is ChatAction.OnMessageLongPress -> {
                     _state.reduce {
                         copy(
-                            overlay = MessageOption,
+                            overlay = MessageOption(action.message),
                             isReplying = false,
                             currentMessage = action.message
                         )

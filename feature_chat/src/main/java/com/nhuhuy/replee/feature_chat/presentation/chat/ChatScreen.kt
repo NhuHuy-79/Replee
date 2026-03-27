@@ -188,10 +188,10 @@ fun ChatScreen(
             }
         }
 
-        when (val dialog = state.overlay) {
+        when (val overlay = state.overlay) {
             is ChatOverlay.FullImage -> {
                 FullImageDialog(
-                    url = dialog.url,
+                    url = overlay.url,
                     onDismiss = {
                         onAction(ChatAction.OnDismiss)
                     }
@@ -199,8 +199,10 @@ fun ChatScreen(
             }
 
             ChatOverlay.None -> Unit
-            ChatOverlay.MessageOption -> {
+            is ChatOverlay.MessageOption -> {
                 MessageSheet(
+                    currentUserId = state.currentUserId,
+                    message = overlay.message,
                     onDismiss = {
                         onAction(ChatAction.OnDismiss)
                     },

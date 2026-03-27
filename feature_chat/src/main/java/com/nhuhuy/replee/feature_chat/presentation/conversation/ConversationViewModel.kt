@@ -56,7 +56,6 @@ class ConversationViewModel @AssistedInject constructor(
     private val searchAccountByEmailUseCase: SearchAccountByEmailUseCase,
     private val fetchAccountListUseCase: FetchAccountListUseCase,
     private val observeAccountInConversationUseCase: ObserveAccountInConversationUseCase,
-
     ) : BaseViewModel<ConversationAction, ConversationEvent, ConversationState>() {
     private val _state = MutableStateFlow(ConversationState())
     override val state: StateFlow<ConversationState>
