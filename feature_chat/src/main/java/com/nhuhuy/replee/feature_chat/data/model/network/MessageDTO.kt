@@ -2,8 +2,8 @@ package com.nhuhuy.replee.feature_chat.data.model.network
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.ServerTimestamp
-import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
-import com.nhuhuy.replee.feature_chat.domain.model.MessageType
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 
 data class MessageDTO(
     val conversationId: String = "",
@@ -11,6 +11,7 @@ data class MessageDTO(
     val senderId: String = "",
     val receiverId: String = "",
     val content: String = "",
+    val deleted: Boolean = false,
     @ServerTimestamp
     val sendAt: Timestamp? = null,
     val seen: Boolean = false,

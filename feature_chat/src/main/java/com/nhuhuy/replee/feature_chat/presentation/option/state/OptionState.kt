@@ -4,7 +4,7 @@ import androidx.compose.runtime.Immutable
 import com.nhuhuy.replee.core.common.base.ScreenState
 import com.nhuhuy.replee.core.common.base.UiState
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
-import com.nhuhuy.replee.feature_chat.domain.model.Conversation
+import com.nhuhuy.replee.feature_chat.domain.model.converastion.Conversation
 
 @Immutable
 data class OptionState(

@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.domain.model
+package com.nhuhuy.replee.feature_chat.domain.model.message
 
 import com.nhuhuy.replee.core.database.entity.file_path.MessageWithLocalPath
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage

@@ -1,4 +1,6 @@
-package com.nhuhuy.replee.feature_chat.domain.model
+package com.nhuhuy.replee.feature_chat.domain.model.converastion
+
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 
 data class Conversation(
     val id: String = "",
@@ -9,10 +11,12 @@ data class Conversation(
     val otherUserName: String = "",
     val otherUserImg: String = "",
     val createdAt: Long? = null,
+    val lastMessageId: String = "",
     val lastMessageContent: String = "",
     val lastSenderId: String = "",
     val lastMessageTime: Long? = null,
     val lastMessageType: MessageType = MessageType.TEXT,
+    val lastDeletedMessageId: String? = null,
     //Add field
     val unreadMessageCount: Int = 0,
     val otherUserOnline: Boolean = false,
@@ -21,7 +25,3 @@ data class Conversation(
     val blocked: Boolean = false,
     val deleted: Boolean = false
 )
-
-
-
-

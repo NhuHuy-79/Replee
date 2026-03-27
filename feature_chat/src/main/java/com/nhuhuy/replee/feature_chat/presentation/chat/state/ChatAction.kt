@@ -2,7 +2,7 @@ package com.nhuhuy.replee.feature_chat.presentation.chat.state
 
 import android.net.Uri
 import com.nhuhuy.replee.core.common.base.UiAction
-import com.nhuhuy.replee.feature_chat.domain.model.Message
+import com.nhuhuy.replee.feature_chat.domain.model.message.Message
 
 sealed interface ChatAction : UiAction{
     data object OnMessageReply : ChatAction

@@ -3,12 +3,15 @@ package com.nhuhuy.replee.feature_chat.domain.repository
 import androidx.paging.PagingData
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.network.model.DataChange
-import com.nhuhuy.replee.feature_chat.domain.model.LocalPathMessage
-import com.nhuhuy.replee.feature_chat.domain.model.Message
-import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
+import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
+import com.nhuhuy.replee.feature_chat.domain.model.message.Message
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
 import kotlinx.coroutines.flow.Flow
 
 interface MessageRepository {
+    suspend fun deleteMultipleMessage(messages: List<Message>): NetworkResult<Unit>
+    suspend fun getMessageListById(messageIds: List<String>): List<Message>
+    suspend fun deleteMessage(message: Message): NetworkResult<String>
     suspend fun sendMessage(message: Message): NetworkResult<String>
     suspend fun saveMessage(message: Message): String
     suspend fun markMessagesAsRead(

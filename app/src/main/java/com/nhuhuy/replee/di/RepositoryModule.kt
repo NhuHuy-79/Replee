@@ -10,11 +10,15 @@ import com.nhuhuy.replee.feature_auth.data.repository.AuthRepositoryImp
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.data.SyncManagerImp
-import com.nhuhuy.replee.feature_chat.data.repository.ConversationRepositoryImp
-import com.nhuhuy.replee.feature_chat.data.repository.FileRepositoryImp
-import com.nhuhuy.replee.feature_chat.data.repository.MessageRepositoryImp
-import com.nhuhuy.replee.feature_chat.data.repository.OptionRepositoryImp
+import com.nhuhuy.replee.feature_chat.data.repository.ActionRepositoryImp
+import com.nhuhuy.replee.feature_chat.data.repository.conversation.ConversationRepositoryImp
+import com.nhuhuy.replee.feature_chat.data.repository.message.FileRepositoryImp
+import com.nhuhuy.replee.feature_chat.data.repository.message.MessageRepositoryImp
+import com.nhuhuy.replee.feature_chat.data.repository.conversation.OptionRepositoryImp
 import com.nhuhuy.replee.feature_chat.data.repository.PushNotificationRepositoryImp
+import com.nhuhuy.replee.feature_chat.data.worker.MessageWorkerScheduler
+import com.nhuhuy.replee.feature_chat.data.worker.MessageWorkerSchedulerImp
+import com.nhuhuy.replee.feature_chat.domain.repository.ActionRepository
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import com.nhuhuy.replee.feature_chat.domain.repository.OptionRepository
@@ -48,6 +52,12 @@ abstract class RepositoryModuleBinder {
     @Binds
     abstract fun bindSessionManager(imp: SessionManagerImp): SessionManager
     //Chat
+
+    @Binds
+    abstract fun bindMessageScheduler(imp: MessageWorkerSchedulerImp): MessageWorkerScheduler
+
+    @Binds
+    abstract fun bindActionRepository(imp: ActionRepositoryImp): ActionRepository
 
     @Binds
     abstract fun bindPresenceRepository(presenceRepositoryImp: PresenceRepositoryImp): PresenceRepository

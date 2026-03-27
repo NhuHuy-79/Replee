@@ -25,7 +25,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
-import com.nhuhuy.replee.feature_chat.domain.model.LocalPathMessage
+import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
 
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable

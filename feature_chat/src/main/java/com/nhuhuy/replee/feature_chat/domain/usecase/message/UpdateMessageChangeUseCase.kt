@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.message
 
 import com.nhuhuy.replee.core.network.model.DataChange
-import com.nhuhuy.replee.feature_chat.domain.model.Message
+import com.nhuhuy.replee.feature_chat.domain.model.message.Message
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import timber.log.Timber
 import javax.inject.Inject

@@ -7,6 +7,7 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
+import com.nhuhuy.replee.feature_chat.domain.model.message.Message
 import com.nhuhuy.replee.worker.sync.SyncConversationWorker
 import com.nhuhuy.replee.worker.sync.SyncFileWorker
 import com.nhuhuy.replee.worker.sync.SyncMessageWorker
@@ -71,5 +72,9 @@ class WorkerSchedulerImp @Inject constructor(
             ExistingWorkPolicy.KEEP,
             request
         )
+    }
+
+    override fun scheduleDeleteMessage(message: Message) {
+
     }
 }

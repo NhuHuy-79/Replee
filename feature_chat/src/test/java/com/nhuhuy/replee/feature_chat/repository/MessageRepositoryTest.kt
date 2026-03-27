@@ -8,13 +8,13 @@ import com.nhuhuy.replee.core.test.DispatcherRuleTest
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTO
-import com.nhuhuy.replee.feature_chat.data.repository.MessageRepositoryImp
+import com.nhuhuy.replee.feature_chat.data.repository.message.MessageRepositoryImp
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
-import com.nhuhuy.replee.feature_chat.domain.model.Message
-import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
+import com.nhuhuy.replee.feature_chat.domain.model.message.Message
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify

@@ -11,7 +11,7 @@ import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.core.network.model.observeDataChange
 import com.nhuhuy.replee.core.network.utils.optimizedWrite
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
-import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -25,6 +25,8 @@ interface MessageNetworkDataSource {
         status: MessageStatus,
         receiverId: String,
     )
+
+    suspend fun deleteMultipleMessage(messages: List<MessageDTO>)
 
     suspend fun sendMessage(message: MessageDTO)
     suspend fun sendMessages(list: List<MessageDTO>): List<String>
@@ -97,6 +99,42 @@ class MessageNetworkDataSourceImp @Inject constructor(
         )
     }
 
+    override suspend fun deleteMultipleMessage(messages: List<MessageDTO>) {
+        if (messages.isEmpty()) return
+
+        optimizedWrite(
+            items = messages,
+            singleWrite = { message ->
+                deleteMessage(message.conversationId, message.messageId)
+            },
+            batchWrite = { items ->
+                val messagesByConversationId = items.groupBy { dTO -> dTO.conversationId }
+                firestore.runBatch { batch ->
+                    messagesByConversationId.forEach { (conversationId, messages) ->
+                        val conversationRef = collection.document(conversationId)
+                        messages.forEach { dto ->
+                            val messageRef = conversationRef
+                                .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+                                .document(dto.messageId)
+
+                            batch.update(messageRef, "deleted", true)
+                        }
+
+                        val lastDeletedMessage = messages.maxByOrNull { it.sendAt?.seconds ?: -1L }
+                        val lastDeletedMessageId = lastDeletedMessage?.messageId
+                        lastDeletedMessageId.let {
+                            batch.update(
+                                conversationRef,
+                                "lastDeletedMessageId",
+                                lastDeletedMessageId
+                            )
+                        }
+                    }
+                }.await()
+            }
+        )
+    }
+
     override suspend fun sendMessage(message: MessageDTO) {
         val data = mapOf(
             "lastMessageTime" to message.sendAt,
@@ -165,11 +203,14 @@ class MessageNetworkDataSourceImp @Inject constructor(
     }
 
     override suspend fun deleteMessage(conversationId: String, messageId: String) {
-        collection.document(conversationId)
-            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
-            .document(messageId)
-            .delete()
-            .await()
+        firestore.runBatch { batch ->
+            val conversationRef = collection.document(conversationId)
+            val messageRef = conversationRef
+                .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+                .document(messageId)
+            batch.update(messageRef, "deleted", true)
+            batch.update(conversationRef, "lastDeletedMessageId", messageId)
+        }.await()
     }
 
     override suspend fun updateMessageStatus(

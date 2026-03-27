@@ -11,8 +11,8 @@ import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocal
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
-import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
-import com.nhuhuy.replee.feature_chat.domain.model.MessageType
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

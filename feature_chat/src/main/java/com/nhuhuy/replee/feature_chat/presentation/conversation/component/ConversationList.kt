@@ -30,8 +30,8 @@ import com.nhuhuy.replee.core.common.utils.formatToChatTime
 import com.nhuhuy.replee.core.design_system.canvas.AvatarContainer
 import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.feature_chat.R
-import com.nhuhuy.replee.feature_chat.domain.model.Conversation
-import com.nhuhuy.replee.feature_chat.domain.model.MessageType
+import com.nhuhuy.replee.feature_chat.domain.model.converastion.Conversation
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 import com.nhuhuy.replee.feature_chat.utils.getMainName
 
 @Composable

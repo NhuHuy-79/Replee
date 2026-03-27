@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.data.repository
+package com.nhuhuy.replee.feature_chat.data.repository.message
 
 import android.content.Context
 import androidx.core.net.toUri

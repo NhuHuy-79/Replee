@@ -30,7 +30,7 @@ import com.nhuhuy.replee.core.design_system.ScreenStateHost
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.core.network.manager.NetworkStatus
 import com.nhuhuy.replee.feature_chat.R
-import com.nhuhuy.replee.feature_chat.domain.model.Conversation
+import com.nhuhuy.replee.feature_chat.domain.model.converastion.Conversation
 import com.nhuhuy.replee.feature_chat.presentation.conversation.component.ConversationList
 import com.nhuhuy.replee.feature_chat.presentation.conversation.component.ConversationSearchBar
 import com.nhuhuy.replee.feature_chat.presentation.conversation.component.NotificationPermissionHandler

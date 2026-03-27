@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.data.repository
+package com.nhuhuy.replee.feature_chat.data.repository.message
 
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
@@ -19,10 +19,10 @@ import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetwo
 import com.nhuhuy.replee.feature_chat.data.source.message.LocalPathMessageRemoteMediator
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
-import com.nhuhuy.replee.feature_chat.domain.model.LocalPathMessage
-import com.nhuhuy.replee.feature_chat.domain.model.Message
-import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
-import com.nhuhuy.replee.feature_chat.domain.model.toLocalPathMessage
+import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
+import com.nhuhuy.replee.feature_chat.domain.model.message.Message
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
+import com.nhuhuy.replee.feature_chat.domain.model.message.toLocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -40,6 +40,34 @@ class MessageRepositoryImp @Inject constructor(
     private val messageLocalDataSource: MessageLocalDataSource,
     private val ioDispatcher: CoroutineDispatcher,
 ) : MessageRepository {
+    override suspend fun deleteMultipleMessage(messages: List<Message>): NetworkResult<Unit> {
+        return executeWithTimeout(ioDispatcher) {
+            messageNetworkDataSource.deleteMultipleMessage(
+                messages = messages.map { message -> message.toMessageDTO() }
+            )
+        }
+    }
+
+    override suspend fun getMessageListById(messageIds: List<String>): List<Message> {
+        return withContext(ioDispatcher) {
+            messageLocalDataSource.getMessageListById(messageIds)
+                .map { entity -> entity.toMessage() }
+        }
+    }
+
+
+    override suspend fun deleteMessage(message: Message): NetworkResult<String> {
+        return executeWithTimeout(dispatcher = ioDispatcher) {
+            messageLocalDataSource.deleteMessageById(message = message.toMessageEntity())
+            messageNetworkDataSource.deleteMessage(
+                conversationId = message.conversationId,
+                messageId = message.messageId
+            )
+
+            message.messageId
+        }
+    }
+
     override suspend fun sendMessage(
         message: Message
     ): NetworkResult<String> {
@@ -76,7 +104,7 @@ class MessageRepositoryImp @Inject constructor(
             messageIds = messageIds,
             status = MessageStatus.SEEN,
 
-        )
+            )
         conversationNetworkDataSource.updateUnreadMessageCount(
             conversationId = conversationId,
             receiverId = receiverId,

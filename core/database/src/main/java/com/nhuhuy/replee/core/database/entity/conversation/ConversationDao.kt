@@ -63,12 +63,14 @@ interface ConversationDao : BaseDao<ConversationEntity> {
                 "lastMessageContent = :lastMessageContent, " +
                 "lastSenderId = :lastSenderId, " +
                 "lastMessageTime = :lastMessageTime, " +
-                "lastMessageType = :lastMessageType " +
-                "WHERE id = :conversationId"
+                "lastMessageType = :lastMessageType, " +
+                "lastMessageId = :lastMessageId" +
+                " WHERE id = :conversationId"
     )
     suspend fun updateLastMessage(
         conversationId: String,
         lastMessageContent: String,
+        lastMessageId: String,
         lastSenderId: String,
         lastMessageTime: Long,
         lastMessageType: String,
@@ -101,5 +103,8 @@ interface ConversationDao : BaseDao<ConversationEntity> {
 
     @Query("UPDATE conversation SET otherUserNick = :otherUserNick WHERE id = :conversationId")
     suspend fun updateOtherUserNickname(conversationId: String, otherUserNick: String)
+
+    @Query("UPDATE conversation SET lastDeletedMessageId = :messageId WHERE id = :conversationId")
+    suspend fun updateLastDeletedMessageId(conversationId: String, messageId: String)
 
 }

@@ -40,6 +40,10 @@ object LocalModuleProvider {
     @Singleton
     fun provideFilePathDao(database: CoreDatabase) = database.provideFilePathDao()
 
+    @Provides
+    @Singleton
+    fun provideMessageActionDao(database: CoreDatabase) = database.provideMessageActionDao()
+
 
     @Provides
     @Singleton

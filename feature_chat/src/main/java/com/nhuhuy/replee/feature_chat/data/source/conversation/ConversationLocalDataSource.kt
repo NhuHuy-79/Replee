@@ -165,6 +165,7 @@ class ConversationLocalDataSourceImp @Inject constructor(
     override suspend fun updateLastMessage(message: MessageEntity) {
         conversationDao.updateLastMessage(
             conversationId = message.conversationId,
+            lastMessageId = message.messageId,
             lastMessageTime = message.sentAt ?: -1L,
             lastMessageContent = message.content,
             lastSenderId = message.senderId,

@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nhuhuy.replee.feature_chat.domain.model.LocalPathMessage
+import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
 
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable

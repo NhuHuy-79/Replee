@@ -4,7 +4,7 @@ package com.nhuhuy.replee.feature_chat.presentation.chat.state
 import androidx.compose.runtime.Immutable
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.replee.core.common.base.UiState
-import com.nhuhuy.replee.feature_chat.domain.model.Message
+import com.nhuhuy.replee.feature_chat.domain.model.message.Message
 
 @Immutable
 data class ChatState(

@@ -5,8 +5,8 @@ import com.nhuhuy.replee.core.database.entity.conversation.ConversationAndUser
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationEntity
 import com.nhuhuy.replee.core.network.utils.toMilliseconds
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTO
-import com.nhuhuy.replee.feature_chat.domain.model.Conversation
-import com.nhuhuy.replee.feature_chat.domain.model.MessageType
+import com.nhuhuy.replee.feature_chat.domain.model.converastion.Conversation
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 
 //Domain save to local
 fun Conversation.toConversationEntity(): ConversationEntity {
@@ -27,8 +27,10 @@ fun Conversation.toConversationEntity(): ConversationEntity {
         pinned = this.pinned,
         deleted = this.deleted,
         synced = true,
+        lastMessageId = lastMessageId,
         lastTimeSyncs = System.currentTimeMillis(),
         lastMessageType = this.lastMessageType.name,
+        lastDeletedMessageId = this.lastDeletedMessageId
     )
 }
 
@@ -40,10 +42,12 @@ fun ConversationAndUser.createConversationDTO(): ConversationDTO {
             conversation.ownerId to conversation.ownerNick,
             conversation.otherUserId to conversation.otherUserNick
         ),
+        lastMessageId = conversation.lastMessageId,
         lastSenderId = conversation.lastSenderId,
         lastMessageTime = conversation.lastMessageTime,
         lastMessageContent = conversation.lastMessageContent,
         lastMessageType = MessageType.valueOf(conversation.lastMessageType),
+        lastDeletedMessageId = conversation.lastDeletedMessageId,
         isBlocked = mapOf(conversation.ownerId to conversation.blocked),
         isPinned = mapOf(conversation.ownerId to conversation.pinned),
         isMuted = mapOf(conversation.ownerId to conversation.muted),
@@ -63,6 +67,8 @@ fun ConversationAndUser.toUpdatePatch(uid: String): Map<String, Any> {
     map["nickName.$uid"] = conversation.otherUserNick
     map["unReadMessages.$uid"] = conversation.unreadMessageCount
 
+    map["lastDeletedMessageId"] = conversation.lastDeletedMessageId.orEmpty()
+    map["lastMessageId"] = conversation.lastMessageId
     map["lastSenderId"] = conversation.lastSenderId
     map["lastMessageTime"] = FieldValue.serverTimestamp()
     map["lastMessageContent"] = conversation.lastMessageContent
@@ -90,10 +96,12 @@ fun ConversationDTO.toConversation(
         ownerUserId = ownerId,
         otherUserId = otherUserId,
         createdAt = createdAt?.toMilliseconds(),
+        lastMessageId = lastMessageId,
         lastMessageContent = lastMessageContent,
         lastSenderId = lastSenderId,
         lastMessageTime = lastMessageTime,
         lastMessageType = lastMessageType,
+        lastDeletedMessageId = lastDeletedMessageId,
         unreadMessageCount = unReadMessages[ownerId] ?: 0,
         deleted = isDeleted[ownerId] ?: false,
         blocked = isBlocked[ownerId] ?: false,
@@ -112,10 +120,12 @@ fun ConversationAndUser.toConversation(): Conversation {
         otherUserId = conversation.otherUserId,
         unreadMessageCount = conversation.unreadMessageCount,
         createdAt = conversation.createdAt,
+        lastMessageId = conversation.lastMessageId,
         lastMessageContent = conversation.lastMessageContent,
         lastSenderId = conversation.lastSenderId,
         lastMessageTime = conversation.lastMessageTime,
         lastMessageType = MessageType.valueOf(conversation.lastMessageType),
+        lastDeletedMessageId = conversation.lastDeletedMessageId,
         muted = conversation.muted,
         pinned = conversation.pinned,
         otherUserName = otherUser?.name.orEmpty(),

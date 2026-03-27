@@ -184,6 +184,7 @@ class ConversationNetworkDataSourceImp @Inject constructor(
 
     override suspend fun updateLastMessage(message: MessageDTO, conversation: ConversationDTO) {
         val data = mapOf(
+            "lastMessageId" to message.messageId,
             "lastMessageContent" to message.content,
             "lastMessageTime" to (message.sendAt ?: System.currentTimeMillis()),
             "lastSenderId" to message.senderId,

@@ -1,9 +1,10 @@
-package com.nhuhuy.replee.feature_chat.data.repository
+package com.nhuhuy.replee.feature_chat.data.repository.conversation
 
 import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.data.mapper.toAccountEntity
 import com.nhuhuy.replee.core.data.utils.execute
+import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.network.model.DataChange
@@ -15,9 +16,9 @@ import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
-import com.nhuhuy.replee.feature_chat.domain.model.Conversation
-import com.nhuhuy.replee.feature_chat.domain.model.Message
-import com.nhuhuy.replee.feature_chat.domain.model.MessageType
+import com.nhuhuy.replee.feature_chat.domain.model.converastion.Conversation
+import com.nhuhuy.replee.feature_chat.domain.model.message.Message
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -186,6 +187,22 @@ class ConversationRepositoryImp @Inject constructor(
             conversationLocalDataSource.clearUnreadMessages(conversationId)
             conversationNetworkDataSource.deleteAllUnreadMessages(conversationId, currentUserId)
             conversationId
+        }
+    }
+
+    override suspend fun deleteMetadataLastMessage(message: Message): NetworkResult<String> {
+        return executeWithTimeout(ioDispatcher) {
+            val conversation =
+                conversationNetworkDataSource.fetchConversationByIdOrThrow(message.conversationId)
+            if (conversation.lastMessageId == message.messageId) {
+                //updateLastMessage
+            }
+            //Compare lastMessageId in Conversation and Message Id.
+            //Delete lastMessage metadata and replace by lastClose Message.
+            TODO("Implemenet logic here")
+
+            message.conversationId
+
         }
     }
 

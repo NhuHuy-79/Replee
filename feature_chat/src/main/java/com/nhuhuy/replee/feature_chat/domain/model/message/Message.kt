@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.domain.model
+package com.nhuhuy.replee.feature_chat.domain.model.message
 
 data class Message(
     val conversationId: String,
@@ -8,6 +8,7 @@ data class Message(
     val content: String,
     val seen: Boolean,
     val sentAt: Long,
+    val deleted: Boolean = false,
     val status: MessageStatus,
     val pinned: Boolean = false,
     val type: MessageType = MessageType.TEXT,

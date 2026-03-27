@@ -4,8 +4,8 @@ import androidx.room.withTransaction
 import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.database.entity.message.MessageDao
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
-import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
-import com.nhuhuy.replee.feature_chat.domain.model.MessageType
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -33,12 +33,16 @@ interface MessageLocalDataSource {
     suspend fun getUnsyncedMessages(): List<MessageEntity>
     fun observeMessages(conversationId: String): Flow<List<MessageEntity>>
     suspend fun deleteMessageByConversationId(limit: Int)
+    suspend fun deleteMessageById(message: MessageEntity)
+    suspend fun getMessageListById(messageIds: List<String>): List<MessageEntity>
 }
 
 class MessageLocalDataSourceImp @Inject constructor(
     private val coreDatabase: CoreDatabase
 ) : MessageLocalDataSource {
     private val messageDao: MessageDao = coreDatabase.provideMessageDao()
+    private val conversationDao = coreDatabase.provideConversationDao()
+
     override suspend fun updateMessageStatusInConversation(
         conversationId: String,
         receiverId: String,
@@ -136,5 +140,19 @@ class MessageLocalDataSourceImp @Inject constructor(
 
     override suspend fun deleteMessageByConversationId(limit: Int) =
         messageDao.deleteMessageByConversationId(limit)
+
+    override suspend fun deleteMessageById(message: MessageEntity) {
+        coreDatabase.withTransaction {
+            messageDao.softDeleteMessageById(message.messageId)
+            conversationDao.updateLastDeletedMessageId(
+                conversationId = message.conversationId,
+                messageId = message.messageId
+            )
+        }
+    }
+
+    override suspend fun getMessageListById(messageIds: List<String>): List<MessageEntity> {
+        return messageDao.getMessageListById(messageIds)
+    }
 
 }

@@ -24,9 +24,11 @@ data class ConversationEntity(
     val unreadMessageCount: Int = 0,
     val createdAt: Long? = null,
     val lastMessageContent: String = "",
+    val lastMessageId: String = "",
     val lastSenderId: String = "",
     val lastMessageTime: Long? = null,
     val lastTimeSyncs: Long? = null,
+    val lastDeletedMessageId: String? = null,
     @ColumnInfo(name = "lastMessageType", defaultValue = "TEXT")
     val lastMessageType: String = "TEXT",
     @ColumnInfo(name = "ownerNick", defaultValue = "")
@@ -49,7 +51,8 @@ data class ConversationEntity(
     val otherUserImg: String = "",
     @ColumnInfo(name = "ownerImg", defaultValue = "")
     val ownerImg: String = "",
-)
+
+    )
 
 data class ConversationAndUser(
     @Embedded

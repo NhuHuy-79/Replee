@@ -3,9 +3,9 @@ package com.nhuhuy.replee.feature_chat.domain.usecase.file
 import com.nhuhuy.core.domain.model.FilePath
 import com.nhuhuy.core.domain.repository.FileMetadata
 import com.nhuhuy.core.domain.repository.FileRepository
-import com.nhuhuy.replee.feature_chat.domain.model.Message
-import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
-import com.nhuhuy.replee.feature_chat.domain.model.MessageType
+import com.nhuhuy.replee.feature_chat.domain.model.message.Message
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import timber.log.Timber
 import java.util.UUID

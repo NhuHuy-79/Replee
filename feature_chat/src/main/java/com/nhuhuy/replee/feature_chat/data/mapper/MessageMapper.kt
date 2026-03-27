@@ -3,9 +3,9 @@ package com.nhuhuy.replee.feature_chat.data.mapper
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
 import com.nhuhuy.replee.core.network.utils.toMilliseconds
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
-import com.nhuhuy.replee.feature_chat.domain.model.Message
-import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
-import com.nhuhuy.replee.feature_chat.domain.model.MessageType
+import com.nhuhuy.replee.feature_chat.domain.model.message.Message
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 
 fun MessageEntity.toMessage() : Message{
     return Message(
@@ -13,6 +13,7 @@ fun MessageEntity.toMessage() : Message{
         messageId = messageId,
         senderId = senderId,
         receiverId = receiverId,
+        deleted = deleted,
         content = content,
         seen = seen,
         sentAt = sentAt ?: System.currentTimeMillis(),
@@ -35,6 +36,7 @@ fun MessageDTO.toMessage() : Message{
         senderId = senderId,
         receiverId = receiverId,
         content = content,
+        deleted = deleted,
         seen = seen,
         sentAt = sendAt?.toMilliseconds() ?: System.currentTimeMillis(),
         status = MessageStatus.SYNCED,
@@ -56,6 +58,7 @@ fun Message.toMessageDTO() : MessageDTO {
         receiverId = receiverId,
         content = content,
         seen = seen,
+        deleted = deleted,
         type = type,
         url = remoteUrl,
         status = status,
@@ -78,6 +81,7 @@ fun Message.toMessageEntity() : MessageEntity{
         sentAt = sentAt,
         status = status.name,
         type = type.name,
+        deleted = deleted,
         localUriPath = localUriPath,
         remoteUrl = remoteUrl,
         repliedMessageContent = repliedMessageContent,

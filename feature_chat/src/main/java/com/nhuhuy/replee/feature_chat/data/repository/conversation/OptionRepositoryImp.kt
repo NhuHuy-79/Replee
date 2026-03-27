@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.data.repository
+package com.nhuhuy.replee.feature_chat.data.repository.conversation
 
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.data.utils.execute

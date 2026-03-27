@@ -4,7 +4,7 @@ import androidx.annotation.Keep
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.PropertyName
 import com.google.firebase.firestore.ServerTimestamp
-import com.nhuhuy.replee.feature_chat.domain.model.MessageType
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 
 @Keep
 data class ConversationDTO(
@@ -16,10 +16,12 @@ data class ConversationDTO(
     @ServerTimestamp
     val createdAt: Timestamp? = null,
 
+    val lastMessageId: String = "",
     val lastMessageContent: String = "",
     val lastSenderId: String = "",
     val lastMessageTime: Long? = null,
     val lastMessageType: MessageType = MessageType.TEXT,
+    val lastDeletedMessageId: String? = null,
 
     val nickName: Map<String, String> = emptyMap(),
 

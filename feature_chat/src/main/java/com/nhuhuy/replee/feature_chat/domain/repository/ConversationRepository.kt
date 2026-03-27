@@ -2,8 +2,8 @@ package com.nhuhuy.replee.feature_chat.domain.repository
 
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.network.model.DataChange
-import com.nhuhuy.replee.feature_chat.domain.model.Conversation
-import com.nhuhuy.replee.feature_chat.domain.model.Message
+import com.nhuhuy.replee.feature_chat.domain.model.converastion.Conversation
+import com.nhuhuy.replee.feature_chat.domain.model.message.Message
 import kotlinx.coroutines.flow.Flow
 
 interface ConversationRepository {
@@ -35,4 +35,6 @@ interface ConversationRepository {
         conversationId: String,
         currentUserId: String
     ): NetworkResult<String>
+
+    suspend fun deleteMetadataLastMessage(message: Message): NetworkResult<String>
 }

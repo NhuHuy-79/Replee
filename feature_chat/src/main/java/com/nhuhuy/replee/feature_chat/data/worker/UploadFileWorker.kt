@@ -10,8 +10,8 @@ import com.nhuhuy.core.domain.model.onFailure
 import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.core.domain.repository.FileRepository
 import com.nhuhuy.replee.feature_chat.data.SyncManager
-import com.nhuhuy.replee.feature_chat.data.repository.MESSAGE_ID_INPUT
-import com.nhuhuy.replee.feature_chat.domain.model.MessageStatus
+import com.nhuhuy.replee.feature_chat.data.repository.message.MESSAGE_ID_INPUT
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import dagger.assisted.Assisted

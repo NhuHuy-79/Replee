@@ -10,7 +10,7 @@ import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.ScreenState
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.data.mapper.toScreenState
-import com.nhuhuy.replee.feature_chat.domain.model.Conversation
+import com.nhuhuy.replee.feature_chat.domain.model.converastion.Conversation
 import com.nhuhuy.replee.feature_chat.domain.usecase.account.FetchAccountListUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.account.ObserveAccountInConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.account.SetUserOnlineUseCase
