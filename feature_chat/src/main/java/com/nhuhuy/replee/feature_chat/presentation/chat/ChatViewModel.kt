@@ -14,6 +14,7 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.block.UnblockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.SendFileMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.ValidateFileSizeUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.DeleteMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ListenMessageChangeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveLocalMessagesUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ReadMessageUseCase
@@ -57,6 +58,7 @@ class ChatViewModel @AssistedInject constructor(
     private val checkBlockUseCase: CheckBlockUseCase,
     private val sendFileMessageUseCase: SendFileMessageUseCase,
     private val validateFileSizeUseCase: ValidateFileSizeUseCase,
+    private val deleteMessageUseCase: DeleteMessageUseCase
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
     private val conversationId
         get() = createConversationId(
@@ -168,7 +170,12 @@ class ChatViewModel @AssistedInject constructor(
                 }
 
                 is ChatAction.OnMessageDelete -> {
-                    //TODO("Delete Message)
+                    val currentMessage = _state.value.currentMessage
+
+                    currentMessage?.let { message ->
+                        deleteMessageUseCase(message = message)
+                    }
+
                     _state.reduce { copy(currentMessage = null, overlay = None) }
                 }
 

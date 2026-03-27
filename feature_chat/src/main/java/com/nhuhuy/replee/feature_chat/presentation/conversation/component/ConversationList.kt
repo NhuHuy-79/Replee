@@ -105,6 +105,8 @@ fun ConversationItem(
 
         ConversationBody(
             isLastSender = conversation.lastSenderId == conversation.ownerUserId,
+            lastMessageId = conversation.lastMessageId,
+            lastDeletedMessageId = conversation.lastDeletedMessageId.orEmpty(),
             userName = conversation.otherUserNickName.ifEmpty { conversation.otherUserName },
             messageType = conversation.lastMessageType,
             messageContent = conversation.lastMessageContent,
@@ -169,6 +171,8 @@ fun ConversationBody(
     userName: String,
     messageType: MessageType,
     messageContent: String,
+    lastMessageId: String,
+    lastDeletedMessageId: String,
     modifier: Modifier = Modifier
 ) {
     val lastMessageContent: String = when (messageType) {
@@ -202,7 +206,7 @@ fun ConversationBody(
         )
 
         Text(
-            text = lastMessageContent,
+            text = if (lastMessageId == lastDeletedMessageId) stringResource(R.string.conversation_message_is_deleted) else lastMessageContent,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.outline,
             maxLines = 1,

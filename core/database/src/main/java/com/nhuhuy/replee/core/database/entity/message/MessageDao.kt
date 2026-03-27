@@ -71,20 +71,11 @@ interface MessageDao : BaseDao<MessageEntity> {
     @Query("DELETE FROM message WHERE messageId IN (:messageIds)")
     suspend fun deleteMessagesByIds(messageIds: List<String>)
 
-    @Query(
-        """
-    SELECT * FROM message 
-    WHERE conversationId = :conversationId
-    ORDER BY sentAt DESC, messageId DESC
-    """
-    )
-    fun pagingSource(conversationId: String): PagingSource<Int, MessageEntity>
-
     @Query("DELETE FROM message WHERE conversationId = :conversationId")
     suspend fun clearByConversationId(conversationId: String)
 
     @Transaction
-    @Query("SELECT * FROM message WHERE conversationId = :conversationId ORDER BY sentAt DESC, messageId DESC ")
+    @Query("SELECT * FROM message WHERE conversationId = :conversationId AND deleted = 0 ORDER BY sentAt DESC, messageId DESC ")
     fun getMessagesPagingSource(conversationId: String): PagingSource<Int, MessageWithLocalPath>
 
     @Query(

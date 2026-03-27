@@ -22,10 +22,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.design_system.component.SheetContainer
 import com.nhuhuy.replee.feature_chat.R
+import com.nhuhuy.replee.feature_chat.domain.model.message.Message
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 
 
 @Composable
 fun MessageSheet(
+    currentUserId: String,
+    message: Message,
     onDismiss: () -> Unit,
     onMessagePin: () -> Unit,
     onMessageDelete: () -> Unit,
@@ -35,11 +39,13 @@ fun MessageSheet(
     SheetContainer(
         onDismiss = onDismiss
     ) {
-        MessageSheetOption(
-            headingIcon = Icons.Rounded.ContentCopy,
-            text = stringResource(R.string.message_sheet_copy),
-            onClick = onMessageCopy
-        )
+        if (message.type == MessageType.TEXT) {
+            MessageSheetOption(
+                headingIcon = Icons.Rounded.ContentCopy,
+                text = stringResource(R.string.message_sheet_copy),
+                onClick = onMessageCopy
+            )
+        }
 
         MessageSheetOption(
             headingIcon = Icons.AutoMirrored.Rounded.Reply,
@@ -53,11 +59,13 @@ fun MessageSheet(
             onClick = onMessagePin
         )
 
-        MessageSheetOption(
-            headingIcon = Icons.Rounded.Delete,
-            text = stringResource(R.string.message_sheet_delete),
-            onClick = onMessageDelete
-        )
+        if (message.senderId == currentUserId) {
+            MessageSheetOption(
+                headingIcon = Icons.Rounded.Delete,
+                text = stringResource(R.string.message_sheet_delete),
+                onClick = onMessageDelete
+            )
+        }
     }
 }
 

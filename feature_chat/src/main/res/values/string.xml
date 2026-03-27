@@ -6,6 +6,7 @@
     <string name="conversation_last_message_text">You: %1$s</string>
     <string name="conversation_my_last_message_image">You \'ve send an image</string>
     <string name="conversation_other_last_message_image"> %1$s sent an image</string>
+    <string name="conversation_message_is_deleted">Message is deleted</string>
 
     <!--Notification Permission-->
     <string name="notification_permission_denied">

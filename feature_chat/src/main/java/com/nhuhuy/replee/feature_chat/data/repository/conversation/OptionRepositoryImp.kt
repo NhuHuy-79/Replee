@@ -1,7 +1,6 @@
 package com.nhuhuy.replee.feature_chat.data.repository.conversation
 
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.replee.core.data.utils.execute
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
@@ -21,7 +20,7 @@ class OptionRepositoryImp @Inject constructor(
         conversationId: String,
         nickName: String
     ): NetworkResult<Unit> {
-        return executeWithTimeout {
+        return executeWithTimeout(ioDispatcher) {
             conversationLocalDataSource.updateOwnerNickName(conversationId, nickName)
             val conversationDTO =
                 conversationNetworkDataSource.fetchConversationById(conversationId)
@@ -39,7 +38,7 @@ class OptionRepositoryImp @Inject constructor(
         otherUser: String,
         muted: Boolean
     ): NetworkResult<Unit> {
-        return execute {
+        return executeWithTimeout(ioDispatcher) {
             conversationLocalDataSource.updateMutedStatus(conversationId, muted)
             conversationNetworkDataSource.updateMutedStatus(
                 conversationId = conversationId,
@@ -54,7 +53,7 @@ class OptionRepositoryImp @Inject constructor(
         currentUser: String,
         pinned: Boolean
     ): NetworkResult<Unit> {
-        return execute {
+        return executeWithTimeout(ioDispatcher) {
             conversationLocalDataSource.updatePinnedStatus(conversationId, pinned)
             conversationNetworkDataSource.updatePinnedStatus(
                 conversationId = conversationId,
