@@ -26,7 +26,6 @@ import com.nhuhuy.replee.core.network.quailify.Retrofit
 import com.nhuhuy.replee.feature_chat.data.worker.UploadFileWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -43,7 +42,7 @@ class FileRepositoryImp @Inject constructor(
     private val fileValidator: FileValidator,
     private val fileStorageDataSource: FileStorageDataSource,
     @ApplicationContext private val context: Context,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val ioDispatcher: CoroutineDispatcher,
     @Retrofit private val uploadFileService: UploadFileService,
 ) : FileRepository {
     override suspend fun uploadImageWithOption(

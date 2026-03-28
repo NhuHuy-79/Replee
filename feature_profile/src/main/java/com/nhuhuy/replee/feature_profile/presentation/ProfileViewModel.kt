@@ -2,6 +2,7 @@ package com.nhuhuy.replee.feature_profile.presentation
 
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkInfo
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.onFailure
 import com.nhuhuy.core.domain.model.onSuccess
@@ -15,6 +16,7 @@ import com.nhuhuy.replee.core.data.mapper.toRemoteFailure
 import com.nhuhuy.replee.core.data.mapper.toScreenState
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 import com.nhuhuy.replee.feature_profile.domain.usecase.LogOutUseCase
+import com.nhuhuy.replee.feature_profile.domain.usecase.ObserveUploadAvatarUseCase
 import com.nhuhuy.replee.feature_profile.domain.usecase.UpdatePasswordUseCase
 import com.nhuhuy.replee.feature_profile.domain.usecase.UploadAvatarUseCase
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.Overlay
@@ -42,6 +44,7 @@ class ProfileViewModel @Inject constructor(
     private val logOutUseCase: LogOutUseCase,
     private val getCurrentAccountUseCase: GetCurrentAccountUseCase,
     private val uploadAvatarUseCase: UploadAvatarUseCase,
+    private val observeUploadAvatarUseCase: ObserveUploadAvatarUseCase,
     private val dataStore: AppDataStore,
 ) : BaseViewModel<ProfileAction, ProfileEvent, ProfileState>() {
     private val _profileActionResult = MutableStateFlow(ProfileActionResult())
@@ -166,10 +169,33 @@ class ProfileViewModel @Inject constructor(
 
                 is ProfileAction.OnPhotoPicker.Select -> {
                     _profileActionResult.reduce { copy(updateAvatarLoading = true) }
-                    uploadAvatarUseCase(
+                    val workerId = uploadAvatarUseCase(
                         uid = state.value.account.id,
                         uriPath = action.uri.toString()
                     )
+                    observeUploadAvatarUseCase(workerId).collect { info ->
+                        when (info?.state) {
+                            WorkInfo.State.RUNNING -> {
+                                _profileActionResult.reduce { copy(updateAvatarLoading = true) }
+                            }
+
+                            WorkInfo.State.SUCCEEDED -> {
+                                _profileActionResult.reduce { copy(updateAvatarLoading = false) }
+                                onEvent(ProfileEvent.UpdateAvatar.Success)
+                            }
+
+                            WorkInfo.State.FAILED -> {
+                                _profileActionResult.reduce { copy(updateAvatarLoading = false) }
+                                onEvent(ProfileEvent.UpdateAvatar.Failure)
+                            }
+
+                            WorkInfo.State.CANCELLED -> {
+                                _profileActionResult.reduce { copy(updateAvatarLoading = true) }
+                            }
+
+                            else -> {}
+                        }
+                    }
                 }
 
                 ProfileAction.OnEditDialogOpen -> {

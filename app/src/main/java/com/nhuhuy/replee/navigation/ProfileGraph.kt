@@ -51,11 +51,11 @@ fun EntryProviderScope<NavKey>.profileGraph(
                 }
 
                 ProfileEvent.UpdateAvatar.Failure -> {
-                    context.showShortToast(R.string.update_avatar_success)
+                    context.showShortToast(R.string.update_avatar_failed)
                 }
 
                 ProfileEvent.UpdateAvatar.Success -> {
-                    context.showShortToast(R.string.update_avatar_failed)
+                    context.showShortToast(R.string.update_avatar_success)
                 }
             }
         }

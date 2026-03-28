@@ -12,16 +12,17 @@ import com.nhuhuy.core.domain.repository.FileRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 @HiltWorker
 class UploadAvatarWorker @AssistedInject constructor(
-    private val ioDispatcher: CoroutineDispatcher,
+    @Assisted context: Context,
+    @Assisted params: WorkerParameters,
     private val fileRepository: FileRepository,
     private val accountRepository: AccountRepository,
-    @Assisted context: Context,
-    @Assisted params: WorkerParameters
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         return withContext(ioDispatcher) {
