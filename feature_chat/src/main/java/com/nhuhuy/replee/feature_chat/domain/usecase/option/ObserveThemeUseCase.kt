@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.usecase
+package com.nhuhuy.replee.feature_chat.domain.usecase.option
 
 import com.nhuhuy.replee.core.data.data_store.AppDataStore
 import javax.inject.Inject

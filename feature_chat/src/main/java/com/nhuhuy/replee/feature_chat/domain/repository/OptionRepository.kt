@@ -1,6 +1,8 @@
 package com.nhuhuy.replee.feature_chat.domain.repository
 
 import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.data.data_store.ChatColor
+import kotlinx.coroutines.flow.Flow
 
 interface OptionRepository {
     suspend fun updateOtherUserNickname(
@@ -21,4 +23,6 @@ interface OptionRepository {
     ): NetworkResult<Unit>
 
     suspend fun deleteConversation(conversationId: String): NetworkResult<Unit>
+    fun observeChatColor(): Flow<ChatColor>
+    suspend fun selectColor(color: ChatColor)
 }

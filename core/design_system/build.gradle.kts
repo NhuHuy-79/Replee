@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
+    implementation("com.materialkolor:material-kolor:2.0.0")
 
 
 

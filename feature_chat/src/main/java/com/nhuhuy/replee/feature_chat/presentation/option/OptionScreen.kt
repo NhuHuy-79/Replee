@@ -22,20 +22,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.nhuhuy.replee.core.data.data_store.ChatColor
 import com.nhuhuy.replee.core.design_system.component.AlertDialogContainer
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.presentation.option.component.InformationUser
 import com.nhuhuy.replee.feature_chat.presentation.option.component.SecondaryOption
 import com.nhuhuy.replee.feature_chat.presentation.option.component.SecondaryOptionItem
+import com.nhuhuy.replee.feature_chat.presentation.option.component.SelectColorSheet
 import com.nhuhuy.replee.feature_chat.presentation.option.component.SetNickNameSheet
 import com.nhuhuy.replee.feature_chat.presentation.option.component.ToggleableItem
 import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionAction
+import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionAction.OnOtherNickNameChange
 import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionOverlay
 import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionState
 
 @Composable
 fun OptionScreen(
+    color: ChatColor,
     state: OptionState,
     onAction: (OptionAction) -> Unit
 ) = BoxContainer {
@@ -140,7 +144,7 @@ fun OptionScreen(
         OptionOverlay.SET_NICK_NAME -> {
             SetNickNameSheet(
                 otherUserNickName = state.otherUserNickName,
-                onOtherUserNameChange = { name -> onAction(OptionAction.OnOtherNickNameChange(name)) },
+                onOtherUserNameChange = { name -> onAction(OnOtherNickNameChange(name)) },
                 onDismiss = { onAction(OptionAction.OnDismiss) },
                 onConfirm = { onAction(OptionAction.OnNickNameSet) }
             )
@@ -162,6 +166,17 @@ fun OptionScreen(
                         contentDescription = null
                     )
                 }
+            )
+        }
+
+        OptionOverlay.SELECT_COLOR -> {
+            SelectColorSheet(
+                onDismiss = { onAction(OptionAction.OnDismiss) },
+                colorList = ChatColor.entries,
+                currentColor = color,
+                onColorSelected = { chatColor: ChatColor ->
+                    onAction(OptionAction.OnColorSelect(chatColor))
+                },
             )
         }
     }

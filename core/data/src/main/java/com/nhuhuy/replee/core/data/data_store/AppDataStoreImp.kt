@@ -19,6 +19,7 @@ class AppDataStoreImp @Inject constructor(
         val AUTH_TOKEN = stringPreferencesKey("authentication_token")
         val NOTIFICATION_KEY = stringPreferencesKey("notification_key")
         val THEME_KEY = stringPreferencesKey("theme_key")
+        val CHAT_COLOR_KEY = stringPreferencesKey("chat_color_key")
     }
 
     override suspend fun saveNotificationMode(mode: NotificationMode) {
@@ -59,6 +60,19 @@ class AppDataStoreImp @Inject constructor(
         context.dataStore.edit { preferences ->
             Timber.d("SAVE_CHECK: Đã lưu Token mới: $token")
             preferences[AUTH_TOKEN] = token
+        }
+    }
+
+    override fun observeChatColor(): Flow<ChatColor> {
+        return context.dataStore.data.map { preferences ->
+            val string = preferences[CHAT_COLOR_KEY] ?: ChatColor.SAPPHIRE.name
+            ChatColor.valueOf(string)
+        }
+    }
+
+    override suspend fun saveChatColor(color: ChatColor) {
+        context.dataStore.edit { preferences ->
+            preferences[CHAT_COLOR_KEY] = color.name
         }
     }
 

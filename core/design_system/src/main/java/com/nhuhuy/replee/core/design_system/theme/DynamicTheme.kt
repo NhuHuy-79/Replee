@@ -2,6 +2,8 @@ package com.nhuhuy.replee.core.design_system.theme
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import com.materialkolor.DynamicMaterialTheme
+import com.materialkolor.rememberDynamicMaterialThemeState
 
 /*import com.materialkolor.DynamicMaterialTheme*/
 
@@ -11,12 +13,15 @@ fun DynamicRepleeTheme(
     isDark: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    /* DynamicMaterialTheme(
-         seedColor = seedColor,
-         isDark = isDark,
-         animate = true,
-         isAmoled = true,
-         content = content
-     )*/
-    content
+    val state = rememberDynamicMaterialThemeState(
+        primary = seedColor,
+        isAmoled = true,
+        isDark = isDark,
+    )
+
+    DynamicMaterialTheme(
+        state = state,
+        content = content,
+        animate = true
+    )
 }

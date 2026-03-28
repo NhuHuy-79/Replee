@@ -4,12 +4,15 @@ import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.utils.InputValidator
+import com.nhuhuy.replee.core.data.data_store.ChatColor
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.BlockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.option.DeleteConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.option.LoadConversationInformationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.option.MuteUserUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.option.ObserveChatColorUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.option.PinConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.option.SelectColorUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.option.UpdateOtherNickNameUseCase
 import com.nhuhuy.replee.feature_chat.presentation.option.component.SecondaryOption
 import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionAction
@@ -21,8 +24,10 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = OptionViewModel.Factory::class)
@@ -34,6 +39,8 @@ class OptionViewModel @AssistedInject constructor(
     @Assisted("email") private val otherUserEmail: String,
     @Assisted("otherUserImg") private val otherUserImg: String,
     private val loadConversationInformationUseCase: LoadConversationInformationUseCase,
+    private val observeChatColorUseCase: ObserveChatColorUseCase,
+    private val selectColorUseCase: SelectColorUseCase,
     private val blockUserUseCase: BlockUserUseCase,
     private val deleteConversationUseCase: DeleteConversationUseCase,
     private val pinConversationUseCase: PinConversationUseCase,
@@ -41,6 +48,11 @@ class OptionViewModel @AssistedInject constructor(
     private val updateOtherNickNameUseCase: UpdateOtherNickNameUseCase,
     private val inputValidator: InputValidator,
 ) : BaseViewModel<OptionAction, OptionEvent, OptionState>() {
+
+    val chatColor: StateFlow<ChatColor> = observeChatColorUseCase().stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5000), ChatColor.SAPPHIRE
+    )
+
     private val _state = MutableStateFlow(
         OptionState(
             otherUserImg = otherUserImg,
@@ -84,7 +96,7 @@ class OptionViewModel @AssistedInject constructor(
                         }
 
                         SecondaryOption.SET_THEME -> {
-                            //TODO("Set theme"
+                            _state.reduce { copy(overlay = OptionOverlay.SELECT_COLOR) }
                         }
 
                         SecondaryOption.DELETE_CONVERSATION -> {
@@ -147,6 +159,18 @@ class OptionViewModel @AssistedInject constructor(
                             conversationId = conversationId,
                             nickName = otherUserNickname.text
                         )
+                    }
+
+                }
+
+                is OptionAction.OnColorSelect -> {
+                    selectColorUseCase(color = action.chatColor)
+                }
+
+                OptionAction.OnChatColorSet -> {
+                    state.value.currentColor
+                    _state.reduce {
+                        copy(overlay = OptionOverlay.NONE)
                     }
 
                 }

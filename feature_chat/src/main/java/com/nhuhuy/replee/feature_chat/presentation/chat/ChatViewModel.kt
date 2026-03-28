@@ -20,10 +20,11 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveLocalMessage
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ReadMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.UpdateMessageChangeUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.option.ObserveChatColorUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.option.ObserveThemeUseCase
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToInformation
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.FullImage
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.MessageOption
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.None
@@ -47,11 +48,13 @@ import timber.log.Timber
 class ChatViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
+    private val observeChatColorUseCase: ObserveChatColorUseCase,
     private val readMessageUseCase: ReadMessageUseCase,
     private val unblockUserUseCase: UnblockUserUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
     private val getAccountByIdUseCase: GetAccountByIdUseCase,
     observeOwnerIsBlockUseCase: ObserveOwnerIsBlockUseCase,
+    observeThemeUseCase: ObserveThemeUseCase,
     private val listenMessageChangeUseCase: ListenMessageChangeUseCase,
     private val updateMessageChangeUseCase: UpdateMessageChangeUseCase,
     private val getConversationUseCase: GetConversationUseCase,
@@ -66,6 +69,7 @@ class ChatViewModel @AssistedInject constructor(
             uid1 = currentUserId,
             uid2 = otherUserId
         )
+
     val blocked = observeOwnerIsBlockUseCase(ownerId = currentUserId, otherUserId = otherUserId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
     private val _state = MutableStateFlow(ChatState(currentUserId = currentUserId))

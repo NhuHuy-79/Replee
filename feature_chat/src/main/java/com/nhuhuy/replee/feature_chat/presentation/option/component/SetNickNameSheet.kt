@@ -3,6 +3,7 @@ package com.nhuhuy.replee.feature_chat.presentation.option.component
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Icon
@@ -37,7 +38,9 @@ fun SetNickNameSheet(
         Spacer(modifier = Modifier.height(16.dp))
 
         NormalTextField(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
             label = R.string.sheet_field_other_user_name,
             leadingIcon = {
                 Icon(
@@ -56,6 +59,7 @@ fun SetNickNameSheet(
         CommonButton(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(horizontal = 16.dp)
                 .height(56.dp),
             res = R.string.sheet_title_set_nick_name_btn,
             enabled = otherUserNickName.valid,

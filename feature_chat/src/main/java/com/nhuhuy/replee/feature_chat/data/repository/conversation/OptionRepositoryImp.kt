@@ -1,15 +1,20 @@
 package com.nhuhuy.replee.feature_chat.data.repository.conversation
 
 import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.data.data_store.AppDataStore
+import com.nhuhuy.replee.core.data.data_store.ChatColor
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.domain.repository.OptionRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
 class OptionRepositoryImp @Inject constructor(
+    private val appDataStore: AppDataStore,
     private val ioDispatcher: CoroutineDispatcher,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource
@@ -66,6 +71,16 @@ class OptionRepositoryImp @Inject constructor(
     override suspend fun deleteConversation(conversationId: String): NetworkResult<Unit> {
         return executeWithTimeout {
 
+        }
+    }
+
+    override fun observeChatColor(): Flow<ChatColor> {
+        return appDataStore.observeChatColor()
+    }
+
+    override suspend fun selectColor(color: ChatColor) {
+        return withContext(ioDispatcher) {
+            appDataStore.saveChatColor(color)
         }
     }
 }

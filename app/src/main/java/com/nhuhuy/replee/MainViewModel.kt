@@ -2,10 +2,12 @@ package com.nhuhuy.replee
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nhuhuy.replee.core.data.data_store.ChatColor
 import com.nhuhuy.replee.core.data.data_store.ThemeMode
 import com.nhuhuy.replee.core.network.manager.ConnectivityObserver
 import com.nhuhuy.replee.core.network.manager.NetworkStatus
-import com.nhuhuy.replee.usecase.ObserveThemeUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.option.ObserveChatColorUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.option.ObserveThemeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,6 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 class MainViewModel @Inject constructor(
     connectionObserver: ConnectivityObserver,
     observeThemeUseCase: ObserveThemeUseCase,
+    observeChatColorUseCase: ObserveChatColorUseCase,
 ) : ViewModel(){
     val network = connectionObserver.observe()
         .stateIn(
@@ -26,5 +29,6 @@ class MainViewModel @Inject constructor(
     val theme = observeThemeUseCase()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ThemeMode.DEFAULT)
 
-
+    val chatColor = observeChatColorUseCase()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatColor.SAPPHIRE)
 }
