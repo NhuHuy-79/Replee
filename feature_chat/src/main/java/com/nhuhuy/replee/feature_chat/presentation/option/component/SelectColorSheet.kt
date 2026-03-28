@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.data.data_store.ChatColor
 import com.nhuhuy.replee.core.design_system.component.SheetContainer
@@ -53,9 +52,11 @@ fun SelectColorSheet(
                 ColorItem(
                     primaryColor = color.toPrimaryColor(),
                     selected = color == currentColor,
-                    modifier = Modifier.clickable {
-                        onColorSelected(color)
-                    }
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .clickable {
+                            onColorSelected(color)
+                        }
                 )
             }
         }
@@ -64,25 +65,24 @@ fun SelectColorSheet(
     }
 }
 
-@Preview
+
 @Composable
 fun ColorItem(
     modifier: Modifier = Modifier,
     selected: Boolean = true,
-    primaryColor: Color = MaterialTheme.colorScheme.primary,
+    primaryColor: Color,
 ) {
-    val borderColor = if (selected) MaterialTheme.colorScheme.secondaryContainer
+    val borderColor = if (selected) MaterialTheme.colorScheme.primary
     else MaterialTheme.colorScheme.outline
 
     Box(
         modifier = modifier
             .size(36.dp)
-            .clip(shape = CircleShape)
             .background(
                 color = primaryColor,
             )
             .border(
-                width = 1.dp,
+                width = 2.dp,
                 color = borderColor,
                 shape = CircleShape
             ),
@@ -92,7 +92,7 @@ fun ColorItem(
             Icon(
                 imageVector = Icons.Rounded.Check,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.secondaryContainer
+                tint = MaterialTheme.colorScheme.primary
             )
         }
     }

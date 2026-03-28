@@ -263,7 +263,8 @@ fun ProfileItem(
         },
         headlineContent = {
             Text(
-                text = text
+                text = text,
+                style = MaterialTheme.typography.titleMedium
             )
         },
     )

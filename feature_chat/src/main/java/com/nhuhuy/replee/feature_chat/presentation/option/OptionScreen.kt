@@ -12,6 +12,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.DeleteOutline
+import androidx.compose.material.icons.rounded.NotificationsOff
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -73,6 +75,7 @@ fun OptionScreen(
 
             item {
                 ToggleableItem(
+                    icon = Icons.Rounded.Star,
                     res = R.string.setting_pin_conversation,
                     subRes = R.string.setting_pin_conversation_sub,
                     checked = state.pinConversation,
@@ -91,6 +94,7 @@ fun OptionScreen(
 
             item {
                 ToggleableItem(
+                    icon = Icons.Rounded.NotificationsOff,
                     res = R.string.setting_mute_conversation,
                     subRes = R.string.setting_mute_conversation_sub,
                     checked = state.muteConversation,

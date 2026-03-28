@@ -44,7 +44,8 @@ fun SecondaryOptionItem(
             headlineContent = {
                 Text(
                     text = stringResource(res),
-                    color = contentColor
+                    color = contentColor,
+                    style = MaterialTheme.typography.titleMedium
                 )
             },
             supportingContent = {

@@ -4,8 +4,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,10 +22,12 @@ fun MessageLayout(
     userImage: @Composable () -> Unit,
     timeContent: @Composable () -> Unit,
     messageContent: @Composable () -> Unit,
+    statusContent: @Composable RowScope.() -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         AnimatedVisibility(
             visible = showTimeContent
@@ -33,7 +37,7 @@ fun MessageLayout(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Top,
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = if (isMine) Arrangement.End else Arrangement.Start
         ) {
             if (!isMine) {
@@ -42,10 +46,21 @@ fun MessageLayout(
             }
 
             Column(
-                modifier = Modifier
+                modifier = Modifier,
+                horizontalAlignment = if (!isMine) Alignment.Start else Alignment.End
             ) {
+                timeContent()
+                Spacer(Modifier.height(4.dp))
                 messageContent()
+            }
+
+            if (isMine) {
+                Spacer(Modifier.width(4.dp))
+                statusContent()
             }
         }
     }
 }
+
+
+

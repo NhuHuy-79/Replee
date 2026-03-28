@@ -75,8 +75,6 @@ fun ChatScreen(
             delay(100)
             focusRequester.requestFocus()
             keyboardController?.show()
-        } else {
-            keyboardController?.hide()
         }
     }
 

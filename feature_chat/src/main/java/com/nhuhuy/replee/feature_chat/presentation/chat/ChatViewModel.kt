@@ -146,9 +146,13 @@ class ChatViewModel @AssistedInject constructor(
                 ChatAction.OnSendMessageClicked -> {
                     val messageInput: String = state.value.messageInput
                     val currentMessage = state.value.currentMessage
-
-                    Timber.d("Reply message: $currentMessage")
-
+                    _state.reduce {
+                        copy(
+                            messageInput = "",
+                            currentMessage = null,
+                            isReplying = false
+                        )
+                    }
                     sendMessageUseCase(
                         repliedMessage = currentMessage,
                         senderId = currentUserId,
@@ -156,7 +160,7 @@ class ChatViewModel @AssistedInject constructor(
                         conversationId = conversationId,
                         text = messageInput
                     )
-                    _state.reduce { copy(messageInput = "", currentMessage = null) }
+
                 }
 
                 ChatAction.OnBackClick -> onEvent(ChatEvent.NavigateBack)
