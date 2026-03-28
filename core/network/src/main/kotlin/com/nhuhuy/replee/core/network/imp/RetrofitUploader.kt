@@ -2,6 +2,7 @@ package com.nhuhuy.replee.core.network.imp
 
 import android.webkit.MimeTypeMap
 import com.nhuhuy.core.domain.model.UploadFileState
+import com.nhuhuy.replee.core.network.BuildConfig
 import com.nhuhuy.replee.core.network.api.cloudinary.CloudinaryApi
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
 import kotlinx.coroutines.flow.Flow
@@ -22,7 +23,7 @@ class RetrofitUploader @Inject constructor(
         option: Map<String, String>
     ): String {
         val file = File(uriPath)
-        if (!file.exists()) throw IOException("Fil doesn't exist: $uriPath")
+        if (!file.exists()) throw IOException("File doesn't exist: $uriPath")
 
         val extension = MimeTypeMap.getFileExtensionFromUrl(uriPath)
         val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension) ?: "image/*"
@@ -38,25 +39,22 @@ class RetrofitUploader @Inject constructor(
             requestFile
         )
 
-        val presetPart = "replee_chat_img".toRequestBody("text/plain".toMediaTypeOrNull())
+        val presetPart =
+            BuildConfig.CLOUDINARY_UPLOAD_PRESET.toRequestBody("text/plain".toMediaTypeOrNull())
         val folderPart = folder.toRequestBody("text/plain".toMediaTypeOrNull())
-
         val qualityPart = "auto".toRequestBody("text/plain".toMediaTypeOrNull())
 
         return try {
             val response = api.uploadImage(
-                cloudName = "dgq6g8u5h",
+                cloudName = BuildConfig.CLOUDINARY_CLOUD_NAME,
                 file = filePart,
-                preset = presetPart,
-
+                uploadPreset = presetPart,
                 folder = folderPart,
                 quality = qualityPart
             )
 
             response.body()?.secureUrl ?: throw IOException(
-                "Upload failed: ${
-                    response.errorBody()?.string()
-                }"
+                "Upload failed: ${response.errorBody()?.string()}"
             )
         } catch (e: Exception) {
             throw IOException("Error: ${e.message}")
@@ -69,7 +67,6 @@ class RetrofitUploader @Inject constructor(
 
     override suspend fun uploadImageWithUriPath(uriPath: String): String {
         val file = File(uriPath)
-
         if (!file.exists()) throw IOException("File doesn't exist : $uriPath")
 
         val content = file.readBytes()
@@ -84,15 +81,22 @@ class RetrofitUploader @Inject constructor(
             requestFile
         )
 
-        val presetPart = "replee_chat_img"
-            .toRequestBody("text/plain".toMediaTypeOrNull())
+        val presetPart =
+            BuildConfig.CLOUDINARY_UPLOAD_PRESET.toRequestBody("text/plain".toMediaTypeOrNull())
 
-        return api.uploadImage(filePart, presetPart).body()?.secureUrl
-            ?: throw IOException("Upload failed")
+        return try {
+            val response = api.uploadImage(
+                cloudName = BuildConfig.CLOUDINARY_CLOUD_NAME,
+                file = filePart,
+                uploadPreset = presetPart
+            )
+            response.body()?.secureUrl ?: throw IOException("Upload failed")
+        } catch (e: Exception) {
+            throw IOException("Error: ${e.message}")
+        }
     }
 
     override fun observeUploadFile(uriPath: String): Flow<UploadFileState> {
         TODO("Not yet implemented")
     }
-
 }

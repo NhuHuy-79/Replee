@@ -10,6 +10,7 @@ import com.nhuhuy.replee.core.network.model.Constant
 import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.core.network.model.observeDataChange
 import com.nhuhuy.replee.core.network.utils.optimizedWrite
+import com.nhuhuy.replee.core.network.utils.toMilliseconds
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTO
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
 import com.nhuhuy.replee.feature_chat.utils.updateFieldValue
@@ -183,13 +184,21 @@ class ConversationNetworkDataSourceImp @Inject constructor(
     }
 
     override suspend fun updateLastMessage(message: MessageDTO, conversation: ConversationDTO) {
+        val messageDTO = collection.document(conversation.id)
+            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            .document(message.messageId)
+            .get()
+            .await()
+            .toObject<MessageDTO>() ?: message
+
         val data = mapOf(
-            "lastMessageId" to message.messageId,
-            "lastMessageContent" to message.content,
-            "lastMessageTime" to (message.sendAt ?: System.currentTimeMillis()),
-            "lastSenderId" to message.senderId,
-            "lastMessageType" to message.type.name,
-            "unReadMessages.${message.receiverId}" to FieldValue.increment(1)
+            "lastMessageId" to messageDTO.messageId,
+            "lastMessageContent" to messageDTO.content,
+            "lastMessageTime" to (messageDTO.sendAt?.toMilliseconds()
+                ?: System.currentTimeMillis()),
+            "lastSenderId" to messageDTO.senderId,
+            "lastMessageType" to messageDTO.type.name,
+            "unReadMessages.${messageDTO.receiverId}" to FieldValue.increment(1)
         )
 
         collection.document(message.conversationId)

@@ -1,9 +1,11 @@
 package com.nhuhuy.replee.core.network.model
 
+import androidx.annotation.Keep
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.ServerTimestamp
 import com.nhuhuy.core.domain.model.AuthServiceProvider
 
+@Keep
 data class AccountDTO(
     val id: String = "",
     val name: String = "",

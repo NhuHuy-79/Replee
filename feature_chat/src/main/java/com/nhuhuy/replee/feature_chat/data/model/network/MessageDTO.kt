@@ -1,10 +1,12 @@
 package com.nhuhuy.replee.feature_chat.data.model.network
 
+import androidx.annotation.Keep
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.ServerTimestamp
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 
+@Keep
 data class MessageDTO(
     val conversationId: String = "",
     val messageId: String = "",

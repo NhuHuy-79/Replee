@@ -9,21 +9,22 @@ import retrofit2.http.Part
 import retrofit2.http.Path
 
 interface CloudinaryApi {
-    @Multipart
-    @POST("dgq6g8u5h/image/upload")
-    suspend fun uploadImage(
-        @Part file: MultipartBody.Part,
-        @Part("upload_preset") uploadPreset: RequestBody
-    ): Response<CloudinaryResponse>
-
+    /**
+     * Upload image to Cloudinary using dynamic cloud name.
+     *
+     * @param cloudName The cloud name from Cloudinary dashboard.
+     * @param file The file to upload.
+     * @param uploadPreset The upload preset name.
+     * @param folder Optional folder name to store the image.
+     * @param quality Optional quality setting (e.g., "auto").
+     */
     @Multipart
     @POST("{cloud_name}/image/upload")
     suspend fun uploadImage(
         @Path("cloud_name") cloudName: String,
         @Part file: MultipartBody.Part,
-        @Part("upload_preset") preset: RequestBody,
-        @Part("folder") folder: RequestBody, // Thêm cái này để chia folder
-        @Part("quality") quality: RequestBody? = null // Thêm nén để tiết kiệm 5GB
+        @Part("upload_preset") uploadPreset: RequestBody,
+        @Part("folder") folder: RequestBody? = null,
+        @Part("quality") quality: RequestBody? = null
     ): Response<CloudinaryResponse>
 }
-

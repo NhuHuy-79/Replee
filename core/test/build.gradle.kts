@@ -13,10 +13,10 @@ kotlin {
 }
 
 dependencies{
-    api(libs.junit)
-    api(libs.robolectric)
-    api(libs.turbine)
-    api(libs.kotlinx.coroutines.test)
-    api(libs.mockk)
-    api(libs.truth)
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.turbine)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.truth)
 }
