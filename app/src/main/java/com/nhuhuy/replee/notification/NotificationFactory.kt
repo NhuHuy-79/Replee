@@ -8,12 +8,15 @@ import android.graphics.Bitmap
 import androidx.core.app.NotificationCompat
 import androidx.core.app.Person
 import androidx.core.app.RemoteInput
+import androidx.core.content.LocusIdCompat
 import androidx.core.graphics.drawable.IconCompat
 import coil3.BitmapImage
 import coil3.imageLoader
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.request.allowHardware
+import coil3.request.transformations
+import coil3.transform.CircleCropTransformation
 import com.nhuhuy.replee.R
 import com.nhuhuy.replee.broadcast.ReplyBroadcast
 import com.nhuhuy.replee.core.network.api.fcm.NotificationResponse
@@ -35,7 +38,8 @@ abstract class NotificationFactory() {
             val request = ImageRequest.Builder(context)
                 .data(url)
                 .allowHardware(false)
-                .size(128, 128)
+                .size(256, 256)
+                .transformations(CircleCropTransformation())
                 .build()
 
             val result = context.imageLoader.execute(request)
@@ -129,17 +133,18 @@ class ConversationNotificationFactory @Inject constructor(
             .build()
 
         return NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.drawable.ic_notification_msg)
+            .setSmallIcon(R.drawable.ic_circle_notification)
             .setLargeIcon(bitmap)
             .setStyle(messagingStyle)
             .setContentIntent(contentPendingIntent)
             .setGroup(response.conversationId)
-            .setShortcutId(response.conversationId)
-            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setOnlyAlertOnce(true)
             .addPerson(sender)
             .addAction(replyAction)
+            .setShortcutId(response.conversationId)
+            .setLocusId(LocusIdCompat(response.conversationId))
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
             .setAutoCancel(true)
             .build()
     }
