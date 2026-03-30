@@ -25,12 +25,23 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Create empty local.properties
+      - name: Create empty local.properties and google-service.json
         run: |
           touch local.properties
           echo "GOOGLE_WEB_CLIENT_ID=dummy_id_for_ci" >> secret.properties
           echo "CLOUDINARY_UPLOAD_PRESET=dummy_id_for_ci" >> local.properties
           echo "CLOUDINARY_CLOUD_NAME=dummy_id_for_ci" >> local.properties
+          echo '{
+            "project_info": { "project_number": "123", "project_id": "mock-id" },
+            "client": [
+              {
+                "client_info": { "mobilesdk_app_id": "1:123:android:123", "android_client_info": { "package_name": "com.nhuhuy.replee" } },
+                "api_key": [ { "current_key": "mock-key" } ],
+                "services": { "appinvite_service": { "other_platform_oauth_client": [] } }
+              }
+            ],
+            "configuration_version": "1"
+          }' > app/google-services.json
 
       - name: Create empty secret.properties
         run: |
