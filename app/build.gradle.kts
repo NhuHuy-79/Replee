@@ -25,7 +25,7 @@ android {
     }
 
     val localProperties = Properties()
-    val localPropertiesFile = File(rootDir, "secret.properties")
+    val localPropertiesFile = File(rootDir, "local.properties")
     if (localPropertiesFile.exists() && localPropertiesFile.isFile) {
         localPropertiesFile.inputStream().use {
             localProperties.load(it)
