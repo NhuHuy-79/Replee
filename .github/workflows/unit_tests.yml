@@ -27,7 +27,8 @@ jobs:
 
 
       - name: Create empty secret.properties
-        run: touch secret.properties
-
+        run: |
+          touch secret.properties
+          echo "GOOGLE_WEB_CLIENT_ID=dummy_id_for_ci" >> secret.properties
       - name: Run Unit Tests
         run: ./gradlew test
