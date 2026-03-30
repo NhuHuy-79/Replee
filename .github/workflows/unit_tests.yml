@@ -25,10 +25,10 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Create empty local.properties and google-service.json
+      - name: Create empty local.properties and google-services.json
         run: |
           touch local.properties
-          echo "GOOGLE_WEB_CLIENT_ID=dummy_id_for_ci" >> secret.properties
+          echo "GOOGLE_WEB_CLIENT_ID=dummy_id_for_ci" >> local.properties
           echo "CLOUDINARY_UPLOAD_PRESET=dummy_id_for_ci" >> local.properties
           echo "CLOUDINARY_CLOUD_NAME=dummy_id_for_ci" >> local.properties
           echo '{
@@ -42,10 +42,5 @@ jobs:
             ],
             "configuration_version": "1"
           }' > app/google-services.json
-
-      - name: Create empty secret.properties
-        run: |
-          touch secret.properties
-          echo "GOOGLE_WEB_CLIENT_ID=dummy_id_for_ci" >> secret.properties
       - name: Run Unit Tests
         run: ./gradlew test
