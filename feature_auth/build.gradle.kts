@@ -57,7 +57,6 @@ dependencies {
     //Hilt
     implementation(libs.dagger.hilt.android)
     testImplementation(libs.junit.junit)
-    testImplementation(libs.junit.junit)
     debugImplementation(libs.ui.tooling)
     ksp(libs.hilt.android.compiler)
 
@@ -73,7 +72,9 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
-
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.truth)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

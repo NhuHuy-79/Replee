@@ -1,3 +1,0 @@
-package com.nhuhuy.replee.feature_auth.usecase
-
-class LoginWithEmailUseCaseTest
