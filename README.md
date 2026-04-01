@@ -1,6 +1,17 @@
 <h1 align=center>Replee</h1>
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" />
+  <img src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" />
+  <img src="https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" />
+  <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" />
+  <img src="https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white" />
+  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" />
+</p>
+
+
 <p align=center>🔨 Modern Realtime 1v1 Chat: Jetpack Compose + Firebase + Room. Offline-first architecture with Material 3. 🚀💨</p>
+
 
 <p align="center">
   <img src="./screenshot/screnshot_1.jpg" width="25%" />
