@@ -47,9 +47,8 @@
 
 - **Backend:**
   - [Node.js](https://nodejs.org/) with ([TypeScript](https://www.typescriptlang.org/)) deployed on [Vercel](https://vercel.com/): acts as middleware for FCM and custom business logic
-
-  > [!TIP]
-  > You can checkout [Backend For Replee](https://github.com/NhuHuy-79/replee-backend) here.
+> [!TIP]
+> You can checkout [Backend For Replee](https://github.com/NhuHuy-79/replee-backend) here.
   - [Cloudinary](https://cloudinary.com/): Media upload, storage, and transformation
 
 ### 🌐 Networking & Media
