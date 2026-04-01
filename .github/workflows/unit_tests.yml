@@ -28,9 +28,9 @@ jobs:
       - name: Create empty local.properties and google-services.json
         run: |
           touch local.properties
-          echo "GOOGLE_WEB_CLIENT_ID=dummy_id_for_ci" >> local.properties
-          echo "CLOUDINARY_UPLOAD_PRESET=dummy_id_for_ci" >> local.properties
-          echo "CLOUDINARY_CLOUD_NAME=dummy_id_for_ci" >> local.properties
+           echo 'GOOGLE_WEB_CLIENT_ID="dummy_id_for_ci"' >> local.properties
+          echo 'CLOUDINARY_UPLOAD_PRESET="dummy_id_for_ci"' >> local.properties
+          echo 'CLOUDINARY_CLOUD_NAME="dummy_id_for_ci"' >> local.properties
           echo '{
             "project_info": { "project_number": "123", "project_id": "mock-id" },
             "client": [
