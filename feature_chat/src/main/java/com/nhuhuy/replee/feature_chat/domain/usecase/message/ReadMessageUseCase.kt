@@ -5,6 +5,7 @@ import com.nhuhuy.core.domain.model.onFailure
 import com.nhuhuy.core.domain.model.onSuccess
 import com.nhuhuy.replee.core.data.utils.then
 import com.nhuhuy.replee.feature_chat.data.SyncManager
+import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import javax.inject.Inject
@@ -12,7 +13,8 @@ import javax.inject.Inject
 class ReadMessageUseCase @Inject constructor(
     private val syncManager: SyncManager,
     private val conversationRepository: ConversationRepository,
-    private val messageRepository: MessageRepository
+    private val messageRepository: MessageRepository,
+    private val workerScheduler: WorkerScheduler,
 ) {
     suspend operator fun invoke(
         conversationId: String,
@@ -32,6 +34,7 @@ class ReadMessageUseCase @Inject constructor(
                     conversationId = conversationId,
                     synced = false
                 )
+                workerScheduler.scheduleConversationSyncWorker()
             }
             .onSuccess {
                 syncManager.updateConversationStatus(conversationId = conversationId, synced = true)
