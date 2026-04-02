@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./screenshot/replee_icon.png" width="15%" />
+</p>
+
 <h1 align=center>Replee</h1>
 
 <p align="center">
