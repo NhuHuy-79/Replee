@@ -2,6 +2,7 @@ package com.nhuhuy.replee.core.network.model
 
 import android.util.Log
 import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.channels.awaitClose
@@ -56,7 +57,7 @@ inline fun <T, R : Any> DataChange<T>.mapNotNullData(
  * @param T The type to which the Firestore documents should be parsed.
  * @return A [Flow] emitting lists of [DataChange] representing the updates in the query results.
  */
-inline fun <reified T> Query.observeDataChange(): Flow<List<DataChange<T>>> =
+inline fun <reified T> Query.observeMultipleDataChanges(): Flow<List<DataChange<T>>> =
     callbackFlow {
         val registration = addSnapshotListener { snapshot, error ->
             if (error != null) {
@@ -94,5 +95,22 @@ inline fun <reified T> Query.observeDataChange(): Flow<List<DataChange<T>>> =
             }
         }
 
+        awaitClose { registration.remove() }
+    }
+
+inline fun <reified T : Any> DocumentReference.observeDataChange(): Flow<DataChange<T>> =
+    callbackFlow {
+        val registration = addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error); return@addSnapshotListener
+            }
+
+            val data = snapshot?.toObject<T>()
+            if (data != null) {
+                trySend(DataChange.Upsert(data))
+            } else if (snapshot?.exists() == false) {
+                trySend(DataChange.Delete(snapshot.id))
+            }
+        }
         awaitClose { registration.remove() }
     }

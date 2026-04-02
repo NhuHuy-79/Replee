@@ -206,4 +206,22 @@ class ConversationRepositoryImp @Inject constructor(
         }
     }
 
+    override fun listenReadBy(
+        conversationId: String,
+        receiverId: String
+    ): Flow<Long> {
+        return conversationNetworkDataSource.listenReadByChange(conversationId, receiverId)
+    }
+
+    override suspend fun updateReadBy(conversationId: String, readBy: Long) {
+        conversationLocalDataSource.updateLastReadBy(conversationId, readBy)
+    }
+
+    override fun observeReadBy(conversationId: String): Flow<Long> {
+        return conversationLocalDataSource.observeConversationById(conversationId)
+            .map { conversation ->
+                conversation?.conversation?.lastReadBy ?: 0L
+            }
+    }
+
 }

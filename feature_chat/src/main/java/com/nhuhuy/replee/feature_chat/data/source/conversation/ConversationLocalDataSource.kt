@@ -41,6 +41,7 @@ interface ConversationLocalDataSource {
     suspend fun getUnSyncedConversations(): List<ConversationAndUser>
     suspend fun updateOwnerNickName(conversationId: String, nickname: String)
     suspend fun updateOtherUserNickname(conversationId: String, nickname: String)
+    suspend fun updateLastReadBy(conversationId: String, readBy: Long)
 }
 
 class ConversationLocalDataSourceImp @Inject constructor(
@@ -183,6 +184,10 @@ class ConversationLocalDataSourceImp @Inject constructor(
 
     override suspend fun updateOtherUserNickname(conversationId: String, nickname: String) {
         return conversationDao.updateOtherUserNickname(conversationId = conversationId, nickname)
+    }
+
+    override suspend fun updateLastReadBy(conversationId: String, readBy: Long) {
+        return conversationDao.updateReadBy(conversationId, readBy)
     }
 
 }

@@ -107,4 +107,7 @@ interface ConversationDao : BaseDao<ConversationEntity> {
     @Query("UPDATE conversation SET lastDeletedMessageId = :messageId WHERE id = :conversationId")
     suspend fun updateLastDeletedMessageId(conversationId: String, messageId: String)
 
+    @Query("UPDATE conversation SET lastReadBy = :readBy WHERE id = :conversationId")
+    suspend fun updateReadBy(conversationId: String, readBy: Long)
+
 }

@@ -29,6 +29,7 @@ data class ConversationEntity(
     val lastMessageTime: Long? = null,
     val lastTimeSyncs: Long? = null,
     val lastDeletedMessageId: String? = null,
+    val lastReadBy: Long? = null,
     @ColumnInfo(name = "lastMessageType", defaultValue = "TEXT")
     val lastMessageType: String = "TEXT",
     @ColumnInfo(name = "ownerNick", defaultValue = "")

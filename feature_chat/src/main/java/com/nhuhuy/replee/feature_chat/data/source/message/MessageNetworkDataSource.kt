@@ -8,7 +8,7 @@ import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.toObjects
 import com.nhuhuy.replee.core.network.model.Constant
 import com.nhuhuy.replee.core.network.model.DataChange
-import com.nhuhuy.replee.core.network.model.observeDataChange
+import com.nhuhuy.replee.core.network.model.observeMultipleDataChanges
 import com.nhuhuy.replee.core.network.utils.optimizedWrite
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
@@ -277,7 +277,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
         val query = collection.document(conversationId)
             .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
             .orderBy("sendAt", Query.Direction.DESCENDING)
-        return query.observeDataChange()
+        return query.observeMultipleDataChanges()
     }
 
     override fun listenToMessagesWithLimit(
@@ -288,7 +288,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
             .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
             .orderBy("sendAt", Query.Direction.DESCENDING)
             .limit(limit.toLong())
-        return query.observeDataChange()
+        return query.observeMultipleDataChanges()
     }
 
     override suspend fun fetchMessagesPage(

@@ -4,11 +4,12 @@ import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.snapshots
 import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.toObjects
 import com.nhuhuy.replee.core.network.model.Constant
 import com.nhuhuy.replee.core.network.model.DataChange
-import com.nhuhuy.replee.core.network.model.observeDataChange
+import com.nhuhuy.replee.core.network.model.observeMultipleDataChanges
 import com.nhuhuy.replee.core.network.utils.optimizedWrite
 import com.nhuhuy.replee.core.network.utils.toMilliseconds
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTO
@@ -17,6 +18,7 @@ import com.nhuhuy.replee.feature_chat.utils.updateFieldValue
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import javax.inject.Inject
@@ -48,6 +50,9 @@ interface ConversationNetworkDataSource {
         ownerId: String,
         limit: Int
     ): Flow<List<DataChange<ConversationDTO>>>
+
+    fun listenReadByChange(conversationId: String, receiverId: String): Flow<Long>
+    fun updateLastReadBy(conversationId: String, receiverId: String)
 }
 
 class ConversationNetworkDataSourceImp @Inject constructor(
@@ -250,7 +255,7 @@ class ConversationNetworkDataSourceImp @Inject constructor(
         val query = collection
             .whereArrayContains("memberIds", ownerId)
             .orderBy("lastMessageTime", Query.Direction.DESCENDING)
-        return query.observeDataChange<ConversationDTO>()
+        return query.observeMultipleDataChanges<ConversationDTO>()
     }
 
     override fun listenConversationChanges(
@@ -261,7 +266,20 @@ class ConversationNetworkDataSourceImp @Inject constructor(
             .whereArrayContains("memberIds", ownerId)
             .orderBy("lastMessageTime", Query.Direction.DESCENDING)
             .limit(limit.toLong())
-        return query.observeDataChange<ConversationDTO>()
+        return query.observeMultipleDataChanges<ConversationDTO>()
+    }
+
+    override fun listenReadByChange(conversationId: String, receiverId: String): Flow<Long> {
+        return collection.document(conversationId)
+            .snapshots()
+            .mapNotNull { snapshot ->
+                snapshot.toObject<ConversationDTO>()?.lastReadBy?.get(receiverId)
+            }
+    }
+
+    override fun updateLastReadBy(conversationId: String, receiverId: String) {
+        collection.document(conversationId)
+            .update("lastReadBy.$receiverId", FieldValue.serverTimestamp())
     }
 
 }

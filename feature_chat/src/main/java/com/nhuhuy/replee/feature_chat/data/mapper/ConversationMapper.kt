@@ -30,7 +30,8 @@ fun Conversation.toConversationEntity(): ConversationEntity {
         lastMessageId = lastMessageId,
         lastTimeSyncs = System.currentTimeMillis(),
         lastMessageType = this.lastMessageType.name,
-        lastDeletedMessageId = this.lastDeletedMessageId
+        lastDeletedMessageId = this.lastDeletedMessageId,
+        lastReadBy = this.lastReadBy
     )
 }
 
@@ -48,6 +49,7 @@ fun ConversationAndUser.createConversationDTO(): ConversationDTO {
         lastMessageContent = conversation.lastMessageContent,
         lastMessageType = MessageType.valueOf(conversation.lastMessageType),
         lastDeletedMessageId = conversation.lastDeletedMessageId,
+        lastReadBy = mapOf(conversation.otherUserId to conversation.lastReadBy),
         isBlocked = mapOf(conversation.ownerId to conversation.blocked),
         isPinned = mapOf(conversation.ownerId to conversation.pinned),
         isMuted = mapOf(conversation.ownerId to conversation.muted),
@@ -73,6 +75,8 @@ fun ConversationAndUser.toUpdatePatch(uid: String): Map<String, Any> {
     map["lastMessageTime"] = FieldValue.serverTimestamp()
     map["lastMessageContent"] = conversation.lastMessageContent
     map["lastMessageType"] = conversation.lastMessageType
+
+    map["lastReadBy.$uid"] = conversation.lastReadBy ?: FieldValue.serverTimestamp()
 
     return map
 
@@ -102,6 +106,7 @@ fun ConversationDTO.toConversation(
         lastMessageTime = lastMessageTime,
         lastMessageType = lastMessageType,
         lastDeletedMessageId = lastDeletedMessageId,
+        lastReadBy = lastReadBy[otherUserId],
         unreadMessageCount = unReadMessages[ownerId] ?: 0,
         deleted = isDeleted[ownerId] ?: false,
         blocked = isBlocked[ownerId] ?: false,
@@ -126,6 +131,7 @@ fun ConversationAndUser.toConversation(): Conversation {
         lastMessageTime = conversation.lastMessageTime,
         lastMessageType = MessageType.valueOf(conversation.lastMessageType),
         lastDeletedMessageId = conversation.lastDeletedMessageId,
+        lastReadBy = conversation.lastReadBy,
         muted = conversation.muted,
         pinned = conversation.pinned,
         otherUserName = otherUser?.name.orEmpty(),

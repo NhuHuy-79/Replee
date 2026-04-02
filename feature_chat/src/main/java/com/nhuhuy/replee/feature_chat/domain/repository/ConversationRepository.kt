@@ -37,4 +37,7 @@ interface ConversationRepository {
     ): NetworkResult<String>
 
     suspend fun deleteMetadataLastMessage(message: Message): NetworkResult<String>
+    fun listenReadBy(conversationId: String, receiverId: String): Flow<Long>
+    suspend fun updateReadBy(conversationId: String, readBy: Long)
+    fun observeReadBy(conversationId: String): Flow<Long>
 }

@@ -36,5 +36,7 @@ data class ConversationDTO(
 
     @get:PropertyName("isBlocked")
     val isBlocked: Map<String, Boolean> = emptyMap(),
+
+    val lastReadBy: Map<String, Long?> = emptyMap()
 )
 
