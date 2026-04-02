@@ -39,7 +39,7 @@ fun MessageDTO.toMessage() : Message{
         deleted = deleted,
         seen = seen,
         sentAt = sendAt?.toMilliseconds() ?: System.currentTimeMillis(),
-        status = MessageStatus.SYNCED,
+        status = status,
         type = type,
         remoteUrl = url,
         repliedMessageContent = repliedMessageContent,

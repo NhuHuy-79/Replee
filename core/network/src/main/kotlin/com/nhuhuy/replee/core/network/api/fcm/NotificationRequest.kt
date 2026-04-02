@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ConversationNotificationRequest(
+    val messageId: String,
     val senderName: String,
     val receiverId: String,
     val content: String,

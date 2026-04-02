@@ -9,6 +9,11 @@ import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
 import kotlinx.coroutines.flow.Flow
 
 interface MessageRepository {
+    suspend fun getNewestMessageInConversation(conversationId: String): Message?
+    suspend fun fetchMessagesByTimestamp(
+        conversationId: String,
+        timestamp: Long
+    ): NetworkResult<Unit>
     suspend fun deleteMultipleMessage(messages: List<Message>): NetworkResult<Unit>
     suspend fun getMessageListById(messageIds: List<String>): List<Message>
     suspend fun deleteMessage(message: Message): NetworkResult<String>
@@ -39,5 +44,8 @@ interface MessageRepository {
 
     fun observeLocalMessageWithPaging(conversationId: String): Flow<PagingData<LocalPathMessage>>
 
-    suspend fun markAllMessagesRead(conversationId: String, receiverId: String): NetworkResult<Unit>
+    suspend fun markAllMessagesRead(
+        conversationId: String,
+        receiverId: String
+    ): NetworkResult<List<Message>>
 }

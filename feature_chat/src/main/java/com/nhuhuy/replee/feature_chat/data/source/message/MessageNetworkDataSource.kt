@@ -28,6 +28,11 @@ interface MessageNetworkDataSource {
 
     suspend fun deleteMultipleMessage(messages: List<MessageDTO>)
 
+    suspend fun fetchMessagesInConversationByTimestamp(
+        conversationId: String,
+        timestamp: Long
+    ): List<MessageDTO>
+
     suspend fun sendMessage(message: MessageDTO)
     suspend fun sendMessages(list: List<MessageDTO>): List<String>
     suspend fun fetchMessagesByConversationId(conversationId: String): List<MessageDTO>
@@ -334,6 +339,20 @@ class MessageNetworkDataSourceImp @Inject constructor(
 
             awaitClose { listener.remove() }
         }
+    }
+
+    override suspend fun fetchMessagesInConversationByTimestamp(
+        conversationId: String,
+        timestamp: Long
+    ): List<MessageDTO> {
+        return collection.document(conversationId)
+            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            .whereGreaterThan("sendAt", timestamp)
+            .orderBy("sendAt", Query.Direction.ASCENDING)
+            .limit(20)
+            .get()
+            .await()
+            .toObjects<MessageDTO>()
     }
 
 }

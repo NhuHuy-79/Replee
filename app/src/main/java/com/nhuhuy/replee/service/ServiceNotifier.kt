@@ -32,7 +32,7 @@ class ServiceNotifierImp @Inject constructor(
         val notification = notificationFactory.execute(body)
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED){
             NotificationManagerCompat.from(context)
-                .notify(body.hashCode(), notification)
+                .notify(body.messageId.hashCode(), notification)
         } else {
             Timber.e("Permission not granted")
         }

@@ -11,6 +11,7 @@ import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.core.network.model.mapData
+import com.nhuhuy.replee.feature_chat.data.NotificationHelper
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
@@ -39,7 +40,30 @@ class MessageRepositoryImp @Inject constructor(
     private val conversationLocalDataSource: ConversationLocalDataSource,
     private val messageLocalDataSource: MessageLocalDataSource,
     private val ioDispatcher: CoroutineDispatcher,
+    private val notificationHelper: NotificationHelper
 ) : MessageRepository {
+    override suspend fun getNewestMessageInConversation(conversationId: String): Message? {
+        return withContext(ioDispatcher) {
+            messageLocalDataSource.getNewestMessageInConversation(conversationId)?.toMessage()
+        }
+    }
+
+    override suspend fun fetchMessagesByTimestamp(
+        conversationId: String,
+        timestamp: Long
+    ): NetworkResult<Unit> {
+        return executeWithTimeout(ioDispatcher) {
+            val entities = messageNetworkDataSource.fetchMessagesInConversationByTimestamp(
+                conversationId = conversationId,
+                timestamp = timestamp
+            ).map { messageDTO ->
+                messageDTO.toMessage().toMessageEntity()
+            }
+
+            messageLocalDataSource.upsertMessages(entities)
+        }
+    }
+
     override suspend fun deleteMultipleMessage(messages: List<Message>): NetworkResult<Unit> {
         return executeWithTimeout(ioDispatcher) {
             messageNetworkDataSource.deleteMultipleMessage(
@@ -200,19 +224,27 @@ class MessageRepositoryImp @Inject constructor(
     override suspend fun markAllMessagesRead(
         conversationId: String,
         receiverId: String
-    ): NetworkResult<Unit> {
+    ): NetworkResult<List<Message>> {
         return execute {
-            messageLocalDataSource.updateMessageStatusInConversation(
+            val entities = messageLocalDataSource.updateMessageStatusInConversation(
                 conversationId = conversationId,
                 receiverId = receiverId,
                 status = MessageStatus.SEEN
             )
+
+            val notificationIds = entities.map { entity ->
+                entity.messageId.hashCode()
+            }
+
+            notificationHelper.cancelNotificationList(notificationIds = notificationIds)
 
             messageNetworkDataSource.updateReceiverMessageStatus(
                 conversationId = conversationId,
                 receiverId = receiverId,
                 status = MessageStatus.SEEN
             )
+
+            entities.map { messageEntity -> messageEntity.toMessage() }
         }
 
     }

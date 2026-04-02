@@ -104,6 +104,16 @@ interface MessageDao : BaseDao<MessageEntity> {
         status: String
     )
 
+    @Query("SELECT * FROM message WHERE conversationId = :conversationId AND status = :status")
+    suspend fun getMessageByStatus(conversationId: String, status: String): List<MessageEntity>
+
+    @Query("UPDATE message SET status = :status WHERE messageId IN (:messageIds) AND receiverId = :receiverId")
+    suspend fun updateMessageListStatus(
+        status: String,
+        messageIds: List<String>,
+        receiverId: String
+    )
+
     @Query("DELETE FROM message WHERE messageId = :messageId")
     suspend fun deleteMessageById(messageId: String)
 
@@ -115,5 +125,8 @@ interface MessageDao : BaseDao<MessageEntity> {
 
     @Query("UPDATE message SET deleted = 1 WHERE messageId = :messageId")
     suspend fun softDeleteMessageById(messageId: String)
+
+    @Query("SELECT * FROM message WHERE conversationId = :conversationId ORDER BY sentAt DESC LIMIT 1")
+    suspend fun getNewestMessageInConversation(conversationId: String): MessageEntity?
 }
 

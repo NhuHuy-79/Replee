@@ -14,7 +14,7 @@ interface MessageLocalDataSource {
         conversationId: String,
         receiverId: String,
         status: MessageStatus
-    )
+    ): List<MessageEntity>
     suspend fun getMessageById(messageId: String): MessageEntity?
     suspend fun upsertMessage(message: MessageEntity)
     suspend fun updateMessageStatus(status: MessageStatus, messageId: String)
@@ -35,6 +35,7 @@ interface MessageLocalDataSource {
     suspend fun deleteMessageByConversationId(limit: Int)
     suspend fun deleteMessageById(message: MessageEntity)
     suspend fun getMessageListById(messageIds: List<String>): List<MessageEntity>
+    suspend fun getNewestMessageInConversation(conversationId: String): MessageEntity?
 }
 
 class MessageLocalDataSourceImp @Inject constructor(
@@ -47,8 +48,22 @@ class MessageLocalDataSourceImp @Inject constructor(
         conversationId: String,
         receiverId: String,
         status: MessageStatus,
-    ) {
-        messageDao.updateMessageStatusInConversation(conversationId, receiverId, status.name)
+    ): List<MessageEntity> {
+        return coreDatabase.withTransaction {
+            val list = messageDao.getMessageByStatus(
+                conversationId = conversationId,
+                status = status.name
+            )
+
+            if (list.isNotEmpty()) {
+                messageDao.updateMessageStatusInConversation(
+                    conversationId = conversationId,
+                    receiverId = receiverId,
+                    status = status.name
+                )
+            }
+            list
+        }
     }
 
     override suspend fun getMessageById(messageId: String): MessageEntity? {
@@ -153,6 +168,10 @@ class MessageLocalDataSourceImp @Inject constructor(
 
     override suspend fun getMessageListById(messageIds: List<String>): List<MessageEntity> {
         return messageDao.getMessageListById(messageIds)
+    }
+
+    override suspend fun getNewestMessageInConversation(conversationId: String): MessageEntity? {
+        return messageDao.getNewestMessageInConversation(conversationId)
     }
 
 }

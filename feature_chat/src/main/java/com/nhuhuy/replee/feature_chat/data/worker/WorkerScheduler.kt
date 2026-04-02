@@ -7,5 +7,5 @@ interface WorkerScheduler {
     fun scheduleMessageSyncWorker()
     fun scheduleConversationSyncWorker()
     fun scheduleDeleteMessage(message: Message)
-
+    fun scheduleSaveNewMessage(conversationId: String)
 }

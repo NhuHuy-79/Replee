@@ -21,7 +21,8 @@ class NotificationParser @Inject constructor() {
                 senderName = data["senderName"] ?: "Unknown",
                 senderImg = data["senderImg"] ?: "",
                 content = data["content"] ?: "",
-                type = ContentType.valueOf(type)
+                type = ContentType.valueOf(type),
+                messageId = data["messageId"] ?: ""
             )
         } catch (e: Exception) {
             Timber.e("Lỗi map dữ liệu: ${e.message}")

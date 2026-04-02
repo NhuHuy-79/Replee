@@ -3,6 +3,7 @@ package com.nhuhuy.replee.service
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.nhuhuy.core.domain.usecase.UpdateDeviceTokenUseCase
+import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
 import com.nhuhuy.replee.notification.NotificationParser
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -24,6 +25,9 @@ class PushNotificationService() : FirebaseMessagingService() {
     lateinit var serviceNotifier: ServiceNotifier
 
     @Inject
+    lateinit var workerScheduler: WorkerScheduler
+
+    @Inject
     lateinit var notificationParser: NotificationParser
 
     override fun onNewToken(token: String) {
@@ -41,6 +45,8 @@ class PushNotificationService() : FirebaseMessagingService() {
                 Timber.d("Notification body is null")
                 return@launch
             }
+
+            workerScheduler.scheduleSaveNewMessage(conversationId = notificationBody.conversationId)
 
             Timber.d("Notification body: $notificationBody")
 

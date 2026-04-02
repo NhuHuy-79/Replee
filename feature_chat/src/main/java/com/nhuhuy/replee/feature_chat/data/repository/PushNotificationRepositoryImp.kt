@@ -40,6 +40,7 @@ class PushNotificationRepositoryImp @Inject constructor(
 
                 val token = receiver.currentToken
                 val request = ConversationNotificationRequest(
+                    messageId = message.messageId,
                     senderName = sender.name,
                     receiverId = receiver.id,
                     content = message.content,
