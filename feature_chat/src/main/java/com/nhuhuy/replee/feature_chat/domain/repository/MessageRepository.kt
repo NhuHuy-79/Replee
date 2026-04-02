@@ -14,6 +14,7 @@ interface MessageRepository {
         conversationId: String,
         timestamp: Long
     ): NetworkResult<Unit>
+
     suspend fun deleteMultipleMessage(messages: List<Message>): NetworkResult<Unit>
     suspend fun getMessageListById(messageIds: List<String>): List<Message>
     suspend fun deleteMessage(message: Message): NetworkResult<String>
