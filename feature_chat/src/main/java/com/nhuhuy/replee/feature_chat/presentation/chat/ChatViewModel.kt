@@ -12,6 +12,9 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.block.CheckBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.ObserveOwnerIsBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.UnblockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.ListenReadByUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.ObserveReadByUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.UpdateReadByUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.SendFileMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.ValidateFileSizeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.DeleteMessageUseCase
@@ -32,11 +35,13 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
@@ -46,6 +51,9 @@ import timber.log.Timber
 class ChatViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
+    private val observeReadByUseCase: ObserveReadByUseCase,
+    private val updateReadByUseCase: UpdateReadByUseCase,
+    private val listenReadByUseCase: ListenReadByUseCase,
     private val readMessageUseCase: ReadMessageUseCase,
     private val unblockUserUseCase: UnblockUserUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
@@ -60,6 +68,8 @@ class ChatViewModel @AssistedInject constructor(
     private val validateFileSizeUseCase: ValidateFileSizeUseCase,
     private val deleteMessageUseCase: DeleteMessageUseCase
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
+
+    private var updateReadByJob: Job? = null
     private val conversationId
         get() = createConversationId(
             uid1 = currentUserId,
@@ -70,19 +80,37 @@ class ChatViewModel @AssistedInject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
     private val _state = MutableStateFlow(ChatState(currentUserId = currentUserId))
 
+
     val pagedMessages = observeLocalMessagesUseCase(conversationId)
         .cachedIn(viewModelScope)
 
+    val readByTime = observeReadByUseCase(conversationId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0L)
 
     override val state: StateFlow<ChatState>
         get() = _state.asStateFlow()
 
     init {
 
+        initialReadByTime()
+
         loadInitialData()
 
         //Listen to Message
         listenToMessageChange()
+    }
+
+    private fun initialReadByTime() {
+        viewModelScope.launch {
+            updateReadByUseCase(conversationId = conversationId)
+        }
+
+        updateReadByJob?.cancel()
+        updateReadByJob = listenReadByUseCase(
+            conversationId = conversationId,
+            receiverId = otherUserId
+        ).launchIn(viewModelScope)
+
     }
 
     private fun loadInitialData() {
@@ -255,6 +283,11 @@ class ChatViewModel @AssistedInject constructor(
                         copy(isReplying = false, currentMessage = null)
                     }
                 }
+
+                ChatAction.OnNewMessageTrigger -> {
+                    //Trigger when new messages appear in UI
+                    readMessageUseCase(conversationId = conversationId, receiverId = currentUserId)
+                }
             }
         }
     }
@@ -269,6 +302,11 @@ class ChatViewModel @AssistedInject constructor(
 
     private fun createConversationId(uid1: String, uid2: String): String {
         return listOf(uid1, uid2).sorted().joinToString(separator = "_")
+    }
+
+    override fun onCleared() {
+        updateReadByJob = null
+        super.onCleared()
     }
 
 }

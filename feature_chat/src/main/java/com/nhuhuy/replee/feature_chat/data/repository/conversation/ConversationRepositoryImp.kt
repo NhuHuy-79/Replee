@@ -213,8 +213,10 @@ class ConversationRepositoryImp @Inject constructor(
         return conversationNetworkDataSource.listenReadByChange(conversationId, receiverId)
     }
 
-    override suspend fun updateReadBy(conversationId: String, readBy: Long) {
-        conversationLocalDataSource.updateLastReadBy(conversationId, readBy)
+    override suspend fun updateReadBy(conversationId: String, readBy: Long): NetworkResult<Unit> {
+        return executeWithTimeout(ioDispatcher) {
+            conversationLocalDataSource.updateLastReadBy(conversationId, readBy)
+        }
     }
 
     override fun observeReadBy(conversationId: String): Flow<Long> {
@@ -222,6 +224,7 @@ class ConversationRepositoryImp @Inject constructor(
             .map { conversation ->
                 conversation?.conversation?.lastReadBy ?: 0L
             }
+            .flowOn(ioDispatcher)
     }
 
 }

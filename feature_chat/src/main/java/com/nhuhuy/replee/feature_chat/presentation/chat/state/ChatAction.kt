@@ -19,4 +19,6 @@ sealed interface ChatAction : UiAction{
     data object OnMessageDelete : ChatAction
     data object OnMessagePin : ChatAction
 
+    data object OnNewMessageTrigger : ChatAction
+
 }
