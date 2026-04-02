@@ -75,7 +75,10 @@ class SyncManagerImp @Inject constructor(
             val messageIds = unSyncedMessages.map { messageDTO -> messageDTO.messageId }
 
             //Send message to network
-            val conversationIds = messageNetworkDataSource.sendMessages(unSyncedMessages)
+            val messageToNetwork = unSyncedMessages.map { messageDTO ->
+                messageDTO.copy(status = MessageStatus.SYNCED)
+            }
+            val conversationIds = messageNetworkDataSource.sendMessages(messageToNetwork)
 
             //Update all MessagePack status
             messageLocalDataSource.updateSyncStatus(messageIds, MessageStatus.SYNCED)
