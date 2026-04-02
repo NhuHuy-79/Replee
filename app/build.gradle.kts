@@ -76,6 +76,9 @@ dependencies {
     implementation(project(":feature_chat"))
     implementation(project(":feature_auth"))
     implementation(project(":feature_profile"))
+    testImplementation(project(":core:test"))
+
+
 
     //Work Manager
     implementation(libs.androidx.work.runtime.ktx)
@@ -106,6 +109,11 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.truth)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

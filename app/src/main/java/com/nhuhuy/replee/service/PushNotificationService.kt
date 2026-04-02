@@ -6,6 +6,7 @@ import com.nhuhuy.core.domain.usecase.UpdateDeviceTokenUseCase
 import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
 import com.nhuhuy.replee.notification.NotificationParser
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -16,8 +17,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class PushNotificationService() : FirebaseMessagingService() {
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-
     @Inject
     lateinit var updateDeviceTokenUseCase: UpdateDeviceTokenUseCase
 
@@ -29,6 +28,10 @@ class PushNotificationService() : FirebaseMessagingService() {
 
     @Inject
     lateinit var notificationParser: NotificationParser
+
+    var dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val scope = CoroutineScope(dispatcher + SupervisorJob())
+
 
     override fun onNewToken(token: String) {
         scope.launch {

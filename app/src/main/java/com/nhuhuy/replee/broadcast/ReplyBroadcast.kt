@@ -13,6 +13,7 @@ import com.nhuhuy.replee.notification.EXTRA_RECEIVER_ID
 import com.nhuhuy.replee.notification.EXTRA_SENDER_ID
 import com.nhuhuy.replee.notification.REMOTE_INPUT_KEY
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,7 +24,10 @@ import javax.inject.Inject
 class ReplyBroadcast() : BroadcastReceiver() {
     @Inject
     lateinit var replyManager: ReplyManager
+
     private lateinit var notificationManager: NotificationManagerCompat
+
+    var ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 
     override fun onReceive(context: Context?, intent: Intent?){
         if (context == null || intent == null) {
@@ -47,7 +51,7 @@ class ReplyBroadcast() : BroadcastReceiver() {
             return
         }
 
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(ioDispatcher).launch {
             try {
                 val input = replyText.toString()
                 if (senderId != null && receiverId != null && conversationId != null) {
