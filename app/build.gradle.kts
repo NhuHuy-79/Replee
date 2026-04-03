@@ -18,6 +18,7 @@ dependencies {
     implementation(project(":core:network"))
     implementation(project(":core:database"))
     implementation(project(":core:data"))
+    implementation(project(":core:test"))
     implementation(project(":core:design_system"))
     implementation(project(":feature_chat"))
     implementation(project(":feature_auth"))
