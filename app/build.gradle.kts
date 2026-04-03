@@ -1,5 +1,3 @@
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -8,61 +6,13 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    id("replee.android.application")
 }
 
 android {
     namespace = "com.nhuhuy.replee"
-    compileSdk = 36
-
-    defaultConfig {
-        applicationId = "com.nhuhuy.replee"
-        minSdk = 30
-        targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    val localProperties = Properties()
-    val localPropertiesFile = File(rootDir, "local.properties")
-    if (localPropertiesFile.exists() && localPropertiesFile.isFile) {
-        localPropertiesFile.inputStream().use {
-            localProperties.load(it)
-        }
-    }
-
-
-    buildTypes {
-        release {
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-            signingConfig = signingConfigs.getByName("debug")
-        }
-
-        debug {
-            buildConfigField(
-                "String",
-                "GOOGLE_WEB_CLIENT_ID",
-                localProperties.getProperty("GOOGLE_WEB_CLIENT_ID")
-            )
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
     buildFeatures {
         buildConfig = true
-        compose = true
-        resValues = true
     }
 }
 

@@ -39,9 +39,6 @@ android {
 dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:domain"))
-    /*
-        implementation("com.materialkolor:material-kolor:4.0.3")
-    */
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -50,7 +47,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
-    implementation("com.materialkolor:material-kolor:2.0.0")
+    implementation(libs.material.kolor)
 
 
 
