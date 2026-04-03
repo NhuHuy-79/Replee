@@ -1,73 +1,23 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    id("com.google.devtools.ksp")
-    id("com.google.dagger.hilt.android")
+    id("replee.android.feature")
+    id("replee.android.hilt")
 }
 
 android {
     namespace = "com.nhuhuy.replee.feature_chat"
-    compileSdk = 36
-
-    defaultConfig {
-        minSdk = 30
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
-
-    }
-
-    buildFeatures {
-        compose = true
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
 }
 
 dependencies {
-    implementation(project(":core:common"))
     implementation(project(":core:network"))
     implementation(project(":core:database"))
-    implementation(project(":core:test"))
-    implementation(project(":core:design_system"))
-    implementation(project(":core:domain"))
-    implementation(project(":core:data"))
-
-
-    implementation(libs.dagger.hilt.android)
-    debugImplementation(libs.ui.tooling)
-    ksp(libs.hilt.android.compiler)
-
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.hilt.work)
     ksp(libs.androidx.hilt.compiler)
-
-
     //Paging for Ui
-    implementation("androidx.paging:paging-runtime:3.3.0")
-    implementation("androidx.paging:paging-compose:3.3.0")
-
-    //Room
-    ksp(libs.androidx.room.compiler)
-
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
     //Zoomable for Image zoonm
-    implementation("net.engawapg.lib:zoomable:2.8.0")
-
+    implementation(libs.zoomable)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -75,16 +25,10 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-
-    testImplementation(libs.truth)
     testImplementation(libs.turbine)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.mockk)
-    testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
