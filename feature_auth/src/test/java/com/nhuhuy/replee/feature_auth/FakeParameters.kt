@@ -4,14 +4,13 @@ import com.nhuhuy.core.domain.model.Account
 
 class FakeParameters {
     companion object {
-        val fakeAccount: Account = Account(
+        val fakeAccount = Account(
             id = "123",
-            name = "Như Huy",
-            email = "email",
+            name = "nhuhuy",
+            email = "nhuhuy@gmail.com"
         )
+        val fakeException = Exception("Test Exception")
 
-        const val FAKE_TOKEN = "token"
-        val fakeException = Exception("Fake Exception")
-
+        const val FAKE_TOKEN = "123"
     }
 }
