@@ -25,11 +25,18 @@ internal fun Project.configureKotlinAndroid(
         }
     }
 
-    // Cấu hình chung cho Kotlin Compile
     tasks.withType<KotlinCompile>().configureEach {
         kotlinOptions {
             jvmTarget = "17"
         }
+    }
+
+    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+
+    dependencies {
+        add("testImplementation", libs.findLibrary("junit").get())
+        add("testImplementation", libs.findLibrary("mockk").get())
+        add("testImplementation", libs.findLibrary("kotlinx-coroutines-test").get())
     }
 }
 
@@ -56,7 +63,6 @@ internal fun Project.configureAndroidCompose(
 internal fun Project.configureApplicationBuildTypes(
     applicationExtension: ApplicationExtension
 ) {
-    // 1. Đọc file local.properties
     val localProperties = Properties()
     val localPropertiesFile = rootProject.file("local.properties")
     if (localPropertiesFile.exists()) {
