@@ -79,8 +79,13 @@ internal fun Project.configureApplicationBuildTypes(
             }
 
             getByName("debug") {
-                val webClientId = localProperties.getProperty("GOOGLE_WEB_CLIENT_ID") ?: ""
-                buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$webClientId\"")
+                val rawWebClientId = System.getenv("GOOGLE_WEB_CLIENT_ID")
+                    ?: localProperties.getProperty("GOOGLE_WEB_CLIENT_ID")
+                    ?: "dummy_id_for_ci"
+
+                val cleanWebClientId = rawWebClientId.toString().replace("\"", "")
+
+                buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$cleanWebClientId\"")
             }
         }
     }
