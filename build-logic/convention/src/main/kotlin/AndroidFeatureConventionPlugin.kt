@@ -21,7 +21,9 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
                 add("implementation", project(":core:data"))
                 add("implementation", project(":core:domain"))
                 add("implementation", project(":core:common"))
+                add("implementation", project(":core:test"))
                 add("testImplementation", libs.findLibrary("turbine").get())
+                add("testImplementation", libs.findLibrary("truth").get())
             }
 
             extensions.configure<LibraryExtension> {
