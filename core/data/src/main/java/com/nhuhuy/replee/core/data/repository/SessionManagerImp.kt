@@ -69,6 +69,12 @@ class SessionManagerImp @Inject constructor(
         return auth.currentUser?.uid
     }
 
+    override suspend fun getNewAuthenticatedToken(): String {
+        return requireNotNull(
+            auth.currentUser?.getIdToken(true)?.await()?.token
+        )
+    }
+
     override suspend fun getCurrentDeviceToken(): NetworkResult<String> {
         return execute { firebaseMessaging.token.await() }
     }

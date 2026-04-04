@@ -14,7 +14,6 @@ import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 import com.nhuhuy.replee.feature_chat.domain.repository.PushNotificationRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
@@ -65,9 +64,7 @@ class PushNotificationRepositoryImp @Inject constructor(
         message: Message
     ): NetworkResult<Unit> {
         return execute {
-            val authenticationId = sessionManager.getAuthenticationToken()
-                .first()
-                .ifEmpty { throw Exception("User not authenticated") }
+            val authenticationId = sessionManager.getNewAuthenticatedToken()
 
             val tokenWithRequest = createConversationRequest(message)
 

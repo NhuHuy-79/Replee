@@ -12,9 +12,6 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.block.CheckBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.ObserveOwnerIsBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.UnblockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversationUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.ListenReadByUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.ObserveReadByUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.UpdateReadByUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.SendFileMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.ValidateFileSizeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.DeleteMessageUseCase
@@ -45,7 +42,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
@@ -56,9 +52,6 @@ import kotlin.time.Duration.Companion.seconds
 class ChatViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
-    private val observeReadByUseCase: ObserveReadByUseCase,
-    private val updateReadByUseCase: UpdateReadByUseCase,
-    private val listenReadByUseCase: ListenReadByUseCase,
     private val readMessageUseCase: ReadMessageUseCase,
     private val unblockUserUseCase: UnblockUserUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
@@ -98,26 +91,10 @@ class ChatViewModel @AssistedInject constructor(
         get() = _state.asStateFlow()
 
     init {
-
-        initialReadByTime()
-
         loadInitialData()
 
         //Listen to Message
         listenToMessageChange()
-    }
-
-    private fun initialReadByTime() {
-        viewModelScope.launch {
-            updateReadByUseCase(conversationId = conversationId)
-        }
-
-        updateReadByJob?.cancel()
-        updateReadByJob = listenReadByUseCase(
-            conversationId = conversationId,
-            receiverId = otherUserId
-        ).launchIn(viewModelScope)
-
     }
 
     private fun loadInitialData() {

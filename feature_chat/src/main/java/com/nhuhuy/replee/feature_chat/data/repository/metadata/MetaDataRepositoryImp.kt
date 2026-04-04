@@ -1,13 +1,14 @@
 package com.nhuhuy.replee.feature_chat.data.repository.metadata
 
 import com.nhuhuy.core.domain.SessionManager
+import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.feature_chat.data.source.metadata.MetaDataNetworkDataSource
 import com.nhuhuy.replee.feature_chat.domain.repository.MetaDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MetaDataRepositoryImp @Inject constructor(
@@ -19,8 +20,8 @@ class MetaDataRepositoryImp @Inject constructor(
         conversationId: String,
         userId: String,
         typing: Boolean
-    ) {
-        return withContext(ioDispatcher) {
+    ): NetworkResult<Unit> {
+        return executeWithTimeout(ioDispatcher) {
             metaDataNetworkDataSource.setTyping(
                 conversationId = conversationId,
                 userId = userId,
