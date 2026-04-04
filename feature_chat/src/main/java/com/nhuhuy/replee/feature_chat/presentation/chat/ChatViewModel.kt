@@ -23,6 +23,8 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveLocalMessage
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ReadMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.UpdateMessageChangeUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.GetTypingUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.UpdateTypingUseCase
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToInformation
@@ -37,15 +39,18 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import timber.log.Timber
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel(assistedFactory = ChatViewModel.Factory::class)
 class ChatViewModel @AssistedInject constructor(
@@ -66,10 +71,13 @@ class ChatViewModel @AssistedInject constructor(
     private val checkBlockUseCase: CheckBlockUseCase,
     private val sendFileMessageUseCase: SendFileMessageUseCase,
     private val validateFileSizeUseCase: ValidateFileSizeUseCase,
-    private val deleteMessageUseCase: DeleteMessageUseCase
+    private val deleteMessageUseCase: DeleteMessageUseCase,
+    private val updateTypingUseCase: UpdateTypingUseCase,
+    private val getTypingUseCase: GetTypingUseCase,
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
-
     private var updateReadByJob: Job? = null
+    private var updateTypingStatusJob: Job? = null
+    private var isTyping: Boolean = false
     private val conversationId
         get() = createConversationId(
             uid1 = currentUserId,
@@ -77,15 +85,14 @@ class ChatViewModel @AssistedInject constructor(
         )
 
     val blocked = observeOwnerIsBlockUseCase(ownerId = currentUserId, otherUserId = otherUserId)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5.seconds), false)
     private val _state = MutableStateFlow(ChatState(currentUserId = currentUserId))
-
 
     val pagedMessages = observeLocalMessagesUseCase(conversationId)
         .cachedIn(viewModelScope)
 
-    val readByTime = observeReadByUseCase(conversationId)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0L)
+    val typing: StateFlow<List<String>> = getTypingUseCase(conversationId = conversationId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5.seconds), emptyList())
 
     override val state: StateFlow<ChatState>
         get() = _state.asStateFlow()
@@ -165,6 +172,27 @@ class ChatViewModel @AssistedInject constructor(
             when (action) {
                 is ChatAction.OnMessageInputChanged -> {
                     _state.reduce { copy(messageInput = action.messageInput) }
+
+                    if (!isTyping) {
+                        isTyping = true
+                        updateTypingUseCase(
+                            conversationId = conversationId,
+                            userId = currentUserId,
+                            typing = true
+                        )
+                    }
+
+                    updateTypingStatusJob?.cancel()
+
+                    updateTypingStatusJob = viewModelScope.launch {
+                        delay(5.seconds)
+                        isTyping = false
+                        updateTypingUseCase(
+                            conversationId = conversationId,
+                            userId = currentUserId,
+                            typing = false
+                        )
+                    }
                 }
 
                 ChatAction.OnSendMessageClicked -> {
@@ -285,7 +313,6 @@ class ChatViewModel @AssistedInject constructor(
                 }
 
                 ChatAction.OnNewMessageTrigger -> {
-                    //Trigger when new messages appear in UI
                     readMessageUseCase(conversationId = conversationId, receiverId = currentUserId)
                 }
             }
