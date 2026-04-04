@@ -91,7 +91,7 @@ class ChatViewModel @AssistedInject constructor(
     val pagedMessages = observeLocalMessagesUseCase(conversationId)
         .cachedIn(viewModelScope)
 
-    val typing: StateFlow<List<String>> = getTypingUseCase(conversationId = conversationId)
+    val typingUserIds: StateFlow<List<String>> = getTypingUseCase(conversationId = conversationId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5.seconds), emptyList())
 
     override val state: StateFlow<ChatState>

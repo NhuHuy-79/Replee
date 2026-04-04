@@ -2,7 +2,7 @@ package com.nhuhuy.replee.core.network.data_source
 
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -18,11 +18,11 @@ interface PresenceNetworkDataSource {
 }
 
 class FirebasePresenceDataSource @Inject constructor(
-    private val realtimeDb: FirebaseDatabase
+    private val database: DatabaseReference
 ) : PresenceNetworkDataSource {
     override suspend fun setOnline(userId: String) {
 
-        val statusRef = realtimeDb.getReference("status/$userId")
+        val statusRef = database.child("status/$userId")
 
         val onlineStatus = mapOf(
             "state" to "online",
@@ -34,7 +34,7 @@ class FirebasePresenceDataSource @Inject constructor(
             "last_changed" to System.currentTimeMillis()
         )
 
-        realtimeDb.getReference(".info/connected")
+        database.child(".info/connected")
             .addValueEventListener(object : ValueEventListener {
 
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -50,7 +50,7 @@ class FirebasePresenceDataSource @Inject constructor(
     }
 
     override suspend fun setOffline(userId: String) {
-        realtimeDb.getReference("status/$userId")
+        database.child("status/$userId")
             .setValue(
                 mapOf(
                     "state" to "offline",
@@ -60,7 +60,7 @@ class FirebasePresenceDataSource @Inject constructor(
     }
 
     override fun observeUserStatus(userId: String): Flow<Boolean> = callbackFlow {
-        val statusRef = realtimeDb.getReference("status/$userId/state")
+        val statusRef = database.child("status/$userId/state")
 
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {

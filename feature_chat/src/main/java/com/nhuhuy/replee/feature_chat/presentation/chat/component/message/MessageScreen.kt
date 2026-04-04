@@ -15,6 +15,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -46,6 +47,7 @@ import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.StatusContent
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.TypingItem
 import com.nhuhuy.replee.feature_chat.presentation.chat.message.MessageContainer
 import com.nhuhuy.replee.feature_chat.presentation.chat.message.MessageLayout
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
@@ -55,6 +57,7 @@ import kotlinx.coroutines.launch
 @OptIn(FlowPreview::class)
 @Composable
 fun MessageScreen(
+    typingUsers: List<String>,
     lazyListState: LazyListState,
     otherUserImg: String,
     otherUserName: String,
@@ -149,6 +152,13 @@ fun MessageScreen(
                             }
                         )
                     }
+                )
+
+                TypingItem(
+                    visible = typingUsers.contains(otherUserName),
+                    name = otherUserName,
+                    imgUrl = otherUserImg,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }

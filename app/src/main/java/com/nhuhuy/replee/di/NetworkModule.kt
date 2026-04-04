@@ -98,7 +98,7 @@ object NetworkModuleProvider {
 
     @Provides
     @Singleton
-    fun provideFirebaseDatabase() = Firebase.database
+    fun provideDatabaseReference() = Firebase.database.reference
 
     @Provides
     @Singleton

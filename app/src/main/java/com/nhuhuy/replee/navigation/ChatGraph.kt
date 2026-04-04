@@ -106,6 +106,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
         )
         val blocked by viewModel.blocked.collectAsStateWithLifecycle()
         val state by viewModel.state.collectAsStateWithLifecycle()
+        val typingUserIds by viewModel.typingUserIds.collectAsStateWithLifecycle()
         val messagePagingState = viewModel.pagedMessages.collectAsLazyPagingItems()
 
         ObserveEffect(viewModel.event) { event ->
@@ -153,6 +154,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
         }
 
         ChatScreen(
+            typingUsers = typingUserIds,
             blocked = blocked,
             state = state,
             pagedMessages = messagePagingState,

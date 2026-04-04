@@ -62,6 +62,7 @@ import timber.log.Timber
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChatScreen(
+    typingUsers: List<String>,
     pagedMessages: LazyPagingItems<LocalPathMessage>,
     blocked: Boolean,
     state: ChatState,
@@ -139,6 +140,7 @@ fun ChatScreen(
                 )
             } else {
                 MessageScreen(
+                    typingUsers = typingUsers,
                     lazyListState = lazyListState,
                     otherUserImg = state.otherUser.imageUrl,
                     otherUserName = state.otherUser.name,

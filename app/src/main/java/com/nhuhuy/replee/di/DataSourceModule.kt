@@ -26,6 +26,8 @@ import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSourceImp
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSourceImp
+import com.nhuhuy.replee.feature_chat.data.source.metadata.MetaDataNetworkDataSource
+import com.nhuhuy.replee.feature_chat.data.source.metadata.MetaDataNetworkDataSourceImpl
 import com.nhuhuy.replee.feature_profile.data.source.ProfileLocalDataSource
 import com.nhuhuy.replee.feature_profile.data.source.ProfileLocalDataSourceImp
 import com.nhuhuy.replee.feature_profile.data.source.ProfileNetworkDataSource
@@ -48,6 +50,11 @@ abstract class DataSourceModuleBinder {
     abstract fun bindPresenceNetworkDataSource(
         imp: FirebasePresenceDataSource
     ): PresenceNetworkDataSource
+
+    @Binds
+    abstract fun bindMetaDataNetworkDataSource(
+        imp: MetaDataNetworkDataSourceImpl
+    ): MetaDataNetworkDataSource
 
     @Binds
     abstract fun bindMessageLocalDataSource(
