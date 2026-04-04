@@ -17,10 +17,11 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.file.ValidateFileSizeUseCas
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.DeleteMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ListenMessageChangeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveLocalMessagesUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.message.ReadMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.UpdateMessageChangeUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.GetReadTimeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.GetTypingUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.UpdateReadTimeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.UpdateTypingUseCase
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
@@ -52,7 +53,8 @@ import kotlin.time.Duration.Companion.seconds
 class ChatViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
-    private val readMessageUseCase: ReadMessageUseCase,
+    private val updateReadTimeUseCase: UpdateReadTimeUseCase,
+    private val getReadTimeUseCase: GetReadTimeUseCase,
     private val unblockUserUseCase: UnblockUserUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
     private val getAccountByIdUseCase: GetAccountByIdUseCase,
@@ -68,6 +70,8 @@ class ChatViewModel @AssistedInject constructor(
     private val updateTypingUseCase: UpdateTypingUseCase,
     private val getTypingUseCase: GetTypingUseCase,
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
+
+    private var currentUserReadingTime = 0L
     private var updateReadByJob: Job? = null
     private var updateTypingStatusJob: Job? = null
     private var isTyping: Boolean = false
@@ -84,6 +88,10 @@ class ChatViewModel @AssistedInject constructor(
     val pagedMessages = observeLocalMessagesUseCase(conversationId)
         .cachedIn(viewModelScope)
 
+    val otherLastReadingTime =
+        getReadTimeUseCase(conversationId = conversationId, otherUserId = otherUserId)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5.seconds), 0L)
+
     val typingUserIds: StateFlow<List<String>> = getTypingUseCase(conversationId = conversationId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5.seconds), emptyList())
 
@@ -91,6 +99,7 @@ class ChatViewModel @AssistedInject constructor(
         get() = _state.asStateFlow()
 
     init {
+
         loadInitialData()
 
         //Listen to Message
@@ -125,10 +134,7 @@ class ChatViewModel @AssistedInject constructor(
                 }
 
                 launch {
-                    readMessageUseCase(
-                        conversationId = conversationId,
-                        receiverId = currentUserId
-                    )
+                    updateReadingTime()
                 }
             }
         }
@@ -149,27 +155,8 @@ class ChatViewModel @AssistedInject constructor(
             when (action) {
                 is ChatAction.OnMessageInputChanged -> {
                     _state.reduce { copy(messageInput = action.messageInput) }
-
-                    if (!isTyping) {
-                        isTyping = true
-                        updateTypingUseCase(
-                            conversationId = conversationId,
-                            userId = currentUserId,
-                            typing = true
-                        )
-                    }
-
-                    updateTypingStatusJob?.cancel()
-
-                    updateTypingStatusJob = viewModelScope.launch {
-                        delay(5.seconds)
-                        isTyping = false
-                        updateTypingUseCase(
-                            conversationId = conversationId,
-                            userId = currentUserId,
-                            typing = false
-                        )
-                    }
+                    updateTyping()
+                    updateReadingTime()
                 }
 
                 ChatAction.OnSendMessageClicked -> {
@@ -290,9 +277,46 @@ class ChatViewModel @AssistedInject constructor(
                 }
 
                 ChatAction.OnNewMessageTrigger -> {
-                    readMessageUseCase(conversationId = conversationId, receiverId = currentUserId)
+                    updateReadingTime()
                 }
             }
+        }
+    }
+
+    private suspend fun updateReadingTime() {
+        val currentTime = System.currentTimeMillis()
+
+        if (currentTime > currentUserReadingTime + 3000) {
+            updateReadTimeUseCase(
+                conversationId = conversationId,
+                userId = currentUserId,
+                currentTime = currentTime
+            )
+            currentUserReadingTime = currentTime
+        }
+
+    }
+
+    private suspend fun updateTyping() {
+        if (!isTyping) {
+            isTyping = true
+            updateTypingUseCase(
+                conversationId = conversationId,
+                userId = currentUserId,
+                typing = true
+            )
+        }
+
+        updateTypingStatusJob?.cancel()
+
+        updateTypingStatusJob = viewModelScope.launch {
+            delay(5.seconds)
+            isTyping = false
+            updateTypingUseCase(
+                conversationId = conversationId,
+                userId = currentUserId,
+                typing = false
+            )
         }
     }
 

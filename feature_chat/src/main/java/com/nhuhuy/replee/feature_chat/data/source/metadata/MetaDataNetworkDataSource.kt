@@ -19,9 +19,8 @@ interface MetaDataNetworkDataSource {
         typing: Boolean
     )
 
-    //Metadata last reading time
-    //fun observeLastReadingTime(conversationId: String) : Flow<Map<String, Long>>
-    //suspend fun setLastReadingTime(conversationId: String, userId: String, reading: Long)
+    fun observeLastReadingTime(conversationId: String): Flow<Map<String, Long>>
+    suspend fun setLastReadingTime(conversationId: String, userId: String, reading: Long)
 }
 
 class MetaDataNetworkDataSourceImpl @Inject constructor(
@@ -60,6 +59,38 @@ class MetaDataNetworkDataSourceImpl @Inject constructor(
         } else {
             ref.removeValue().await()
         }
+    }
+
+    override fun observeLastReadingTime(conversationId: String): Flow<Map<String, Long>> =
+        callbackFlow {
+            val readingRef = database.child("metadata/reading/$conversationId")
+
+            val listener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val readingMap = snapshot.children.associate {
+                        it.key.orEmpty() to (it.getValue(Long::class.java) ?: 0L)
+                    }
+                    trySend(readingMap)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    close(error.toException())
+                }
+            }
+
+            readingRef.addValueEventListener(listener)
+            awaitClose { readingRef.removeEventListener(listener) }
+        }
+
+    override suspend fun setLastReadingTime(
+        conversationId: String,
+        userId: String,
+        reading: Long
+    ) {
+        database.child("metadata/reading/$conversationId/$userId").apply {
+            setValue(reading).await()
+        }
+
     }
 
 }

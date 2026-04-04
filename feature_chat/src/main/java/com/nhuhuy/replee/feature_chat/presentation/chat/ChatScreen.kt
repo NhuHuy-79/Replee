@@ -62,6 +62,7 @@ import timber.log.Timber
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChatScreen(
+    otherUserReadTime: Long,
     typingUsers: List<String>,
     pagedMessages: LazyPagingItems<LocalPathMessage>,
     blocked: Boolean,
@@ -140,6 +141,7 @@ fun ChatScreen(
                 )
             } else {
                 MessageScreen(
+                    otherUserReadTime = otherUserReadTime,
                     isOtherUserTyping = typingUsers.contains(state.otherUser.id),
                     lazyListState = lazyListState,
                     otherUserImg = state.otherUser.imageUrl,

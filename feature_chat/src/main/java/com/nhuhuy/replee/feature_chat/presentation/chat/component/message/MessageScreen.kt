@@ -52,6 +52,7 @@ import kotlinx.coroutines.launch
 @OptIn(FlowPreview::class)
 @Composable
 fun MessageScreen(
+    otherUserReadTime: Long,
     isOtherUserTyping: Boolean,
     lazyListState: LazyListState,
     otherUserImg: String,
@@ -105,7 +106,6 @@ fun MessageScreen(
                 val isMine = localPathMessage.message.senderId == currentUserId
                 val replyTo = if (localPathMessage.message.repliedMessageId == currentUserId) "You"
                 else otherUserName
-
                 MessageLayout(
                     isMine = isMine,
                     showTimeContent = false,
@@ -124,6 +124,7 @@ fun MessageScreen(
                     },
                     statusContent = {
                         StatusContent(
+                            otherUserReadingTime = otherUserReadTime,
                             message = localPathMessage.message,
                             receiverImageUrl = otherUserImg,
                             receiverName = otherUserName,

@@ -7,7 +7,9 @@ import com.nhuhuy.replee.feature_chat.data.source.metadata.MetaDataNetworkDataSo
 import com.nhuhuy.replee.feature_chat.domain.repository.MetaDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import javax.inject.Inject
 
@@ -36,6 +38,28 @@ class MetaDataRepositoryImp @Inject constructor(
             typing.filter { entry -> entry.value && entry.key != currentUserId }
                 .keys
                 .toList()
+        }.flowOn(ioDispatcher)
+    }
+
+    override suspend fun updateMyReading(
+        conversationId: String,
+        userId: String,
+        reading: Long
+    ): NetworkResult<Unit> {
+        return executeWithTimeout(ioDispatcher) {
+            metaDataNetworkDataSource.setLastReadingTime(
+                conversationId = conversationId,
+                userId = userId,
+                reading = reading
+            )
+        }
+    }
+
+    override fun getOtherReading(conversationId: String, otherUserId: String): Flow<Long> {
+        return metaDataNetworkDataSource.observeLastReadingTime(conversationId).filter { reading ->
+            reading.containsKey(otherUserId)
+        }.map { reading ->
+            reading[otherUserId] ?: 0L
         }.flowOn(ioDispatcher)
     }
 }

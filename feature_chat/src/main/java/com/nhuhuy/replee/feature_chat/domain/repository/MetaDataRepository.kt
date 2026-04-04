@@ -10,4 +10,12 @@ interface MetaDataRepository {
         typing: Boolean
     ): NetworkResult<Unit>
     fun getOtherTyping(conversationId: String): Flow<List<String>>
+
+    suspend fun updateMyReading(
+        conversationId: String,
+        userId: String,
+        reading: Long
+    ): NetworkResult<Unit>
+
+    fun getOtherReading(conversationId: String, otherUserId: String): Flow<Long>
 }
