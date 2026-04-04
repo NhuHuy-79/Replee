@@ -140,7 +140,7 @@ fun ChatScreen(
                 )
             } else {
                 MessageScreen(
-                    typingUsers = typingUsers,
+                    isOtherUserTyping = typingUsers.contains(state.otherUser.id),
                     lazyListState = lazyListState,
                     otherUserImg = state.otherUser.imageUrl,
                     otherUserName = state.otherUser.name,

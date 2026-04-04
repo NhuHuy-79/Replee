@@ -1,13 +1,6 @@
 package com.nhuhuy.replee.feature_chat.presentation.chat.component.message
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -43,6 +36,8 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import com.nhuhuy.replee.core.common.utils.formatToChatTime
+import com.nhuhuy.replee.core.design_system.animation.slideInVerticallyAnimation
+import com.nhuhuy.replee.core.design_system.animation.slideOutVerticallyAnimation
 import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
@@ -57,7 +52,7 @@ import kotlinx.coroutines.launch
 @OptIn(FlowPreview::class)
 @Composable
 fun MessageScreen(
-    typingUsers: List<String>,
+    isOtherUserTyping: Boolean,
     lazyListState: LazyListState,
     otherUserImg: String,
     otherUserName: String,
@@ -93,6 +88,14 @@ fun MessageScreen(
             reverseLayout = true,
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
+            item {
+                TypingItem(
+                    visible = isOtherUserTyping,
+                    name = otherUserName,
+                    imgUrl = otherUserImg,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             items(
                 count = pagingItems.itemCount,
@@ -153,14 +156,8 @@ fun MessageScreen(
                         )
                     }
                 )
-
-                TypingItem(
-                    visible = typingUsers.contains(otherUserName),
-                    name = otherUserName,
-                    imgUrl = otherUserImg,
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
+
         }
 
 
@@ -188,14 +185,8 @@ fun MessageScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(16.dp),
-            enter = slideInVertically(
-                initialOffsetY = { it },
-                animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing)
-            ) + fadeIn(animationSpec = tween(250)),
-            exit = slideOutVertically(
-                targetOffsetY = { it },
-                animationSpec = tween(durationMillis = 200, easing = FastOutLinearInEasing)
-            ) + fadeOut(animationSpec = tween(200))
+            enter = slideInVerticallyAnimation(),
+            exit = slideOutVerticallyAnimation()
         ) {
             FilledTonalIconButton(
                 onClick = {
