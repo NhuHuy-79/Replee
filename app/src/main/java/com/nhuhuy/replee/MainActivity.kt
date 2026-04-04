@@ -23,6 +23,8 @@ import dagger.hilt.android.AndroidEntryPoint
 val LocalNetworkStatus =
     compositionLocalOf<NetworkStatus> { NetworkStatus.Online }
 
+val LocalMainUiState = compositionLocalOf<MainState> { MainState() }
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,11 +37,10 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             val viewModel: MainViewModel = hiltViewModel()
-            val theme by viewModel.theme.collectAsStateWithLifecycle()
-            val chatColor by viewModel.chatColor.collectAsStateWithLifecycle()
+            val state: MainState by viewModel.state.collectAsStateWithLifecycle()
             val network by viewModel.network.collectAsStateWithLifecycle()
 
-            val appTheme: Boolean = when (theme) {
+            val appTheme: Boolean = when (state.themeMode) {
                 ThemeMode.DEFAULT -> isSystemInDarkTheme()
                 ThemeMode.DARK -> true
                 ThemeMode.LIGHT -> false
@@ -60,11 +61,12 @@ class MainActivity : ComponentActivity() {
                 )
             }
             CompositionLocalProvider(
-                LocalNetworkStatus provides network
+                LocalNetworkStatus provides network,
+                LocalMainUiState provides state
             ) {
                 DynamicRepleeTheme(
-                    isDark = appTheme,
-                    seedColor = chatColor.toPrimaryColor()
+                    seedColor = state.dynamicColor.toPrimaryColor(),
+                    isDark = appTheme
                 ) {
                     MainGraph()
                 }

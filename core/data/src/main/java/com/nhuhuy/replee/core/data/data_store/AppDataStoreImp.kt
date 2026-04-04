@@ -63,14 +63,14 @@ class AppDataStoreImp @Inject constructor(
         }
     }
 
-    override fun observeChatColor(): Flow<ChatColor> {
+    override fun observeChatColor(): Flow<SeedColor> {
         return context.dataStore.data.map { preferences ->
-            val string = preferences[CHAT_COLOR_KEY] ?: ChatColor.SAPPHIRE.name
-            ChatColor.valueOf(string)
+            val string = preferences[CHAT_COLOR_KEY] ?: SeedColor.SAPPHIRE.name
+            SeedColor.valueOf(string)
         }
     }
 
-    override suspend fun saveChatColor(color: ChatColor) {
+    override suspend fun saveChatColor(color: SeedColor) {
         context.dataStore.edit { preferences ->
             preferences[CHAT_COLOR_KEY] = color.name
         }

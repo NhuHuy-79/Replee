@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.replee.core.data.data_store.ChatColor
+import com.nhuhuy.replee.core.data.data_store.SeedColor
 import com.nhuhuy.replee.core.design_system.component.SheetContainer
 import com.nhuhuy.replee.feature_chat.utils.toPrimaryColor
 
@@ -30,9 +30,9 @@ import com.nhuhuy.replee.feature_chat.utils.toPrimaryColor
 @Composable
 fun SelectColorSheet(
     onDismiss: () -> Unit = {},
-    currentColor: ChatColor,
-    onColorSelected: (ChatColor) -> Unit = {},
-    colorList: List<ChatColor> = ChatColor.entries,
+    currentColor: SeedColor,
+    onColorSelected: (SeedColor) -> Unit = {},
+    colorList: List<SeedColor> = SeedColor.entries,
 ) {
     SheetContainer(
         onDismiss = onDismiss

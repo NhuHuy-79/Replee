@@ -18,8 +18,7 @@ import com.nhuhuy.replee.navigation.splash.splashGraph
 private const val DURATION = 350
 
 @Composable
-fun MainGraph(
-){
+fun MainGraph() {
     val startDestination: NavKey = SplashKey
     val backStack = rememberNavBackStack(startDestination)
     NavDisplay(
@@ -71,9 +70,7 @@ fun MainGraph(
                 }
             )
             authGraph(backStack)
-            chatGraph(
-                backstack = backStack
-            )
+            chatGraph(backstack = backStack)
             profileGraph(backStack)
         }
     )

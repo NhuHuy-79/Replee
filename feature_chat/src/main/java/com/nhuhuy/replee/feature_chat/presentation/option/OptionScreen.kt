@@ -24,7 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.replee.core.data.data_store.ChatColor
+import com.nhuhuy.replee.core.data.data_store.SeedColor
 import com.nhuhuy.replee.core.design_system.component.AlertDialogContainer
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.feature_chat.R
@@ -41,7 +41,7 @@ import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionState
 
 @Composable
 fun OptionScreen(
-    color: ChatColor,
+    color: SeedColor,
     state: OptionState,
     onAction: (OptionAction) -> Unit
 ) = BoxContainer {
@@ -176,10 +176,10 @@ fun OptionScreen(
         OptionOverlay.SELECT_COLOR -> {
             SelectColorSheet(
                 onDismiss = { onAction(OptionAction.OnDismiss) },
-                colorList = ChatColor.entries,
+                colorList = SeedColor.entries,
                 currentColor = color,
-                onColorSelected = { chatColor: ChatColor ->
-                    onAction(OptionAction.OnColorSelect(chatColor))
+                onColorSelected = { themeColor: SeedColor ->
+                    onAction(OptionAction.OnColorSelect(themeColor))
                 },
             )
         }

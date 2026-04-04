@@ -177,7 +177,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
         )
 
         val state by viewModel.state.collectAsStateWithLifecycle()
-        val color by viewModel.chatColor.collectAsStateWithLifecycle()
+        val color by viewModel.themeColor.collectAsStateWithLifecycle()
         ObserveEffect(viewModel.event) { event ->
             when (event) {
                 OptionEvent.NavigateBack -> backstack.removeLastOrNull()
