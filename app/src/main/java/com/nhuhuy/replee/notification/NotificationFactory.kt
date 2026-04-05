@@ -84,13 +84,14 @@ class ConversationNotificationFactory @Inject constructor(
             .setKey(response.receiverId)
             .build()
 
+        val notificationMessage = NotificationCompat.MessagingStyle.Message(
+            response.content,
+            System.currentTimeMillis(),
+            sender
+        )
         val messagingStyle = NotificationCompat.MessagingStyle(user)
             .setConversationTitle(response.senderName)
-            .addMessage(
-                response.content,
-                System.currentTimeMillis(),
-                sender
-            )
+            .addMessage(notificationMessage)
 
         val contentIntent =
             context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
@@ -134,13 +135,11 @@ class ConversationNotificationFactory @Inject constructor(
 
         return NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_circle_notification)
-            .setLargeIcon(bitmap)
             .setStyle(messagingStyle)
             .setContentIntent(contentPendingIntent)
             .setGroup(response.conversationId)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setOnlyAlertOnce(true)
-            .addPerson(sender)
             .addAction(replyAction)
             .setShortcutId(response.conversationId)
             .setLocusId(LocusIdCompat(response.conversationId))

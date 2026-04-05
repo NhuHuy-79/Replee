@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
 sealed class DataChange<out T> {
-    data object Empty : DataChange<Nothing>()
     data class Upsert<out T>(val data: T) : DataChange<T>()
     data class Delete(val id: String) : DataChange<Nothing>()
 }
@@ -19,7 +18,6 @@ inline fun <T, R> DataChange<T>.mapData(
     transformer: (T) -> R
 ): DataChange<R> {
     return when (this) {
-        is DataChange.Empty -> DataChange.Empty
         is DataChange.Delete -> DataChange.Delete(id)
         is DataChange.Upsert -> DataChange.Upsert(transformer(data))
     }
@@ -30,7 +28,6 @@ inline fun <T, R : Any> DataChange<T>.mapNotNullData(
 ): DataChange<R>? {
     return when (this) {
         is DataChange.Delete -> DataChange.Delete(id)
-        is DataChange.Empty -> DataChange.Empty
         is DataChange.Upsert -> {
             val mappedData = transformer(data)
             if (mappedData != null) {

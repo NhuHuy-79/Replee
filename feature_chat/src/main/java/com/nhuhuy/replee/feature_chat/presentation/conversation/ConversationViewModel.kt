@@ -11,15 +11,13 @@ import com.nhuhuy.replee.core.common.base.ScreenState
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.data.mapper.toScreenState
 import com.nhuhuy.replee.feature_chat.domain.model.converastion.Conversation
-import com.nhuhuy.replee.feature_chat.domain.usecase.account.FetchAccountListUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.account.ObserveAccountInConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.account.SetUserOnlineUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.account.UpdateCurrentAccountUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetSearchHistoryUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.ListenConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.LoadConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationListUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.sync.UpsertConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.sync.SyncConversationUsersUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.sync.SyncConversationsUseCase
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.BottomSheet
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationAction
 import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent
@@ -37,25 +35,24 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @HiltViewModel(assistedFactory = ConversationViewModel.Factory::class)
 class ConversationViewModel @AssistedInject constructor(
     @Assisted private val currentUserId: String,
     private val setUserOnlineUseCase: SetUserOnlineUseCase,
     private val getSearchHistoryUseCase: GetSearchHistoryUseCase,
-    private val listenConversationUseCase: ListenConversationUseCase,
-    private val upsertConversationUseCase: UpsertConversationUseCase,
     private val loadConversationUseCase: LoadConversationUseCase,
     private val saveConversationListUseCase: SaveConversationListUseCase,
     private val updateCurrentAccountUseCase: UpdateCurrentAccountUseCase,
     private val getCurrentAccountUseCase: GetCurrentAccountUseCase,
     private val searchAccountByEmailUseCase: SearchAccountByEmailUseCase,
-    private val fetchAccountListUseCase: FetchAccountListUseCase,
-    private val observeAccountInConversationUseCase: ObserveAccountInConversationUseCase,
+    private val syncConversationUsersUseCase: SyncConversationUsersUseCase,
+    private val syncConversationUseCase: SyncConversationsUseCase
     ) : BaseViewModel<ConversationAction, ConversationEvent, ConversationState>() {
     private val _state = MutableStateFlow(ConversationState())
     override val state: StateFlow<ConversationState>
@@ -76,7 +73,6 @@ class ConversationViewModel @AssistedInject constructor(
 
     }
 
-
     val conversationState: StateFlow<ScreenState<List<Conversation>>> =
         loadConversationUseCase(ownerId = currentUserId).map { list ->
             ScreenState.Success(list)
@@ -85,24 +81,16 @@ class ConversationViewModel @AssistedInject constructor(
         )
 
     private fun listenToNetworkConversation() {
-        viewModelScope.launch(Dispatchers.IO) {
-            listenConversationUseCase(
-                ownerId = currentUserId,
-                limit = 60
-            )
-                .collect { dataChanges ->
-                    upsertConversationUseCase(dataChanges)
-                }
-        }
+        syncConversationUseCase(
+            currentUserId = currentUserId,
+            limit = 20
+        ).launchIn(viewModelScope)
     }
 
     private fun listenToNewConversationUser() {
-        viewModelScope.launch {
-            observeAccountInConversationUseCase(currentUserId).collect { uids ->
-                Timber.d("Uid List: $uids")
-                fetchAccountListUseCase(uids)
-            }
-        }
+        syncConversationUsersUseCase(currentUserId = currentUserId)
+            .flowOn(Dispatchers.IO)
+            .launchIn(viewModelScope)
     }
 
     override fun onAction(action: ConversationAction) {

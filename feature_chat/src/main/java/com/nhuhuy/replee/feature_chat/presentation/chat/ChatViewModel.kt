@@ -15,14 +15,14 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversatio
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.SendFileMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.ValidateFileSizeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.DeleteMessageUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.message.ListenMessageChangeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveLocalMessagesUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendMessageUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.message.UpdateMessageChangeUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.UpdateUnreadMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.GetReadTimeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.GetTypingUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.UpdateReadTimeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.UpdateTypingUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.sync.SyncMessageUseCase
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToInformation
@@ -43,6 +43,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
@@ -54,13 +55,13 @@ class ChatViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
     private val updateReadTimeUseCase: UpdateReadTimeUseCase,
+    private val updateUnreadMessageUseCase: UpdateUnreadMessageUseCase,
     private val getReadTimeUseCase: GetReadTimeUseCase,
     private val unblockUserUseCase: UnblockUserUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
     private val getAccountByIdUseCase: GetAccountByIdUseCase,
     observeOwnerIsBlockUseCase: ObserveOwnerIsBlockUseCase,
-    private val listenMessageChangeUseCase: ListenMessageChangeUseCase,
-    private val updateMessageChangeUseCase: UpdateMessageChangeUseCase,
+    private val syncMessageUseCase: SyncMessageUseCase,
     private val getConversationUseCase: GetConversationUseCase,
     observeLocalMessagesUseCase: ObserveLocalMessagesUseCase,
     private val checkBlockUseCase: CheckBlockUseCase,
@@ -70,9 +71,8 @@ class ChatViewModel @AssistedInject constructor(
     private val updateTypingUseCase: UpdateTypingUseCase,
     private val getTypingUseCase: GetTypingUseCase,
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
-
     private var currentUserReadingTime = 0L
-    private var updateReadByJob: Job? = null
+    private var listenMessageChangeJob: Job? = null
     private var updateTypingStatusJob: Job? = null
     private var isTyping: Boolean = false
     private val conversationId
@@ -135,19 +135,18 @@ class ChatViewModel @AssistedInject constructor(
 
                 launch {
                     updateReadingTime()
+                    updateUnreadMessageUseCase(
+                        conversationId = conversationId,
+                        receiverId = currentUserId
+                    )
                 }
             }
         }
     }
 
     private fun listenToMessageChange() {
-        viewModelScope.launch {
-            listenMessageChangeUseCase(conversationId = conversationId)
-                .collect { dataChanges ->
-                    updateMessageChangeUseCase(dataChanges)
-                }
-        }
-
+        listenMessageChangeJob?.cancel()
+        listenMessageChangeJob = syncMessageUseCase(conversationId).launchIn(viewModelScope)
     }
 
     override fun onAction(action: ChatAction) {
@@ -278,6 +277,10 @@ class ChatViewModel @AssistedInject constructor(
 
                 ChatAction.OnNewMessageTrigger -> {
                     updateReadingTime()
+                    updateUnreadMessageUseCase(
+                        conversationId = conversationId,
+                        receiverId = currentUserId
+                    )
                 }
             }
         }
@@ -333,7 +336,7 @@ class ChatViewModel @AssistedInject constructor(
     }
 
     override fun onCleared() {
-        updateReadByJob = null
+        updateTypingStatusJob = null
         super.onCleared()
     }
 
