@@ -9,6 +9,8 @@ interface MetaDataRepository {
         userId: String,
         typing: Boolean
     ): NetworkResult<Unit>
+
+    suspend fun clearTyping(conversationId: String): NetworkResult<Unit>
     fun getOtherTyping(conversationId: String): Flow<List<String>>
 
     suspend fun updateMyReading(

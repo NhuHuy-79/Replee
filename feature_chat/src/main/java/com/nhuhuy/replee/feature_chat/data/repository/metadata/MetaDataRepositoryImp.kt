@@ -32,6 +32,10 @@ class MetaDataRepositoryImp @Inject constructor(
         }
     }
 
+    override suspend fun clearTyping(conversationId: String): NetworkResult<Unit> {
+        TODO("Not yet implemented")
+    }
+
     override fun getOtherTyping(conversationId: String): Flow<List<String>> {
         val currentUserId = sessionManager.getUserIdOrNull()
         return metaDataNetworkDataSource.observeTyping(conversationId).mapNotNull { typing ->

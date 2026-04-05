@@ -36,6 +36,7 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -337,6 +338,13 @@ class ChatViewModel @AssistedInject constructor(
 
     override fun onCleared() {
         updateTypingStatusJob = null
+        viewModelScope.launch(NonCancellable) {
+            updateTypingUseCase(
+                conversationId = conversationId,
+                userId = currentUserId,
+                typing = false
+            )
+        }
         super.onCleared()
     }
 
