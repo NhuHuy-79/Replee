@@ -50,12 +50,11 @@ class FileStorageDataSource @Inject constructor(
     }
 
     @SuppressLint("ExifInterface")
-    suspend fun getFileMetadata(uriPath: String): FileMetadata {
+    fun getFileMetadata(uriPath: String): FileMetadata {
         val fileUri = uriPath.toUri()
         var width = 0
         var height = 0
         var size = 0L
-        var mimeType = ""
 
         // 1. Lấy thông tin cơ bản từ ContentResolver (Size & MimeType)
         context.contentResolver.query(fileUri, null, null, null, null)?.use { cursor ->
@@ -65,7 +64,8 @@ class FileStorageDataSource @Inject constructor(
                 size = cursor.getLong(sizeIndex)
             }
         }
-        mimeType = context.contentResolver.getType(fileUri) ?: "application/octet-stream"
+        var mimeType: String =
+            context.contentResolver.getType(fileUri) ?: "application/octet-stream"
 
         try {
             if (mimeType.startsWith("image")) {
