@@ -36,13 +36,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.paging.compose.LazyPagingItems
+import com.nhuhuy.replee.core.common.utils.showLongToast
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
+import com.nhuhuy.replee.core.design_system.launcher.rememberCameraRequestPicker
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.BlockOverlay
@@ -71,7 +75,7 @@ fun ChatScreen(
 ) = BoxContainer {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
-
+    val context = LocalContext.current
     LaunchedEffect(state.isReplying) {
         if (state.isReplying) {
             delay(100)
@@ -79,7 +83,14 @@ fun ChatScreen(
             keyboardController?.show()
         }
     }
-
+    val openCamera = rememberCameraRequestPicker(
+        onImageCaptured = { file ->
+            onAction(ChatAction.OnImageSend(file.toUri()))
+        },
+        onPermissionDenied = {
+            context.showLongToast(R.string.permission_camera)
+        }
+    )
     val localClipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
@@ -172,7 +183,7 @@ fun ChatScreen(
                         onAction(ChatAction.OnMessageInputChanged(value))
                     },
                     onCameraClick = {
-                        //TODO("camera clicked")
+                        openCamera()
                     },
                     onImageClick = {
                         launcher.launch(

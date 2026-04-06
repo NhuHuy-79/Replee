@@ -216,6 +216,7 @@ class ChatViewModel @AssistedInject constructor(
                 is ChatAction.OnImageSend -> {
                     val validateFileResult =
                         validateFileSizeUseCase(uriPath = action.uri.toString())
+                    Timber.d("DEBUG_REPLEE: Kết quả validate là: $validateFileResult")
                     when (validateFileResult) {
                         is ValidateFileResult.FileTooLarge -> {
                             Timber.e("File oo large")

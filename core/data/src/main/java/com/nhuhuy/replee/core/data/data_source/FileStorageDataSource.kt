@@ -25,6 +25,18 @@ class FileStorageDataSource @Inject constructor(
 ) {
     suspend fun saveToInternalStorage(uri: Uri): String {
         return withContext(ioDispatcher) {
+            if (uri.scheme == "file" || (uri.scheme == "content" && uri.path?.contains(context.packageName) == true)) {
+                val path = uri.path ?: ""
+                return@withContext if (path.startsWith("/external_files")) {
+                    File(
+                        context.getExternalFilesDir(null),
+                        path.removePrefix("/external_files")
+                    ).absolutePath
+                } else {
+                    path
+                }
+            }
+
             val fileName = "replee_${System.currentTimeMillis()}"
             val file = File(context.filesDir, fileName)
 

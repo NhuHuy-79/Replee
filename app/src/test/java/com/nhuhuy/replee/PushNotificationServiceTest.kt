@@ -3,6 +3,7 @@
 package com.nhuhuy.replee
 
 import com.google.firebase.messaging.RemoteMessage
+import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.usecase.UpdateDeviceTokenUseCase
 import com.nhuhuy.replee.core.network.api.fcm.ContentType
 import com.nhuhuy.replee.core.network.api.fcm.NotificationResponse
@@ -27,6 +28,7 @@ class PushNotificationServiceTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var updateDeviceTokenUseCase: UpdateDeviceTokenUseCase
+    private lateinit var sessionManager: SessionManager
     private lateinit var serviceNotifier: ServiceNotifier
     private lateinit var workerScheduler: WorkerScheduler
     private lateinit var notificationParser: NotificationParser
@@ -35,7 +37,7 @@ class PushNotificationServiceTest {
 
     private val fakeResponse = NotificationResponse(
         conversationId = "123",
-        senderId = "123",
+        senderId = "120",
         receiverId = "123",
         messageId = "123",
         type = ContentType.PLAIN_TEXT,
@@ -47,6 +49,7 @@ class PushNotificationServiceTest {
         serviceNotifier = mockk(relaxed = true)
         workerScheduler = mockk(relaxed = true)
         notificationParser = mockk(relaxed = true)
+        sessionManager = mockk(relaxed = true)
         service = PushNotificationService().apply {
             this.updateDeviceTokenUseCase =
                 this@PushNotificationServiceTest.updateDeviceTokenUseCase
@@ -54,6 +57,7 @@ class PushNotificationServiceTest {
             this.workerScheduler = this@PushNotificationServiceTest.workerScheduler
             this.notificationParser = this@PushNotificationServiceTest.notificationParser
             this.dispatcher = StandardTestDispatcher()
+            this.sessionManager = this@PushNotificationServiceTest.sessionManager
         }
     }
 
@@ -70,7 +74,7 @@ class PushNotificationServiceTest {
     fun `Should show notification when new message is received and notification body is not null`() =
         runTest {
             val remoteMessage = mockk<RemoteMessage>()
-
+            every { sessionManager.getUserIdOrNull() } returns "123"
             every { notificationParser.getNotificationBody(remoteMessage) } returns fakeResponse
             every { workerScheduler.scheduleSaveNewMessage(fakeResponse.conversationId) } returns Unit
             coEvery { serviceNotifier.showConversationNotification(fakeResponse) } returns Unit
@@ -79,6 +83,7 @@ class PushNotificationServiceTest {
             advanceUntilIdle()
 
             coVerify {
+                sessionManager.getUserIdOrNull()
                 notificationParser.getNotificationBody(remoteMessage)
                 workerScheduler.scheduleSaveNewMessage(fakeResponse.conversationId)
                 serviceNotifier.showConversationNotification(fakeResponse)
@@ -89,13 +94,14 @@ class PushNotificationServiceTest {
     fun `Should show notification when new message is received and notification body is null`() =
         runTest {
             val remoteMessage = mockk<RemoteMessage>()
-
+            every { sessionManager.getUserIdOrNull() } returns "12"
             every { notificationParser.getNotificationBody(remoteMessage) } returns null
             service.onMessageReceived(remoteMessage)
 
             advanceUntilIdle()
 
             coVerify {
+                sessionManager.getUserIdOrNull()
                 notificationParser.getNotificationBody(remoteMessage)
             }
         }

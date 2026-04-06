@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.design_system.component
+package com.nhuhuy.replee.core.design_system.launcher
 
 import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher

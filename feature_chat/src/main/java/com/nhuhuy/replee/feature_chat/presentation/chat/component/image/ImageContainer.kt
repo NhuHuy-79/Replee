@@ -62,7 +62,7 @@ fun ImageMessageContainer(
     SubcomposeAsyncImage(
         model = imageModel,
         contentDescription = null,
-        contentScale = ContentScale.FillHeight,
+        contentScale = ContentScale.Fit,
         modifier = imageModifier
             .clip(shape),
 
