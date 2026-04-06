@@ -36,6 +36,7 @@ interface MessageLocalDataSource {
     suspend fun deleteMessageById(message: MessageEntity)
     suspend fun getMessageListById(messageIds: List<String>): List<MessageEntity>
     suspend fun getNewestMessageInConversation(conversationId: String): MessageEntity?
+    fun observeMessagesWithQuery(conversationId: String, query: String): Flow<List<MessageEntity>>
 }
 
 class MessageLocalDataSourceImp @Inject constructor(
@@ -172,6 +173,13 @@ class MessageLocalDataSourceImp @Inject constructor(
 
     override suspend fun getNewestMessageInConversation(conversationId: String): MessageEntity? {
         return messageDao.getNewestMessageInConversation(conversationId)
+    }
+
+    override fun observeMessagesWithQuery(
+        conversationId: String,
+        query: String
+    ): Flow<List<MessageEntity>> {
+        return messageDao.observeMessagesWithQuery(conversationId, query)
     }
 
 }

@@ -6,6 +6,7 @@ import com.nhuhuy.replee.feature_chat.domain.model.message.Message
 
 sealed interface ChatAction : UiAction{
     data object OnMessageReply : ChatAction
+    data object OnSearchClick : ChatAction
     data object OnMessageCancelReply : ChatAction
     data class OnMessageLongPress(val message: Message) : ChatAction
     data class OnMessageInputChanged(val messageInput: String) : ChatAction

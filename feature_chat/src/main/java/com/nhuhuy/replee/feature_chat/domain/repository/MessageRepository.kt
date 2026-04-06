@@ -28,4 +28,6 @@ interface MessageRepository {
 
     fun observeLocalMessageWithPaging(conversationId: String): Flow<PagingData<LocalPathMessage>>
 
+    fun observeLocalMessagesWithQuery(conversationId: String, query: String): Flow<List<Message>>
+
 }

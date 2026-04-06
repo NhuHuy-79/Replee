@@ -209,6 +209,7 @@ class ChatViewModel @AssistedInject constructor(
                     //TODO("Pin message)
                     _state.reduce { copy(currentMessage = null, overlay = None) }
                 }
+
                 ChatAction.OnUnblockUser -> {
                     unblockUserUseCase(otherUserId = otherUserId)
                 }
@@ -282,6 +283,15 @@ class ChatViewModel @AssistedInject constructor(
                     updateUnreadMessageUseCase(
                         conversationId = conversationId,
                         receiverId = currentUserId
+                    )
+                }
+
+                ChatAction.OnSearchClick -> {
+                    onEvent(
+                        ChatEvent.NavigateToSearch(
+                            conversationId = conversationId,
+                            otherUserId = otherUserId
+                        )
                     )
                 }
             }

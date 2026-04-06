@@ -128,5 +128,8 @@ interface MessageDao : BaseDao<MessageEntity> {
 
     @Query("SELECT * FROM message WHERE conversationId = :conversationId ORDER BY sentAt DESC LIMIT 1")
     suspend fun getNewestMessageInConversation(conversationId: String): MessageEntity?
+
+    @Query("SELECT * FROM message WHERE conversationId = :conversationId AND content LIKE :query AND type = 'TEXT' ")
+    fun observeMessagesWithQuery(conversationId: String, query: String): Flow<List<MessageEntity>>
 }
 

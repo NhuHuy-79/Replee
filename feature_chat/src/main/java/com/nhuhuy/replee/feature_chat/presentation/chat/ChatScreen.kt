@@ -114,7 +114,7 @@ fun ChatScreen(
                     onAction(ChatAction.OnBackClick)
                 },
                 onSearchClick = {
-                    //TODO("navigate to Search screen")
+                    onAction(ChatAction.OnSearchClick)
                 },
                 onMoreClick = {
                     onAction(ChatAction.OnMoreClick)

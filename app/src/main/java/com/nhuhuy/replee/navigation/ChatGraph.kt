@@ -21,6 +21,9 @@ import com.nhuhuy.replee.feature_chat.presentation.conversation.state.Conversati
 import com.nhuhuy.replee.feature_chat.presentation.option.OptionScreen
 import com.nhuhuy.replee.feature_chat.presentation.option.OptionViewModel
 import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionEvent
+import com.nhuhuy.replee.feature_chat.presentation.search.SearchScreen
+import com.nhuhuy.replee.feature_chat.presentation.search.SearchViewModel
+import com.nhuhuy.replee.feature_chat.presentation.search.state.SearchEvent
 import com.nhuhuy.replee.navigation.HomeDestination.Information
 import kotlinx.serialization.Serializable
 
@@ -43,6 +46,12 @@ sealed interface HomeDestination : NavKey {
         val otherUserName: String,
         val otherUserId: String,
         val otherUserEmail: String
+    ) : HomeDestination
+
+    @Serializable
+    data class Search(
+        val conversationId: String,
+        val otherUserId: String
     ) : HomeDestination
 }
 
@@ -151,6 +160,15 @@ fun EntryProviderScope<NavKey>.chatGraph(
                         message = R.string.file_unknown
                     )
                 }
+
+                is ChatEvent.NavigateToSearch -> {
+                    backstack.add(
+                        HomeDestination.Search(
+                            conversationId = event.conversationId,
+                            otherUserId = event.otherUserId
+                        )
+                    )
+                }
             }
         }
 
@@ -193,6 +211,34 @@ fun EntryProviderScope<NavKey>.chatGraph(
             color = color,
             state = state,
             onAction = viewModel::onAction
+        )
+    }
+
+    entry<HomeDestination.Search> { screen ->
+        val searchViewModel: SearchViewModel = hiltViewModel(
+            creationCallback = { factory: SearchViewModel.Factory ->
+                factory.create(
+                    conversationId = screen.conversationId,
+                    otherUserId = screen.otherUserId
+                )
+            }
+        )
+        ObserveEffect(searchViewModel.event) { event ->
+            when (event) {
+                SearchEvent.NavigateBack -> backstack.removeLastOrNull()
+            }
+        }
+
+        val state by searchViewModel.state.collectAsStateWithLifecycle()
+        val query by searchViewModel.query.collectAsStateWithLifecycle()
+        val searchResults by searchViewModel.searchResults.collectAsStateWithLifecycle()
+        val onAction = searchViewModel::onAction
+
+        SearchScreen(
+            state = state,
+            query = query,
+            searchResults = searchResults,
+            onAction = onAction
         )
     }
 }

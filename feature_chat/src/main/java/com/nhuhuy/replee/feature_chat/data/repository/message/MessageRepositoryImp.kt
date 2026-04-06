@@ -10,12 +10,10 @@ import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
 import com.nhuhuy.replee.core.network.model.DataChange
-import com.nhuhuy.replee.feature_chat.data.NotificationHelper
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
-import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.LocalPathMessageRemoteMediator
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
@@ -36,11 +34,9 @@ import javax.inject.Inject
 class MessageRepositoryImp @Inject constructor(
     private val coreDatabase: CoreDatabase,
     private val messageNetworkDataSource: MessageNetworkDataSource,
-    private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource,
     private val messageLocalDataSource: MessageLocalDataSource,
-    private val ioDispatcher: CoroutineDispatcher,
-    private val notificationHelper: NotificationHelper
+    private val ioDispatcher: CoroutineDispatcher
 ) : MessageRepository {
     override suspend fun getNewestMessageInConversation(conversationId: String): Message? {
         return withContext(ioDispatcher) {
@@ -174,6 +170,20 @@ class MessageRepositoryImp @Inject constructor(
             }
         }
 
+    }
+
+    override fun observeLocalMessagesWithQuery(
+        conversationId: String,
+        query: String
+    ): Flow<List<Message>> {
+        return messageLocalDataSource.observeMessagesWithQuery(
+            conversationId = conversationId,
+            query = query
+        ).map { entities ->
+            entities.map { entity ->
+                entity.toMessage()
+            }
+        }.flowOn(ioDispatcher)
     }
 
 }
