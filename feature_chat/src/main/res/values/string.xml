@@ -22,6 +22,9 @@
     <string name="retry_btn">Retry</string>
     <string name="retry_content">No connection was found.\nPlease check your connection or try again.</string>
 
+    <!--Permission (Toast)-->
+    <string name="permission_camera">Camera permission is denied!</string>
+
     <!--Chat Screen-->
     <string name="chat_screen_placeholder">Message</string>
     <string name="chat_screen_success_banner">Send message successfully!</string>

@@ -9,7 +9,7 @@ interface AppDataStore {
     fun observeTheme(): Flow<ThemeMode>
     fun getAuthenticationToken(): Flow<String>
     suspend fun saveAuthenticationToken(token: String)
-    fun observeChatColor(): Flow<ChatColor>
-    suspend fun saveChatColor(color: ChatColor)
+    fun observeChatColor(): Flow<SeedColor>
+    suspend fun saveChatColor(color: SeedColor)
 }
 

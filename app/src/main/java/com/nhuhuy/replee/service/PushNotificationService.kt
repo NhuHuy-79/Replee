@@ -2,6 +2,7 @@ package com.nhuhuy.replee.service
 
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.usecase.UpdateDeviceTokenUseCase
 import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
 import com.nhuhuy.replee.notification.NotificationParser
@@ -20,6 +21,8 @@ class PushNotificationService() : FirebaseMessagingService() {
     @Inject
     lateinit var updateDeviceTokenUseCase: UpdateDeviceTokenUseCase
 
+    @Inject
+    lateinit var sessionManager: SessionManager
     @Inject
     lateinit var serviceNotifier: ServiceNotifier
 
@@ -42,10 +45,16 @@ class PushNotificationService() : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         scope.launch {
+            val currentUserId = sessionManager.getUserIdOrNull()
             val notificationBody = notificationParser.getNotificationBody(message)
 
             if (notificationBody == null) {
                 Timber.d("Notification body is null")
+                return@launch
+            }
+
+            if (notificationBody.senderId == currentUserId) {
+                Timber.d("Notification is from current user")
                 return@launch
             }
 

@@ -7,6 +7,7 @@ import androidx.core.net.toUri
 import com.nhuhuy.core.domain.model.ValidateFileResult
 import dagger.hilt.android.qualifiers.ApplicationContext
 import timber.log.Timber
+import java.io.File
 import javax.inject.Inject
 
 class FileValidator @Inject constructor(
@@ -29,10 +30,17 @@ class FileValidator @Inject constructor(
             val fileUri = uriPath.toUri()
             val contentResolver = context.contentResolver
 
+            var extension = uriPath.substringAfterLast(".", "").lowercase()
 
-            val mimeType = contentResolver.getType(fileUri) ?: "application/octet-stream"
-            val extension =
-                MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)?.lowercase() ?: ""
+
+            Timber.d("DEBUG_REPLEE: Path là $uriPath")
+            Timber.d("DEBUG_REPLEE: Đuôi file cắt được là '$extension'")
+
+            if (extension.isEmpty()) {
+                val mimeType = contentResolver.getType(fileUri) ?: "application/octet-stream"
+                extension =
+                    MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)?.lowercase() ?: ""
+            }
 
             if (!ALLOWED_EXTENSIONS.contains(extension)) {
                 return ValidateFileResult.UnSupported
@@ -40,15 +48,25 @@ class FileValidator @Inject constructor(
 
 
             var fileSize = 0L
-            contentResolver.query(fileUri, arrayOf(OpenableColumns.SIZE), null, null, null)
-                ?.use { cursor ->
-                    if (cursor.moveToFirst()) {
-                        val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
-                        if (sizeIndex != -1) {
-                            fileSize = cursor.getLong(sizeIndex)
+            if (fileUri.scheme == "content") {
+                contentResolver.query(fileUri, arrayOf(OpenableColumns.SIZE), null, null, null)
+                    ?.use { cursor ->
+                        if (cursor.moveToFirst()) {
+                            val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+                            if (sizeIndex != -1) fileSize = cursor.getLong(sizeIndex)
                         }
                     }
+            }
+
+            if (fileSize <= 0) {
+                val path = fileUri.path // Lấy đường dẫn /data/user/0/...
+                if (path != null) {
+                    val file = File(path)
+                    if (file.exists()) {
+                        fileSize = file.length()
+                    }
                 }
+            }
 
             if (fileSize > MAX_FILE_SIZE) {
                 val sizeInMB = fileSize / (1024 * 1024)

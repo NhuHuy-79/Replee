@@ -11,6 +11,7 @@ import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -20,11 +21,21 @@ import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
 
 @Composable
 fun StatusContent(
+    otherUserReadingTime: Long,
     modifier: Modifier = Modifier,
     message: Message,
     receiverImageUrl: String,
     receiverName: String,
 ) {
+
+    val messageStatus = remember(otherUserReadingTime, message.status) {
+        if (otherUserReadingTime > message.sentAt) {
+            MessageStatus.SEEN
+        } else {
+            message.status
+        }
+    }
+
     Box(
         modifier = modifier
             .size(16.dp)
@@ -34,7 +45,7 @@ fun StatusContent(
             ),
         contentAlignment = Alignment.Center
     ) {
-        when (message.status) {
+        when (messageStatus) {
             MessageStatus.SYNCED -> {
                 Icon(
                     imageVector = Icons.Rounded.CheckCircle,

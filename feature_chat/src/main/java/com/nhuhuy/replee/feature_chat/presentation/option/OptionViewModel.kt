@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.utils.InputValidator
-import com.nhuhuy.replee.core.data.data_store.ChatColor
+import com.nhuhuy.replee.core.data.data_store.SeedColor
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.BlockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.option.DeleteConversationUseCase
@@ -49,8 +49,8 @@ class OptionViewModel @AssistedInject constructor(
     private val inputValidator: InputValidator,
 ) : BaseViewModel<OptionAction, OptionEvent, OptionState>() {
 
-    val chatColor: StateFlow<ChatColor> = observeChatColorUseCase().stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), ChatColor.SAPPHIRE
+    val themeColor: StateFlow<SeedColor> = observeChatColorUseCase().stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5000), SeedColor.SAPPHIRE
     )
 
     private val _state = MutableStateFlow(
@@ -164,7 +164,7 @@ class OptionViewModel @AssistedInject constructor(
                 }
 
                 is OptionAction.OnColorSelect -> {
-                    selectColorUseCase(color = action.chatColor)
+                    selectColorUseCase(color = action.themeColor)
                 }
 
                 OptionAction.OnChatColorSet -> {

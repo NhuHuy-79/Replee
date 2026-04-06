@@ -2,7 +2,7 @@ package com.nhuhuy.replee.feature_chat.data.repository.conversation
 
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.data.data_store.AppDataStore
-import com.nhuhuy.replee.core.data.data_store.ChatColor
+import com.nhuhuy.replee.core.data.data_store.SeedColor
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
@@ -74,11 +74,11 @@ class OptionRepositoryImp @Inject constructor(
         }
     }
 
-    override fun observeChatColor(): Flow<ChatColor> {
+    override fun observeChatColor(): Flow<SeedColor> {
         return appDataStore.observeChatColor()
     }
 
-    override suspend fun selectColor(color: ChatColor) {
+    override suspend fun selectColor(color: SeedColor) {
         return withContext(ioDispatcher) {
             appDataStore.saveChatColor(color)
         }

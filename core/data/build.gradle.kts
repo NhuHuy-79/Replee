@@ -15,4 +15,6 @@ dependencies {
     api(libs.androidx.datastore.preferences)
     api(libs.flow.operators)
     api(libs.timber)
+    implementation(libs.androidx.exifinterface)
+    implementation(libs.exifinterface)
 }

@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 class LogOutUseCase @Inject constructor(
     private val sessionManager: SessionManager,
-    private val presenceRepository: PresenceRepository
+    private val presenceRepository: PresenceRepository,
 ) {
     suspend operator fun invoke() {
         val uid = sessionManager.getUserIdOrNull()

@@ -3,7 +3,7 @@ package com.nhuhuy.replee.feature_chat.presentation.option.state
 import androidx.compose.runtime.Immutable
 import com.nhuhuy.replee.core.common.base.ScreenState
 import com.nhuhuy.replee.core.common.base.UiState
-import com.nhuhuy.replee.core.data.data_store.ChatColor
+import com.nhuhuy.replee.core.data.data_store.SeedColor
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 import com.nhuhuy.replee.feature_chat.domain.model.converastion.Conversation
 
@@ -19,7 +19,7 @@ data class OptionState(
     val otherUserNickName: ValidatableInput = ValidatableInput(),
     val muteConversation: Boolean = false,
     val pinConversation: Boolean = false,
-    val currentColor: ChatColor = ChatColor.SAPPHIRE
+    val currentColor: SeedColor = SeedColor.SAPPHIRE
 ) : UiState
 
 enum class OptionOverlay {

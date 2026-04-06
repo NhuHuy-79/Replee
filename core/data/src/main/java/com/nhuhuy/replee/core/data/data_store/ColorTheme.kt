@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.core.data.data_store
 
-enum class ChatColor(val label: String) {
+enum class SeedColor(val label: String) {
     SAPPHIRE("Sapphire Blue"),
     EMERALD("Emerald Green"),
     VIVID_ORANGE("Sunset Orange"),

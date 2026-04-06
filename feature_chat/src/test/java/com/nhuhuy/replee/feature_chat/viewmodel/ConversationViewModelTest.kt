@@ -4,18 +4,14 @@ import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
 import com.nhuhuy.core.domain.usecase.SearchAccountByEmailUseCase
-import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.core.test.MainDispatcherRule
-import com.nhuhuy.replee.feature_chat.domain.model.converastion.Conversation
-import com.nhuhuy.replee.feature_chat.domain.usecase.account.FetchAccountListUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.account.ObserveAccountInConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.account.SetUserOnlineUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.account.UpdateCurrentAccountUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetSearchHistoryUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.ListenConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.LoadConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationListUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.sync.UpsertConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.sync.SyncConversationUsersUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.sync.SyncConversationsUseCase
 import com.nhuhuy.replee.feature_chat.presentation.conversation.ConversationViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -36,70 +32,59 @@ class ConversationViewModelTest {
     private lateinit var currentUserId: String
     private lateinit var setUserOnlineUseCase: SetUserOnlineUseCase
     private lateinit var getSearchHistoryUseCase: GetSearchHistoryUseCase
-    private lateinit var listenConversationUseCase: ListenConversationUseCase
-    private lateinit var upsertConversationUseCase: UpsertConversationUseCase
+    private lateinit var syncConversationUseCase: SyncConversationsUseCase
     private lateinit var loadConversationUseCase: LoadConversationUseCase
     private lateinit var saveConversationListUseCase: SaveConversationListUseCase
     private lateinit var updateCurrentAccountUseCase: UpdateCurrentAccountUseCase
     private lateinit var getCurrentAccountUseCase: GetCurrentAccountUseCase
     private lateinit var searchAccountByEmailUseCase: SearchAccountByEmailUseCase
-    private lateinit var fetchAccountListUseCase: FetchAccountListUseCase
-    private lateinit var observeAccountInConversationUseCase: ObserveAccountInConversationUseCase
+    private lateinit var syncConversationUsersUseCase: SyncConversationUsersUseCase
 
     @Before
     fun setUp() {
         currentUserId = "id_1"
         setUserOnlineUseCase = mockk()
         getSearchHistoryUseCase = mockk()
-        listenConversationUseCase = mockk()
-        upsertConversationUseCase = mockk()
+        syncConversationUseCase = mockk()
         loadConversationUseCase = mockk()
         saveConversationListUseCase = mockk()
         updateCurrentAccountUseCase = mockk()
         getCurrentAccountUseCase = mockk()
         searchAccountByEmailUseCase = mockk()
-        fetchAccountListUseCase = mockk()
-        observeAccountInConversationUseCase = mockk()
+        syncConversationUsersUseCase = mockk()
 
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `Test all methods run in init block`() = runTest {
-        // --- GIVEN: Chuẩn bị dữ liệu mồi ---
-        val mockDataChange: List<DataChange<Conversation>> = listOf(DataChange.Delete("conv_1"))
-        val mockUids = listOf("uid_1", "uid_2")
+        listOf("uid_1", "uid_2")
         val mockAccount = Account(id = currentUserId, name = "Huy", email = "huy@test.com")
 
         // Mock các Flow
         coEvery { getSearchHistoryUseCase(currentUserId) } returns flowOf(emptyList())
         coEvery { loadConversationUseCase(currentUserId) } returns flowOf(emptyList())
-        coEvery { listenConversationUseCase(currentUserId, any()) } returns flowOf(mockDataChange)
-        coEvery { observeAccountInConversationUseCase(currentUserId) } returns flowOf(mockUids)
+        coEvery { syncConversationUsersUseCase(currentUserId) } returns flowOf(Unit)
 
         // Mock các Suspend function trả về Result/Unit
         coEvery { updateCurrentAccountUseCase(any()) } returns NetworkResult.Success(currentUserId)
         coEvery { setUserOnlineUseCase(any()) } returns Unit
         coEvery { getCurrentAccountUseCase() } returns mockAccount
-        coEvery { fetchAccountListUseCase(any()) } returns NetworkResult.Success(Unit)
-        coEvery { upsertConversationUseCase(any()) } returns NetworkResult.Success(Unit)
+        coEvery { syncConversationUseCase(currentUserId, 20) } returns flowOf(Unit)
 
         ConversationViewModel(
             currentUserId = currentUserId,
             setUserOnlineUseCase = setUserOnlineUseCase,
             getSearchHistoryUseCase = getSearchHistoryUseCase,
-            listenConversationUseCase = listenConversationUseCase,
-            upsertConversationUseCase = upsertConversationUseCase,
             loadConversationUseCase = loadConversationUseCase,
             saveConversationListUseCase = saveConversationListUseCase,
             updateCurrentAccountUseCase = updateCurrentAccountUseCase,
             getCurrentAccountUseCase = getCurrentAccountUseCase,
             searchAccountByEmailUseCase = searchAccountByEmailUseCase,
-            fetchAccountListUseCase = fetchAccountListUseCase,
-            observeAccountInConversationUseCase = observeAccountInConversationUseCase
+            syncConversationUsersUseCase = syncConversationUsersUseCase,
+            syncConversationUseCase = syncConversationUseCase
         )
 
-        // Chờ Coroutine xử lý hết các launch {} và collect {}
         advanceUntilIdle()
 
         // --- THEN: Xác thực các hành vi ---
@@ -109,10 +94,8 @@ class ConversationViewModelTest {
             updateCurrentAccountUseCase(currentUserId)
             setUserOnlineUseCase(currentUserId)
             getCurrentAccountUseCase()
-            listenConversationUseCase(currentUserId, 60)
-            upsertConversationUseCase(mockDataChange)
-            observeAccountInConversationUseCase(currentUserId)
-            fetchAccountListUseCase(mockUids)
+            syncConversationUseCase(currentUserId, 20)
+            syncConversationUsersUseCase(currentUserId)
         }
     }
 }

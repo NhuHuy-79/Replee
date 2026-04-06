@@ -8,7 +8,6 @@ import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.network.model.DataChange
-import com.nhuhuy.replee.core.network.model.mapNotNullData
 import com.nhuhuy.replee.feature_chat.data.mapper.createConversationDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversation
 import com.nhuhuy.replee.feature_chat.data.mapper.toConversationEntity
@@ -39,18 +38,28 @@ class ConversationRepositoryImp @Inject constructor(
     override fun listenConversationWithLimit(
         limit: Int,
         ownerId: String
-    ): Flow<List<DataChange<Conversation>>> {
+    ): Flow<Unit> {
         return conversationNetworkDataSource.listenConversationChanges(
             ownerId = ownerId,
             limit = limit
         ).map { dataChanges ->
-            Timber.d("Data Change: ${dataChanges.size}")
-            dataChanges.mapNotNull { dataChange ->
-                dataChange.mapNotNullData { dto ->
-                    dto.toConversation(ownerId)
+            val deletes = mutableListOf<String>()
+            val upserts = mutableListOf<Conversation?>()
+
+            for (change in dataChanges) {
+                when (change) {
+                    is DataChange.Delete -> deletes.add(change.id)
+                    is DataChange.Upsert -> upserts.add(change.data.toConversation(ownerId))
                 }
             }
-        }
+
+            val mappedUpsert =
+                upserts.mapNotNull { conversation -> conversation?.toConversationEntity() }
+            conversationLocalDataSource.upsertAndDeleteConversations(
+                upsert = mappedUpsert,
+                delete = deletes,
+            )
+        }.flowOn(ioDispatcher)
     }
 
     override suspend fun fetchOtherUserInConversations(ownerId: String) {
@@ -127,31 +136,6 @@ class ConversationRepositoryImp @Inject constructor(
         }
     }
 
-    override suspend fun updateLocalDataChange(
-        dataChanges: List<DataChange<Conversation>>
-    ): NetworkResult<Unit> = execute {
-        val currentUserId: String = sessionManager.requireUserId()
-        val upserts = mutableListOf<Conversation>()
-        val deletes = mutableListOf<String>()
-
-        for (change in dataChanges) {
-            when (change) {
-                is DataChange.Delete -> deletes.add(change.id)
-                is DataChange.Upsert -> upserts.add(change.data)
-                DataChange.Empty -> conversationLocalDataSource.deleteConversationsByUid(
-                    currentUserId
-                )
-            }
-        }
-
-        val mappedUpsert = upserts.map { conversation -> conversation.toConversationEntity() }
-        conversationLocalDataSource.upsertAndDeleteConversations(
-            upsert = mappedUpsert,
-            delete = deletes,
-        )
-
-    }
-
     override suspend fun updateMetadataConversation(message: Message): NetworkResult<Unit> {
         return execute {
             val messageEntity = message.toMessageEntity()
@@ -204,27 +188,6 @@ class ConversationRepositoryImp @Inject constructor(
             message.conversationId
 
         }
-    }
-
-    override fun listenReadBy(
-        conversationId: String,
-        receiverId: String
-    ): Flow<Long> {
-        return conversationNetworkDataSource.listenReadByChange(conversationId, receiverId)
-    }
-
-    override suspend fun updateReadBy(conversationId: String, readBy: Long): NetworkResult<Unit> {
-        return executeWithTimeout(ioDispatcher) {
-            conversationLocalDataSource.updateLastReadBy(conversationId, readBy)
-        }
-    }
-
-    override fun observeReadBy(conversationId: String): Flow<Long> {
-        return conversationLocalDataSource.observeConversationById(conversationId)
-            .map { conversation ->
-                conversation?.conversation?.lastReadBy ?: 0L
-            }
-            .flowOn(ioDispatcher)
     }
 
 }

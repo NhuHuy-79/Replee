@@ -9,6 +9,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.Person
 import androidx.core.app.RemoteInput
 import androidx.core.content.LocusIdCompat
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import coil3.BitmapImage
 import coil3.imageLoader
@@ -84,13 +86,13 @@ class ConversationNotificationFactory @Inject constructor(
             .setKey(response.receiverId)
             .build()
 
+        val notificationMessage = NotificationCompat.MessagingStyle.Message(
+            response.content,
+            System.currentTimeMillis(),
+            sender
+        )
         val messagingStyle = NotificationCompat.MessagingStyle(user)
-            .setConversationTitle(response.senderName)
-            .addMessage(
-                response.content,
-                System.currentTimeMillis(),
-                sender
-            )
+            .addMessage(notificationMessage)
 
         val contentIntent =
             context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
@@ -132,15 +134,22 @@ class ConversationNotificationFactory @Inject constructor(
             .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)
             .build()
 
+        val shortcut = ShortcutInfoCompat.Builder(context, response.conversationId)
+            .setShortLabel(response.senderName)
+            .setPerson(sender)
+            .setLongLived(true)
+            .setIntent(Intent(Intent.ACTION_VIEW).apply { /* Intent mở chat */ })
+            .build()
+        ShortcutManagerCompat.pushDynamicShortcut(context, shortcut)
+
+
         return NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_circle_notification)
-            .setLargeIcon(bitmap)
             .setStyle(messagingStyle)
             .setContentIntent(contentPendingIntent)
             .setGroup(response.conversationId)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setOnlyAlertOnce(true)
-            .addPerson(sender)
             .addAction(replyAction)
             .setShortcutId(response.conversationId)
             .setLocusId(LocusIdCompat(response.conversationId))

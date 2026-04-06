@@ -106,6 +106,8 @@ fun EntryProviderScope<NavKey>.chatGraph(
         )
         val blocked by viewModel.blocked.collectAsStateWithLifecycle()
         val state by viewModel.state.collectAsStateWithLifecycle()
+        val typingUserIds by viewModel.typingUserIds.collectAsStateWithLifecycle()
+        val readingTime by viewModel.otherLastReadingTime.collectAsStateWithLifecycle()
         val messagePagingState = viewModel.pagedMessages.collectAsLazyPagingItems()
 
         ObserveEffect(viewModel.event) { event ->
@@ -153,6 +155,8 @@ fun EntryProviderScope<NavKey>.chatGraph(
         }
 
         ChatScreen(
+            otherUserReadTime = readingTime,
+            typingUsers = typingUserIds,
             blocked = blocked,
             state = state,
             pagedMessages = messagePagingState,
@@ -175,7 +179,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
         )
 
         val state by viewModel.state.collectAsStateWithLifecycle()
-        val color by viewModel.chatColor.collectAsStateWithLifecycle()
+        val color by viewModel.themeColor.collectAsStateWithLifecycle()
         ObserveEffect(viewModel.event) { event ->
             when (event) {
                 OptionEvent.NavigateBack -> backstack.removeLastOrNull()

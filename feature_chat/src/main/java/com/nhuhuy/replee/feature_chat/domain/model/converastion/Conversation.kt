@@ -17,7 +17,6 @@ data class Conversation(
     val lastMessageTime: Long? = null,
     val lastMessageType: MessageType = MessageType.TEXT,
     val lastDeletedMessageId: String? = null,
-    val lastReadBy: Long? = null,
     //Add field
     val unreadMessageCount: Int = 0,
     val otherUserOnline: Boolean = false,

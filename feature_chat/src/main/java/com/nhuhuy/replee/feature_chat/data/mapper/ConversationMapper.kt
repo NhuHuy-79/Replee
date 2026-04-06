@@ -31,7 +31,6 @@ fun Conversation.toConversationEntity(): ConversationEntity {
         lastTimeSyncs = System.currentTimeMillis(),
         lastMessageType = this.lastMessageType.name,
         lastDeletedMessageId = this.lastDeletedMessageId,
-        lastReadBy = this.lastReadBy
     )
 }
 
@@ -49,7 +48,6 @@ fun ConversationAndUser.createConversationDTO(): ConversationDTO {
         lastMessageContent = conversation.lastMessageContent,
         lastMessageType = MessageType.valueOf(conversation.lastMessageType),
         lastDeletedMessageId = conversation.lastDeletedMessageId,
-        lastReadBy = mapOf(conversation.otherUserId to conversation.lastReadBy),
         isBlocked = mapOf(conversation.ownerId to conversation.blocked),
         isPinned = mapOf(conversation.ownerId to conversation.pinned),
         isMuted = mapOf(conversation.ownerId to conversation.muted),
@@ -106,7 +104,6 @@ fun ConversationDTO.toConversation(
         lastMessageTime = lastMessageTime,
         lastMessageType = lastMessageType,
         lastDeletedMessageId = lastDeletedMessageId,
-        lastReadBy = lastReadBy[otherUserId],
         unreadMessageCount = unReadMessages[ownerId] ?: 0,
         deleted = isDeleted[ownerId] ?: false,
         blocked = isBlocked[ownerId] ?: false,
@@ -131,7 +128,6 @@ fun ConversationAndUser.toConversation(): Conversation {
         lastMessageTime = conversation.lastMessageTime,
         lastMessageType = MessageType.valueOf(conversation.lastMessageType),
         lastDeletedMessageId = conversation.lastDeletedMessageId,
-        lastReadBy = conversation.lastReadBy,
         muted = conversation.muted,
         pinned = conversation.pinned,
         otherUserName = otherUser?.name.orEmpty(),

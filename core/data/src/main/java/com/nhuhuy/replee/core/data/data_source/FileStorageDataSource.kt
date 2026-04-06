@@ -3,13 +3,13 @@ package com.nhuhuy.replee.core.data.data_source
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.BitmapFactory
-import android.media.ExifInterface
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.OpenableColumns
 import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
+import androidx.exifinterface.media.ExifInterface
 import com.nhuhuy.core.domain.repository.FileMetadata
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
@@ -25,6 +25,18 @@ class FileStorageDataSource @Inject constructor(
 ) {
     suspend fun saveToInternalStorage(uri: Uri): String {
         return withContext(ioDispatcher) {
+            if (uri.scheme == "file" || (uri.scheme == "content" && uri.path?.contains(context.packageName) == true)) {
+                val path = uri.path ?: ""
+                return@withContext if (path.startsWith("/external_files")) {
+                    File(
+                        context.getExternalFilesDir(null),
+                        path.removePrefix("/external_files")
+                    ).absolutePath
+                } else {
+                    path
+                }
+            }
+
             val fileName = "replee_${System.currentTimeMillis()}"
             val file = File(context.filesDir, fileName)
 
@@ -38,12 +50,11 @@ class FileStorageDataSource @Inject constructor(
     }
 
     @SuppressLint("ExifInterface")
-    suspend fun getFileMetadata(uriPath: String): FileMetadata {
+    fun getFileMetadata(uriPath: String): FileMetadata {
         val fileUri = uriPath.toUri()
         var width = 0
         var height = 0
         var size = 0L
-        var mimeType = ""
 
         // 1. Lấy thông tin cơ bản từ ContentResolver (Size & MimeType)
         context.contentResolver.query(fileUri, null, null, null, null)?.use { cursor ->
@@ -53,7 +64,8 @@ class FileStorageDataSource @Inject constructor(
                 size = cursor.getLong(sizeIndex)
             }
         }
-        mimeType = context.contentResolver.getType(fileUri) ?: "application/octet-stream"
+        var mimeType: String =
+            context.contentResolver.getType(fileUri) ?: "application/octet-stream"
 
         try {
             if (mimeType.startsWith("image")) {
