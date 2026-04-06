@@ -21,19 +21,36 @@ import coil3.request.transformations
 import coil3.transform.CircleCropTransformation
 import com.nhuhuy.replee.R
 import com.nhuhuy.replee.broadcast.ReplyBroadcast
+import com.nhuhuy.replee.core.network.api.fcm.ContentType
 import com.nhuhuy.replee.core.network.api.fcm.NotificationResponse
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-abstract class NotificationFactory() {
+abstract class NotificationFactory(
+    private val context: Context
+) {
     abstract suspend fun execute(response: NotificationResponse): Notification
 
     abstract fun showResult(success: Boolean): Notification
 
+    protected fun getContent(response: NotificationResponse): String {
+        return when (response.type) {
+            ContentType.PLAIN_TEXT -> response.content
+            ContentType.IMAGE_URL -> context.getString(
+                R.string.notification_msg_image,
+                response.senderName
+            )
+
+            ContentType.VIDEO_URL -> context.getString(
+                R.string.notification_msg_video,
+                response.senderName
+            )
+        }
+    }
+
     suspend fun loadBitmapForNotification(
-        context: Context,
         url: String?
     ): Bitmap? {
         return withContext(Dispatchers.IO) {
@@ -68,11 +85,10 @@ const val EXTRA_NOTIFICATION_ID = "notification_id"
 
 class ConversationNotificationFactory @Inject constructor(
     @ApplicationContext private val context: Context
-) : NotificationFactory() {
-
+) : NotificationFactory(context = context) {
     override suspend fun execute(response: NotificationResponse): Notification {
         val channelId = context.getString(R.string.notification_channel)
-        val bitmap = loadBitmapForNotification(context, response.senderImg)
+        val bitmap = loadBitmapForNotification(response.senderImg)
 
         val sender = Person.Builder()
             .setName(response.senderName)
@@ -87,7 +103,7 @@ class ConversationNotificationFactory @Inject constructor(
             .build()
 
         val notificationMessage = NotificationCompat.MessagingStyle.Message(
-            response.content,
+            getContent(response),
             System.currentTimeMillis(),
             sender
         )

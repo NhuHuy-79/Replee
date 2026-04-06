@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 class SendFileMessageUseCase @Inject constructor(
     private val messageRepository: MessageRepository,
-    private val fileRepository: FileRepository
+    private val fileRepository: FileRepository,
 ) {
     suspend operator fun invoke(
         senderId: String,

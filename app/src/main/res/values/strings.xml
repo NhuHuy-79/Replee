@@ -12,4 +12,10 @@
 
     <string name="network_failed">You are offline! Please check connection and try again.</string>
     <string name="leak_canary_test_class_name">com.nhuhuy.replee.FakeTestClass</string>
+
+    <string name="notification_msg_image">%1$s đã gửi một hình ảnh.</string>
+    <string name="notification_msg_video">%1$s đã gửi một video.</string>
+    <string name="notification_msg_voice">%1$s đã gửi một tin nhắn thoại.</string>
+    <string name="notification_msg_file">%1$s đã gửi một tệp tin.</string>
+    <string name="notification_msg_sticker">%1$s đã gửi một nhãn dán.</string>
 </resources>
