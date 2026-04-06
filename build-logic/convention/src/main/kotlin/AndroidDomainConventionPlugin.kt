@@ -14,7 +14,9 @@ class AndroidDomainConventionPlugin : Plugin<Project> {
             extensions.configure<LibraryExtension> {
                 configureKotlinAndroid(this)
                 buildFeatures {
-                    androidResources = false
+                    androidResources {
+                        enable = true
+                    }
                 }
             }
         }
