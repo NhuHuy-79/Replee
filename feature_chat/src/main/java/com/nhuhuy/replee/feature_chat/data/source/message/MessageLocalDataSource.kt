@@ -4,39 +4,44 @@ import androidx.room.withTransaction
 import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.database.entity.message.MessageDao
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
+import com.nhuhuy.replee.feature_chat.domain.model.message.Message
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 interface MessageLocalDataSource {
+    // --- CREATE / UPSERT ---
+    suspend fun upsertMessage(message: MessageEntity)
+    suspend fun upsertMessages(messages: List<MessageEntity>)
+    suspend fun upsertAndDeleteMessages(upsert: List<MessageEntity>, delete: List<String>)
+
+    // --- READ ---
+    suspend fun getMessageById(messageId: String): MessageEntity?
+    suspend fun getMessageListById(messageIds: List<String>): List<MessageEntity>
+    suspend fun getUnsyncedMessageByType(messageType: MessageType): List<MessageEntity>
+    suspend fun getUnsyncedMessages(): List<MessageEntity>
+    suspend fun getMessagesByQuery(conversationId: String, query: String): List<MessageEntity>
+    suspend fun getNewestMessageInConversation(conversationId: String): MessageEntity?
+    fun observeMessages(conversationId: String): Flow<List<MessageEntity>>
+    fun observeMessagesWithQuery(conversationId: String, query: String): Flow<List<MessageEntity>>
+
+    // --- UPDATE ---
+    suspend fun updateMessageStatus(status: MessageStatus, messageId: String)
+    suspend fun updateMessageListStatus(status: MessageStatus, messageIds: List<String>)
+    suspend fun updateSyncStatus(messageIds: List<String>, status: MessageStatus)
+    suspend fun updateRemoteUrlMessage(messageIdWithUrl: Map<String, String>)
+    suspend fun updateRemoteUrlMessage(messageId: String, remoteUrl: String, status: MessageStatus)
     suspend fun updateMessageStatusInConversation(
         conversationId: String,
         receiverId: String,
         status: MessageStatus
     ): List<MessageEntity>
-    suspend fun getMessageById(messageId: String): MessageEntity?
-    suspend fun upsertMessage(message: MessageEntity)
-    suspend fun updateMessageStatus(status: MessageStatus, messageId: String)
-    suspend fun updateRemoteUrlMessage(messageIdWithUrl: Map<String, String>)
-    suspend fun updateRemoteUrlMessage(
-        messageId: String,
-        remoteUrl: String,
-        status: MessageStatus
-    )
-    suspend fun getUnsyncedMessageByType(messageType: MessageType): List<MessageEntity>
-    suspend fun updateMessageListStatus(status: MessageStatus, messageIds: List<String>)
-    suspend fun upsertMessages(messages: List<MessageEntity>)
-    suspend fun upsertAndDeleteMessages(upsert: List<MessageEntity>, delete: List<String>)
-    suspend fun getMessagesByQuery(conversationId: String, query: String): List<MessageEntity>
-    suspend fun updateSyncStatus(messageIds: List<String>, status: MessageStatus)
-    suspend fun getUnsyncedMessages(): List<MessageEntity>
-    fun observeMessages(conversationId: String): Flow<List<MessageEntity>>
+
+    // --- DELETE ---
+    suspend fun deleteMessage(message: MessageEntity)
     suspend fun deleteMessageByConversationId(limit: Int)
-    suspend fun deleteMessageById(message: MessageEntity)
-    suspend fun getMessageListById(messageIds: List<String>): List<MessageEntity>
-    suspend fun getNewestMessageInConversation(conversationId: String): MessageEntity?
-    fun observeMessagesWithQuery(conversationId: String, query: String): Flow<List<MessageEntity>>
+    suspend fun deleteAllMessages(messages: List<Message>)
 }
 
 class MessageLocalDataSourceImp @Inject constructor(
@@ -44,6 +49,114 @@ class MessageLocalDataSourceImp @Inject constructor(
 ) : MessageLocalDataSource {
     private val messageDao: MessageDao = coreDatabase.provideMessageDao()
     private val conversationDao = coreDatabase.provideConversationDao()
+
+    // --- CREATE / UPSERT ---
+
+    override suspend fun upsertMessage(message: MessageEntity) {
+        messageDao.upsert(message)
+    }
+
+    override suspend fun upsertMessages(messages: List<MessageEntity>) {
+        messageDao.upsertAll(messages)
+    }
+
+    override suspend fun upsertAndDeleteMessages(
+        upsert: List<MessageEntity>,
+        delete: List<String>
+    ) {
+        messageDao.upsertAndDeleteMessages(
+            upsert = upsert,
+            delete = delete
+        )
+    }
+
+    // --- READ ---
+
+    override suspend fun getMessageById(messageId: String): MessageEntity? {
+        return messageDao.getMessageById(messageId)
+    }
+
+    override suspend fun getMessageListById(messageIds: List<String>): List<MessageEntity> {
+        return messageDao.getMessageListById(messageIds)
+    }
+
+    override suspend fun getUnsyncedMessageByType(
+        messageType: MessageType
+    ): List<MessageEntity> {
+        return messageDao.getUnSyncedMessageByType(messageType.name)
+    }
+
+    override suspend fun getUnsyncedMessages(): List<MessageEntity> {
+        return messageDao.getFailedMessages()
+    }
+
+    override suspend fun getMessagesByQuery(
+        conversationId: String,
+        query: String
+    ): List<MessageEntity> {
+        return messageDao.getMessageByQuery(
+            conversationId = conversationId,
+            query = query
+        )
+    }
+
+    override suspend fun getNewestMessageInConversation(conversationId: String): MessageEntity? {
+        return messageDao.getNewestMessageInConversation(conversationId)
+    }
+
+    override fun observeMessages(conversationId: String) =
+        messageDao.observeMessageByConversationId(conversationId)
+
+    override fun observeMessagesWithQuery(
+        conversationId: String,
+        query: String
+    ): Flow<List<MessageEntity>> {
+        return messageDao.observeMessagesWithQuery(conversationId, query)
+    }
+
+    // --- UPDATE ---
+
+    override suspend fun updateMessageStatus(status: MessageStatus, messageId: String) {
+        messageDao.updateStatusOfMessage(
+            status = status.name,
+            messageId = messageId,
+        )
+    }
+
+    override suspend fun updateMessageListStatus(status: MessageStatus, messageIds: List<String>) {
+        messageDao.updateStatusOfMessageList(
+            status = status.name,
+            messageIds = messageIds,
+        )
+    }
+
+    override suspend fun updateSyncStatus(messageIds: List<String>, status: MessageStatus) {
+        messageDao.updateStatusOfMessages(messageIds = messageIds, status = status.name)
+    }
+
+    override suspend fun updateRemoteUrlMessage(messageIdWithUrl: Map<String, String>) {
+        coreDatabase.withTransaction {
+            messageIdWithUrl.forEach { (messageId, remoteUrl) ->
+                messageDao.updateRemoteUrlAndStatus(
+                    messageId = messageId,
+                    remoteUrl = remoteUrl,
+                    status = MessageStatus.SYNCED.name
+                )
+            }
+        }
+    }
+
+    override suspend fun updateRemoteUrlMessage(
+        messageId: String,
+        remoteUrl: String,
+        status: MessageStatus
+    ) {
+        messageDao.updateRemoteUrlAndStatus(
+            messageId = messageId,
+            remoteUrl = remoteUrl,
+            status = status.name
+        )
+    }
 
     override suspend fun updateMessageStatusInConversation(
         conversationId: String,
@@ -67,97 +180,9 @@ class MessageLocalDataSourceImp @Inject constructor(
         }
     }
 
-    override suspend fun getMessageById(messageId: String): MessageEntity? {
-        return messageDao.getMessageById(messageId)
-    }
+    // --- DELETE ---
 
-    override suspend fun upsertMessage(message: MessageEntity) {
-        messageDao.upsert(message)
-    }
-
-    override suspend fun updateMessageStatus(status: MessageStatus, messageId: String) {
-        messageDao.updateStatusOfMessage(
-            status = status.name,
-            messageId = messageId,
-        )
-    }
-
-    override suspend fun updateRemoteUrlMessage(messageIdWithUrl: Map<String, String>) {
-        coreDatabase.withTransaction {
-            messageIdWithUrl.forEach { (messageId, remoteUrl) ->
-                messageDao.updateRemoteUrlAndStatus(
-                    messageId = messageId,
-                    remoteUrl = remoteUrl,
-                    status = MessageStatus.SYNCED.name
-                )
-            }
-        }
-    }
-
-    override suspend fun updateRemoteUrlMessage(
-        messageId: String,
-        remoteUrl: String,
-        status: MessageStatus
-    ) {
-        return messageDao.updateRemoteUrlAndStatus(
-            messageId = messageId,
-            remoteUrl = remoteUrl,
-            status = status.name
-        )
-    }
-
-    override suspend fun getUnsyncedMessageByType(
-        messageType: MessageType
-    ): List<MessageEntity> {
-        return messageDao.getUnSyncedMessageByType(messageType.name)
-    }
-
-    override suspend fun updateMessageListStatus(status: MessageStatus, messageIds: List<String>) {
-        messageDao.updateStatusOfMessageList(
-            status = status.name,
-            messageIds = messageIds,
-        )
-    }
-
-    override suspend fun upsertMessages(messages: List<MessageEntity>) {
-        messageDao.upsertAll(messages)
-    }
-
-    override suspend fun upsertAndDeleteMessages(
-        upsert: List<MessageEntity>,
-        delete: List<String>
-    ) {
-        messageDao.upsertAndDeleteMessages(
-            upsert = upsert,
-            delete = delete
-        )
-    }
-
-    override suspend fun getMessagesByQuery(
-        conversationId: String,
-        query: String
-    ): List<MessageEntity> {
-        return messageDao.getMessageByQuery(
-            conversationId = conversationId,
-            query = query
-        )
-    }
-
-    override suspend fun updateSyncStatus(messageIds: List<String>, status: MessageStatus) {
-        messageDao.updateStatusOfMessages(messageIds = messageIds, status = status.name)
-    }
-
-    override suspend fun getUnsyncedMessages(): List<MessageEntity> {
-        return messageDao.getFailedMessages()
-    }
-
-    override fun observeMessages(conversationId: String) =
-        messageDao.observeMessageByConversationId(conversationId)
-
-    override suspend fun deleteMessageByConversationId(limit: Int) =
-        messageDao.deleteMessageByConversationId(limit)
-
-    override suspend fun deleteMessageById(message: MessageEntity) {
+    override suspend fun deleteMessage(message: MessageEntity) {
         coreDatabase.withTransaction {
             messageDao.softDeleteMessageById(message.messageId)
             conversationDao.updateLastDeletedMessageId(
@@ -167,19 +192,10 @@ class MessageLocalDataSourceImp @Inject constructor(
         }
     }
 
-    override suspend fun getMessageListById(messageIds: List<String>): List<MessageEntity> {
-        return messageDao.getMessageListById(messageIds)
-    }
+    override suspend fun deleteMessageByConversationId(limit: Int) =
+        messageDao.deleteMessageByConversationId(limit)
 
-    override suspend fun getNewestMessageInConversation(conversationId: String): MessageEntity? {
-        return messageDao.getNewestMessageInConversation(conversationId)
+    override suspend fun deleteAllMessages(messages: List<Message>) {
+        messageDao.deleteMessagesByIds(messages.map { it.messageId })
     }
-
-    override fun observeMessagesWithQuery(
-        conversationId: String,
-        query: String
-    ): Flow<List<MessageEntity>> {
-        return messageDao.observeMessagesWithQuery(conversationId, query)
-    }
-
 }

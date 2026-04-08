@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.chat.message.text
+package com.nhuhuy.replee.feature_chat.presentation.chat.component.message.text
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background

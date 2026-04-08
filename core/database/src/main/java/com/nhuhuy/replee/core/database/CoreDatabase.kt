@@ -30,7 +30,7 @@ import com.nhuhuy.replee.core.database.entity.search_history.SearchHistoryEntity
         SearchHistoryEntity::class,
         FilePathEntity::class,
         MessageActionEntity::class],
-    version = 37, // Tăng version vì thêm table mới
+    version = 38,
     exportSchema = true
 )
 @TypeConverters(CoreConverter::class)

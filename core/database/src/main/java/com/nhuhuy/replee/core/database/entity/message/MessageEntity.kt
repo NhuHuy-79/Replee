@@ -28,7 +28,6 @@ data class MessageEntity(
     val senderId: String,
     val receiverId: String,
     val content: String,
-    val seen: Boolean,
     val deleted: Boolean,
     val sentAt: Long? = null,
     val type: String = "TEXT",

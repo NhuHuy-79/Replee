@@ -38,11 +38,117 @@ class MessageRepositoryImp @Inject constructor(
     private val messageLocalDataSource: MessageLocalDataSource,
     private val ioDispatcher: CoroutineDispatcher
 ) : MessageRepository {
+
+    // --- CREATE / SEND---
+
+    override suspend fun sendMessage(message: Message): NetworkResult<String> {
+        return executeWithTimeout(dispatcher = ioDispatcher) {
+            val entity = message.toMessageEntity()
+            messageLocalDataSource.upsertMessage(message = entity)
+            conversationLocalDataSource.updateLastMessage(message = entity)
+
+            val dto = message.toMessageDTO().copy(status = MessageStatus.SYNCED)
+            messageNetworkDataSource.sendMessage(message = dto)
+
+            message.messageId
+        }
+    }
+
+    override suspend fun saveMessage(message: Message): String {
+        messageLocalDataSource.upsertMessage(message.toMessageEntity())
+        return message.messageId
+    }
+
+    // --- READ / OBSERVE ---
+
+    override suspend fun getMessageListById(messageIds: List<String>): List<Message> {
+        return withContext(ioDispatcher) {
+            messageLocalDataSource.getMessageListById(messageIds)
+                .map { entity -> entity.toMessage() }
+        }
+    }
+
     override suspend fun getNewestMessageInConversation(conversationId: String): Message? {
         return withContext(ioDispatcher) {
             messageLocalDataSource.getNewestMessageInConversation(conversationId)?.toMessage()
         }
     }
+
+    @OptIn(ExperimentalPagingApi::class)
+    override fun observeLocalMessageWithPaging(conversationId: String): Flow<PagingData<LocalPathMessage>> {
+        val messageDao = coreDatabase.provideMessageDao()
+        return Pager(
+            config = PagingConfig(
+                pageSize = 20,
+                initialLoadSize = 20,
+                enablePlaceholders = false,
+                prefetchDistance = 1
+            ),
+            remoteMediator = LocalPathMessageRemoteMediator(
+                conversationId = conversationId,
+                coreDatabase = coreDatabase,
+                messageNetworkDataSource = messageNetworkDataSource
+            )
+        ) {
+            messageDao.getMessagesPagingSource(conversationId)
+        }.flow.map { pagingData ->
+            pagingData.map { messageEntity ->
+                messageEntity.toLocalPathMessage()
+            }
+        }
+    }
+
+    override fun observeLocalMessagesWithQuery(
+        conversationId: String,
+        query: String
+    ): Flow<List<Message>> {
+        return messageLocalDataSource.observeMessagesWithQuery(
+            conversationId = conversationId,
+            query = query
+        ).map { entities ->
+            entities.map { entity ->
+                entity.toMessage()
+            }
+        }.flowOn(ioDispatcher)
+    }
+
+    // --- UPDATE  ---
+
+    override suspend fun updateRemoteUrlMessage(
+        messageId: String,
+        remoteUrl: String,
+        status: MessageStatus
+    ): Message? {
+        return withContext(ioDispatcher) {
+            messageLocalDataSource.updateRemoteUrlMessage(
+                messageId = messageId,
+                remoteUrl = remoteUrl,
+                status = status
+            )
+
+            messageLocalDataSource.getMessageById(messageId)?.toMessage()
+        }
+    }
+
+    // --- DELETE ---
+
+    override suspend fun deleteMessage(message: Message): NetworkResult<String> {
+        return executeWithTimeout(dispatcher = ioDispatcher) {
+            messageLocalDataSource.deleteMessage(message.toMessageEntity())
+            message.messageId
+        }
+    }
+
+    override suspend fun deleteMultipleRemoteMessage(messages: List<Message>): NetworkResult<Unit> {
+        return executeWithTimeout(ioDispatcher) {
+            messageLocalDataSource.deleteAllMessages(messages)
+            messageNetworkDataSource.deleteMultipleMessage(
+                messages = messages.map { message -> message.toMessageDTO() }
+            )
+        }
+    }
+
+    // --- SYNC / NETWORK ---
 
     override suspend fun fetchMessagesByTimestamp(
         conversationId: String,
@@ -82,108 +188,4 @@ class MessageRepositoryImp @Inject constructor(
             }.flowOn(ioDispatcher)
             .catch { exception -> Timber.e(exception) }
     }
-
-    override suspend fun deleteMultipleMessage(messages: List<Message>): NetworkResult<Unit> {
-        return executeWithTimeout(ioDispatcher) {
-            messageNetworkDataSource.deleteMultipleMessage(
-                messages = messages.map { message -> message.toMessageDTO() }
-            )
-        }
-    }
-
-    override suspend fun getMessageListById(messageIds: List<String>): List<Message> {
-        return withContext(ioDispatcher) {
-            messageLocalDataSource.getMessageListById(messageIds)
-                .map { entity -> entity.toMessage() }
-        }
-    }
-
-
-    override suspend fun deleteMessage(message: Message): NetworkResult<String> {
-        return executeWithTimeout(dispatcher = ioDispatcher) {
-            messageLocalDataSource.deleteMessageById(message = message.toMessageEntity())
-            messageNetworkDataSource.deleteMessage(
-                conversationId = message.conversationId,
-                messageId = message.messageId
-            )
-
-            message.messageId
-        }
-    }
-
-    override suspend fun sendMessage(
-        message: Message
-    ): NetworkResult<String> {
-        return executeWithTimeout(dispatcher = ioDispatcher) {
-            val entity = message.toMessageEntity()
-            messageLocalDataSource.upsertMessage(message = entity)
-            conversationLocalDataSource.updateLastMessage(message = entity)
-
-            val dto = message.toMessageDTO().copy(status = MessageStatus.SYNCED)
-            messageNetworkDataSource.sendMessage(message = dto)
-
-            message.messageId
-        }
-    }
-
-    override suspend fun saveMessage(message: Message): String {
-        messageLocalDataSource.upsertMessage(message.toMessageEntity())
-        return message.messageId
-    }
-
-    override suspend fun updateRemoteUrlMessage(
-        messageId: String,
-        remoteUrl: String,
-        status: MessageStatus
-    ): Message? {
-        return withContext(ioDispatcher) {
-            messageLocalDataSource.updateRemoteUrlMessage(
-                messageId = messageId,
-                remoteUrl = remoteUrl,
-                status = status
-            )
-
-            messageLocalDataSource.getMessageById(messageId)?.toMessage()
-        }
-    }
-
-    @OptIn(ExperimentalPagingApi::class)
-    override fun observeLocalMessageWithPaging(conversationId: String): Flow<PagingData<LocalPathMessage>> {
-        val messageDao = coreDatabase.provideMessageDao()
-        return Pager(
-            config = PagingConfig(
-                pageSize = 20,
-                initialLoadSize = 20,
-                enablePlaceholders = false,
-                prefetchDistance = 1
-            ),
-            remoteMediator = LocalPathMessageRemoteMediator(
-                conversationId = conversationId,
-                coreDatabase = coreDatabase,
-                messageNetworkDataSource = messageNetworkDataSource
-            )
-        ) {
-            messageDao.getMessagesPagingSource(conversationId)
-        }.flow.map { pagingData ->
-            pagingData.map { messageEntity ->
-                messageEntity.toLocalPathMessage()
-            }
-        }
-
-    }
-
-    override fun observeLocalMessagesWithQuery(
-        conversationId: String,
-        query: String
-    ): Flow<List<Message>> {
-        return messageLocalDataSource.observeMessagesWithQuery(
-            conversationId = conversationId,
-            query = query
-        ).map { entities ->
-            entities.map { entity ->
-                entity.toMessage()
-            }
-        }.flowOn(ioDispatcher)
-    }
-
 }

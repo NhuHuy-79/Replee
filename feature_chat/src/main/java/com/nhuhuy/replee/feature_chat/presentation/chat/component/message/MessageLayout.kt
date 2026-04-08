@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.chat.message
+package com.nhuhuy.replee.feature_chat.presentation.chat.component.message
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement

@@ -100,9 +100,6 @@ class FileRepositoryImp @Inject constructor(
     }
 
     override suspend fun scheduleUploadFile(messageId: String, uriPath: String) {
-
-        //Scheduler now only take a messageId for do Work and needn't take a uriPath
-
         val uri = uriPath.toUri()
         val uploadDir = File(context.cacheDir, "upload")
         if (!uploadDir.exists()) {

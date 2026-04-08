@@ -22,7 +22,7 @@ class SaveNewMessageWorker @AssistedInject constructor(
                 return@withContext Result.failure()
             }
 
-            val conversationId = inputData.getString(CONVERSATION_ID)
+            val conversationId = inputData.getString("conversationId")
 
             if (conversationId == null) return@withContext Result.failure()
 

@@ -7,7 +7,7 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.nhuhuy.replee.feature_chat.data.worker.CONVERSATION_ID
+import com.nhuhuy.replee.feature_chat.data.worker.DeleteMessageWorker
 import com.nhuhuy.replee.feature_chat.data.worker.SaveNewMessageWorker
 import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
 import com.nhuhuy.replee.feature_chat.domain.model.message.Message
@@ -22,6 +22,9 @@ const val FILE_SYNC_WORKER = "file_sync_worker"
 const val CONVERSATION_SYNC_WORKER = "conversation_sync_worker"
 const val SAVE_NEW_MESSAGE_WORKER = "save_new_message_worker"
 const val LAST_TIME_KEY = "last time key"
+const val DELETE_MESSAGE__WORKER = "delete_message_worker"
+const val MESSAGE_ID = "message_id"
+const val CONVERSATION_ID = "conversationId"
 class WorkerSchedulerImp @Inject constructor(
     @ApplicationContext private val context: Context
 ) : WorkerScheduler {
@@ -79,7 +82,26 @@ class WorkerSchedulerImp @Inject constructor(
     }
 
     override fun scheduleDeleteMessage(message: Message) {
+        val request = OneTimeWorkRequestBuilder<DeleteMessageWorker>()
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
+            )
+            .setInputData(
+                inputData = workDataOf(
+                    MESSAGE_ID to message.messageId,
+                    CONVERSATION_ID to message.conversationId
+                )
+            )
+            .addTag(DELETE_MESSAGE__WORKER)
+            .build()
 
+        workManager.enqueueUniqueWork(
+            message.messageId,
+            ExistingWorkPolicy.KEEP,
+            request
+        )
     }
 
     override fun scheduleSaveNewMessage(conversationId: String) {

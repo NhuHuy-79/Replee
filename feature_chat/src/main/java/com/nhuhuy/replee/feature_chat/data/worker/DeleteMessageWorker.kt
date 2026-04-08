@@ -5,8 +5,8 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.replee.feature_chat.domain.model.message.MessageAction
-import com.nhuhuy.replee.feature_chat.domain.repository.ActionRepository
+import com.nhuhuy.replee.core.database.entity.message_action.ActionType
+import com.nhuhuy.replee.feature_chat.domain.repository.MessageActionRepository
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -17,7 +17,7 @@ import kotlinx.coroutines.withContext
 @HiltWorker
 class DeleteMessageWorker @AssistedInject constructor(
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val actionRepository: ActionRepository,
+    private val messageActionRepository: MessageActionRepository,
     private val messageRepository: MessageRepository,
     @Assisted private val context: Context,
     @Assisted private val params: WorkerParameters
@@ -28,27 +28,31 @@ class DeleteMessageWorker @AssistedInject constructor(
                 return@withContext Result.failure()
             }
 
-            val action =
-                actionRepository.getDeletedActions().filterIsInstance<MessageAction.Delete>()
-            if (action.isEmpty()) {
+            //Get Delete Action List
+            val messageActions =
+                messageActionRepository.getActionListWithType(type = ActionType.DELETE)
+            if (messageActions.isEmpty()) {
                 return@withContext Result.success()
             }
 
-            val messagesIds: List<String> = action.map { delete -> delete.messageId }
+            //Get Messages In Local
+            val messagesIds: List<String> = messageActions.map { delete -> delete.targetId }
             val messages = messageRepository.getMessageListById(messagesIds)
 
             if (messagesIds.isEmpty()) {
                 return@withContext Result.success()
             }
 
-            val deleteResult = messageRepository.deleteMultipleMessage(messages)
+            //Delete Multiple Message
+            val deleteResult = messageRepository.deleteMultipleRemoteMessage(messages)
             return@withContext when (deleteResult) {
                 is NetworkResult.Failure -> {
                     Result.retry()
                 }
 
                 is NetworkResult.Success -> {
-                    actionRepository.markActionAsSynced(MessageAction.Delete())
+                    val actionIds = messageActions.map { action -> action.id }
+                    messageActionRepository.deleteMessageActionListById(actionIds = actionIds)
                     Result.success()
                 }
             }

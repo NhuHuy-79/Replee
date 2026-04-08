@@ -43,8 +43,6 @@ import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.StatusContent
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.TypingItem
-import com.nhuhuy.replee.feature_chat.presentation.chat.message.MessageContainer
-import com.nhuhuy.replee.feature_chat.presentation.chat.message.MessageLayout
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
