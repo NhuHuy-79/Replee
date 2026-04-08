@@ -5,7 +5,6 @@ import com.nhuhuy.replee.core.database.entity.conversation.ConversationDao
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationEntity
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 interface ConversationLocalDataSource {
@@ -116,9 +115,7 @@ class ConversationLocalDataSourceImp @Inject constructor(
 
 
     override fun observeConversationAndUsers(uid: String): Flow<List<ConversationAndUser>> {
-        return conversationDao.observeConversations(uid).map { conversationAndUsers ->
-            conversationAndUsers
-        }
+        return conversationDao.observeConversations(uid)
     }
 
     override suspend fun updateLastSyncedTime(

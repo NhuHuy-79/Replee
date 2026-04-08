@@ -72,6 +72,7 @@ fun ConversationList(
                         .clickable {
                             onConversationClick(item)
                         }
+                        .animateItem()
                 )
             }
         }

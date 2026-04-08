@@ -85,7 +85,7 @@ fun MessageScreen(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState,
             reverseLayout = true,
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp, alignment = Alignment.Bottom)
         ) {
             item {
                 TypingItem(

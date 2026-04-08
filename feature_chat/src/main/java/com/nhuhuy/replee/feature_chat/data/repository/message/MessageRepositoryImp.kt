@@ -140,11 +140,13 @@ class MessageRepositoryImp @Inject constructor(
         }
     }
 
-    override suspend fun deleteMultipleRemoteMessage(messages: List<Message>): NetworkResult<Unit> {
+    override suspend fun deleteMultipleMessage(messages: List<Message>): NetworkResult<Unit> {
         return executeWithTimeout(ioDispatcher) {
+            messageLocalDataSource.deleteAllMessages(messages)
             messageNetworkDataSource.deleteMultipleMessage(
                 messages = messages.map { message -> message.toMessageDTO() }
             )
+
         }
     }
 

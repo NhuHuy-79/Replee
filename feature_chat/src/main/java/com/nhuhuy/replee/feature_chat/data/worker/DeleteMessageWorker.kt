@@ -44,7 +44,7 @@ class DeleteMessageWorker @AssistedInject constructor(
             }
 
             //Delete Multiple Message
-            val deleteResult = messageRepository.deleteMultipleRemoteMessage(messages)
+            val deleteResult = messageRepository.deleteMultipleMessage(messages)
             return@withContext when (deleteResult) {
                 is NetworkResult.Failure -> {
                     Result.retry()

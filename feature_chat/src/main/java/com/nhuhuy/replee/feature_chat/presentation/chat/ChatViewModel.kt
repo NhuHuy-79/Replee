@@ -215,6 +215,7 @@ class ChatViewModel @AssistedInject constructor(
                 }
 
                 is ChatAction.OnImageSend -> {
+                    val repliedMessage = state.value.currentMessage
                     val validateFileResult =
                         validateFileSizeUseCase(uriPath = action.uri.toString())
                     Timber.d("DEBUG_REPLEE: Kết quả validate là: $validateFileResult")
@@ -226,11 +227,18 @@ class ChatViewModel @AssistedInject constructor(
 
                         is ValidateFileResult.Valid -> {
                             Timber.d("Call")
+                            _state.reduce {
+                                copy(
+                                    currentMessage = null,
+                                    isReplying = false
+                                )
+                            }
                             sendFileMessageUseCase(
                                 senderId = currentUserId,
                                 receiverId = otherUserId,
                                 uriPath = action.uri.toString(),
-                                conversationId
+                                conversationId = conversationId,
+                                repliedMessage = repliedMessage
                             )
                         }
 

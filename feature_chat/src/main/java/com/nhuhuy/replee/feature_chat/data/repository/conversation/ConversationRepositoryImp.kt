@@ -118,14 +118,6 @@ class ConversationRepositoryImp @Inject constructor(
         conversationLocalDataSource.upsertConversations(entities)
     }
 
-    override fun observeConversationById(conversationId: String): Flow<Conversation> {
-        return conversationLocalDataSource.observeConversationById(conversationId)
-            .map { conversation ->
-                Timber.d("$conversation")
-                conversation?.toConversation() ?: Conversation()
-            }
-    }
-
     override suspend fun getOrCreateConversation(
         ownerId: String,
         otherUserId: String

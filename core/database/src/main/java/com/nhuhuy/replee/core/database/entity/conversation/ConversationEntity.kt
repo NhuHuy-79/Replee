@@ -52,7 +52,6 @@ data class ConversationEntity(
     val otherUserImg: String = "",
     @ColumnInfo(name = "ownerImg", defaultValue = "")
     val ownerImg: String = "",
-
     )
 
 data class ConversationAndUser(

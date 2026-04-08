@@ -28,7 +28,7 @@ interface MessageRepository {
 
     // --- DELETE ---
     suspend fun deleteMessage(message: Message): NetworkResult<String>
-    suspend fun deleteMultipleRemoteMessage(messages: List<Message>): NetworkResult<Unit>
+    suspend fun deleteMultipleMessage(messages: List<Message>): NetworkResult<Unit>
 
     // --- SYNC / NETWORK---
     suspend fun fetchMessagesByTimestamp(

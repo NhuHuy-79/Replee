@@ -122,7 +122,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
                                 .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
                                 .document(dto.messageId)
 
-                            batch.update(messageRef, "deleted", true)
+                            batch.delete(messageRef)
                         }
 
                         val lastDeletedMessage = messages.maxByOrNull { it.sendAt?.seconds ?: -1L }
@@ -213,7 +213,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
             val messageRef = conversationRef
                 .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
                 .document(messageId)
-            batch.update(messageRef, "deleted", true)
+            batch.delete(messageRef)
             batch.update(conversationRef, "lastDeletedMessageId", messageId)
         }.await()
     }

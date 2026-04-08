@@ -16,6 +16,7 @@ class SendFileMessageUseCase @Inject constructor(
     private val fileRepository: FileRepository,
 ) {
     suspend operator fun invoke(
+        repliedMessage: Message? = null,
         senderId: String,
         receiverId: String,
         uriPath: String,
@@ -32,7 +33,12 @@ class SendFileMessageUseCase @Inject constructor(
             content = "",
             sentAt = System.currentTimeMillis(),
             localUriPath = newUri,
-            type = MessageType.IMAGE
+            type = MessageType.IMAGE,
+            repliedMessageId = repliedMessage?.messageId,
+            repliedMessageType = repliedMessage?.type,
+            repliedMessageContent = repliedMessage?.content,
+            repliedMessageSenderId = repliedMessage?.senderId,
+            repliedMessageRemoteUrl = repliedMessage?.remoteUrl
         )
 
         val messageId: String = messageRepository.saveMessage(raw)
