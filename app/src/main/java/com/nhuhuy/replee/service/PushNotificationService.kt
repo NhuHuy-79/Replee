@@ -67,7 +67,7 @@ class PushNotificationService() : FirebaseMessagingService() {
                 conversationId = notificationBody.conversationId
             )
 
-            workerScheduler.scheduleSaveNewMessage(conversationId = notificationBody.conversationId)
+            workerScheduler.scheduleSaveMessageWorker(conversationId = notificationBody.conversationId)
 
             Timber.d("Notification body: $notificationBody")
 

@@ -37,7 +37,6 @@ class SendMessageUseCase @Inject constructor(
             content = text,
             status = MessageStatus.PENDING,
             sentAt = System.currentTimeMillis(),
-            seen = false,
             type = MessageType.TEXT,
             repliedMessageId = repliedMessage?.messageId,
             repliedMessageContent = repliedMessage?.content,

@@ -31,6 +31,7 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -58,6 +59,8 @@ class ConversationViewModel @AssistedInject constructor(
     override val state: StateFlow<ConversationState>
         get() = _state.asStateFlow()
 
+    private var listenConversationJob: Job? = null
+
     val searchHistory: StateFlow<List<SearchHistoryResult>> = getSearchHistoryUseCase(currentUserId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -81,7 +84,8 @@ class ConversationViewModel @AssistedInject constructor(
         )
 
     private fun listenToNetworkConversation() {
-        syncConversationUseCase(
+        listenConversationJob?.cancel()
+        listenConversationJob = syncConversationUseCase(
             currentUserId = currentUserId,
             limit = 20
         ).launchIn(viewModelScope)
@@ -232,5 +236,10 @@ class ConversationViewModel @AssistedInject constructor(
         fun create(
             @Assisted currentUserId: String
         ): ConversationViewModel
+    }
+
+    override fun onCleared() {
+        listenConversationJob?.cancel()
+        super.onCleared()
     }
 }

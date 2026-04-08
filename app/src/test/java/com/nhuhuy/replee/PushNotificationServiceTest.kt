@@ -86,7 +86,7 @@ class PushNotificationServiceTest {
             )
             every { sessionManager.getUserIdOrNull() } returns "123"
             every { notificationParser.getNotificationBody(remoteMessage) } returns fakeResponse
-            every { workerScheduler.scheduleSaveNewMessage(fakeResponse.conversationId) } returns Unit
+            every { workerScheduler.scheduleSaveMessageWorker(fakeResponse.conversationId) } returns Unit
             coEvery { serviceNotifier.showConversationNotification(fakeResponse) } returns Unit
 
             service.onMessageReceived(remoteMessage)
@@ -95,7 +95,7 @@ class PushNotificationServiceTest {
             coVerify {
                 sessionManager.getUserIdOrNull()
                 notificationParser.getNotificationBody(remoteMessage)
-                workerScheduler.scheduleSaveNewMessage(fakeResponse.conversationId)
+                workerScheduler.scheduleSaveMessageWorker(fakeResponse.conversationId)
                 conversationRepository.getConversationById(fakeResponse.conversationId)
                 serviceNotifier.showConversationNotification(fakeResponse)
             }

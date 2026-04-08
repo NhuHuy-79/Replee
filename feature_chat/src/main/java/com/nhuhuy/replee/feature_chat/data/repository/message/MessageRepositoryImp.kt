@@ -8,7 +8,6 @@ import androidx.paging.map
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.CoreDatabase
-import com.nhuhuy.replee.core.database.entity.message.MessageEntity
 import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
@@ -82,7 +81,7 @@ class MessageRepositoryImp @Inject constructor(
                 pageSize = 20,
                 initialLoadSize = 20,
                 enablePlaceholders = false,
-                prefetchDistance = 1
+                prefetchDistance = 5
             ),
             remoteMediator = LocalPathMessageRemoteMediator(
                 conversationId = conversationId,
@@ -91,11 +90,13 @@ class MessageRepositoryImp @Inject constructor(
             )
         ) {
             messageDao.getMessagesPagingSource(conversationId)
-        }.flow.map { pagingData ->
+        }.flow
+            .map { pagingData ->
             pagingData.map { messageEntity ->
                 messageEntity.toLocalPathMessage()
             }
         }
+            .flowOn(ioDispatcher)
     }
 
     override fun observeLocalMessagesWithQuery(
@@ -141,7 +142,6 @@ class MessageRepositoryImp @Inject constructor(
 
     override suspend fun deleteMultipleRemoteMessage(messages: List<Message>): NetworkResult<Unit> {
         return executeWithTimeout(ioDispatcher) {
-            messageLocalDataSource.deleteAllMessages(messages)
             messageNetworkDataSource.deleteMultipleMessage(
                 messages = messages.map { message -> message.toMessageDTO() }
             )
@@ -169,14 +169,14 @@ class MessageRepositoryImp @Inject constructor(
     override fun listenMessageChanges(conversationId: String): Flow<Unit> {
         return messageNetworkDataSource.listenMessageChangesByConversationId(conversationId)
             .map { dataChanges ->
-                val upserts = mutableListOf<MessageEntity>()
+                val upserts = mutableListOf<Message>()
                 val deletes = mutableListOf<String>()
 
                 for (change in dataChanges) {
                     when (change) {
                         is DataChange.Delete -> deletes.add(change.id)
                         is DataChange.Upsert -> upserts.add(
-                            change.data.toMessage().toMessageEntity()
+                            change.data.toMessage()
                         )
                     }
                 }
@@ -185,6 +185,8 @@ class MessageRepositoryImp @Inject constructor(
                     upsert = upserts,
                     delete = deletes
                 )
+
+                Timber.d("MESSAGE_SYNC: ${dataChanges.size}")
             }.flowOn(ioDispatcher)
             .catch { exception -> Timber.e(exception) }
     }

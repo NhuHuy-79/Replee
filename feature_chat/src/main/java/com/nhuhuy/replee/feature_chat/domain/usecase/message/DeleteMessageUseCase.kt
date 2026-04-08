@@ -23,8 +23,6 @@ class DeleteMessageUseCase @Inject constructor(
             payload = message.content
         )
         messageActionRepository.upsertAction(deleteAction)
-        scheduler.scheduleDeleteMessage(
-            message = message
-        )
+        scheduler.scheduleMessageActionWorker()
     }
 }

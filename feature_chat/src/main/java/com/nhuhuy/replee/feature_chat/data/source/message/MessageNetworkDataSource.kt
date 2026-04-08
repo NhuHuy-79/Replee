@@ -282,6 +282,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
         val query = collection.document(conversationId)
             .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
             .orderBy("sendAt", Query.Direction.DESCENDING)
+            .limit(30)
         return query.observeMultipleDataChanges()
     }
 

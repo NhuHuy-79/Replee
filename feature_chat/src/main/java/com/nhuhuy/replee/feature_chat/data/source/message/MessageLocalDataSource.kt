@@ -4,6 +4,7 @@ import androidx.room.withTransaction
 import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.database.entity.message.MessageDao
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
+import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
 import com.nhuhuy.replee.feature_chat.domain.model.message.Message
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
@@ -14,7 +15,7 @@ interface MessageLocalDataSource {
     // --- CREATE / UPSERT ---
     suspend fun upsertMessage(message: MessageEntity)
     suspend fun upsertMessages(messages: List<MessageEntity>)
-    suspend fun upsertAndDeleteMessages(upsert: List<MessageEntity>, delete: List<String>)
+    suspend fun upsertAndDeleteMessages(upsert: List<Message>, delete: List<String>)
 
     // --- READ ---
     suspend fun getMessageById(messageId: String): MessageEntity?
@@ -61,12 +62,12 @@ class MessageLocalDataSourceImp @Inject constructor(
     }
 
     override suspend fun upsertAndDeleteMessages(
-        upsert: List<MessageEntity>,
+        upsert: List<Message>,
         delete: List<String>
     ) {
         messageDao.upsertAndDeleteMessages(
-            upsert = upsert,
-            delete = delete
+            networkMessages = upsert.map { it.toMessageEntity() },
+            deleteIds = delete
         )
     }
 

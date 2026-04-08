@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun MessageLayout(
+    modifier: Modifier,
     isMine: Boolean,
     showTimeContent: Boolean,
     userImage: @Composable () -> Unit,
@@ -25,7 +26,7 @@ fun MessageLayout(
     statusContent: @Composable RowScope.() -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

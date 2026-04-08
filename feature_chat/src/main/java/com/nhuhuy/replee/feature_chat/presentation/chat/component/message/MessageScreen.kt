@@ -105,6 +105,11 @@ fun MessageScreen(
                 val replyTo = if (localPathMessage.message.repliedMessageId == currentUserId) "You"
                 else otherUserName
                 MessageLayout(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateItem(
+                            fadeInSpec = null,
+                        ),
                     isMine = isMine,
                     showTimeContent = false,
                     userImage = {

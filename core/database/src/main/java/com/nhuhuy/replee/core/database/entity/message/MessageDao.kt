@@ -29,7 +29,7 @@ interface MessageDao : BaseDao<MessageEntity> {
     suspend fun getUnSyncedMessageByType(messageType: String): List<MessageEntity>
 
     @Transaction
-    @Query("SELECT * FROM message WHERE conversationId = :conversationId AND deleted = 0 ORDER BY sentAt DESC, messageId DESC")
+    @Query("SELECT * FROM message WHERE conversationId = :conversationId AND deleted = 0 ORDER BY sentAt DESC")
     fun getMessagesPagingSource(conversationId: String): PagingSource<Int, MessageWithLocalPath>
 
     @Query("SELECT * FROM message WHERE conversationId = :conversationId AND content LIKE :query")
@@ -120,10 +120,25 @@ interface MessageDao : BaseDao<MessageEntity> {
 
     @Transaction
     suspend fun upsertAndDeleteMessages(
-        upsert: List<MessageEntity>,
-        delete: List<String>
+        networkMessages: List<MessageEntity>,
+        deleteIds: List<String>
     ) {
-        upsertAll(upsert)
-        deleteMessagesByIds(delete)
+        if (deleteIds.isNotEmpty()) {
+            deleteMessagesByIds(deleteIds)
+        }
+
+        networkMessages.forEach { networkMsg ->
+            val localMsg = getMessageById(networkMsg.messageId)
+
+            if (localMsg == null) {
+                upsert(networkMsg)
+            } else {
+                val updatedMsg = networkMsg.copy(
+                    deleted = localMsg.deleted,
+                    localUriPath = localMsg.localUriPath
+                )
+                upsert(updatedMsg)
+            }
+        }
     }
 }

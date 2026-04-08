@@ -63,14 +63,11 @@ class LocalPathMessageRemoteMediator(
 
             val endReached = remoteMessages.size < loadSize
 
-            val entities = remoteMessages.map { dto ->
-                dto.toMessage().toMessageEntity()
-            }
+            val dTOs = remoteMessages.map { it.toMessage().toMessageEntity() }
 
             val last = remoteMessages.lastOrNull()
 
             Timber.d("endReached=$endReached")
-            Timber.d("entities: $entities")
             Timber.d("newCursor oldestCreatedAt=${last?.sendAt}, oldestMessageId=${last?.messageId}")
 
             coreDatabase.withTransaction {
@@ -78,7 +75,10 @@ class LocalPathMessageRemoteMediator(
                     messageKeyDao.clear(conversationId)
                 }
 
-                messageDao.upsertAll(entities)
+                messageDao.upsertAndDeleteMessages(
+                    networkMessages = dTOs,
+                    deleteIds = emptyList()
+                )
 
                 messageKeyDao.upsert(
                     MessageRemoteKey(

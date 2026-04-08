@@ -31,7 +31,6 @@ class SendFileMessageUseCase @Inject constructor(
             status = MessageStatus.PENDING,
             content = "",
             sentAt = System.currentTimeMillis(),
-            seen = false,
             localUriPath = newUri,
             type = MessageType.IMAGE
         )
