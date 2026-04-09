@@ -13,9 +13,10 @@ import javax.inject.Inject
 
 class SendFileMessageUseCase @Inject constructor(
     private val messageRepository: MessageRepository,
-    private val fileRepository: FileRepository
+    private val fileRepository: FileRepository,
 ) {
     suspend operator fun invoke(
+        repliedMessage: Message? = null,
         senderId: String,
         receiverId: String,
         uriPath: String,
@@ -31,9 +32,13 @@ class SendFileMessageUseCase @Inject constructor(
             status = MessageStatus.PENDING,
             content = "",
             sentAt = System.currentTimeMillis(),
-            seen = false,
             localUriPath = newUri,
-            type = MessageType.IMAGE
+            type = MessageType.IMAGE,
+            repliedMessageId = repliedMessage?.messageId,
+            repliedMessageType = repliedMessage?.type,
+            repliedMessageContent = repliedMessage?.content,
+            repliedMessageSenderId = repliedMessage?.senderId,
+            repliedMessageRemoteUrl = repliedMessage?.remoteUrl
         )
 
         val messageId: String = messageRepository.saveMessage(raw)

@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.chat.message.image
+package com.nhuhuy.replee.feature_chat.presentation.chat.component.message.image
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.MaterialTheme

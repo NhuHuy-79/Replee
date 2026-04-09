@@ -13,10 +13,9 @@ data class MessageDTO(
     val senderId: String = "",
     val receiverId: String = "",
     val content: String = "",
-    val deleted: Boolean = false,
     @ServerTimestamp
     val sendAt: Timestamp? = null,
-    val seen: Boolean = false,
+    val pinned: Boolean = false,
     val type: MessageType = MessageType.TEXT,
     val status: MessageStatus = MessageStatus.SYNCED,
     val url: String? = null,

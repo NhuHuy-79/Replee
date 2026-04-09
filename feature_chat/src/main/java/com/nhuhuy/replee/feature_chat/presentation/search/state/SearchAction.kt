@@ -4,5 +4,6 @@ import com.nhuhuy.replee.core.common.base.UiAction
 
 sealed interface SearchAction : UiAction {
     data class OnQueryChange(val query: String) : SearchAction
-    data object OnSearch : SearchAction
+    data object OnSearchClose : SearchAction
+    data object OnNavigateBack : SearchAction
 }

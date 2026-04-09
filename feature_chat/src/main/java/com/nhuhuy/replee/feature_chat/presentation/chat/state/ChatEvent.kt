@@ -3,6 +3,11 @@ package com.nhuhuy.replee.feature_chat.presentation.chat.state
 import com.nhuhuy.replee.core.common.base.UiEvent
 
 sealed interface ChatEvent : UiEvent{
+    data class NavigateToSearch(val conversationId: String, val otherUserId: String) : ChatEvent
+    data class NavigateToPin(
+        val conversationId: String,
+        val otherUserId: String
+    ) : ChatEvent
     data object NavigateBack : ChatEvent
 
     sealed interface SendImage : ChatEvent {

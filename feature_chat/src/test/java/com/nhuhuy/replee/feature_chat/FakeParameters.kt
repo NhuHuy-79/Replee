@@ -11,7 +11,7 @@ class FakeParameters {
             senderId = "123",
             receiverId = "123",
             content = "Hello",
-            seen = false,
+            pinned = false,
             sentAt = System.currentTimeMillis(),
             status = MessageStatus.PENDING,
         )

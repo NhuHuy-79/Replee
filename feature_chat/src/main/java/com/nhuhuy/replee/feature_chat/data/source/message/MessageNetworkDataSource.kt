@@ -20,6 +20,11 @@ import timber.log.Timber
 import javax.inject.Inject
 
 interface MessageNetworkDataSource {
+    suspend fun updatePinStatus(
+        conversationId: String,
+        messageId: String,
+        pinned: Boolean
+    )
     suspend fun updateReceiverMessageStatus(
         conversationId: String,
         status: MessageStatus,
@@ -27,7 +32,7 @@ interface MessageNetworkDataSource {
     )
 
     suspend fun deleteMultipleMessage(messages: List<MessageDTO>)
-
+    suspend fun pinMultipleMessage(messages: List<MessageDTO>, pinned: Boolean)
     suspend fun fetchMessagesInConversationByTimestamp(
         conversationId: String,
         timestamp: Long
@@ -70,6 +75,18 @@ class MessageNetworkDataSourceImp @Inject constructor(
     private val firestore: FirebaseFirestore
 ) : MessageNetworkDataSource {
     private val collection = firestore.collection(Constant.Firestore.CONVERSATION_COLLECTION)
+    override suspend fun updatePinStatus(
+        conversationId: String,
+        messageId: String,
+        pinned: Boolean
+    ) {
+        collection.document(conversationId)
+            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            .document(messageId)
+            .update("pinned", pinned)
+            .await()
+    }
+
     override suspend fun updateReceiverMessageStatus(
         conversationId: String,
         status: MessageStatus,
@@ -122,7 +139,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
                                 .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
                                 .document(dto.messageId)
 
-                            batch.update(messageRef, "deleted", true)
+                            batch.delete(messageRef)
                         }
 
                         val lastDeletedMessage = messages.maxByOrNull { it.sendAt?.seconds ?: -1L }
@@ -134,6 +151,28 @@ class MessageNetworkDataSourceImp @Inject constructor(
                                 lastDeletedMessageId
                             )
                         }
+                    }
+                }.await()
+            }
+        )
+    }
+
+    override suspend fun pinMultipleMessage(messages: List<MessageDTO>, pinned: Boolean) {
+        optimizedWrite(
+            items = messages,
+            singleWrite = { message ->
+                updatePinStatus(message.conversationId, message.messageId, true)
+            },
+            batchWrite = {
+                firestore.runBatch { batch ->
+                    for (message in messages) {
+                        batch.update(
+                            collection.document(message.conversationId)
+                                .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+                                .document(message.messageId),
+                            "pinned",
+                            pinned
+                        )
                     }
                 }.await()
             }
@@ -213,7 +252,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
             val messageRef = conversationRef
                 .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
                 .document(messageId)
-            batch.update(messageRef, "deleted", true)
+            batch.delete(messageRef)
             batch.update(conversationRef, "lastDeletedMessageId", messageId)
         }.await()
     }
@@ -282,6 +321,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
         val query = collection.document(conversationId)
             .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
             .orderBy("sendAt", Query.Direction.DESCENDING)
+            .limit(30)
         return query.observeMultipleDataChanges()
     }
 

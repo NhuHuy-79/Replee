@@ -5,6 +5,7 @@ import com.google.firebase.messaging.RemoteMessage
 import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.usecase.UpdateDeviceTokenUseCase
 import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
+import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import com.nhuhuy.replee.notification.NotificationParser
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
@@ -20,6 +21,9 @@ import javax.inject.Inject
 class PushNotificationService() : FirebaseMessagingService() {
     @Inject
     lateinit var updateDeviceTokenUseCase: UpdateDeviceTokenUseCase
+
+    @Inject
+    lateinit var conversationRepository: ConversationRepository
 
     @Inject
     lateinit var sessionManager: SessionManager
@@ -48,6 +52,7 @@ class PushNotificationService() : FirebaseMessagingService() {
             val currentUserId = sessionManager.getUserIdOrNull()
             val notificationBody = notificationParser.getNotificationBody(message)
 
+
             if (notificationBody == null) {
                 Timber.d("Notification body is null")
                 return@launch
@@ -58,11 +63,17 @@ class PushNotificationService() : FirebaseMessagingService() {
                 return@launch
             }
 
-            workerScheduler.scheduleSaveNewMessage(conversationId = notificationBody.conversationId)
+            val conversation = conversationRepository.getConversationById(
+                conversationId = notificationBody.conversationId
+            )
+
+            workerScheduler.scheduleSaveMessageWorker(conversationId = notificationBody.conversationId)
 
             Timber.d("Notification body: $notificationBody")
 
-            serviceNotifier.showConversationNotification(notificationBody)
+            if (!conversation.muted) {
+                serviceNotifier.showConversationNotification(notificationBody)
+            }
         }
         super.onMessageReceived(message)
     }

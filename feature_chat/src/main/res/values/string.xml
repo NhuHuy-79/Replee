@@ -48,6 +48,13 @@
     <string name="information_screen_mute">Mute</string>
     <string name="information_screen_unmute">Unmute</string>
 
+    <!--Search Screen -->
+    <string name="search_screen_empty">No result.</string>"
+    <string name="search_screen_placeholder">Search your message…</string>
+
+    <!--Pin Screen-->
+    <string name="pin_screen_title">Pinned Messages</string>
+
     <!-- Pin message -->
     <string name="setting_pin_conversation">Pin conversation</string>
     <string name="setting_pin_conversation_sub">Keep important conversation at the top</string>
@@ -95,6 +102,7 @@
     <string name="message_sheet_copy">Copy Text</string>
     <string name="message_sheet_reply">Reply</string>
     <string name="message_sheet_pin">Pin Message</string>
+    <string name="message_sheet_unpin">Unpin Message</string>
     <string name="message_sheet_delete">Delete Message</string>
 
     <!--Reply Message-->

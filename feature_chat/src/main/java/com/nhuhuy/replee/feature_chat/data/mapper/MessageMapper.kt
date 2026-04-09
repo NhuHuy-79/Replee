@@ -15,7 +15,7 @@ fun MessageEntity.toMessage() : Message{
         receiverId = receiverId,
         deleted = deleted,
         content = content,
-        seen = seen,
+        pinned = pinned,
         sentAt = sentAt ?: System.currentTimeMillis(),
         type = MessageType.valueOf(type),
         status = MessageStatus.valueOf(this.status),
@@ -36,8 +36,8 @@ fun MessageDTO.toMessage() : Message{
         senderId = senderId,
         receiverId = receiverId,
         content = content,
-        deleted = deleted,
-        seen = seen,
+        deleted = false,
+        pinned = pinned,
         sentAt = sendAt?.toMilliseconds() ?: System.currentTimeMillis(),
         status = status,
         type = type,
@@ -57,8 +57,7 @@ fun Message.toMessageDTO() : MessageDTO {
         senderId = senderId,
         receiverId = receiverId,
         content = content,
-        seen = seen,
-        deleted = deleted,
+        pinned = pinned,
         type = type,
         url = remoteUrl,
         status = status,
@@ -77,7 +76,6 @@ fun Message.toMessageEntity() : MessageEntity{
         senderId = senderId,
         receiverId = receiverId,
         content = content,
-        seen = seen,
         sentAt = sentAt,
         status = status.name,
         type = type.name,
@@ -88,6 +86,7 @@ fun Message.toMessageEntity() : MessageEntity{
         repliedMessageId = repliedMessageId,
         repliedMessageSenderId = repliedMessageSenderId,
         repliedMessageType = repliedMessageType?.name,
-        repliedMessageRemoteUrl = repliedMessageRemoteUrl
+        repliedMessageRemoteUrl = repliedMessageRemoteUrl,
+        pinned = pinned
     )
 }

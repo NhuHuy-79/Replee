@@ -23,7 +23,7 @@ import com.nhuhuy.replee.core.data.data_source.file_path.FilePathLocalDataSource
 import com.nhuhuy.replee.core.data.utils.execute
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
 import com.nhuhuy.replee.core.network.quailify.Retrofit
-import com.nhuhuy.replee.feature_chat.data.worker.UploadFileWorker
+import com.nhuhuy.replee.feature_chat.data.worker.SendFileWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -100,9 +100,6 @@ class FileRepositoryImp @Inject constructor(
     }
 
     override suspend fun scheduleUploadFile(messageId: String, uriPath: String) {
-
-        //Scheduler now only take a messageId for do Work and needn't take a uriPath
-
         val uri = uriPath.toUri()
         val uploadDir = File(context.cacheDir, "upload")
         if (!uploadDir.exists()) {
@@ -125,7 +122,7 @@ class FileRepositoryImp @Inject constructor(
             URI_PATH_INPUT to tempFile.absolutePath
         )
 
-        val uploadRequest = OneTimeWorkRequestBuilder<UploadFileWorker>()
+        val uploadRequest = OneTimeWorkRequestBuilder<SendFileWorker>()
             .setInputData(inputData = input)
             .setConstraints(
                 constraints = Constraints.Builder()

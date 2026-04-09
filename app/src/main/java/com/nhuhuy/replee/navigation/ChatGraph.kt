@@ -21,7 +21,15 @@ import com.nhuhuy.replee.feature_chat.presentation.conversation.state.Conversati
 import com.nhuhuy.replee.feature_chat.presentation.option.OptionScreen
 import com.nhuhuy.replee.feature_chat.presentation.option.OptionViewModel
 import com.nhuhuy.replee.feature_chat.presentation.option.state.OptionEvent
+import com.nhuhuy.replee.feature_chat.presentation.pin.PinEvent
+import com.nhuhuy.replee.feature_chat.presentation.pin.PinViewModel
+import com.nhuhuy.replee.feature_chat.presentation.pin.PinnedMessagesScreen
+import com.nhuhuy.replee.feature_chat.presentation.search.SearchScreen
+import com.nhuhuy.replee.feature_chat.presentation.search.SearchViewModel
+import com.nhuhuy.replee.feature_chat.presentation.search.state.SearchEvent
 import com.nhuhuy.replee.navigation.HomeDestination.Information
+import com.nhuhuy.replee.navigation.HomeDestination.Pin
+import com.nhuhuy.replee.navigation.HomeDestination.Search
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -43,6 +51,18 @@ sealed interface HomeDestination : NavKey {
         val otherUserName: String,
         val otherUserId: String,
         val otherUserEmail: String
+    ) : HomeDestination
+
+    @Serializable
+    data class Search(
+        val conversationId: String,
+        val otherUserId: String
+    ) : HomeDestination
+
+    @Serializable
+    data class Pin(
+        val conversationId: String,
+        val otherUserId: String
     ) : HomeDestination
 }
 
@@ -151,6 +171,24 @@ fun EntryProviderScope<NavKey>.chatGraph(
                         message = R.string.file_unknown
                     )
                 }
+
+                is ChatEvent.NavigateToSearch -> {
+                    backstack.add(
+                        Search(
+                            conversationId = event.conversationId,
+                            otherUserId = event.otherUserId
+                        )
+                    )
+                }
+
+                is ChatEvent.NavigateToPin -> {
+                    backstack.add(
+                        Pin(
+                            conversationId = event.conversationId,
+                            otherUserId = event.otherUserId
+                        )
+                    )
+                }
             }
         }
 
@@ -194,5 +232,59 @@ fun EntryProviderScope<NavKey>.chatGraph(
             state = state,
             onAction = viewModel::onAction
         )
+    }
+
+    entry<Search> { screen ->
+        val searchViewModel: SearchViewModel = hiltViewModel(
+            creationCallback = { factory: SearchViewModel.Factory ->
+                factory.create(
+                    conversationId = screen.conversationId,
+                    otherUserId = screen.otherUserId
+                )
+            }
+        )
+        ObserveEffect(searchViewModel.event) { event ->
+            when (event) {
+                SearchEvent.NavigateBack -> backstack.removeLastOrNull()
+            }
+        }
+
+        val state by searchViewModel.state.collectAsStateWithLifecycle()
+        val query by searchViewModel.query.collectAsStateWithLifecycle()
+        val searchResults by searchViewModel.searchResults.collectAsStateWithLifecycle()
+        val onAction = searchViewModel::onAction
+
+        SearchScreen(
+            state = state,
+            query = query,
+            searchResults = searchResults,
+            onAction = onAction
+        )
+    }
+
+    entry<Pin> {
+        val viewModel: PinViewModel = hiltViewModel(
+            creationCallback = { factory: PinViewModel.Factory ->
+                factory.create(
+                    conversationId = it.conversationId,
+                    otherUserId = it.otherUserId
+                )
+            }
+        )
+        val pinnedMessages by viewModel.pinnedMessage.collectAsStateWithLifecycle()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val onAction = viewModel::onAction
+        ObserveEffect(viewModel.event) { event ->
+            when (event) {
+                PinEvent.NavigateBack -> backstack.removeLastOrNull()
+            }
+        }
+
+        PinnedMessagesScreen(
+            state = state,
+            pinnedMessages = pinnedMessages,
+            onAction = onAction
+        )
+
     }
 }

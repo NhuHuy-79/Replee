@@ -16,7 +16,9 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.file.SendFileMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.ValidateFileSizeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.DeleteMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveLocalMessagesUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.PinMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendMessageUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.UnPinMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.UpdateUnreadMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.GetReadTimeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.GetTypingUseCase
@@ -26,6 +28,8 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.sync.SyncMessageUseCase
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToInformation
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToPin
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToSearch
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.FullImage
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.MessageOption
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.None
@@ -71,6 +75,8 @@ class ChatViewModel @AssistedInject constructor(
     private val deleteMessageUseCase: DeleteMessageUseCase,
     private val updateTypingUseCase: UpdateTypingUseCase,
     private val getTypingUseCase: GetTypingUseCase,
+    private val pinMessageUseCase: PinMessageUseCase,
+    private val unPinMessageUseCase: UnPinMessageUseCase,
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
     private var currentUserReadingTime = 0L
     private var listenMessageChangeJob: Job? = null
@@ -206,14 +212,26 @@ class ChatViewModel @AssistedInject constructor(
                 }
 
                 is ChatAction.OnMessagePin -> {
-                    //TODO("Pin message)
+                    val message = _state.value.currentMessage
                     _state.reduce { copy(currentMessage = null, overlay = None) }
+
+                    message?.let {
+                        pinMessageUseCase(message = it)
+                    }
                 }
+
+                is ChatAction.OnMessageUnPin -> {
+                    val message = _state.value.currentMessage
+                    _state.reduce { copy(currentMessage = null, overlay = None) }
+                    message?.let { unPinMessageUseCase(message = it) }
+                }
+
                 ChatAction.OnUnblockUser -> {
                     unblockUserUseCase(otherUserId = otherUserId)
                 }
 
                 is ChatAction.OnImageSend -> {
+                    val repliedMessage = state.value.currentMessage
                     val validateFileResult =
                         validateFileSizeUseCase(uriPath = action.uri.toString())
                     Timber.d("DEBUG_REPLEE: Kết quả validate là: $validateFileResult")
@@ -225,11 +243,18 @@ class ChatViewModel @AssistedInject constructor(
 
                         is ValidateFileResult.Valid -> {
                             Timber.d("Call")
+                            _state.reduce {
+                                copy(
+                                    currentMessage = null,
+                                    isReplying = false
+                                )
+                            }
                             sendFileMessageUseCase(
                                 senderId = currentUserId,
                                 receiverId = otherUserId,
                                 uriPath = action.uri.toString(),
-                                conversationId
+                                conversationId = conversationId,
+                                repliedMessage = repliedMessage
                             )
                         }
 
@@ -282,6 +307,23 @@ class ChatViewModel @AssistedInject constructor(
                     updateUnreadMessageUseCase(
                         conversationId = conversationId,
                         receiverId = currentUserId
+                    )
+                }
+
+                ChatAction.OnSearchClick -> {
+                    onEvent(
+                        NavigateToSearch(
+                            conversationId = conversationId,
+                            otherUserId = otherUserId
+                        )
+                    )
+                }
+
+                ChatAction.OnPinClick -> {
+                    onEvent(
+                        NavigateToPin(
+                            conversationId = conversationId, otherUserId = otherUserId
+                        )
                     )
                 }
             }

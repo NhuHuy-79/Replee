@@ -45,7 +45,7 @@ interface ConversationDao : BaseDao<ConversationEntity> {
     suspend fun deleteConversationById(id: String)
 
     @Transaction
-    @Query("SELECT * FROM conversation WHERE ownerId = :uid ORDER BY lastMessageTime DESC")
+    @Query("SELECT * FROM conversation WHERE ownerId = :uid ORDER BY pinned DESC, lastMessageTime DESC")
     fun observeConversations(uid: String): Flow<List<ConversationAndUser>>
 
     @Query("SELECT COUNT(*) FROM conversation WHERE ownerId = :ownerId")

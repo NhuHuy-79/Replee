@@ -29,23 +29,26 @@ class FileValidator @Inject constructor(
         return try {
             val fileUri = uriPath.toUri()
             val contentResolver = context.contentResolver
+            var extension: String? = null
 
-            var extension = uriPath.substringAfterLast(".", "").lowercase()
-
-
-            Timber.d("DEBUG_REPLEE: Path là $uriPath")
-            Timber.d("DEBUG_REPLEE: Đuôi file cắt được là '$extension'")
-
-            if (extension.isEmpty()) {
-                val mimeType = contentResolver.getType(fileUri) ?: "application/octet-stream"
-                extension =
-                    MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)?.lowercase() ?: ""
+            if (fileUri.scheme == "content") {
+                val mimeType = contentResolver.getType(fileUri)
+                extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
+                Timber.d("DEBUG_REPLEE: Extension from MimeType: $extension")
             }
 
-            if (!ALLOWED_EXTENSIONS.contains(extension)) {
+            if (extension == null) {
+                val lastPart = uriPath.substringAfterLast("/")
+                if (lastPart.contains(".")) {
+                    extension = lastPart.substringAfterLast(".").lowercase()
+                    Timber.d("DEBUG_REPLEE: Extension by splitting string: $extension")
+                }
+            }
+
+            if (extension == null || !ALLOWED_EXTENSIONS.contains(extension.lowercase())) {
+                Timber.e("DEBUG_REPLEE: Extension Not Valid")
                 return ValidateFileResult.UnSupported
             }
-
 
             var fileSize = 0L
             if (fileUri.scheme == "content") {
@@ -59,30 +62,19 @@ class FileValidator @Inject constructor(
             }
 
             if (fileSize <= 0) {
-                val path = fileUri.path // Lấy đường dẫn /data/user/0/...
-                if (path != null) {
-                    val file = File(path)
-                    if (file.exists()) {
-                        fileSize = file.length()
-                    }
-                }
+                val file = File(fileUri.path ?: "")
+                if (file.exists()) fileSize = file.length()
             }
 
-            if (fileSize > MAX_FILE_SIZE) {
-                val sizeInMB = fileSize / (1024 * 1024)
-                Timber.d("FileSize: $sizeInMB MB")
-                return ValidateFileResult.FileTooLarge
+            return when {
+                fileSize > MAX_FILE_SIZE -> ValidateFileResult.FileTooLarge
+                fileSize <= 0 -> ValidateFileResult.Unknown
+                else -> ValidateFileResult.Valid
             }
 
-            if (fileSize <= 0) {
-                return ValidateFileResult.Unknown
-            }
-
-            ValidateFileResult.Valid
         } catch (e: Exception) {
             Timber.e(e)
             ValidateFileResult.Unknown
         }
-
     }
 }

@@ -7,10 +7,9 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.nhuhuy.replee.feature_chat.data.worker.CONVERSATION_ID
 import com.nhuhuy.replee.feature_chat.data.worker.SaveNewMessageWorker
+import com.nhuhuy.replee.feature_chat.data.worker.SyncMessageActionWorker
 import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
-import com.nhuhuy.replee.feature_chat.domain.model.message.Message
 import com.nhuhuy.replee.worker.sync.SyncConversationWorker
 import com.nhuhuy.replee.worker.sync.SyncFileWorker
 import com.nhuhuy.replee.worker.sync.SyncMessageWorker
@@ -22,6 +21,9 @@ const val FILE_SYNC_WORKER = "file_sync_worker"
 const val CONVERSATION_SYNC_WORKER = "conversation_sync_worker"
 const val SAVE_NEW_MESSAGE_WORKER = "save_new_message_worker"
 const val LAST_TIME_KEY = "last time key"
+const val MESSAGE_ACTION_WORKER = "message_action_worker"
+const val MESSAGE_ID = "message_id"
+const val CONVERSATION_ID = "conversationId"
 class WorkerSchedulerImp @Inject constructor(
     @ApplicationContext private val context: Context
 ) : WorkerScheduler {
@@ -78,11 +80,24 @@ class WorkerSchedulerImp @Inject constructor(
         )
     }
 
-    override fun scheduleDeleteMessage(message: Message) {
+    override fun scheduleMessageActionWorker() {
+        val request = OneTimeWorkRequestBuilder<SyncMessageActionWorker>()
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
+            )
+            .addTag(MESSAGE_ACTION_WORKER)
+            .build()
 
+        workManager.enqueueUniqueWork(
+            MESSAGE_ACTION_WORKER,
+            ExistingWorkPolicy.APPEND,
+            request
+        )
     }
 
-    override fun scheduleSaveNewMessage(conversationId: String) {
+    override fun scheduleSaveMessageWorker(conversationId: String) {
         val request = OneTimeWorkRequestBuilder<SaveNewMessageWorker>()
             .setConstraints(
                 Constraints.Builder()

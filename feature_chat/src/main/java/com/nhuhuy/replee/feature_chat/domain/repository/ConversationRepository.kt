@@ -14,7 +14,6 @@ interface ConversationRepository {
     suspend fun fetchConversations(): NetworkResult<List<Conversation>>
     fun observeLocalConversationList(ownerId: String): Flow<List<Conversation>>
     suspend fun saveConversations(conversations: List<Conversation>)
-    fun observeConversationById(conversationId: String): Flow<Conversation>
     suspend fun getOrCreateConversation(
         ownerId: String,
         otherUserId: String

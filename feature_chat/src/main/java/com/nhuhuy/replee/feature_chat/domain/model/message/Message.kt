@@ -6,7 +6,6 @@ data class Message(
     val senderId: String,
     val receiverId: String,
     val content: String,
-    val seen: Boolean,
     val sentAt: Long,
     val deleted: Boolean = false,
     val status: MessageStatus,

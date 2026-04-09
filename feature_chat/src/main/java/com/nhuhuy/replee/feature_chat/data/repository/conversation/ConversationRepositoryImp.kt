@@ -21,6 +21,7 @@ import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -42,24 +43,28 @@ class ConversationRepositoryImp @Inject constructor(
         return conversationNetworkDataSource.listenConversationChanges(
             ownerId = ownerId,
             limit = limit
-        ).map { dataChanges ->
-            val deletes = mutableListOf<String>()
-            val upserts = mutableListOf<Conversation?>()
+        )
+            .distinctUntilChanged()
+            .map { dataChanges ->
+                val deletes = mutableListOf<String>()
+                val upserts = mutableListOf<Conversation?>()
 
-            for (change in dataChanges) {
-                when (change) {
-                    is DataChange.Delete -> deletes.add(change.id)
-                    is DataChange.Upsert -> upserts.add(change.data.toConversation(ownerId))
+                for (change in dataChanges) {
+                    when (change) {
+                        is DataChange.Delete -> deletes.add(change.id)
+                        is DataChange.Upsert -> upserts.add(change.data.toConversation(ownerId))
+                    }
                 }
-            }
 
-            val mappedUpsert =
-                upserts.mapNotNull { conversation -> conversation?.toConversationEntity() }
-            conversationLocalDataSource.upsertAndDeleteConversations(
-                upsert = mappedUpsert,
-                delete = deletes,
-            )
-        }.flowOn(ioDispatcher)
+                val mappedUpsert =
+                    upserts.mapNotNull { conversation -> conversation?.toConversationEntity() }
+                conversationLocalDataSource.upsertAndDeleteConversations(
+                    upsert = mappedUpsert,
+                    delete = deletes,
+                )
+
+                Timber.d("Listen Conversation: ${dataChanges.size}")
+            }.flowOn(ioDispatcher)
     }
 
     override suspend fun fetchOtherUserInConversations(ownerId: String) {
@@ -85,23 +90,24 @@ class ConversationRepositoryImp @Inject constructor(
             val uid = sessionManager.requireUserId()
             conversationNetworkDataSource.fetchConversationsByUser(uid)
                 .mapNotNull { conversationDTO ->
-                conversationDTO.toConversation(uid)
-            }
+                    conversationDTO.toConversation(uid)
+                }
         }
     }
 
     override fun observeLocalConversationList(ownerId: String): Flow<List<Conversation>> {
-        return conversationLocalDataSource.observeConversationAndUsers(ownerId).map { entities ->
-            entities.map { entity ->
-                Timber.d("${entity.toConversation()}")
-                entity.toConversation()
-            }
-                .filterNot { conversation ->
-                    conversation.lastMessageType == MessageType.TEXT &&
-                            conversation.lastMessageContent.isBlank()
+        return conversationLocalDataSource.observeConversationAndUsers(ownerId)
+            .distinctUntilChanged()
+            .map { entities ->
+                Timber.d("Entities: ${entities.size}")
+                entities.map { entity -> entity.toConversation() }
+                    .filterNot { conversation ->
+                        conversation.lastMessageType == MessageType.TEXT &&
+                                conversation.lastMessageContent.isBlank()
 
-                }
-        }
+                    }
+            }
+            .distinctUntilChanged()
             .flowOn(ioDispatcher)
     }
 
@@ -110,14 +116,6 @@ class ConversationRepositoryImp @Inject constructor(
             conversation.toConversationEntity()
         }
         conversationLocalDataSource.upsertConversations(entities)
-    }
-
-    override fun observeConversationById(conversationId: String): Flow<Conversation> {
-        return conversationLocalDataSource.observeConversationById(conversationId)
-            .map { conversation ->
-                Timber.d("$conversation")
-                conversation?.toConversation() ?: Conversation()
-            }
     }
 
     override suspend fun getOrCreateConversation(

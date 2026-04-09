@@ -4,4 +4,6 @@ interface NotificationHelper {
     fun cancelNotification(notificationId: Int)
 
     fun cancelNotificationList(notificationIds: List<Int>)
+
+    fun removeShortcut(shortcutIds: List<String>)
 }

@@ -9,27 +9,28 @@ import jakarta.inject.Inject
 
 interface MessageActionDataSource {
     suspend fun upsertAction(action: MessageAction)
-    suspend fun getActionListWithType(action: MessageAction): List<MessageAction>
+    suspend fun getActionListWithType(type: ActionType): List<MessageAction>
     suspend fun markActionAsSynced(action: MessageAction)
     suspend fun getUnSyncedActions(action: MessageAction): List<MessageAction>
-
     suspend fun getDeletedActions(): List<MessageAction>
+    suspend fun getMessageActions(): List<MessageAction>
+    suspend fun getMessageActionsByType(actionType: ActionType): List<MessageAction>
+    suspend fun deleteMessageActionListById(actionIds: List<Long>)
 }
 
 class MessageActionDataSourceImp @Inject constructor(
     private val messageActionDao: MessageActionDao,
 ) : MessageActionDataSource {
     override suspend fun upsertAction(action: MessageAction) {
-        return messageActionDao.upsert(action.toEntity())
+        return messageActionDao.upsertMessageAction(newAction = action.toEntity())
     }
 
-    override suspend fun getActionListWithType(action: MessageAction): List<MessageAction> {
-        return messageActionDao.getMessageActionListByType(action.toEntity().actionType)
+    override suspend fun getActionListWithType(type: ActionType): List<MessageAction> {
+        return messageActionDao.getMessageActionListByType(type)
             .map { entity -> entity.toAction() }
     }
 
     override suspend fun markActionAsSynced(action: MessageAction) {
-        return messageActionDao.markActionAsSyncedByType(action.toEntity().actionType)
     }
 
     override suspend fun getUnSyncedActions(action: MessageAction): List<MessageAction> {
@@ -39,10 +40,24 @@ class MessageActionDataSourceImp @Inject constructor(
 
     override suspend fun getDeletedActions(): List<MessageAction> {
         return messageActionDao.getMessageActionListByType(
-            type = ActionType.DELETE.name
+            type = ActionType.DELETE
         ).map { entity ->
             entity.toAction()
         }
+    }
+
+    override suspend fun getMessageActions(): List<MessageAction> {
+        return messageActionDao.getMessageActions().map { it.toAction() }
+    }
+
+    override suspend fun getMessageActionsByType(actionType: ActionType): List<MessageAction> {
+        return messageActionDao.getMessageActionListByType(type = actionType).map { entity ->
+            entity.toAction()
+        }
+    }
+
+    override suspend fun deleteMessageActionListById(actionIds: List<Long>) {
+        messageActionDao.deleteMessageActionListById(actionIds)
     }
 
 }

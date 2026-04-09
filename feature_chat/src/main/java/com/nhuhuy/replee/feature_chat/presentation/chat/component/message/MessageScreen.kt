@@ -7,6 +7,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
@@ -43,11 +45,10 @@ import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.StatusContent
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.TypingItem
-import com.nhuhuy.replee.feature_chat.presentation.chat.message.MessageContainer
-import com.nhuhuy.replee.feature_chat.presentation.chat.message.MessageLayout
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(FlowPreview::class)
 @Composable
@@ -87,7 +88,7 @@ fun MessageScreen(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState,
             reverseLayout = true,
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp, alignment = Alignment.Bottom)
         ) {
             item {
                 TypingItem(
@@ -104,9 +105,15 @@ fun MessageScreen(
             ) { index ->
                 val localPathMessage = pagingItems[index] ?: return@items
                 val isMine = localPathMessage.message.senderId == currentUserId
+                Timber.d("Message: $localPathMessage")
                 val replyTo = if (localPathMessage.message.repliedMessageId == currentUserId) "You"
                 else otherUserName
                 MessageLayout(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateItem(
+                            fadeInSpec = null,
+                        ),
                     isMine = isMine,
                     showTimeContent = false,
                     userImage = {
@@ -116,11 +123,25 @@ fun MessageScreen(
                             modifier = Modifier.size(36.dp)
                         )
                     },
-                    timeContent = {
-                        Text(
-                            text = localPathMessage.message.sentAt.formatToChatTime(),
-                            style = MaterialTheme.typography.labelSmall
-                        )
+                    extraContent = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = localPathMessage.message.sentAt.formatToChatTime(),
+                                style = MaterialTheme.typography.labelSmall
+                            )
+
+                            if (localPathMessage.message.pinned) {
+                                Icon(
+                                    imageVector = Icons.Rounded.PushPin,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(12.dp)
+                                )
+                            }
+                        }
                     },
                     statusContent = {
                         StatusContent(

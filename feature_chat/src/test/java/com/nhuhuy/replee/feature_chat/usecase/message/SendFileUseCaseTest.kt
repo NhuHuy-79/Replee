@@ -51,7 +51,7 @@ class SendFileUseCaseTest {
         coEvery { fileRepository.saveFileToInternalStorage(uriPath) } returns internalUri
         coEvery { messageRepository.saveMessage(any()) } returns "random_id_from_repo"
 
-        useCase(senderId, receiverId, uriPath, conversationId)
+        useCase(repliedMessage = null, senderId, receiverId, uriPath, conversationId)
 
         coVerify {
             messageRepository.saveMessage(match {
