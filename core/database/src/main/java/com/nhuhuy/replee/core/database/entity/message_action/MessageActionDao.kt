@@ -11,6 +11,9 @@ interface MessageActionDao : BaseDao<MessageActionEntity> {
     @Query("SELECT * FROM message_modifier WHERE targetId = :targetId AND actionType = :actionType LIMIT 1")
     suspend fun getAction(targetId: String, actionType: ActionType): MessageActionEntity?
 
+    @Query("SELECT * FROM message_modifier")
+    suspend fun getMessageActions(): List<MessageActionEntity>
+
     @Insert
     suspend fun insertAction(action: MessageActionEntity)
 

@@ -13,6 +13,7 @@ interface MessageActionDataSource {
     suspend fun markActionAsSynced(action: MessageAction)
     suspend fun getUnSyncedActions(action: MessageAction): List<MessageAction>
     suspend fun getDeletedActions(): List<MessageAction>
+    suspend fun getMessageActions(): List<MessageAction>
     suspend fun getMessageActionsByType(actionType: ActionType): List<MessageAction>
     suspend fun deleteMessageActionListById(actionIds: List<Long>)
 }
@@ -43,6 +44,10 @@ class MessageActionDataSourceImp @Inject constructor(
         ).map { entity ->
             entity.toAction()
         }
+    }
+
+    override suspend fun getMessageActions(): List<MessageAction> {
+        return messageActionDao.getMessageActions().map { it.toAction() }
     }
 
     override suspend fun getMessageActionsByType(actionType: ActionType): List<MessageAction> {

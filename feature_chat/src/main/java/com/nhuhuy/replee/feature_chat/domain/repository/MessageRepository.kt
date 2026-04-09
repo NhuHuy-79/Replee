@@ -20,6 +20,16 @@ interface MessageRepository {
     fun observeLocalMessagesWithQuery(conversationId: String, query: String): Flow<List<Message>>
 
     // --- UPDATE ---
+    suspend fun pinMultipleRemoteMessage(
+        messages: List<Message>,
+        pinned: Boolean
+    ): NetworkResult<Unit>
+
+    suspend fun updatePinStatusMessage(
+        conversationId: String,
+        messageId: String,
+        pinned: Boolean
+    ): NetworkResult<String>
     suspend fun updateRemoteUrlMessage(
         messageId: String,
         remoteUrl: String,
@@ -37,4 +47,5 @@ interface MessageRepository {
     ): NetworkResult<Unit>
 
     fun listenMessageChanges(conversationId: String): Flow<Unit>
+    fun observePinnedMessages(conversationId: String): Flow<List<Message>>
 }

@@ -15,6 +15,7 @@ data class MessageDTO(
     val content: String = "",
     @ServerTimestamp
     val sendAt: Timestamp? = null,
+    val pinned: Boolean = false,
     val type: MessageType = MessageType.TEXT,
     val status: MessageStatus = MessageStatus.SYNCED,
     val url: String? = null,

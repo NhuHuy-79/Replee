@@ -15,11 +15,12 @@ sealed interface ChatAction : UiAction{
     object OnBackClick: ChatAction
     data object OnUnblockUser : ChatAction
     data object OnMoreClick: ChatAction
+    data object OnPinClick : ChatAction
     data object OnDismiss : ChatAction
     data class OnImagePress(val urlKey: String) : ChatAction
     data object OnMessageDelete : ChatAction
     data object OnMessagePin : ChatAction
-
+    data object OnMessageUnPin : ChatAction
     data object OnNewMessageTrigger : ChatAction
 
 }

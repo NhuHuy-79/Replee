@@ -10,7 +10,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Reply
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.design_system.component.SheetContainer
 import com.nhuhuy.replee.feature_chat.R
@@ -32,6 +32,7 @@ fun MessageSheet(
     message: Message,
     onDismiss: () -> Unit,
     onMessagePin: () -> Unit,
+    onMessageUnPin: () -> Unit,
     onMessageDelete: () -> Unit,
     onMessageCopy: () -> Unit,
     onMessageReply: () -> Unit,
@@ -54,9 +55,13 @@ fun MessageSheet(
         )
 
         MessageSheetOption(
-            headingIcon = Icons.Rounded.PushPin,
-            text = stringResource(R.string.message_sheet_pin),
-            onClick = onMessagePin
+            headingIcon = ImageVector.vectorResource(
+                id = if (message.pinned) R.drawable.ic_keep_off else R.drawable.ic_keep
+            ),
+            text = stringResource(
+                id = if (message.pinned) R.string.message_sheet_unpin else R.string.message_sheet_pin
+            ),
+            onClick = if (message.pinned) onMessageUnPin else onMessagePin
         )
 
         if (message.senderId == currentUserId) {

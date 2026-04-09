@@ -99,6 +99,12 @@ class MessageRepositoryImp @Inject constructor(
             .flowOn(ioDispatcher)
     }
 
+    override fun observePinnedMessages(conversationId: String): Flow<List<Message>> {
+        return messageLocalDataSource.observePinnedMessages(conversationId).map { entities ->
+            entities.map { entity -> entity.toMessage() }
+        }
+    }
+
     override fun observeLocalMessagesWithQuery(
         conversationId: String,
         query: String
@@ -113,7 +119,40 @@ class MessageRepositoryImp @Inject constructor(
         }.flowOn(ioDispatcher)
     }
 
+    override suspend fun updatePinStatusMessage(
+        conversationId: String,
+        messageId: String,
+        pinned: Boolean
+    ): NetworkResult<String> {
+        return executeWithTimeout(ioDispatcher) {
+            messageLocalDataSource.updatePinStatus(
+                messageId = messageId,
+                pinned = pinned
+            )
+
+            messageNetworkDataSource.updatePinStatus(
+                conversationId = conversationId,
+                messageId = messageId,
+                pinned = pinned
+            )
+
+            messageId
+        }
+    }
+
     // --- UPDATE  ---
+
+    override suspend fun pinMultipleRemoteMessage(
+        messages: List<Message>,
+        pinned: Boolean
+    ): NetworkResult<Unit> {
+        return executeWithTimeout(ioDispatcher) {
+            messageNetworkDataSource.pinMultipleMessage(
+                messages = messages.map { it.toMessageDTO() },
+                pinned = pinned
+            )
+        }
+    }
 
     override suspend fun updateRemoteUrlMessage(
         messageId: String,

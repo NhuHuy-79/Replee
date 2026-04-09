@@ -31,15 +31,9 @@ class MessageActionRepositoryImp @Inject constructor(
         }
     }
 
-    override suspend fun getUnSyncedActions(action: MessageAction): List<MessageAction> {
+    override suspend fun getUnSyncedActions(): List<MessageAction> {
         return withContext(ioDispatcher) {
-            messageActionLocalDataSource.getUnSyncedActions(action)
-        }
-    }
-
-    override suspend fun getDeletedActions(): List<MessageAction> {
-        return withContext(ioDispatcher) {
-            messageActionLocalDataSource.getDeletedActions()
+            messageActionLocalDataSource.getMessageActions()
         }
     }
 

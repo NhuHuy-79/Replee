@@ -12,7 +12,8 @@ import kotlinx.coroutines.flow.Flow
 interface MessageDao : BaseDao<MessageEntity> {
 
     // --- READ (Lấy dữ liệu) ---
-
+    @Query("SELECT * FROM message WHERE conversationId = :conversationId AND pinned = 1 ORDER BY sentAt DESC ")
+    fun observePinnedMessages(conversationId: String): Flow<List<MessageEntity>>
     @Query("SELECT * FROM message WHERE conversationId = :conversationId")
     suspend fun getMessageByConversationId(conversationId: String): List<MessageEntity>
 
@@ -49,7 +50,8 @@ interface MessageDao : BaseDao<MessageEntity> {
 
 
     // --- UPDATE  ---
-
+    @Query("UPDATE message SET pinned = :pinned WHERE messageId = :messageId")
+    suspend fun updatePinStatus(messageId: String, pinned: Boolean)
     @Query("UPDATE message SET status = :status WHERE messageId in (:messageIds)")
     suspend fun updateStatusOfMessages(messageIds: List<String>, status: String)
 

@@ -20,6 +20,11 @@ import timber.log.Timber
 import javax.inject.Inject
 
 interface MessageNetworkDataSource {
+    suspend fun updatePinStatus(
+        conversationId: String,
+        messageId: String,
+        pinned: Boolean
+    )
     suspend fun updateReceiverMessageStatus(
         conversationId: String,
         status: MessageStatus,
@@ -27,7 +32,7 @@ interface MessageNetworkDataSource {
     )
 
     suspend fun deleteMultipleMessage(messages: List<MessageDTO>)
-
+    suspend fun pinMultipleMessage(messages: List<MessageDTO>, pinned: Boolean)
     suspend fun fetchMessagesInConversationByTimestamp(
         conversationId: String,
         timestamp: Long
@@ -70,6 +75,18 @@ class MessageNetworkDataSourceImp @Inject constructor(
     private val firestore: FirebaseFirestore
 ) : MessageNetworkDataSource {
     private val collection = firestore.collection(Constant.Firestore.CONVERSATION_COLLECTION)
+    override suspend fun updatePinStatus(
+        conversationId: String,
+        messageId: String,
+        pinned: Boolean
+    ) {
+        collection.document(conversationId)
+            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            .document(messageId)
+            .update("pinned", pinned)
+            .await()
+    }
+
     override suspend fun updateReceiverMessageStatus(
         conversationId: String,
         status: MessageStatus,
@@ -134,6 +151,28 @@ class MessageNetworkDataSourceImp @Inject constructor(
                                 lastDeletedMessageId
                             )
                         }
+                    }
+                }.await()
+            }
+        )
+    }
+
+    override suspend fun pinMultipleMessage(messages: List<MessageDTO>, pinned: Boolean) {
+        optimizedWrite(
+            items = messages,
+            singleWrite = { message ->
+                updatePinStatus(message.conversationId, message.messageId, true)
+            },
+            batchWrite = {
+                firestore.runBatch { batch ->
+                    for (message in messages) {
+                        batch.update(
+                            collection.document(message.conversationId)
+                                .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+                                .document(message.messageId),
+                            "pinned",
+                            pinned
+                        )
                     }
                 }.await()
             }

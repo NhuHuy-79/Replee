@@ -21,7 +21,7 @@ fun MessageLayout(
     isMine: Boolean,
     showTimeContent: Boolean,
     userImage: @Composable () -> Unit,
-    timeContent: @Composable () -> Unit,
+    extraContent: @Composable () -> Unit,
     messageContent: @Composable () -> Unit,
     statusContent: @Composable RowScope.() -> Unit,
 ) {
@@ -33,7 +33,7 @@ fun MessageLayout(
         AnimatedVisibility(
             visible = showTimeContent
         ) {
-            timeContent()
+            extraContent()
         }
 
         Row(
@@ -50,7 +50,7 @@ fun MessageLayout(
                 modifier = Modifier,
                 horizontalAlignment = if (!isMine) Alignment.Start else Alignment.End
             ) {
-                timeContent()
+                extraContent()
                 Spacer(Modifier.height(4.dp))
                 messageContent()
             }

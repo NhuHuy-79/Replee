@@ -7,8 +7,8 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.nhuhuy.replee.feature_chat.data.worker.DeleteMessageWorker
 import com.nhuhuy.replee.feature_chat.data.worker.SaveNewMessageWorker
+import com.nhuhuy.replee.feature_chat.data.worker.SyncMessageActionWorker
 import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
 import com.nhuhuy.replee.worker.sync.SyncConversationWorker
 import com.nhuhuy.replee.worker.sync.SyncFileWorker
@@ -81,7 +81,7 @@ class WorkerSchedulerImp @Inject constructor(
     }
 
     override fun scheduleMessageActionWorker() {
-        val request = OneTimeWorkRequestBuilder<DeleteMessageWorker>()
+        val request = OneTimeWorkRequestBuilder<SyncMessageActionWorker>()
             .setConstraints(
                 Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)

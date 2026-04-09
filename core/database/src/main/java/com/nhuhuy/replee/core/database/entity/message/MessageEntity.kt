@@ -19,7 +19,7 @@ import com.nhuhuy.replee.core.database.entity.conversation.ConversationEntity
             onUpdate = CASCADE
         )
     ],
-    indices = [Index(value = ["conversationId", "sentAt"])]
+    indices = [Index(value = ["conversationId", "sentAt"]), Index(value = ["conversationId", "pinned"])]
 )
 data class MessageEntity(
     val conversationId: String,
@@ -28,6 +28,7 @@ data class MessageEntity(
     val senderId: String,
     val receiverId: String,
     val content: String,
+    val pinned: Boolean,
     val deleted: Boolean,
     val sentAt: Long? = null,
     val type: String = "TEXT",

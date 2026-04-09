@@ -34,11 +34,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -115,6 +117,9 @@ fun ChatScreen(
                 },
                 onSearchClick = {
                     onAction(ChatAction.OnSearchClick)
+                },
+                onPinClick = {
+                    onAction(ChatAction.OnPinClick)
                 },
                 onMoreClick = {
                     onAction(ChatAction.OnMoreClick)
@@ -222,6 +227,9 @@ fun ChatScreen(
                     onMessagePin = {
                         onAction(ChatAction.OnMessagePin)
                     },
+                    onMessageUnPin = {
+                        onAction(ChatAction.OnMessageUnPin)
+                    },
                     onMessageReply = {
                         onAction(ChatAction.OnMessageReply)
                     },
@@ -252,6 +260,7 @@ fun ChatTopBar(
     modifier: Modifier = Modifier,
     otherUserName: String,
     enable: Boolean = true,
+    onPinClick: () -> Unit,
     onBackClick: () -> Unit,
     onSearchClick: () -> Unit,
     onMoreClick: () -> Unit,
@@ -276,6 +285,16 @@ fun ChatTopBar(
             }
         },
         actions = {
+            IconButton(
+                enabled = enable,
+                onClick = onPinClick
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_pin_board),
+                    contentDescription = null
+                )
+            }
+
             IconButton(
                 enabled = enable,
                 onClick = onSearchClick

@@ -7,8 +7,7 @@ interface MessageActionRepository {
     suspend fun upsertAction(action: MessageAction)
     suspend fun getActionListWithType(type: ActionType): List<MessageAction>
     suspend fun markActionAsSynced(action: MessageAction)
-    suspend fun getUnSyncedActions(action: MessageAction): List<MessageAction>
-    suspend fun getDeletedActions(): List<MessageAction>
+    suspend fun getUnSyncedActions(): List<MessageAction>
     suspend fun deleteMessageActionListById(actionIds: List<Long>)
 }
 
