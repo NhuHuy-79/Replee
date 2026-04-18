@@ -41,6 +41,8 @@ sealed interface HomeDestination : NavKey {
     data class Chat(
         val ownerId: String,
         val otherUserId: String,
+        val anchorSendAt: Long? = null,
+        val anchorMessageId: String? = null
     ) : HomeDestination
 
     @Serializable
@@ -120,7 +122,9 @@ fun EntryProviderScope<NavKey>.chatGraph(
             creationCallback = { factory: ChatViewModel.Factory ->
                 factory.create(
                     currentUserId = screen.ownerId,
-                    otherUserId = screen.otherUserId
+                    otherUserId = screen.otherUserId,
+                    anchorLastTime = screen.anchorSendAt,
+                    anchorMessageId = screen.anchorMessageId
                 )
             }
         )
@@ -246,6 +250,16 @@ fun EntryProviderScope<NavKey>.chatGraph(
         ObserveEffect(searchViewModel.event) { event ->
             when (event) {
                 SearchEvent.NavigateBack -> backstack.removeLastOrNull()
+                is SearchEvent.NavigateToMessage -> {
+                    backstack.add(
+                        HomeDestination.Chat(
+                            ownerId = event.currentUserId,
+                            otherUserId = screen.otherUserId,
+                            anchorSendAt = event.anchorSendAt,
+                            anchorMessageId = event.anchorMessageId
+                        )
+                    )
+                }
             }
         }
 

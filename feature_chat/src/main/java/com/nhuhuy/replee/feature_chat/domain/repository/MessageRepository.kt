@@ -16,7 +16,11 @@ interface MessageRepository {
     // --- READ / OBSERVE ---
     suspend fun getMessageListById(messageIds: List<String>): List<Message>
     suspend fun getNewestMessageInConversation(conversationId: String): Message?
-    fun observeLocalMessageWithPaging(conversationId: String): Flow<PagingData<LocalPathMessage>>
+    fun observeLocalMessageWithPaging(
+        anchorMessageId: String? = null,
+        anchorTimestamp: Long? = null,
+        conversationId: String
+    ): Flow<PagingData<LocalPathMessage>>
     fun observeLocalMessagesWithQuery(conversationId: String, query: String): Flow<List<Message>>
 
     // --- UPDATE ---

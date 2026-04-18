@@ -9,7 +9,15 @@ import javax.inject.Inject
 class ObserveLocalMessagesUseCase @Inject constructor(
     private val messageRepository: MessageRepository
 ) {
-    operator fun invoke(conversationId: String): Flow<PagingData<LocalPathMessage>> {
-        return messageRepository.observeLocalMessageWithPaging(conversationId)
+    operator fun invoke(
+        id: String? = null,
+        anchor: Long? = null,
+        conversationId: String
+    ): Flow<PagingData<LocalPathMessage>> {
+        return messageRepository.observeLocalMessageWithPaging(
+            anchorMessageId = id,
+            anchorTimestamp = anchor,
+            conversationId = conversationId
+        )
     }
 }

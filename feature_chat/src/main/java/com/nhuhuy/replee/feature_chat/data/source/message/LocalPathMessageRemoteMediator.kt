@@ -8,94 +8,148 @@ import androidx.room.withTransaction
 import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.database.entity.file_path.MessageWithLocalPath
 import com.nhuhuy.replee.core.database.entity.pager.MessageRemoteKey
-import com.nhuhuy.replee.core.network.utils.toMilliseconds
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
 import timber.log.Timber
 
 @OptIn(ExperimentalPagingApi::class)
 class LocalPathMessageRemoteMediator(
+    private val anchorTimestamp: Long? = null,
+    private val anchorMessageId: String? = null,
     private val conversationId: String,
     private val coreDatabase: CoreDatabase,
     private val messageNetworkDataSource: MessageNetworkDataSource,
 ) : RemoteMediator<Int, MessageWithLocalPath>() {
+
     private val messageDao = coreDatabase.provideMessageDao()
     private val messageKeyDao = coreDatabase.provideMessageRemoteKeyDao()
+
     override suspend fun load(
         loadType: LoadType,
         state: PagingState<Int, MessageWithLocalPath>
     ): MediatorResult {
+        Timber.d("Mediator: START LOAD - Type: $loadType, Anchor: $anchorTimestamp")
         return try {
-            val loadSize = when (loadType) {
-                LoadType.REFRESH -> state.config.initialLoadSize
-                LoadType.APPEND -> state.config.pageSize
-                LoadType.PREPEND -> return MediatorResult.Success(true)
-            }
-
             val remoteKey = messageKeyDao.get(conversationId)
 
-            Timber.d("Paging config pageSize=${state.config.pageSize}, initialLoadSize=${state.config.initialLoadSize}")
-            Timber.d("Remote Key: $remoteKey")
+            // If is first time, fetch by initialLoadSize else pageSize.
+            val limit =
+                if (loadType == LoadType.REFRESH) state.config.initialLoadSize else state.config.pageSize
 
-            val startAfterCreatedAt = when (loadType) {
-                LoadType.APPEND -> remoteKey?.oldestCreatedAt
-                else -> null
+            val remoteMessages = when (loadType) {
+                LoadType.REFRESH -> {
+                    if (anchorTimestamp != null) {
+                        messageNetworkDataSource.fetchMessagesAroundAnchor(
+                            conversationId = conversationId,
+                            anchorTimestamp = anchorTimestamp,
+                            limit = limit,
+                            anchorMessageId = anchorMessageId
+                        )
+                    } else {
+                        messageNetworkDataSource.fetchMessagesPage(
+                            conversationId = conversationId,
+                            limit = limit,
+                            startAfterCreatedAt = null,
+                            startAfterMessageId = null
+                        )
+                    }
+                }
+
+                LoadType.APPEND -> {
+                    // If this is end of Paging, stop loading more.
+                    if (remoteKey?.endReached == true) return MediatorResult.Success(true)
+                    Timber.d("APPEND: Loading messages older than ${remoteKey?.oldestCreatedAt}")
+                    //else fetch next page
+                    messageNetworkDataSource.fetchMessagesPage(
+                        conversationId = conversationId,
+                        limit = limit,
+                        startAfterCreatedAt = remoteKey?.oldestCreatedAt,
+                        startAfterMessageId = remoteKey?.oldestMessageId
+                    )
+                }
+
+                LoadType.PREPEND -> {
+                    // When user need to scroll more below in chat screen, if this is firstTime or early message is downloaded,
+                    //then return success
+                    if (anchorTimestamp == null || remoteKey?.startReached == true) {
+                        return MediatorResult.Success(true)
+                    }
+
+                    // else fetch Newest Message
+                    messageNetworkDataSource.fetchNewerMessagesPage(
+                        conversationId = conversationId,
+                        limit = limit,
+                        startAfterCreatedAt = remoteKey?.newestCreatedAt,
+                        startAfterMessageId = remoteKey?.newestMessageId
+                    )
+                }
             }
 
-            val startAfterMessageId = when (loadType) {
-                LoadType.APPEND -> remoteKey?.oldestMessageId
-                else -> null
+            Timber.d("Mediator: Fetched ${remoteMessages.size} messages")
+
+            val isDataEmpty = remoteMessages.size < limit
+
+            val endReached = when (loadType) {
+                LoadType.APPEND -> isDataEmpty
+                LoadType.REFRESH -> isDataEmpty
+                else -> remoteKey?.endReached ?: false
             }
 
-            Timber.d("cursor startAfterCreatedAt=$startAfterCreatedAt startAfterMessageId=$startAfterMessageId")
+            val startReached = when (loadType) {
+                LoadType.PREPEND -> isDataEmpty
+                LoadType.REFRESH -> {
+                    anchorTimestamp == null || isDataEmpty
+                }
 
-            if (loadType == LoadType.APPEND && remoteKey?.endReached == true) {
-                return MediatorResult.Success(endOfPaginationReached = true)
+                else -> remoteKey?.startReached ?: false
             }
-
-            val remoteMessages = messageNetworkDataSource.fetchMessagesPage(
-                conversationId = conversationId,
-                limit = loadSize,
-                startAfterCreatedAt = startAfterCreatedAt,
-                startAfterMessageId = startAfterMessageId
-            )
-            Timber.d("remoteMessages size=${remoteMessages.size}")
-
-            val endReached = remoteMessages.size < loadSize
-
             val dTOs = remoteMessages.map { it.toMessage().toMessageEntity() }
-
-            val last = remoteMessages.lastOrNull()
-
-            Timber.d("endReached=$endReached")
-            Timber.d("newCursor oldestCreatedAt=${last?.sendAt}, oldestMessageId=${last?.messageId}")
 
             coreDatabase.withTransaction {
                 if (loadType == LoadType.REFRESH) {
-                    messageKeyDao.clear(conversationId)
+                    val localLatest = messageDao.getLatestMessage(conversationId)
+                    val localLatestTimestamp = localLatest?.sentAt ?: -1
+                    val isGap =
+                        anchorTimestamp != null || (localLatest != null && (dTOs.lastOrNull()?.sentAt
+                            ?: 0) > localLatestTimestamp)
+
+                    if (isGap) {
+                        Timber.d("Mediator: Clearing local data due to gap/anchor")
+                        messageDao.clearByConversationId(conversationId)
+                        messageKeyDao.clear(conversationId)
+                    }
                 }
 
-                messageDao.upsertAndDeleteMessages(
-                    networkMessages = dTOs,
-                    deleteIds = emptyList()
-                )
+                messageDao.upsertAndDeleteMessages(networkMessages = dTOs, deleteIds = emptyList())
+
+                val currentKey = messageKeyDao.get(conversationId)
+                val oldest = dTOs.lastOrNull()
+                val newest = dTOs.firstOrNull()
 
                 messageKeyDao.upsert(
                     MessageRemoteKey(
                         conversationId = conversationId,
-                        oldestCreatedAt = last?.sendAt?.toMilliseconds(),
-                        oldestMessageId = last?.messageId,
-                        endReached = endReached
+                        oldestCreatedAt = oldest?.sentAt ?: currentKey?.oldestCreatedAt,
+                        oldestMessageId = oldest?.messageId ?: currentKey?.oldestMessageId,
+                        newestCreatedAt = newest?.sentAt ?: currentKey?.newestCreatedAt,
+                        newestMessageId = newest?.messageId ?: currentKey?.newestMessageId,
+                        endReached = endReached,
+                        startReached = startReached
                     )
                 )
             }
 
-            MediatorResult.Success(endOfPaginationReached = endReached)
+            val resultEndOfPagination = when (loadType) {
+                LoadType.APPEND -> endReached
+                LoadType.PREPEND -> startReached
+                LoadType.REFRESH -> false
+            }
+
+            MediatorResult.Success(endOfPaginationReached = resultEndOfPagination)
 
         } catch (e: Exception) {
-            Timber.e(e)
+            Timber.e(e, "Mediator: Error")
             MediatorResult.Error(e)
         }
     }
-
 }

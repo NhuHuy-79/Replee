@@ -33,6 +33,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -48,7 +49,6 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.component.TypingItem
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @OptIn(FlowPreview::class)
 @Composable
@@ -64,6 +64,7 @@ fun MessageScreen(
     pagingItems: LazyPagingItems<LocalPathMessage>,
 ) {
     val scope = rememberCoroutineScope()
+    LocalWindowInfo.current.containerSize.width.dp
 
     val isAtBottom by remember {
         derivedStateOf {
@@ -105,15 +106,12 @@ fun MessageScreen(
             ) { index ->
                 val localPathMessage = pagingItems[index] ?: return@items
                 val isMine = localPathMessage.message.senderId == currentUserId
-                Timber.d("Message: $localPathMessage")
                 val replyTo = if (localPathMessage.message.repliedMessageId == currentUserId) "You"
                 else otherUserName
                 MessageLayout(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .animateItem(
-                            fadeInSpec = null,
-                        ),
+                        .animateItem(fadeInSpec = null),
                     isMine = isMine,
                     showTimeContent = false,
                     userImage = {

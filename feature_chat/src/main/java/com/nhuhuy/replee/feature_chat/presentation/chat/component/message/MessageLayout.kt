@@ -47,7 +47,7 @@ fun MessageLayout(
             }
 
             Column(
-                modifier = Modifier,
+                modifier = Modifier.fillMaxWidth(0.6f),
                 horizontalAlignment = if (!isMine) Alignment.Start else Alignment.End
             ) {
                 extraContent()

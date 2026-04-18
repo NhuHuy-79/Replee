@@ -25,5 +25,8 @@ data class MessageRemoteKey(
     val conversationId: String,
     val oldestCreatedAt: Long?,
     val oldestMessageId: String?,
-    val endReached: Boolean
+    val newestCreatedAt: Long?,
+    val newestMessageId: String?,
+    val endReached: Boolean,
+    val startReached: Boolean = false,
 )

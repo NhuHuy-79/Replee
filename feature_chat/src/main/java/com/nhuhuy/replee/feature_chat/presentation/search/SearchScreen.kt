@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.feature_chat.presentation.search
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -74,6 +75,9 @@ fun SearchScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
+                        .clickable {
+                            onAction(SearchAction.OnMessagePress(message))
+                        }
                         .animateItem(),
                     message = message,
                     senderName = sender.name,

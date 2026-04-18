@@ -29,6 +29,16 @@ interface MessageDao : BaseDao<MessageEntity> {
     @Query("SELECT * FROM message WHERE type = :messageType AND status = 'FAILED'")
     suspend fun getUnSyncedMessageByType(messageType: String): List<MessageEntity>
 
+    @Query(
+        """
+        SELECT * FROM message 
+        WHERE conversationId = :conversationId 
+        ORDER BY sentAt DESC 
+        LIMIT 1
+    """
+    )
+    suspend fun getLatestMessage(conversationId: String): MessageEntity?
+
     @Transaction
     @Query("SELECT * FROM message WHERE conversationId = :conversationId AND deleted = 0 ORDER BY sentAt DESC")
     fun getMessagesPagingSource(conversationId: String): PagingSource<Int, MessageWithLocalPath>

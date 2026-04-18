@@ -1,22 +1,27 @@
 package com.nhuhuy.replee.feature_chat.data.source.message
 
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
-import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.toObjects
 import com.nhuhuy.replee.core.network.model.Constant
+import com.nhuhuy.replee.core.network.model.Constant.Firestore.MESSAGE_SUBCOLLECTION
 import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.core.network.model.observeMultipleDataChanges
 import com.nhuhuy.replee.core.network.utils.optimizedWrite
+import com.nhuhuy.replee.core.network.utils.toMilliseconds
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
+import java.util.Date
 import javax.inject.Inject
 
 interface MessageNetworkDataSource {
@@ -69,6 +74,19 @@ interface MessageNetworkDataSource {
     ): List<MessageDTO>
 
     fun streamMessageListByConversationId(conversationId: String): Flow<List<MessageDTO>>
+    suspend fun fetchMessagesAroundAnchor(
+        conversationId: String,
+        anchorMessageId: String?,
+        anchorTimestamp: Long,
+        limit: Int
+    ): List<MessageDTO>
+
+    suspend fun fetchNewerMessagesPage(
+        conversationId: String,
+        limit: Int,
+        startAfterCreatedAt: Long?,
+        startAfterMessageId: String?
+    ): List<MessageDTO>
 }
 
 class MessageNetworkDataSourceImp @Inject constructor(
@@ -81,7 +99,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
         pinned: Boolean
     ) {
         collection.document(conversationId)
-            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            .collection(MESSAGE_SUBCOLLECTION)
             .document(messageId)
             .update("pinned", pinned)
             .await()
@@ -93,7 +111,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
         receiverId: String
     ) {
         val snapshots = collection.document(conversationId)
-            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            .collection(MESSAGE_SUBCOLLECTION)
             .whereEqualTo("receiverId", receiverId)
             .whereEqualTo("status", MessageStatus.SYNCED.name)
             .get()
@@ -136,7 +154,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
                         val conversationRef = collection.document(conversationId)
                         messages.forEach { dto ->
                             val messageRef = conversationRef
-                                .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+                                .collection(MESSAGE_SUBCOLLECTION)
                                 .document(dto.messageId)
 
                             batch.delete(messageRef)
@@ -158,6 +176,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
     }
 
     override suspend fun pinMultipleMessage(messages: List<MessageDTO>, pinned: Boolean) {
+        val context = currentCoroutineContext()
         optimizedWrite(
             items = messages,
             singleWrite = { message ->
@@ -166,9 +185,10 @@ class MessageNetworkDataSourceImp @Inject constructor(
             batchWrite = {
                 firestore.runBatch { batch ->
                     for (message in messages) {
+                        context.ensureActive()
                         batch.update(
                             collection.document(message.conversationId)
-                                .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+                                .collection(MESSAGE_SUBCOLLECTION)
                                 .document(message.messageId),
                             "pinned",
                             pinned
@@ -189,7 +209,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
         )
         collection.document(message.conversationId).apply {
             update(data).await()
-            collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            collection(MESSAGE_SUBCOLLECTION)
                 .document(message.messageId)
                 .set(message)
                 .await()
@@ -210,7 +230,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
             singleWrite = { message ->
                 val ref = collection
                     .document(message.conversationId)
-                    .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+                    .collection(MESSAGE_SUBCOLLECTION)
                     .document(message.messageId)
 
                 ref.set(message).await()
@@ -222,7 +242,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
                     messages.forEach { message ->
                         val ref = collection
                             .document(message.conversationId)
-                            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+                            .collection(MESSAGE_SUBCOLLECTION)
                             .document(message.messageId)
 
                         batch.set(ref, message, SetOptions.merge())
@@ -239,7 +259,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
 
     override suspend fun fetchMessagesByConversationId(conversationId: String): List<MessageDTO> {
         val snapshot = collection.document(conversationId)
-            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            .collection(MESSAGE_SUBCOLLECTION)
             .get()
             .await()
 
@@ -250,7 +270,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
         firestore.runBatch { batch ->
             val conversationRef = collection.document(conversationId)
             val messageRef = conversationRef
-                .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+                .collection(MESSAGE_SUBCOLLECTION)
                 .document(messageId)
             batch.delete(messageRef)
             batch.update(conversationRef, "lastDeletedMessageId", messageId)
@@ -265,8 +285,10 @@ class MessageNetworkDataSourceImp @Inject constructor(
     ): Int {
         if (messageIds.isEmpty()) return 0
 
+        val context = currentCoroutineContext()
+
         val messageCollection = collection.document(conversationId)
-            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            .collection(MESSAGE_SUBCOLLECTION)
 
         val refs = messageIds.map { msgId ->
             messageCollection.document(msgId)
@@ -281,6 +303,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
             batchWrite = { chunkRefs ->
                 firestore.runBatch { batch ->
                     for (ref in chunkRefs) {
+                        context.ensureActive()
                         val data = mapOf("status" to status.name)
                         batch.set(ref, data, SetOptions.merge())
                     }
@@ -302,7 +325,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
         val messageCollection = firestore
             .collection(Constant.Firestore.CONVERSATION_COLLECTION)
             .document(conversationId)
-            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            .collection(MESSAGE_SUBCOLLECTION)
 
         val updateData = mapOf("seen" to true)
         val chunks = messageIds.distinct().chunked(500)
@@ -319,7 +342,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
 
     override fun listenMessageChangesByConversationId(conversationId: String): Flow<List<DataChange<MessageDTO>>> {
         val query = collection.document(conversationId)
-            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            .collection(MESSAGE_SUBCOLLECTION)
             .orderBy("sendAt", Query.Direction.DESCENDING)
             .limit(30)
         return query.observeMultipleDataChanges()
@@ -330,7 +353,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
         limit: Int
     ): Flow<List<DataChange<MessageDTO>>> {
         val query = collection.document(conversationId)
-            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            .collection(MESSAGE_SUBCOLLECTION)
             .orderBy("sendAt", Query.Direction.DESCENDING)
             .limit(limit.toLong())
         return query.observeMultipleDataChanges()
@@ -342,31 +365,31 @@ class MessageNetworkDataSourceImp @Inject constructor(
         startAfterCreatedAt: Long?,
         startAfterMessageId: String?
     ): List<MessageDTO> {
+        Timber.d("DataSource: fetchMessagesPage - conversationId: $conversationId, limit: $limit, startAfterCreatedAt: $startAfterCreatedAt, startAfterMessageId: $startAfterMessageId")
 
         val baseQuery = collection.document(conversationId)
-            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+            .collection(MESSAGE_SUBCOLLECTION)
             .orderBy("sendAt", Query.Direction.DESCENDING)
             .orderBy(FieldPath.documentId(), Query.Direction.DESCENDING)
             .limit(limit.toLong())
 
         val finalQuery = if (startAfterCreatedAt != null && startAfterMessageId != null) {
-            baseQuery.startAfter(startAfterCreatedAt, startAfterMessageId)
+            baseQuery.startAfter(Timestamp(Date(startAfterCreatedAt)), startAfterMessageId)
         } else {
             baseQuery
         }
 
         val snapshot = finalQuery.get().await()
-
-        return snapshot.documents.mapNotNull { doc ->
-            doc.toObject<MessageDTO>()
-        }
+        val result = snapshot.toObjects<MessageDTO>()
+        Timber.d("DataSource: fetchMessagesPage - Found ${result.size} messages")
+        return result
     }
 
     override fun streamMessageListByConversationId(conversationId: String): Flow<List<MessageDTO>> {
         return callbackFlow {
             val listener = collection
                 .document(conversationId)
-                .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+                .collection(MESSAGE_SUBCOLLECTION)
                 .orderBy("sendAt", Query.Direction.DESCENDING)
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
@@ -381,13 +404,79 @@ class MessageNetworkDataSourceImp @Inject constructor(
         }
     }
 
+    override suspend fun fetchMessagesAroundAnchor(
+        conversationId: String,
+        anchorMessageId: String?,
+        anchorTimestamp: Long,
+        limit: Int
+    ): List<MessageDTO> {
+        val halfLimit = limit / 2
+        val anchor = Timestamp(Date(anchorTimestamp))
+
+        if (anchorMessageId == null) {
+            Timber.d("DataSource: fetchMessagesAroundAnchor - No anchorMessageId provided")
+            return emptyList()
+        }
+
+        // 1. Lấy những tin cũ hơn hoặc bằng Anchor (Sắp xếp Giảm dần)
+        val olderQuery = collection.document(conversationId)
+            .collection(MESSAGE_SUBCOLLECTION)
+            /* .whereLessThanOrEqualTo("sendAt", anchor)*/
+            .orderBy("sendAt", Query.Direction.DESCENDING)
+            .orderBy(FieldPath.documentId(), Query.Direction.DESCENDING)
+            .startAt(anchor, anchorMessageId)
+            .limit(halfLimit.toLong())
+            .get().await()
+
+        // 2. Lấy những tin mới hơn Anchor (Sắp xếp Tăng dần)
+        val newerQuery = collection.document(conversationId)
+            .collection(MESSAGE_SUBCOLLECTION)
+            .orderBy("sendAt", Query.Direction.ASCENDING)
+            .orderBy(FieldPath.documentId(), Query.Direction.ASCENDING)
+            .startAfter(anchor, anchorMessageId)
+            .limit(halfLimit.toLong())
+            .get().await()
+
+        val olderMessages = olderQuery.toObjects(MessageDTO::class.java)
+        val newerMessages = newerQuery.toObjects(MessageDTO::class.java)
+
+        Timber.d("DataSource: fetchMessagesAroundAnchor - Found ${olderMessages.size} older, ${newerMessages.size} newer")
+
+        return (newerMessages + olderMessages).sortedByDescending { it.sendAt?.toMilliseconds() }
+    }
+
+    override suspend fun fetchNewerMessagesPage(
+        conversationId: String,
+        limit: Int,
+        startAfterCreatedAt: Long?,
+        startAfterMessageId: String?
+    ): List<MessageDTO> {
+        Timber.d("DataSource: fetchNewerMessagesPage - conversationId: $conversationId, limit: $limit, startAfterCreatedAt: $startAfterCreatedAt, startAfterMessageId: $startAfterMessageId")
+
+        var query = collection.document(conversationId)
+            .collection(MESSAGE_SUBCOLLECTION)
+            .orderBy("sendAt", Query.Direction.ASCENDING)
+            .orderBy(FieldPath.documentId(), Query.Direction.ASCENDING)
+
+        if (startAfterCreatedAt != null && startAfterMessageId != null) {
+            query = query.startAfter(Timestamp(Date(startAfterCreatedAt)), startAfterMessageId)
+        }
+
+        val snapshot = query.limit(limit.toLong()).get().await()
+        val result = snapshot.toObjects(MessageDTO::class.java)
+            .sortedByDescending { it.sendAt?.toMilliseconds() }
+
+        Timber.d("DataSource: fetchNewerMessagesPage - Found ${result.size} messages")
+        return result
+    }
+
     override suspend fun fetchMessagesInConversationByTimestamp(
         conversationId: String,
         timestamp: Long
     ): List<MessageDTO> {
         return collection.document(conversationId)
-            .collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
-            .whereGreaterThan("sendAt", timestamp)
+            .collection(MESSAGE_SUBCOLLECTION)
+            .whereGreaterThan("sendAt", Timestamp(Date(timestamp)))
             .orderBy("sendAt", Query.Direction.ASCENDING)
             .limit(20)
             .get()

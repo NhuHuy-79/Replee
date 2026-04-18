@@ -74,7 +74,11 @@ class MessageRepositoryImp @Inject constructor(
     }
 
     @OptIn(ExperimentalPagingApi::class)
-    override fun observeLocalMessageWithPaging(conversationId: String): Flow<PagingData<LocalPathMessage>> {
+    override fun observeLocalMessageWithPaging(
+        anchorMessageId: String?,
+        anchorTimestamp: Long?,
+        conversationId: String
+    ): Flow<PagingData<LocalPathMessage>> {
         val messageDao = coreDatabase.provideMessageDao()
         return Pager(
             config = PagingConfig(
@@ -84,6 +88,8 @@ class MessageRepositoryImp @Inject constructor(
                 prefetchDistance = 5
             ),
             remoteMediator = LocalPathMessageRemoteMediator(
+                anchorMessageId = anchorMessageId,
+                anchorTimestamp = anchorTimestamp,
                 conversationId = conversationId,
                 coreDatabase = coreDatabase,
                 messageNetworkDataSource = messageNetworkDataSource

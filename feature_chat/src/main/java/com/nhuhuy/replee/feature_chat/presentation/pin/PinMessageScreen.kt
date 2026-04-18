@@ -97,7 +97,9 @@ fun PinnedMessagesScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .animateItem(),
-                        onMessageUnPin = {}
+                        onMessageUnPin = {
+                            onAction(PinAction.OnPinOff(message))
+                        }
                     )
                 }
             }

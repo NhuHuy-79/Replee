@@ -40,7 +40,6 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,9 +58,11 @@ import kotlin.time.Duration.Companion.seconds
 class ChatViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
+    @Assisted("anchor") private val anchorLastTime: Long? = null,
+    @Assisted("messageId") private val anchorMessageId: String? = null,
     private val updateReadTimeUseCase: UpdateReadTimeUseCase,
     private val updateUnreadMessageUseCase: UpdateUnreadMessageUseCase,
-    private val getReadTimeUseCase: GetReadTimeUseCase,
+    getReadTimeUseCase: GetReadTimeUseCase,
     private val unblockUserUseCase: UnblockUserUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
     private val getAccountByIdUseCase: GetAccountByIdUseCase,
@@ -74,7 +75,7 @@ class ChatViewModel @AssistedInject constructor(
     private val validateFileSizeUseCase: ValidateFileSizeUseCase,
     private val deleteMessageUseCase: DeleteMessageUseCase,
     private val updateTypingUseCase: UpdateTypingUseCase,
-    private val getTypingUseCase: GetTypingUseCase,
+    getTypingUseCase: GetTypingUseCase,
     private val pinMessageUseCase: PinMessageUseCase,
     private val unPinMessageUseCase: UnPinMessageUseCase,
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
@@ -92,7 +93,11 @@ class ChatViewModel @AssistedInject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5.seconds), false)
     private val _state = MutableStateFlow(ChatState(currentUserId = currentUserId))
 
-    val pagedMessages = observeLocalMessagesUseCase(conversationId)
+    val pagedMessages = observeLocalMessagesUseCase(
+        id = anchorMessageId,
+        anchor = anchorLastTime,
+        conversationId = conversationId
+    )
         .cachedIn(viewModelScope)
 
     val otherLastReadingTime =
@@ -372,6 +377,8 @@ class ChatViewModel @AssistedInject constructor(
         fun create(
             @Assisted("otherUserId") otherUserId: String,
             @Assisted("currentUserId") currentUserId: String,
+            @Assisted("anchor") anchorLastTime: Long? = null,
+            @Assisted("messageId") anchorMessageId: String? = null
         ): ChatViewModel
     }
 
@@ -381,14 +388,6 @@ class ChatViewModel @AssistedInject constructor(
 
     override fun onCleared() {
         updateTypingStatusJob = null
-        viewModelScope.launch(NonCancellable) {
-            updateTypingUseCase(
-                conversationId = conversationId,
-                userId = currentUserId,
-                typing = false
-            )
-        }
         super.onCleared()
     }
-
 }
