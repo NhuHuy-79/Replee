@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -19,10 +20,12 @@ import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun TextMessage(
+    modifier: Modifier = Modifier,
     isReplying: Boolean,
-    isMine: Boolean,
     localPathMessage: LocalPathMessage,
-    modifier: Modifier = Modifier
+    containerColor: Color,
+    contentColor: Color,
+
 ) {
     val maxWidth = LocalConfiguration.current.screenWidthDp.dp * 0.75f
 
@@ -30,8 +33,7 @@ fun TextMessage(
         modifier = modifier
             .widthIn(max = maxWidth)
             .background(
-                color = if (isMine) MaterialTheme.colorScheme.primary
-                else MaterialTheme.colorScheme.surfaceVariant,
+                color = containerColor,
                 shape = if (isReplying) RoundedCornerShape(
                     bottomEnd = 16.dp, bottomStart = 16.dp
                 ) else RoundedCornerShape(20.dp)
@@ -40,25 +42,24 @@ fun TextMessage(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         TextMessageCore(
-            isMine = isMine,
             text = localPathMessage.message.content,
+            color = contentColor
         )
     }
 }
 
 @Composable
 fun TextMessageCore(
-    isMine: Boolean,
     text: String,
     modifier: Modifier = Modifier,
+    color: Color
 ) {
     Text(
         text = text,
         style = MaterialTheme.typography.bodyLarge.copy(
             lineHeight = 22.sp
         ),
-        color = if (isMine) MaterialTheme.colorScheme.onPrimary
-        else MaterialTheme.colorScheme.onSurfaceVariant,
+        color = color,
         softWrap = true,
         modifier = modifier
     )

@@ -16,8 +16,15 @@ data class ChatState(
     val otherUserName: String = "",
     val isReplying: Boolean = false,
     val overlay: ChatOverlay = ChatOverlay.None,
+    val anchorToScroll: Anchor? = null,
+    val isInitialJumpLoading: Boolean = false
 ) : UiState
 
+@Immutable
+data class Anchor(
+    val lastTime: Long,
+    val messageId: String
+)
 
 sealed interface ChatOverlay {
     data object None : ChatOverlay

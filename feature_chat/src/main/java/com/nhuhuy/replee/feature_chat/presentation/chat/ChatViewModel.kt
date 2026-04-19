@@ -25,6 +25,7 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.GetTypingUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.UpdateReadTimeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.UpdateTypingUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.sync.SyncMessageUseCase
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.Anchor
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToInformation
@@ -91,7 +92,16 @@ class ChatViewModel @AssistedInject constructor(
 
     val blocked = observeOwnerIsBlockUseCase(ownerId = currentUserId, otherUserId = otherUserId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5.seconds), false)
-    private val _state = MutableStateFlow(ChatState(currentUserId = currentUserId))
+    private val _state = MutableStateFlow(
+        ChatState(
+            currentUserId = currentUserId,
+            // Nếu có anchor thì đánh dấu là đang Jump
+            anchorToScroll = if (anchorMessageId != null && anchorLastTime != null) {
+                Anchor(messageId = anchorMessageId, lastTime = anchorLastTime)
+            } else null,
+            isInitialJumpLoading = anchorMessageId != null
+        )
+    )
 
     val pagedMessages = observeLocalMessagesUseCase(
         id = anchorMessageId,
@@ -111,7 +121,6 @@ class ChatViewModel @AssistedInject constructor(
         get() = _state.asStateFlow()
 
     init {
-
         loadInitialData()
 
         //Listen to Message
@@ -330,6 +339,12 @@ class ChatViewModel @AssistedInject constructor(
                             conversationId = conversationId, otherUserId = otherUserId
                         )
                     )
+                }
+
+                ChatAction.OnScrollToAnchorDone -> {
+                    _state.reduce {
+                        copy(anchorToScroll = null, isInitialJumpLoading = false)
+                    }
                 }
             }
         }

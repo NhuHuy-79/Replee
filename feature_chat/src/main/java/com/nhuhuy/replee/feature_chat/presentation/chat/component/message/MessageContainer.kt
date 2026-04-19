@@ -37,6 +37,7 @@ import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 
 @Composable
 fun MessageContainer(
+    isAnchor: Boolean = false,
     replyTo: String,
     localPathMessage: LocalPathMessage,
     isMine: Boolean,
@@ -67,6 +68,7 @@ fun MessageContainer(
 
         MessageContent(
             localPathMessage = localPathMessage,
+            isAnchor = isAnchor,
             isMine = isMine,
             onClick = onClick,
             onLongClick = onLongClick,

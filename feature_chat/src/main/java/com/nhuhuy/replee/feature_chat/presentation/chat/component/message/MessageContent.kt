@@ -17,6 +17,7 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.text.T
 @Composable
 fun MessageContent(
     localPathMessage: LocalPathMessage,
+    isAnchor: Boolean,
     isMine: Boolean,
     onLongClick: () -> Unit,
     onClick: (message: Message) -> Unit,
@@ -25,8 +26,20 @@ fun MessageContent(
     val message = localPathMessage.message
     val isReplying = message.repliedMessageId != null
 
+    val containerColor = when {
+        isAnchor -> MaterialTheme.colorScheme.tertiary
+        isMine -> MaterialTheme.colorScheme.primary
+        else -> MaterialTheme.colorScheme.surfaceVariant
+    }
+
+    val contentColor = when {
+        isAnchor -> MaterialTheme.colorScheme.onTertiary
+        isMine -> MaterialTheme.colorScheme.onPrimary
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+
     Box(
-        modifier = Modifier
+        modifier = modifier
             .wrapContentSize()
             .onMessageLongPress(
                 onLongClick = onLongClick,
@@ -36,10 +49,11 @@ fun MessageContent(
         when (message.type) {
             MessageType.TEXT -> {
                 TextMessage(
-                    modifier = modifier,
+                    modifier = Modifier,
                     isReplying = isReplying,
-                    isMine = isMine,
                     localPathMessage = localPathMessage,
+                    containerColor = containerColor,
+                    contentColor = contentColor
                 )
             }
 

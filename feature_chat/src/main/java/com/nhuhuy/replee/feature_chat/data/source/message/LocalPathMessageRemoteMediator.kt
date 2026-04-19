@@ -87,18 +87,18 @@ class LocalPathMessageRemoteMediator(
 
             Timber.d("Mediator: Fetched ${remoteMessages.size} messages")
 
-            val isDataEmpty = remoteMessages.size < limit
+            val isDataEmpty = remoteMessages.isEmpty()
 
             val endReached = when (loadType) {
-                LoadType.APPEND -> isDataEmpty
-                LoadType.REFRESH -> isDataEmpty
+                LoadType.APPEND -> isDataEmpty || remoteMessages.size < limit
+                LoadType.REFRESH -> if (anchorTimestamp != null) false else isDataEmpty || remoteMessages.size < limit
                 else -> remoteKey?.endReached ?: false
             }
 
             val startReached = when (loadType) {
                 LoadType.PREPEND -> isDataEmpty
                 LoadType.REFRESH -> {
-                    anchorTimestamp == null || isDataEmpty
+                    anchorTimestamp == null
                 }
 
                 else -> remoteKey?.startReached ?: false
@@ -107,16 +107,19 @@ class LocalPathMessageRemoteMediator(
 
             coreDatabase.withTransaction {
                 if (loadType == LoadType.REFRESH) {
-                    val localLatest = messageDao.getLatestMessage(conversationId)
-                    val localLatestTimestamp = localLatest?.sentAt ?: -1
-                    val isGap =
-                        anchorTimestamp != null || (localLatest != null && (dTOs.lastOrNull()?.sentAt
-                            ?: 0) > localLatestTimestamp)
-
-                    if (isGap) {
-                        Timber.d("Mediator: Clearing local data due to gap/anchor")
+                    if (anchorTimestamp != null) {
+                        Timber.d("Mediator: Hard clearing for Jump")
                         messageDao.clearByConversationId(conversationId)
                         messageKeyDao.clear(conversationId)
+                    } else {
+                        // Logic kiểm tra GAP thông thường của bạn
+                        val localLatest = messageDao.getLatestMessage(conversationId)
+                        val isGap = localLatest != null && (dTOs.firstOrNull()?.sentAt
+                            ?: 0) > (localLatest.sentAt ?: 0)
+                        if (isGap) {
+                            messageDao.clearByConversationId(conversationId)
+                            messageKeyDao.clear(conversationId)
+                        }
                     }
                 }
 

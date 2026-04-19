@@ -22,5 +22,6 @@ sealed interface ChatAction : UiAction{
     data object OnMessagePin : ChatAction
     data object OnMessageUnPin : ChatAction
     data object OnNewMessageTrigger : ChatAction
+    data object OnScrollToAnchorDone : ChatAction
 
 }

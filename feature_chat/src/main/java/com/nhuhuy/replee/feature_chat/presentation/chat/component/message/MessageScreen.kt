@@ -33,7 +33,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -53,19 +52,18 @@ import kotlinx.coroutines.launch
 @OptIn(FlowPreview::class)
 @Composable
 fun MessageScreen(
+    modifier: Modifier = Modifier,
+    anchorMessageId: String? = null,
     otherUserReadTime: Long,
     isOtherUserTyping: Boolean,
     lazyListState: LazyListState,
     otherUserImg: String,
     otherUserName: String,
     onAction: (ChatAction) -> Unit,
-    modifier: Modifier = Modifier,
     currentUserId: String,
     pagingItems: LazyPagingItems<LocalPathMessage>,
 ) {
     val scope = rememberCoroutineScope()
-    LocalWindowInfo.current.containerSize.width.dp
-
     val isAtBottom by remember {
         derivedStateOf {
             lazyListState.firstVisibleItemIndex == 0 &&
@@ -106,6 +104,8 @@ fun MessageScreen(
             ) { index ->
                 val localPathMessage = pagingItems[index] ?: return@items
                 val isMine = localPathMessage.message.senderId == currentUserId
+                val isAnchor =
+                    anchorMessageId != null && localPathMessage.message.messageId == anchorMessageId
                 val replyTo = if (localPathMessage.message.repliedMessageId == currentUserId) "You"
                 else otherUserName
                 MessageLayout(
@@ -151,6 +151,7 @@ fun MessageScreen(
                     },
                     messageContent = {
                         MessageContainer(
+                            isAnchor = isAnchor,
                             replyTo = replyTo,
                             localPathMessage = localPathMessage,
                             isMine = isMine,
