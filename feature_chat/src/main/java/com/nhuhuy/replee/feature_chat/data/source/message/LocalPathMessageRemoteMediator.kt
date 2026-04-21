@@ -69,12 +69,9 @@ class LocalPathMessageRemoteMediator(
                 }
 
                 LoadType.PREPEND -> {
-                    // When user need to scroll more below in chat screen, if this is firstTime or early message is downloaded,
-                    //then return success
                     if (anchorTimestamp == null || remoteKey?.startReached == true) {
                         return MediatorResult.Success(true)
                     }
-
                     // else fetch Newest Message
                     messageNetworkDataSource.fetchNewerMessagesPage(
                         conversationId = conversationId,
@@ -107,20 +104,9 @@ class LocalPathMessageRemoteMediator(
 
             coreDatabase.withTransaction {
                 if (loadType == LoadType.REFRESH) {
-                    if (anchorTimestamp != null) {
-                        Timber.d("Mediator: Hard clearing for Jump")
-                        messageDao.clearByConversationId(conversationId)
-                        messageKeyDao.clear(conversationId)
-                    } else {
-                        // Logic kiểm tra GAP thông thường của bạn
-                        val localLatest = messageDao.getLatestMessage(conversationId)
-                        val isGap = localLatest != null && (dTOs.firstOrNull()?.sentAt
-                            ?: 0) > (localLatest.sentAt ?: 0)
-                        if (isGap) {
-                            messageDao.clearByConversationId(conversationId)
-                            messageKeyDao.clear(conversationId)
-                        }
-                    }
+                    Timber.d("Mediator: Hard clearing for Jump")
+                    messageDao.clearByConversationId(conversationId)
+                    messageKeyDao.clear(conversationId)
                 }
 
                 messageDao.upsertAndDeleteMessages(networkMessages = dTOs, deleteIds = emptyList())
@@ -148,6 +134,7 @@ class LocalPathMessageRemoteMediator(
                 LoadType.REFRESH -> false
             }
 
+            Timber.d("In $loadType, startReached: $startReached, endReached: $endReached, fetch ${dTOs.size} messages, return endOfPagination: $resultEndOfPagination")
             MediatorResult.Success(endOfPaginationReached = resultEndOfPagination)
 
         } catch (e: Exception) {

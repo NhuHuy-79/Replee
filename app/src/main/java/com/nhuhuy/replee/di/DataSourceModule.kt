@@ -28,6 +28,8 @@ import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSour
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSourceImp
 import com.nhuhuy.replee.feature_chat.data.source.metadata.MetaDataNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.metadata.MetaDataNetworkDataSourceImpl
+import com.nhuhuy.replee.feature_chat.data.source.paging.PagingMessageNetworkDataSource
+import com.nhuhuy.replee.feature_chat.data.source.paging.PagingMessageNetworkDataSourceImp
 import com.nhuhuy.replee.feature_profile.data.source.ProfileLocalDataSource
 import com.nhuhuy.replee.feature_profile.data.source.ProfileLocalDataSourceImp
 import com.nhuhuy.replee.feature_profile.data.source.ProfileNetworkDataSource
@@ -105,4 +107,7 @@ abstract class DataSourceModuleBinder {
 
     @Binds
     abstract fun bindNotificationHelper(imp: NotificationHelperImp): NotificationHelper
+
+    @Binds
+    abstract fun bindPageMessageNetworkDataSource(imp: PagingMessageNetworkDataSourceImp): PagingMessageNetworkDataSource
 }

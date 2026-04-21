@@ -13,9 +13,10 @@ import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
-import com.nhuhuy.replee.feature_chat.data.source.message.LocalPathMessageRemoteMediator
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
+import com.nhuhuy.replee.feature_chat.data.source.paging.MessageRemoteMediator
+import com.nhuhuy.replee.feature_chat.data.source.paging.PagingMessageNetworkDataSource
 import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.model.message.Message
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
@@ -33,6 +34,7 @@ import javax.inject.Inject
 class MessageRepositoryImp @Inject constructor(
     private val coreDatabase: CoreDatabase,
     private val messageNetworkDataSource: MessageNetworkDataSource,
+    private val pagingMessageNetworkDataSource: PagingMessageNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource,
     private val messageLocalDataSource: MessageLocalDataSource,
     private val ioDispatcher: CoroutineDispatcher
@@ -87,12 +89,11 @@ class MessageRepositoryImp @Inject constructor(
                 enablePlaceholders = false,
                 prefetchDistance = 5
             ),
-            remoteMediator = LocalPathMessageRemoteMediator(
-                anchorMessageId = anchorMessageId,
-                anchorTimestamp = anchorTimestamp,
+            remoteMediator = MessageRemoteMediator(
+                messageIdToJump = anchorMessageId,
                 conversationId = conversationId,
                 coreDatabase = coreDatabase,
-                messageNetworkDataSource = messageNetworkDataSource
+                pagingMessageNetworkDataSource = pagingMessageNetworkDataSource
             )
         ) {
             messageDao.getMessagesPagingSource(conversationId)
