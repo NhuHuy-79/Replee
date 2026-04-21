@@ -40,6 +40,7 @@ fun ImageMessageContainer(
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val maxWidth = screenWidth * 0.6f
     val maxHeight = 250.dp
+    val isReplying = localPathMessage.message.repliedMessageId != null
 
     val imageModifier = remember(localPathMessage.width, localPathMessage.height) {
         if (localPathMessage.width > 0 && localPathMessage.height > 0) {
@@ -57,12 +58,15 @@ fun ImageMessageContainer(
                 .heightIn(max = maxHeight)
         }
     }
-    val shape = RoundedCornerShape(16.dp)
+    val shape = if (isReplying) RoundedCornerShape(
+        bottomStart = 16.dp,
+        bottomEnd = 16.dp
+    ) else RoundedCornerShape(16.dp)
 
     SubcomposeAsyncImage(
         model = imageModel,
         contentDescription = null,
-        contentScale = ContentScale.Fit,
+        contentScale = ContentScale.FillWidth,
         modifier = imageModifier
             .clip(shape),
 

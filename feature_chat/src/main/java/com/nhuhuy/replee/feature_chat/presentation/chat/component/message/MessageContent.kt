@@ -39,7 +39,7 @@ fun MessageContent(
     }
 
     Box(
-        modifier = modifier
+        modifier = Modifier
             .wrapContentSize()
             .onMessageLongPress(
                 onLongClick = onLongClick,
@@ -49,7 +49,7 @@ fun MessageContent(
         when (message.type) {
             MessageType.TEXT -> {
                 TextMessage(
-                    modifier = Modifier,
+                    modifier = modifier,
                     isReplying = isReplying,
                     localPathMessage = localPathMessage,
                     containerColor = containerColor,
@@ -60,10 +60,13 @@ fun MessageContent(
             MessageType.IMAGE -> {
                 ImageMessage(
                     localPathMessage = localPathMessage,
-                    modifier = Modifier.border(
+                    modifier = modifier.border(
                         width = 2.dp,
                         color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = RoundedCornerShape(16.dp)
+                        shape = if (isReplying) RoundedCornerShape(
+                            bottomEnd = 16.dp,
+                            bottomStart = 16.dp
+                        ) else RoundedCornerShape(16.dp)
                     )
                 )
             }
