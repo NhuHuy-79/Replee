@@ -85,9 +85,9 @@ class MessageRepositoryImp @Inject constructor(
         return Pager(
             config = PagingConfig(
                 pageSize = 20,
-                initialLoadSize = 20,
+                initialLoadSize = 60,
                 enablePlaceholders = false,
-                prefetchDistance = 5
+                prefetchDistance = 10
             ),
             remoteMediator = MessageRemoteMediator(
                 messageIdToJump = anchorMessageId,

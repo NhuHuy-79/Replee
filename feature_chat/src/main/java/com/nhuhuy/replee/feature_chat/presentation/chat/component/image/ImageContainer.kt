@@ -39,7 +39,7 @@ fun ImageMessageContainer(
     val imageModel = localPathMessage.localPath ?: message.remoteUrl
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val maxWidth = screenWidth * 0.6f
-    val maxHeight = 250.dp
+    val maxHeight = screenWidth * 0.6f
     val isReplying = localPathMessage.message.repliedMessageId != null
 
     val imageModifier = remember(localPathMessage.width, localPathMessage.height) {
@@ -66,7 +66,7 @@ fun ImageMessageContainer(
     SubcomposeAsyncImage(
         model = imageModel,
         contentDescription = null,
-        contentScale = ContentScale.FillWidth,
+        contentScale = ContentScale.Fit,
         modifier = imageModifier
             .clip(shape),
 
