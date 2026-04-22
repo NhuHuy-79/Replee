@@ -31,7 +31,7 @@ class MessageRemoteMediator(
             Timber.d("CurrentThread: ${Thread.currentThread().name}")
             val currentRemoteKey = remoteKeyDao.get(conversationId = conversationId)
             val pageSize = state.config.pageSize.toLong()
-            val initialSize = state.config.pageSize.toLong()
+            val initialSize = state.config.initialLoadSize.toLong()
 
             val messageDTOList = when (loadType) {
                 LoadType.REFRESH -> {
@@ -50,24 +50,29 @@ class MessageRemoteMediator(
                 }
 
                 LoadType.PREPEND -> { //Scroll down
-                    if (messageIdToJump == null || currentRemoteKey?.startReached == true) {
+                    Timber.d("Mediator: PREPEND")
+                    if (currentRemoteKey == null) return MediatorResult.Success(
+                        endOfPaginationReached = true
+                    )
+                    if (currentRemoteKey.startReached) {
                         return MediatorResult.Success(endOfPaginationReached = true)
                     } else {
                         pagingMessageNetworkDataSource.fetchMessageListAfterAnchor(
                             conversationId = conversationId,
-                            messageId = messageIdToJump,
+                            messageId = currentRemoteKey.afterMessageId,
                             pageSize = pageSize
                         )
                     }
                 }
 
                 LoadType.APPEND -> { //Scroll up
-                    if (messageIdToJump == null || currentRemoteKey?.endReached == true) {
+                    Timber.d("Mediator: APPEND")
+                    if (currentRemoteKey == null || currentRemoteKey.endReached) {
                         return MediatorResult.Success(endOfPaginationReached = true)
                     } else {
                         pagingMessageNetworkDataSource.fetchMessageListBeforeAnchor(
                             conversationId = conversationId,
-                            messageId = messageIdToJump,
+                            messageId = currentRemoteKey.beforeMessageId,
                             pageSize = pageSize
                         )
                     }
@@ -95,7 +100,7 @@ class MessageRemoteMediator(
                 else -> currentRemoteKey?.startReached ?: false
             }
 
-            coreDatabase.withTransaction {
+            return coreDatabase.withTransaction {
                 if (loadType == LoadType.REFRESH) {
                     Timber.d("Mediator: Hard clearing for Jump")
                     messageDao.clearByConversationId(conversationId)
@@ -107,17 +112,26 @@ class MessageRemoteMediator(
                     deleteIds = emptyList()
                 )
 
-                val currentKey = remoteKeyDao.get(conversationId)
-                val oldest = messageEntities.lastOrNull()
-                val newest = messageEntities.firstOrNull()
+                val batchOldestId = messageEntities.lastOrNull()?.messageId
+                val batchNewestId = messageEntities.firstOrNull()?.messageId
 
                 remoteKeyDao.upsert(
                     MessageRemoteKey(
                         conversationId = conversationId,
-                        oldestCreatedAt = oldest?.sentAt ?: currentKey?.oldestCreatedAt,
-                        oldestMessageId = oldest?.messageId ?: currentKey?.oldestMessageId,
-                        newestCreatedAt = newest?.sentAt ?: currentKey?.newestCreatedAt,
-                        newestMessageId = newest?.messageId ?: currentKey?.newestMessageId,
+                        beforeMessageId = when (loadType) {
+                            LoadType.APPEND -> batchOldestId
+                                ?: currentRemoteKey?.beforeMessageId.orEmpty()
+
+                            LoadType.PREPEND -> currentRemoteKey?.beforeMessageId.orEmpty()
+                            LoadType.REFRESH -> batchOldestId.orEmpty()
+                        },
+                        afterMessageId = when (loadType) {
+                            LoadType.PREPEND -> batchNewestId
+                                ?: currentRemoteKey?.afterMessageId.orEmpty()
+
+                            LoadType.APPEND -> currentRemoteKey?.afterMessageId.orEmpty()
+                            LoadType.REFRESH -> batchNewestId.orEmpty()
+                        },
                         endReached = endReached,
                         startReached = startReached
                     )
@@ -126,14 +140,16 @@ class MessageRemoteMediator(
                 val endOfPaginationReached = when (loadType) {
                     LoadType.APPEND -> endReached
                     LoadType.PREPEND -> startReached
-                    LoadType.REFRESH -> false
+                    LoadType.REFRESH -> {
+                        if (messageIdToJump != null) false else (endReached && startReached)
+                    }
                 }
+                val currentMessageCount: Int = messageDao.countMessagesInRoom(conversationId)
+                Timber.d("Current Message Size: $currentMessageCount")
 
                 Timber.d("In $loadType, startReached: $startReached, endReached: $endReached, fetch ${messageDTOList.size} messages, return endOfPagination: $endOfPaginationReached")
                 MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
             }
-
-            MediatorResult.Success(true)
         } catch (e: Exception) {
             MediatorResult.Error(e)
         }

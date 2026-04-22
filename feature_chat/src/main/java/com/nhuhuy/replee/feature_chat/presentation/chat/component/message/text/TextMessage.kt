@@ -27,11 +27,9 @@ fun TextMessage(
     contentColor: Color,
 
 ) {
-    val maxWidth = LocalConfiguration.current.screenWidthDp.dp * 0.75f
 
     Row(
         modifier = modifier
-            .widthIn(max = maxWidth)
             .background(
                 color = containerColor,
                 shape = if (isReplying) RoundedCornerShape(

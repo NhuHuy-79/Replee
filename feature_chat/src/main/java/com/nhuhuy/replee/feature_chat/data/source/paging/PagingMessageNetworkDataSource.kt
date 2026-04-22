@@ -5,6 +5,7 @@ import com.google.firebase.firestore.Query
 import com.nhuhuy.replee.core.network.model.Constant
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
 import kotlinx.coroutines.tasks.await
+import timber.log.Timber
 import javax.inject.Inject
 
 interface PagingMessageNetworkDataSource {
@@ -92,6 +93,8 @@ class PagingMessageNetworkDataSourceImp @Inject constructor(
                     .thenByDescending { it.messageId }
             )
 
+        Timber.d("CombineList: ${safeCombinedList.size}")
+
         return safeCombinedList
     }
 
@@ -110,6 +113,8 @@ class PagingMessageNetworkDataSourceImp @Inject constructor(
             .get()
             .await()
             .toObjects(MessageDTO::class.java)
+
+        Timber.d("BeforeList: ${beforeMessageList.size}")
 
         return beforeMessageList
     }
@@ -130,6 +135,7 @@ class PagingMessageNetworkDataSourceImp @Inject constructor(
             .await()
             .toObjects(MessageDTO::class.java)
 
+        Timber.d("AfterList: ${afterMessageList.size}")
         return afterMessageList.sortedByDescending { it.sendAt }
     }
 

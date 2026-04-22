@@ -58,6 +58,9 @@ interface MessageDao : BaseDao<MessageEntity> {
     @Query("SELECT * FROM message WHERE conversationId = :conversationId AND content LIKE :query AND type = 'TEXT'")
     fun observeMessagesWithQuery(conversationId: String, query: String): Flow<List<MessageEntity>>
 
+    // Get Message Counts
+    @Query("SELECT COUNT(*) FROM message WHERE conversationId = :id")
+    fun countMessagesInRoom(id: String): Int
 
     // --- UPDATE  ---
     @Query("UPDATE message SET pinned = :pinned WHERE messageId = :messageId")

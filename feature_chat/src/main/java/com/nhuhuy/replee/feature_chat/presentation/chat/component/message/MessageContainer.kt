@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -46,10 +48,8 @@ fun MessageContainer(
 ) {
     val isReplying: Boolean = localPathMessage.message.repliedMessageId != null
     val message = localPathMessage.message
-
     var replyWidth by remember { mutableStateOf(0.dp) }
     val density = LocalDensity.current
-
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = if (isMine) Alignment.End else Alignment.Start
@@ -60,7 +60,8 @@ fun MessageContainer(
                 content = message.repliedMessageContent.orEmpty(),
                 type = message.repliedMessageType,
                 remoteUrl = message.repliedMessageRemoteUrl,
-                modifier = Modifier.onSizeChanged { size ->
+                modifier = Modifier
+                    .onSizeChanged { size ->
                     replyWidth = with(density) { size.width.toDp() }
                 }
             )
