@@ -18,6 +18,10 @@ data class Message(
     val repliedMessageSenderId: String? = null,
     val repliedMessageType: MessageType? = null,
     val repliedMessageRemoteUrl: String? = null,
+    //update 1 map <UserId, Reactions> to list reactions
+    val ownerReactions: List<String> = emptyList(),
+    val otherUserReactions: List<String> = emptyList()
+
 )
 
 enum class MessageType {

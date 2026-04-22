@@ -55,10 +55,12 @@ import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.BlockOverlay
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.ReplyBanner
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.dialog.FullImageDialog
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.emote.FullScreenEmojiPickerDialog
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageInput
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageScreen
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageSheet
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction.OnEmojiSelect
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
 import com.nhuhuy.replee.feature_chat.presentation.shared.Banner
@@ -254,9 +256,9 @@ fun ChatScreen(
                     onMessageDelete = {
                         onAction(ChatAction.OnMessageDelete)
                     },
-                    onReactionSelect = { reaction -> },
+                    onReactionSelect = { reaction -> onAction(OnEmojiSelect(reaction)) },
                     onReactionMoreClick = {
-
+                        onAction(ChatAction.OnReactionMoreClick)
                     },
                     onMessageCopy = {
                         scope.launch {
@@ -269,6 +271,15 @@ fun ChatScreen(
                             onAction(ChatAction.OnDismiss)
                         }
 
+                    }
+                )
+            }
+
+            ChatOverlay.EmojiPicker -> {
+                FullScreenEmojiPickerDialog(
+                    onDismiss = { onAction(ChatAction.OnDismiss) },
+                    onEmojiSelected = { reaction ->
+                        onAction(OnEmojiSelect(reaction))
                     }
                 )
             }

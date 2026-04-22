@@ -31,6 +31,7 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToInformation
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToPin
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToSearch
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.FullImage
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.MessageOption
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.None
@@ -344,6 +345,18 @@ class ChatViewModel @AssistedInject constructor(
                 ChatAction.OnScrollToAnchorDone -> {
                     _state.reduce {
                         copy(anchorToScroll = null, isInitialJumpLoading = false)
+                    }
+                }
+
+                is ChatAction.OnEmojiSelect -> {
+
+                }
+
+                ChatAction.OnReactionMoreClick -> {
+                    _state.reduce {
+                        copy(
+                            overlay = ChatOverlay.EmojiPicker
+                        )
                     }
                 }
             }
