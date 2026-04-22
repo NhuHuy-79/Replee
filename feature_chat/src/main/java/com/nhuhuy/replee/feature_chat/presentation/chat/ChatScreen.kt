@@ -254,6 +254,10 @@ fun ChatScreen(
                     onMessageDelete = {
                         onAction(ChatAction.OnMessageDelete)
                     },
+                    onReactionSelect = { reaction -> },
+                    onReactionMoreClick = {
+
+                    },
                     onMessageCopy = {
                         scope.launch {
                             val clipData = ClipData.newPlainText(

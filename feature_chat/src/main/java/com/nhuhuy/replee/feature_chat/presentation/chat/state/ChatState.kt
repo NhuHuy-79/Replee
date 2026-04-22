@@ -30,4 +30,5 @@ sealed interface ChatOverlay {
     data object None : ChatOverlay
     data class MessageOption(val message: Message) : ChatOverlay
     data class FullImage(val url: String) : ChatOverlay
+    data object EmojiPicker : ChatOverlay
 }
