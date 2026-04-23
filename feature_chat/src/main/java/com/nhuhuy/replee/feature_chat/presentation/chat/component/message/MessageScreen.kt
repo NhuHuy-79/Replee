@@ -111,10 +111,8 @@ fun MessageScreen(
                     if (localPathMessage.message.repliedMessageSenderId == currentUserId) "You"
                     else otherUserName
                 MessageLayout(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier,
                     isMine = isMine,
-                    showTimeContent = false,
                     userImage = {
                         UserImage(
                             userName = otherUserName,
@@ -143,17 +141,19 @@ fun MessageScreen(
                         }
                     },
                     reactionContent = {
+                        val allReactions =
+                            localPathMessage.message.ownerReactions + localPathMessage.message.otherUserReactions
                         EmoteFlowRow(
                             onReactionClick = { reaction ->
                                 onAction(
-                                    ChatAction.OnReactionDelete(
-                                        messageId = localPathMessage.message.messageId,
-                                        reaction = reaction
+                                    ChatAction.OnMessageReactionClick(
+                                        reaction = reaction,
+                                        messageId = localPathMessage.message.messageId
                                     )
                                 )
                             },
-                            modifier = Modifier.fillMaxWidth(),
-                            reactions = localPathMessage.message.ownerReactions,
+                            modifier = Modifier,
+                            reactions = allReactions,
                         )
                     },
                     statusContent = {

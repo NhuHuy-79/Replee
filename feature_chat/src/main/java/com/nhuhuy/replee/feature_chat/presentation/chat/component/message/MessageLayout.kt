@@ -1,8 +1,8 @@
 package com.nhuhuy.replee.feature_chat.presentation.chat.component.message
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -18,27 +18,20 @@ import androidx.compose.ui.unit.dp
 fun MessageLayout(
     modifier: Modifier,
     isMine: Boolean,
-    showTimeContent: Boolean,
-    userImage: @Composable () -> Unit,
-    extraContent: @Composable () -> Unit,
-    messageContent: @Composable () -> Unit,
-    reactionContent: @Composable () -> Unit,
-    statusContent: @Composable RowScope.() -> Unit,
+    userImage: @Composable RowScope.() -> Unit,
+    extraContent: @Composable ColumnScope.() -> Unit,
+    messageContent: @Composable ColumnScope.() -> Unit,
+    reactionContent: @Composable ColumnScope.() -> Unit,
+    statusContent: @Composable () -> Unit,
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        AnimatedVisibility(
-            visible = showTimeContent
-        ) {
-            extraContent()
-        }
-
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -65,7 +58,6 @@ fun MessageLayout(
                     statusContent()
                 }
             }
-
         }
 
     }

@@ -283,6 +283,10 @@ fun ChatScreen(
                     }
                 )
             }
+
+            is ChatOverlay.MessageReaction -> {
+
+            }
         }
     }
 }

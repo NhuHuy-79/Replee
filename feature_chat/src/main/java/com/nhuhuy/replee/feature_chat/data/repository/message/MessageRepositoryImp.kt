@@ -91,6 +91,7 @@ class MessageRepositoryImp @Inject constructor(
                 prefetchDistance = 10
             ),
             remoteMediator = MessageRemoteMediator(
+                currentUserId = sessionManager.getUserIdOrNull(),
                 messageIdToJump = anchorMessageId,
                 conversationId = conversationId,
                 coreDatabase = coreDatabase,

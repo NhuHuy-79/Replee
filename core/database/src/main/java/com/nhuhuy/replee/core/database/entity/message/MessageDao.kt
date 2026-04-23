@@ -150,7 +150,6 @@ interface MessageDao : BaseDao<MessageEntity> {
 
         networkMessages.forEach { networkMsg ->
             val localMsg = getMessageById(networkMsg.messageId)
-
             if (localMsg == null) {
                 upsert(networkMsg)
             } else {

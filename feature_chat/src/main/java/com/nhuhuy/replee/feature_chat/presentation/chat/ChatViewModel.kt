@@ -142,17 +142,19 @@ class ChatViewModel @AssistedInject constructor(
                         checkBlockUseCase(currentUserId, otherUserId)
                     }
 
-                    val userDeferred = async {
+                    val currentUserDataDeferred = async {
+                        getAccountByIdUseCase(currentUserId)
+                    }
+
+                    val otherUserDeferred = async {
                         getAccountByIdUseCase(otherUserId)
                     }
 
-                    val blocked = blockedDeferred.await()
-                    val user = userDeferred.await()
-
                     _state.reduce {
                         copy(
-                            isBlocked = blocked,
-                            otherUser = user
+                            isBlocked = blockedDeferred.await(),
+                            otherUser = otherUserDeferred.await(),
+                            currentUser = currentUserDataDeferred.await()
                         )
                     }
                 }
@@ -386,6 +388,15 @@ class ChatViewModel @AssistedInject constructor(
                             overlay = ChatOverlay.EmojiPicker
                         )
                     }
+                }
+
+                is ChatAction.OnMessageReactionClick -> {
+                    removeReactionUseCase(
+                        conversationId = conversationId,
+                        messageId = action.messageId,
+                        reaction = action.reaction,
+                        userId = currentUserId
+                    )
                 }
             }
         }

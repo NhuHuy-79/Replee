@@ -11,6 +11,7 @@ data class ChatState(
     val currentMessage: Message? = null,
     val isBlocked: Boolean = false,
     val currentUserId: String = "",
+    val currentUser: Account = Account(),
     val messageInput: String = "",
     val otherUser: Account = Account(),
     val otherUserName: String = "",
@@ -31,4 +32,5 @@ sealed interface ChatOverlay {
     data class MessageOption(val message: Message) : ChatOverlay
     data class FullImage(val url: String) : ChatOverlay
     data object EmojiPicker : ChatOverlay
+    data class MessageReaction(val message: Message) : ChatOverlay
 }

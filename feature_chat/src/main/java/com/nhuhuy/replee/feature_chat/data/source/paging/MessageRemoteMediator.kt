@@ -15,6 +15,7 @@ import timber.log.Timber
 
 @OptIn(ExperimentalPagingApi::class)
 class MessageRemoteMediator(
+    private val currentUserId: String? = null,
     private val messageIdToJump: String?,
     private val conversationId: String,
     private val coreDatabase: CoreDatabase,
@@ -80,7 +81,7 @@ class MessageRemoteMediator(
             }
 
             val messageEntities: List<MessageEntity> = messageDTOList.map { messageDTO ->
-                messageDTO.toMessage().toMessageEntity()
+                messageDTO.toMessage(currentUserId = currentUserId).toMessageEntity()
             }
 
             val isDataEmpty = messageEntities.isEmpty()

@@ -1,10 +1,12 @@
+package com.nhuhuy.replee.feature_chat.presentation.chat.component.emote
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,12 +32,12 @@ fun ReactionCard(
 
     Row(
         modifier = modifier
-            .clip(CircleShape)
+            .clip(RoundedCornerShape(8.dp))
             .background(containerColor)
             .border(
                 width = 1.dp,
                 color = borderColor,
-                shape = CircleShape
+                shape = RoundedCornerShape(8.dp)
             )
             .clickable { onClick(reaction) }
             .padding(horizontal = 8.dp, vertical = 4.dp),
@@ -47,11 +49,13 @@ fun ReactionCard(
             fontSize = 14.sp
         )
 
-        Text(
-            text = "$count",
-            fontSize = 12.sp,
-            color = contentColor,
-            fontWeight = FontWeight.Medium
-        )
+        if (count > 1) {
+            Text(
+                text = "$count",
+                fontSize = 12.sp,
+                color = contentColor,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }
