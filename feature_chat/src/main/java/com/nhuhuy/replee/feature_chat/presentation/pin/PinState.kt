@@ -14,8 +14,14 @@ data class PinState(
 sealed interface PinAction : UiAction {
     data object OnBackPress : PinAction
     data class OnPinOff(val message: Message) : PinAction
+    data class OnMessageClick(val message: Message) : PinAction
 }
 
 sealed interface PinEvent : UiEvent {
     data object NavigateBack : PinEvent
+    data class NavigateToConversation(
+        val otherUserId: String,
+        val currentUserId: String,
+        val messageId: String
+    ) : PinEvent
 }

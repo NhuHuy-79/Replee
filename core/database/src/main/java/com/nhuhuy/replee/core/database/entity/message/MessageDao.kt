@@ -161,4 +161,14 @@ interface MessageDao : BaseDao<MessageEntity> {
             }
         }
     }
+
+    @Query(
+        """
+    SELECT COUNT(*) FROM message 
+    WHERE conversationId = :conversationId 
+    AND deleted = 0 
+    AND sentAt > (SELECT sentAt FROM message WHERE messageId = :messageId)
+"""
+    )
+    suspend fun getIndexOfMessage(conversationId: String, messageId: String): Int
 }

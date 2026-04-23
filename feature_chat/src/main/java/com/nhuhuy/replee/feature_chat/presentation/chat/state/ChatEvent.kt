@@ -15,6 +15,7 @@ sealed interface ChatEvent : UiEvent{
         data object Failure : SendImage
     }
 
+    data class ScrollToAnchor(val anchorMessageId: String) : ChatEvent
     data object FileTooLarge : ChatEvent
     data object UnSupportedFile : ChatEvent
     data object Unknown : ChatEvent

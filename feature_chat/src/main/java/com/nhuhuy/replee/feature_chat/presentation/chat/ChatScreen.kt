@@ -45,7 +45,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
-import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.nhuhuy.replee.core.common.utils.showLongToast
 import com.nhuhuy.replee.core.design_system.component.BoxContainer
@@ -109,19 +108,9 @@ fun ChatScreen(
         }
     }
 
-    LaunchedEffect(pagedMessages.loadState.refresh, state.anchorToScroll) {
-        val anchor = state.anchorToScroll
-        if (pagedMessages.loadState.refresh is LoadState.NotLoading && anchor != null) {
-
-            // Tìm tin nhắn trong list vừa nạp
-            val index = (0 until pagedMessages.itemCount).firstOrNull {
-                pagedMessages[it]?.message?.messageId == anchor.messageId
-            }
-
-            if (index != null) {
-                lazyListState.scrollToItem(index, scrollOffset = -200)
-                onAction(ChatAction.OnScrollToAnchorDone)
-            }
+    LaunchedEffect(pagedMessages.loadState) {
+        if (pagedMessages.loadState.isIdle && state.messagePosition > 0) {
+            lazyListState.scrollToItem(state.messagePosition)
         }
     }
 

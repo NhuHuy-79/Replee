@@ -97,8 +97,11 @@ fun PinnedMessagesScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .animateItem(),
-                        onMessageUnPin = {
+                        onMessageUnPin = { message ->
                             onAction(PinAction.OnPinOff(message))
+                        },
+                        onMessageClick = { message ->
+                            onAction(PinAction.OnMessageClick(message))
                         }
                     )
                 }
@@ -111,9 +114,11 @@ fun PinnedMessagesScreen(
 fun PinnedMessageItem(
     modifier: Modifier = Modifier,
     userName: String, userImg: String, message: Message,
-    onMessageUnPin: (message: Message) -> Unit
+    onMessageUnPin: (message: Message) -> Unit,
+    onMessageClick: (message: Message) -> Unit
 ) {
     Card(
+        onClick = { onMessageClick(message) },
         modifier = modifier,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow // Subtle contrast

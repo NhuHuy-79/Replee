@@ -45,7 +45,7 @@ class MessageRemoteMediator(
                         pagingMessageNetworkDataSource.fetchMessageListAroundAnchor(
                             conversationId = conversationId,
                             messageId = messageIdToJump,
-                            pageSize = initialSize
+                            pageSize = 15
                         )
                     }
                 }

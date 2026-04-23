@@ -16,6 +16,7 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.file.SendFileMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.ValidateFileSizeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.AddReactionUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.DeleteMessageUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.GetMessagePositionUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveLocalMessagesUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.PinMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.RemoveReactionUseCase
@@ -84,6 +85,7 @@ class ChatViewModel @AssistedInject constructor(
     private val unPinMessageUseCase: UnPinMessageUseCase,
     private val addReactionUseCase: AddReactionUseCase,
     private val removeReactionUseCase: RemoveReactionUseCase,
+    private val getMessagePositionUseCase: GetMessagePositionUseCase
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
     private var currentUserReadingTime = 0L
     private var listenMessageChangeJob: Job? = null
@@ -100,7 +102,6 @@ class ChatViewModel @AssistedInject constructor(
     private val _state = MutableStateFlow(
         ChatState(
             currentUserId = currentUserId,
-            // Nếu có anchor thì đánh dấu là đang Jump
             anchorToScroll = if (anchorMessageId != null && anchorLastTime != null) {
                 Anchor(messageId = anchorMessageId, lastTime = anchorLastTime)
             } else null,
@@ -138,6 +139,15 @@ class ChatViewModel @AssistedInject constructor(
         viewModelScope.launch {
             supervisorScope {
                 launch {
+                    val anchorPosition = async {
+                        anchorMessageId?.let { messageId ->
+                            getMessagePositionUseCase(
+                                conversationId = conversationId,
+                                messageId = messageId
+                            )
+                        }
+                    }
+
                     val blockedDeferred = async {
                         checkBlockUseCase(currentUserId, otherUserId)
                     }
@@ -154,7 +164,8 @@ class ChatViewModel @AssistedInject constructor(
                         copy(
                             isBlocked = blockedDeferred.await(),
                             otherUser = otherUserDeferred.await(),
-                            currentUser = currentUserDataDeferred.await()
+                            currentUser = currentUserDataDeferred.await(),
+                            messagePosition = anchorPosition.await() ?: 0
                         )
                     }
                 }
@@ -398,6 +409,7 @@ class ChatViewModel @AssistedInject constructor(
                         userId = currentUserId
                     )
                 }
+
             }
         }
     }

@@ -23,6 +23,7 @@ interface MessageRepository {
 
     fun observePinnedMessages(conversationId: String): Flow<List<Message>>
     fun observeLocalMessagesWithQuery(conversationId: String, query: String): Flow<List<Message>>
+    suspend fun getIndexOfMessage(conversationId: String, messageId: String): Int
 
     // --- UPDATE ---
     suspend fun updatePinStatusMessage(

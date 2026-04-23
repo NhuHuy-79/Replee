@@ -63,6 +63,13 @@ class MessageRepositoryImp @Inject constructor(
 
     // --- READ / OBSERVE ---
 
+    override suspend fun getIndexOfMessage(conversationId: String, messageId: String): Int {
+        return messageLocalDataSource.getIndexOfMessage(
+            conversationId = conversationId,
+            messageId = messageId
+        )
+    }
+
     override suspend fun getMessageListById(messageIds: List<String>): List<Message> {
         return withContext(ioDispatcher) {
             messageLocalDataSource.getMessageListById(messageIds)
@@ -88,7 +95,7 @@ class MessageRepositoryImp @Inject constructor(
                 pageSize = 20,
                 initialLoadSize = 60,
                 enablePlaceholders = false,
-                prefetchDistance = 10
+                prefetchDistance = 2
             ),
             remoteMediator = MessageRemoteMediator(
                 currentUserId = sessionManager.getUserIdOrNull(),

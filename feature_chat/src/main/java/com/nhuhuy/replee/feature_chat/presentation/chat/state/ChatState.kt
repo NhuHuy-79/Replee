@@ -13,6 +13,7 @@ data class ChatState(
     val currentUserId: String = "",
     val currentUser: Account = Account(),
     val messageInput: String = "",
+    val messagePosition: Int = 0,
     val otherUser: Account = Account(),
     val otherUserName: String = "",
     val isReplying: Boolean = false,

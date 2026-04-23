@@ -22,6 +22,7 @@ interface MessageLocalDataSource {
     suspend fun getMessageListById(messageIds: List<String>): List<MessageEntity>
     suspend fun getUnsyncedMessageByType(messageType: MessageType): List<MessageEntity>
     suspend fun getUnsyncedMessages(): List<MessageEntity>
+    suspend fun getIndexOfMessage(conversationId: String, messageId: String): Int
     suspend fun getMessagesByQuery(conversationId: String, query: String): List<MessageEntity>
     suspend fun getNewestMessageInConversation(conversationId: String): MessageEntity?
     fun observeMessages(conversationId: String): Flow<List<MessageEntity>>
@@ -79,6 +80,10 @@ class MessageLocalDataSourceImp @Inject constructor(
     }
 
     // --- READ ---
+
+    override suspend fun getIndexOfMessage(conversationId: String, messageId: String): Int {
+        return messageDao.getIndexOfMessage(conversationId = conversationId, messageId = messageId)
+    }
     override fun observePinnedMessages(conversationId: String): Flow<List<MessageEntity>> {
         return messageDao.observePinnedMessages(conversationId)
     }
