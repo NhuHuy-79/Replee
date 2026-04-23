@@ -60,7 +60,7 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.Messag
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageScreen
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageSheet
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction.OnEmojiSelect
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction.OnReactionSelect
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
 import com.nhuhuy.replee.feature_chat.presentation.shared.Banner
@@ -256,7 +256,7 @@ fun ChatScreen(
                     onMessageDelete = {
                         onAction(ChatAction.OnMessageDelete)
                     },
-                    onReactionSelect = { reaction -> onAction(OnEmojiSelect(reaction)) },
+                    onReactionSelect = { reaction -> onAction(OnReactionSelect(reaction)) },
                     onReactionMoreClick = {
                         onAction(ChatAction.OnReactionMoreClick)
                     },
@@ -279,7 +279,7 @@ fun ChatScreen(
                 FullScreenEmojiPickerDialog(
                     onDismiss = { onAction(ChatAction.OnDismiss) },
                     onEmojiSelected = { reaction ->
-                        onAction(OnEmojiSelect(reaction))
+                        onAction(OnReactionSelect(reaction))
                     }
                 )
             }

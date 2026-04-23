@@ -5,12 +5,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import basicReactions
 
-@Preview(apiLevel = 35)
 @Composable
 fun EmoteFlowRow(
+    onReactionClick: (reaction: String) -> Unit,
     modifier: Modifier = Modifier,
     reactions: List<String> = basicReactions,
 ) {
@@ -18,11 +17,11 @@ fun EmoteFlowRow(
         horizontalArrangement = Arrangement.End,
         modifier = modifier,
     ) {
-        reactions.forEach { reaction ->
+        reactions.toSet().forEach { reaction ->
             ReactionCard(
                 reaction = reaction,
                 count = 1,
-                onClick = {}
+                onClick = onReactionClick
             )
         }
     }

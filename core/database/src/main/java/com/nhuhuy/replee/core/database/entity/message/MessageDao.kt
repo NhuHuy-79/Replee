@@ -100,6 +100,12 @@ interface MessageDao : BaseDao<MessageEntity> {
     @Query("UPDATE message SET deleted = 1 WHERE messageId IN (:messageIds)")
     suspend fun softDeleteAllMessages(messageIds: List<String>)
 
+    @Query("UPDATE message SET ownerReactions = :ownerReactions, otherUserReactions = :otherUserReactions WHERE messageId = :messageId")
+    suspend fun updateReactions(
+        messageId: String,
+        ownerReactions: List<String>,
+        otherUserReactions: List<String>
+    )
 
     // --- DELETE  ---
 

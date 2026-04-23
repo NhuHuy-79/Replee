@@ -2,6 +2,7 @@ package com.nhuhuy.replee.feature_chat.data.source.message
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldPath
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
@@ -87,6 +88,20 @@ interface MessageNetworkDataSource {
         startAfterCreatedAt: Long?,
         startAfterMessageId: String?
     ): List<MessageDTO>
+
+    suspend fun addReaction(
+        conversationId: String,
+        messageId: String,
+        userId: String,
+        reaction: String
+    )
+
+    suspend fun removeReaction(
+        conversationId: String,
+        messageId: String,
+        userId: String,
+        reaction: String
+    )
 }
 
 class MessageNetworkDataSourceImp @Inject constructor(
@@ -404,6 +419,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
         }
     }
 
+
     override suspend fun fetchMessagesAroundAnchor(
         conversationId: String,
         anchorMessageId: String?,
@@ -482,6 +498,32 @@ class MessageNetworkDataSourceImp @Inject constructor(
             .get()
             .await()
             .toObjects<MessageDTO>()
+    }
+
+    override suspend fun addReaction(
+        conversationId: String,
+        messageId: String,
+        userId: String,
+        reaction: String
+    ) {
+        collection.document(conversationId)
+            .collection(MESSAGE_SUBCOLLECTION)
+            .document(messageId)
+            .update("reactions.$userId", FieldValue.arrayUnion(reaction))
+            .await()
+    }
+
+    override suspend fun removeReaction(
+        conversationId: String,
+        messageId: String,
+        userId: String,
+        reaction: String
+    ) {
+        collection.document(conversationId)
+            .collection(MESSAGE_SUBCOLLECTION)
+            .document(messageId)
+            .update("reactions.$userId", FieldValue.arrayRemove(reaction))
+            .await()
     }
 
 }

@@ -25,11 +25,16 @@ fun MessageEntity.toMessage() : Message{
         repliedMessageId = repliedMessageId,
         repliedMessageSenderId = repliedMessageSenderId,
         repliedMessageType = repliedMessageType?.let { MessageType.valueOf(it) },
-        repliedMessageRemoteUrl = repliedMessageRemoteUrl
+        repliedMessageRemoteUrl = repliedMessageRemoteUrl,
+        ownerReactions = ownerReactions,
+        otherUserReactions = otherUserReactions
     )
 }
 
-fun MessageDTO.toMessage() : Message{
+fun MessageDTO.toMessage(currentUserId: String? = null): Message {
+    val ownerReactions = currentUserId?.let { reactions[it] } ?: emptyList()
+    val otherUserReactions = reactions.filter { it.key != currentUserId }.values.flatten()
+
     return Message(
         conversationId = conversationId,
         messageId = messageId,
@@ -46,11 +51,20 @@ fun MessageDTO.toMessage() : Message{
         repliedMessageId = repliedMessageId,
         repliedMessageSenderId = repliedMessageSenderId,
         repliedMessageType = repliedMessageType,
-        repliedMessageRemoteUrl = repliedMessageRemoteUrl
+        repliedMessageRemoteUrl = repliedMessageRemoteUrl,
+        ownerReactions = ownerReactions,
+        otherUserReactions = otherUserReactions
     )
 }
 
-fun Message.toMessageDTO() : MessageDTO {
+fun Message.toMessageDTO(currentUserId: String? = null): MessageDTO {
+    val reactionsMap = mutableMapOf<String, List<String>>()
+    currentUserId?.let { currentUserId ->
+        val otherUserId = if (senderId == currentUserId) receiverId else senderId
+        reactionsMap[currentUserId] = ownerReactions
+        reactionsMap[otherUserId] = otherUserReactions
+    }
+
     return MessageDTO(
         conversationId = conversationId,
         messageId = messageId,
@@ -65,7 +79,8 @@ fun Message.toMessageDTO() : MessageDTO {
         repliedMessageContent = repliedMessageContent,
         repliedMessageSenderId = repliedMessageSenderId,
         repliedMessageType = repliedMessageType,
-        repliedMessageRemoteUrl = repliedMessageRemoteUrl
+        repliedMessageRemoteUrl = repliedMessageRemoteUrl,
+        reactions = reactionsMap
     )
 }
 
@@ -87,6 +102,8 @@ fun Message.toMessageEntity() : MessageEntity{
         repliedMessageSenderId = repliedMessageSenderId,
         repliedMessageType = repliedMessageType?.name,
         repliedMessageRemoteUrl = repliedMessageRemoteUrl,
-        pinned = pinned
+        pinned = pinned,
+        ownerReactions = ownerReactions,
+        otherUserReactions = otherUserReactions
     )
 }

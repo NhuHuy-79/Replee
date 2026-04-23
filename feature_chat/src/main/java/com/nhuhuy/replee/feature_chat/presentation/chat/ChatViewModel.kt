@@ -14,9 +14,11 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.block.UnblockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.SendFileMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.ValidateFileSizeUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.AddReactionUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.DeleteMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveLocalMessagesUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.PinMessageUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.RemoveReactionUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.UnPinMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.UpdateUnreadMessageUseCase
@@ -80,6 +82,8 @@ class ChatViewModel @AssistedInject constructor(
     getTypingUseCase: GetTypingUseCase,
     private val pinMessageUseCase: PinMessageUseCase,
     private val unPinMessageUseCase: UnPinMessageUseCase,
+    private val addReactionUseCase: AddReactionUseCase,
+    private val removeReactionUseCase: RemoveReactionUseCase,
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
     private var currentUserReadingTime = 0L
     private var listenMessageChangeJob: Job? = null
@@ -120,6 +124,8 @@ class ChatViewModel @AssistedInject constructor(
 
     override val state: StateFlow<ChatState>
         get() = _state.asStateFlow()
+
+    private val stateValue: ChatState get() = state.value
 
     init {
         loadInitialData()
@@ -348,8 +354,30 @@ class ChatViewModel @AssistedInject constructor(
                     }
                 }
 
-                is ChatAction.OnEmojiSelect -> {
+                is ChatAction.OnReactionSelect -> {
+                    val messageId = stateValue.currentMessage?.messageId
+                    _state.reduce {
+                        copy(overlay = None, currentMessage = null)
+                    }
 
+                    messageId?.let { id ->
+                        addReactionUseCase(
+                            conversationId = conversationId,
+                            messageId = id,
+                            reaction = action.reaction,
+                            userId = currentUserId
+                        )
+                    }
+
+                }
+
+                is ChatAction.OnReactionDelete -> {
+                    removeReactionUseCase(
+                        conversationId = conversationId,
+                        messageId = action.messageId,
+                        reaction = action.reaction,
+                        userId = currentUserId
+                    )
                 }
 
                 ChatAction.OnReactionMoreClick -> {

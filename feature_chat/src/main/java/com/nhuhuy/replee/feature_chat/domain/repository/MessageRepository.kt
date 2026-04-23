@@ -8,7 +8,6 @@ import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
 import kotlinx.coroutines.flow.Flow
 
 interface MessageRepository {
-
     // --- CREATE / SEND ---
     suspend fun sendMessage(message: Message): NetworkResult<String>
     suspend fun saveMessage(message: Message): String
@@ -21,35 +20,50 @@ interface MessageRepository {
         anchorTimestamp: Long? = null,
         conversationId: String
     ): Flow<PagingData<LocalPathMessage>>
+
+    fun observePinnedMessages(conversationId: String): Flow<List<Message>>
     fun observeLocalMessagesWithQuery(conversationId: String, query: String): Flow<List<Message>>
 
     // --- UPDATE ---
-    suspend fun pinMultipleRemoteMessage(
-        messages: List<Message>,
-        pinned: Boolean
-    ): NetworkResult<Unit>
-
     suspend fun updatePinStatusMessage(
         conversationId: String,
         messageId: String,
         pinned: Boolean
     ): NetworkResult<String>
+
+    suspend fun pinMultipleRemoteMessage(
+        messages: List<Message>,
+        pinned: Boolean
+    ): NetworkResult<Unit>
+
     suspend fun updateRemoteUrlMessage(
         messageId: String,
         remoteUrl: String,
         status: MessageStatus
     ): Message?
 
+    suspend fun addReaction(
+        conversationId: String,
+        messageId: String,
+        userId: String,
+        reaction: String
+    ): NetworkResult<Unit>
+
+    suspend fun removeReaction(
+        conversationId: String,
+        messageId: String,
+        userId: String,
+        reaction: String
+    ): NetworkResult<Unit>
+
     // --- DELETE ---
     suspend fun deleteMessage(message: Message): NetworkResult<String>
     suspend fun deleteMultipleMessage(messages: List<Message>): NetworkResult<Unit>
 
-    // --- SYNC / NETWORK---
+    // --- SYNC / NETWORK ---
     suspend fun fetchMessagesByTimestamp(
         conversationId: String,
         timestamp: Long
     ): NetworkResult<Unit>
-
     fun listenMessageChanges(conversationId: String): Flow<Unit>
-    fun observePinnedMessages(conversationId: String): Flow<List<Message>>
 }

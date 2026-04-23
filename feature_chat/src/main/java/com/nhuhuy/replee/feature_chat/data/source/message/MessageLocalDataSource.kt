@@ -40,6 +40,11 @@ interface MessageLocalDataSource {
         receiverId: String,
         status: MessageStatus
     ): List<MessageEntity>
+    suspend fun updateReactions(
+        messageId: String,
+        ownerReactions: List<String>,
+        otherUserReactions: List<String>
+    )
 
     // --- DELETE ---
     suspend fun deleteMessage(message: MessageEntity)
@@ -188,6 +193,14 @@ class MessageLocalDataSourceImp @Inject constructor(
             }
             list
         }
+    }
+
+    override suspend fun updateReactions(
+        messageId: String,
+        ownerReactions: List<String>,
+        otherUserReactions: List<String>
+    ) {
+        messageDao.updateReactions(messageId, ownerReactions, otherUserReactions)
     }
 
     // --- DELETE ---

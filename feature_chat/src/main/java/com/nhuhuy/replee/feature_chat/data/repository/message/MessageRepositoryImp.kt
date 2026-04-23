@@ -5,6 +5,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
+import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.CoreDatabase
@@ -37,6 +38,7 @@ class MessageRepositoryImp @Inject constructor(
     private val pagingMessageNetworkDataSource: PagingMessageNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource,
     private val messageLocalDataSource: MessageLocalDataSource,
+    private val sessionManager: SessionManager,
     private val ioDispatcher: CoroutineDispatcher
 ) : MessageRepository {
 
@@ -47,7 +49,6 @@ class MessageRepositoryImp @Inject constructor(
             val entity = message.toMessageEntity()
             messageLocalDataSource.upsertMessage(message = entity)
             conversationLocalDataSource.updateLastMessage(message = entity)
-
             val dto = message.toMessageDTO().copy(status = MessageStatus.SYNCED)
             messageNetworkDataSource.sendMessage(message = dto)
 
@@ -177,6 +178,61 @@ class MessageRepositoryImp @Inject constructor(
         }
     }
 
+    override suspend fun addReaction(
+        conversationId: String,
+        messageId: String,
+        userId: String,
+        reaction: String
+    ): NetworkResult<Unit> {
+        return executeWithTimeout(ioDispatcher) {
+            val entity = messageLocalDataSource.getMessageById(messageId)
+            entity?.let {
+                val currentUserId = sessionManager.getUserIdOrNull()
+                val isOwner = userId == currentUserId
+
+                val newOwnerReactions =
+                    if (isOwner) it.ownerReactions + reaction else it.ownerReactions
+                val newOtherUserReactions =
+                    if (!isOwner) it.otherUserReactions + reaction else it.otherUserReactions
+
+                messageLocalDataSource.updateReactions(
+                    messageId,
+                    newOwnerReactions,
+                    newOtherUserReactions
+                )
+
+            }
+            messageNetworkDataSource.addReaction(conversationId, messageId, userId, reaction)
+        }
+    }
+
+    override suspend fun removeReaction(
+        conversationId: String,
+        messageId: String,
+        userId: String,
+        reaction: String
+    ): NetworkResult<Unit> {
+        return executeWithTimeout(ioDispatcher) {
+            val entity = messageLocalDataSource.getMessageById(messageId)
+            entity?.let {
+                val currentUserId = sessionManager.getUserIdOrNull()
+                val isOwner = userId == currentUserId
+
+                val newOwnerReactions =
+                    if (isOwner) it.ownerReactions - reaction else it.ownerReactions
+                val newOtherUserReactions =
+                    if (!isOwner) it.otherUserReactions - reaction else it.otherUserReactions
+
+                messageLocalDataSource.updateReactions(
+                    messageId,
+                    newOwnerReactions,
+                    newOtherUserReactions
+                )
+            }
+            messageNetworkDataSource.removeReaction(conversationId, messageId, userId, reaction)
+        }
+    }
+
     // --- DELETE ---
 
     override suspend fun deleteMessage(message: Message): NetworkResult<String> {
@@ -203,11 +259,12 @@ class MessageRepositoryImp @Inject constructor(
         timestamp: Long
     ): NetworkResult<Unit> {
         return executeWithTimeout(ioDispatcher) {
+            val currentUserId = sessionManager.getUserIdOrNull()
             val entities = messageNetworkDataSource.fetchMessagesInConversationByTimestamp(
                 conversationId = conversationId,
                 timestamp = timestamp
             ).map { messageDTO ->
-                messageDTO.toMessage().toMessageEntity()
+                messageDTO.toMessage(currentUserId).toMessageEntity()
             }
 
             messageLocalDataSource.upsertMessages(entities)
@@ -215,6 +272,7 @@ class MessageRepositoryImp @Inject constructor(
     }
 
     override fun listenMessageChanges(conversationId: String): Flow<Unit> {
+        val currentUserId = sessionManager.getUserIdOrNull()
         return messageNetworkDataSource.listenMessageChangesByConversationId(conversationId)
             .map { dataChanges ->
                 val upserts = mutableListOf<Message>()
@@ -224,7 +282,7 @@ class MessageRepositoryImp @Inject constructor(
                     when (change) {
                         is DataChange.Delete -> deletes.add(change.id)
                         is DataChange.Upsert -> upserts.add(
-                            change.data.toMessage()
+                            change.data.toMessage(currentUserId)
                         )
                     }
                 }

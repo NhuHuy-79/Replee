@@ -45,6 +45,7 @@ import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.StatusContent
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.TypingItem
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.emote.EmoteFlowRow
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
@@ -108,7 +109,7 @@ fun MessageScreen(
                     anchorMessageId != null && localPathMessage.message.messageId == anchorMessageId
                 val replyTo =
                     if (localPathMessage.message.repliedMessageSenderId == currentUserId) "You"
-                else otherUserName
+                    else otherUserName
                 MessageLayout(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -140,6 +141,20 @@ fun MessageScreen(
                                 )
                             }
                         }
+                    },
+                    reactionContent = {
+                        EmoteFlowRow(
+                            onReactionClick = { reaction ->
+                                onAction(
+                                    ChatAction.OnReactionDelete(
+                                        messageId = localPathMessage.message.messageId,
+                                        reaction = reaction
+                                    )
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            reactions = localPathMessage.message.ownerReactions,
+                        )
                     },
                     statusContent = {
                         StatusContent(
