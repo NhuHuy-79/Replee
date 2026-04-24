@@ -32,7 +32,7 @@ interface MessageDao : BaseDao<MessageEntity> {
     @Query(
         """
         SELECT * FROM message 
-        WHERE conversationId = :conversationId 
+        WHERE conversationId = :conversationId
         ORDER BY sentAt DESC 
         LIMIT 1
     """
@@ -61,6 +61,18 @@ interface MessageDao : BaseDao<MessageEntity> {
     // Get Message Counts
     @Query("SELECT COUNT(*) FROM message WHERE conversationId = :id")
     fun countMessagesInRoom(id: String): Int
+
+    // Lấy 4 tin nhắn mới hơn của người gửi đó
+    @Query(
+        """
+        SELECT * FROM message 
+        WHERE senderId = :senderId 
+        AND sentAt > :sentAt 
+        ORDER BY sentAt ASC 
+        LIMIT 4
+    """
+    )
+    suspend fun getNewerMessages(senderId: String, sentAt: Long): List<MessageEntity>
 
     // --- UPDATE  ---
     @Query("UPDATE message SET pinned = :pinned WHERE messageId = :messageId")
@@ -161,6 +173,7 @@ interface MessageDao : BaseDao<MessageEntity> {
             }
         }
     }
+
 
     @Query(
         """

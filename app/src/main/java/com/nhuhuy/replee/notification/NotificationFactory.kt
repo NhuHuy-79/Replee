@@ -23,6 +23,7 @@ import com.nhuhuy.replee.R
 import com.nhuhuy.replee.broadcast.ReplyBroadcast
 import com.nhuhuy.replee.core.network.api.fcm.ContentType
 import com.nhuhuy.replee.core.network.api.fcm.NotificationResponse
+import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -84,11 +85,20 @@ const val EXTRA_CONVERSATION_ID = "conversation_id"
 const val EXTRA_NOTIFICATION_ID = "notification_id"
 
 class ConversationNotificationFactory @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val messageLocalDataSource: MessageLocalDataSource,
 ) : NotificationFactory(context = context) {
     override suspend fun execute(response: NotificationResponse): Notification {
         val channelId = context.getString(R.string.notification_channel)
         val bitmap = loadBitmapForNotification(response.senderImg)
+
+        val lastMessageEntity = messageLocalDataSource.getMessageById(response.messageId)
+        val recentMessageEntities = lastMessageEntity?.let {
+            messageLocalDataSource.getNewerMessages(
+                senderId = response.senderId,
+                sendAt = it.sentAt ?: -1
+            )
+        } ?: emptyList()
 
         val sender = Person.Builder()
             .setName(response.senderName)
@@ -101,14 +111,29 @@ class ConversationNotificationFactory @Inject constructor(
             .setName(context.getString(R.string.app_name))
             .setKey(response.receiverId)
             .build()
+        val messagingStyle = NotificationCompat.MessagingStyle(user)
+
+        if (recentMessageEntities.isNotEmpty()) {
+            recentMessageEntities
+                .filter { entity -> entity.messageId != lastMessageEntity?.messageId }
+                .map { messageEntity ->
+                    val message = NotificationCompat.MessagingStyle.Message(
+                        messageEntity.content,
+                        messageEntity.sentAt ?: -1,
+                        sender
+                    )
+                    messagingStyle.addHistoricMessage(message)
+                }
+        }
 
         val notificationMessage = NotificationCompat.MessagingStyle.Message(
             getContent(response),
             System.currentTimeMillis(),
             sender
         )
-        val messagingStyle = NotificationCompat.MessagingStyle(user)
-            .addMessage(notificationMessage)
+
+        messagingStyle.addMessage(notificationMessage)
+
 
         val contentIntent =
             context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {

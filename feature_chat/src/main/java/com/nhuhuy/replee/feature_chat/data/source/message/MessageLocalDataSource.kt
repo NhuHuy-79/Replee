@@ -29,6 +29,8 @@ interface MessageLocalDataSource {
     fun observeMessagesWithQuery(conversationId: String, query: String): Flow<List<MessageEntity>>
     fun observePinnedMessages(conversationId: String): Flow<List<MessageEntity>>
 
+    suspend fun getNewerMessages(senderId: String, sendAt: Long): List<MessageEntity>
+
     // --- UPDATE ---
     suspend fun updatePinStatus(messageId: String, pinned: Boolean)
     suspend fun updateMessageStatus(status: MessageStatus, messageId: String)
@@ -80,6 +82,11 @@ class MessageLocalDataSourceImp @Inject constructor(
     }
 
     // --- READ ---
+
+    override suspend fun getNewerMessages(senderId: String, sendAt: Long): List<MessageEntity> {
+        return messageDao.getNewerMessages(senderId = senderId, sentAt = sendAt)
+    }
+
 
     override suspend fun getIndexOfMessage(conversationId: String, messageId: String): Int {
         return messageDao.getIndexOfMessage(conversationId = conversationId, messageId = messageId)
