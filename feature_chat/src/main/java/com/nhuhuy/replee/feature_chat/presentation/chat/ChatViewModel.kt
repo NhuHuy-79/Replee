@@ -8,6 +8,7 @@ import com.nhuhuy.core.domain.model.ValidateFileResult
 import com.nhuhuy.core.domain.usecase.GetAccountByIdUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
+import com.nhuhuy.replee.feature_chat.data.NotificationManager
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.CheckBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.ObserveOwnerIsBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.UnblockUserUseCase
@@ -38,6 +39,7 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.FullIm
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.MessageOption
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.None
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
+import com.nhuhuy.replee.feature_chat.utils.ChatSessionManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -63,6 +65,11 @@ class ChatViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
     @Assisted("messageId") private val anchorMessageId: String? = null,
+
+    //update 1
+    private val chatSessionManager: ChatSessionManager,
+    private val notificationManager: NotificationManager,
+
     private val updateReadTimeUseCase: UpdateReadTimeUseCase,
     private val updateUnreadMessageUseCase: UpdateUnreadMessageUseCase,
     getReadTimeUseCase: GetReadTimeUseCase,
@@ -124,8 +131,9 @@ class ChatViewModel @AssistedInject constructor(
     private val stateValue: ChatState get() = state.value
 
     init {
+        chatSessionManager.setCurrentChatId(conversationId = conversationId)
+        notificationManager.cancelNotification(notificationId = conversationId.hashCode())
         loadInitialData()
-
         //Listen to Message
         listenToMessageChange()
     }
@@ -458,6 +466,7 @@ class ChatViewModel @AssistedInject constructor(
     }
 
     override fun onCleared() {
+        chatSessionManager.setCurrentChatId(conversationId = null)
         updateTypingStatusJob = null
         super.onCleared()
     }

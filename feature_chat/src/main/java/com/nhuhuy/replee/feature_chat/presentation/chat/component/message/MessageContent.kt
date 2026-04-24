@@ -27,15 +27,15 @@ fun MessageContent(
     val isReplying = message.repliedMessageId != null
 
     val containerColor = when {
-        isAnchor -> MaterialTheme.colorScheme.tertiary
-        isCurrentUser -> MaterialTheme.colorScheme.primary
-        else -> MaterialTheme.colorScheme.surfaceVariant
+        isAnchor -> MaterialTheme.colorScheme.tertiaryContainer
+        isCurrentUser -> MaterialTheme.colorScheme.primaryContainer
+        else -> MaterialTheme.colorScheme.secondaryContainer
     }
 
     val contentColor = when {
-        isAnchor -> MaterialTheme.colorScheme.onTertiary
-        isCurrentUser -> MaterialTheme.colorScheme.onPrimary
-        else -> MaterialTheme.colorScheme.onSurfaceVariant
+        isAnchor -> MaterialTheme.colorScheme.onTertiaryContainer
+        isCurrentUser -> MaterialTheme.colorScheme.onPrimaryContainer
+        else -> MaterialTheme.colorScheme.onSecondaryContainer
     }
 
     Box(

@@ -2,13 +2,13 @@ package com.nhuhuy.replee.helper
 
 import android.content.Context
 import androidx.core.content.pm.ShortcutManagerCompat
-import com.nhuhuy.replee.feature_chat.data.NotificationHelper
+import com.nhuhuy.replee.feature_chat.data.NotificationManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-class NotificationHelperImp @Inject constructor(
+class NotificationManagerImp @Inject constructor(
     @ApplicationContext private val context: Context,
-) : NotificationHelper {
+) : NotificationManager {
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
 
