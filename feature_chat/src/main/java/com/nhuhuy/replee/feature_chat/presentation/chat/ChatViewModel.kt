@@ -28,7 +28,6 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.GetTypingUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.UpdateReadTimeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.UpdateTypingUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.sync.SyncMessageUseCase
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.Anchor
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToInformation
@@ -63,7 +62,6 @@ import kotlin.time.Duration.Companion.seconds
 class ChatViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
-    @Assisted("anchor") private val anchorLastTime: Long? = null,
     @Assisted("messageId") private val anchorMessageId: String? = null,
     private val updateReadTimeUseCase: UpdateReadTimeUseCase,
     private val updateUnreadMessageUseCase: UpdateUnreadMessageUseCase,
@@ -102,16 +100,13 @@ class ChatViewModel @AssistedInject constructor(
     private val _state = MutableStateFlow(
         ChatState(
             currentUserId = currentUserId,
-            anchorToScroll = if (anchorMessageId != null && anchorLastTime != null) {
-                Anchor(messageId = anchorMessageId, lastTime = anchorLastTime)
-            } else null,
+            messageAnchorId = anchorMessageId.orEmpty(),
             isInitialJumpLoading = anchorMessageId != null
         )
     )
 
     val pagedMessages = observeLocalMessagesUseCase(
-        id = anchorMessageId,
-        anchor = anchorLastTime,
+        anchorMessageId = anchorMessageId,
         conversationId = conversationId
     )
         .cachedIn(viewModelScope)
@@ -362,9 +357,7 @@ class ChatViewModel @AssistedInject constructor(
                 }
 
                 ChatAction.OnScrollToAnchorDone -> {
-                    _state.reduce {
-                        copy(anchorToScroll = null, isInitialJumpLoading = false)
-                    }
+
                 }
 
                 is ChatAction.OnReactionSelect -> {
@@ -456,7 +449,6 @@ class ChatViewModel @AssistedInject constructor(
         fun create(
             @Assisted("otherUserId") otherUserId: String,
             @Assisted("currentUserId") currentUserId: String,
-            @Assisted("anchor") anchorLastTime: Long? = null,
             @Assisted("messageId") anchorMessageId: String? = null
         ): ChatViewModel
     }

@@ -18,7 +18,7 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.text.T
 fun MessageContent(
     localPathMessage: LocalPathMessage,
     isAnchor: Boolean,
-    isMine: Boolean,
+    isCurrentUser: Boolean,
     onLongClick: () -> Unit,
     onClick: (message: Message) -> Unit,
     modifier: Modifier = Modifier,
@@ -28,13 +28,13 @@ fun MessageContent(
 
     val containerColor = when {
         isAnchor -> MaterialTheme.colorScheme.tertiary
-        isMine -> MaterialTheme.colorScheme.primary
+        isCurrentUser -> MaterialTheme.colorScheme.primary
         else -> MaterialTheme.colorScheme.surfaceVariant
     }
 
     val contentColor = when {
         isAnchor -> MaterialTheme.colorScheme.onTertiary
-        isMine -> MaterialTheme.colorScheme.onPrimary
+        isCurrentUser -> MaterialTheme.colorScheme.onPrimary
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 

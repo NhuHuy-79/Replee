@@ -10,13 +10,11 @@ class ObserveLocalMessagesUseCase @Inject constructor(
     private val messageRepository: MessageRepository
 ) {
     operator fun invoke(
-        id: String? = null,
-        anchor: Long? = null,
+        anchorMessageId: String? = null,
         conversationId: String
     ): Flow<PagingData<LocalPathMessage>> {
         return messageRepository.observeLocalMessageWithPaging(
-            anchorMessageId = id,
-            anchorTimestamp = anchor,
+            anchorMessageId = anchorMessageId,
             conversationId = conversationId
         )
     }

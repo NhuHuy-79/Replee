@@ -165,9 +165,9 @@ fun ChatScreen(
                 )
             } else {
                 MessageScreen(
-                    anchorMessageId = state.anchorToScroll?.messageId,
-                    otherUserReadTime = otherUserReadTime,
-                    isOtherUserTyping = typingUsers.contains(state.otherUser.id),
+                    anchorMessageId = state.messageAnchorId,
+                    recipientReadAt = otherUserReadTime,
+                    showTypingIndicator = typingUsers.contains(state.otherUser.id),
                     lazyListState = lazyListState,
                     otherUserImg = state.otherUser.imageUrl,
                     otherUserName = state.otherUser.name,

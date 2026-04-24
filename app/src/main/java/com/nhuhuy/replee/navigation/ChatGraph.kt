@@ -123,7 +123,6 @@ fun EntryProviderScope<NavKey>.chatGraph(
                 factory.create(
                     currentUserId = screen.currentUserId,
                     otherUserId = screen.otherUserId,
-                    anchorLastTime = screen.anchorSendAt,
                     anchorMessageId = screen.anchorMessageId
                 )
             }
@@ -302,6 +301,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
                             anchorMessageId = event.messageId
                         )
                     )
+                    backstack.removeIf { key -> key is Pin }
                 }
             }
         }

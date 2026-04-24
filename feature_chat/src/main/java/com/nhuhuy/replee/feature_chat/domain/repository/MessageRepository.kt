@@ -17,7 +17,6 @@ interface MessageRepository {
     suspend fun getNewestMessageInConversation(conversationId: String): Message?
     fun observeLocalMessageWithPaging(
         anchorMessageId: String? = null,
-        anchorTimestamp: Long? = null,
         conversationId: String
     ): Flow<PagingData<LocalPathMessage>>
 

@@ -86,7 +86,6 @@ class MessageRepositoryImp @Inject constructor(
     @OptIn(ExperimentalPagingApi::class)
     override fun observeLocalMessageWithPaging(
         anchorMessageId: String?,
-        anchorTimestamp: Long?,
         conversationId: String
     ): Flow<PagingData<LocalPathMessage>> {
         val messageDao = coreDatabase.provideMessageDao()

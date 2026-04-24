@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun MessageLayout(
     modifier: Modifier,
-    isMine: Boolean,
+    isCurrentUser: Boolean,
     userImage: @Composable RowScope.() -> Unit,
     extraContent: @Composable ColumnScope.() -> Unit,
     messageContent: @Composable ColumnScope.() -> Unit,
@@ -36,9 +36,9 @@ fun MessageLayout(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = if (isMine) Arrangement.End else Arrangement.Start
+                horizontalArrangement = if (isCurrentUser) Arrangement.End else Arrangement.Start
             ) {
-                if (!isMine) {
+                if (!isCurrentUser) {
                     userImage()
                     Spacer(modifier = Modifier.width(8.dp))
                 }
@@ -46,14 +46,14 @@ fun MessageLayout(
                 Column(
                     modifier = Modifier.fillMaxWidth(0.8f),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
-                    horizontalAlignment = if (!isMine) Alignment.Start else Alignment.End
+                    horizontalAlignment = if (!isCurrentUser) Alignment.Start else Alignment.End
                 ) {
                     extraContent()
                     messageContent()
                     reactionContent()
                 }
 
-                if (isMine) {
+                if (isCurrentUser) {
                     Spacer(Modifier.width(4.dp))
                     statusContent()
                 }
