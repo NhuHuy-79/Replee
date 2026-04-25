@@ -5,6 +5,8 @@ import androidx.room.Room
 import com.nhuhuy.replee.core.data.data_store.AppDataStore
 import com.nhuhuy.replee.core.data.data_store.AppDataStoreImp
 import com.nhuhuy.replee.core.database.CoreDatabase
+import com.nhuhuy.replee.core.database.LocalTransactionRunner
+import com.nhuhuy.replee.core.database.LocalTransactionRunnerImp
 import com.nhuhuy.replee.core.database.Migration_15_16
 import com.nhuhuy.replee.core.database.entity.account.AccountDao
 import dagger.Module
@@ -62,4 +64,12 @@ object LocalModuleProvider {
     fun provideAccountDao(database: CoreDatabase): AccountDao {
         return database.provideAccountDao()
     }
+
+    @Provides
+    @Singleton
+    fun provideLocalTransactionRunner(database: CoreDatabase): LocalTransactionRunner {
+        return LocalTransactionRunnerImp(database)
+    }
 }
+
+

@@ -103,6 +103,5 @@ object NetworkModuleProvider {
     @Provides
     @Singleton
     fun provideFirebaseMessaging() = Firebase.messaging
-
 }
 

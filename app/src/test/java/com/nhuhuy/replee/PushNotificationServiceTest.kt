@@ -11,6 +11,7 @@ import com.nhuhuy.replee.core.test.MainDispatcherRule
 import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
 import com.nhuhuy.replee.feature_chat.domain.model.converastion.Conversation
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
+import com.nhuhuy.replee.feature_chat.utils.ChatSessionManager
 import com.nhuhuy.replee.notification.NotificationParser
 import com.nhuhuy.replee.service.PushNotificationService
 import com.nhuhuy.replee.service.ServiceNotifier
@@ -30,6 +31,7 @@ class PushNotificationServiceTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var updateDeviceTokenUseCase: UpdateDeviceTokenUseCase
+    private lateinit var chatSessionManager: ChatSessionManager
     private lateinit var conversationRepository: ConversationRepository
     private lateinit var sessionManager: SessionManager
     private lateinit var serviceNotifier: ServiceNotifier
@@ -54,7 +56,9 @@ class PushNotificationServiceTest {
         notificationParser = mockk(relaxed = true)
         sessionManager = mockk(relaxed = true)
         conversationRepository = mockk(relaxed = true)
+        chatSessionManager = mockk(relaxed = true)
         service = PushNotificationService().apply {
+            this.chatSessionManager = this@PushNotificationServiceTest.chatSessionManager
             this.updateDeviceTokenUseCase =
                 this@PushNotificationServiceTest.updateDeviceTokenUseCase
             this.serviceNotifier = this@PushNotificationServiceTest.serviceNotifier
@@ -79,7 +83,7 @@ class PushNotificationServiceTest {
     fun `Should show notification when new message is received and notification body is not null`() =
         runTest {
             val remoteMessage = mockk<RemoteMessage>()
-
+            coEvery { chatSessionManager.currentChatId } returns null
             coEvery { conversationRepository.getConversationById(fakeResponse.conversationId) } returns Conversation().copy(
                 id = fakeResponse.conversationId,
                 muted = false
@@ -105,6 +109,7 @@ class PushNotificationServiceTest {
     fun `Should show notification when new message is received and notification body is null`() =
         runTest {
             val remoteMessage = mockk<RemoteMessage>()
+            coEvery { chatSessionManager.currentChatId } returns null
             coEvery { conversationRepository.getConversationById(any()) } returns mockk<Conversation>()
             every { sessionManager.getUserIdOrNull() } returns "12"
             every { notificationParser.getNotificationBody(remoteMessage) } returns null
