@@ -39,8 +39,10 @@ sealed interface HomeDestination : NavKey {
 
     @Serializable
     data class Chat(
-        val ownerId: String,
+        val currentUserId: String,
         val otherUserId: String,
+        val anchorSendAt: Long? = null,
+        val anchorMessageId: String? = null
     ) : HomeDestination
 
     @Serializable
@@ -89,7 +91,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
                 is ConversationEvent.NavigateToChatRoom -> {
                     backstack.add(
                         HomeDestination.Chat(
-                            ownerId = event.currentUserId,
+                            currentUserId = event.currentUserId,
                             otherUserId = event.otherUserId
                         )
                     )
@@ -119,8 +121,9 @@ fun EntryProviderScope<NavKey>.chatGraph(
         val viewModel: ChatViewModel = hiltViewModel(
             creationCallback = { factory: ChatViewModel.Factory ->
                 factory.create(
-                    currentUserId = screen.ownerId,
-                    otherUserId = screen.otherUserId
+                    currentUserId = screen.currentUserId,
+                    otherUserId = screen.otherUserId,
+                    anchorMessageId = screen.anchorMessageId
                 )
             }
         )
@@ -189,6 +192,8 @@ fun EntryProviderScope<NavKey>.chatGraph(
                         )
                     )
                 }
+
+                is ChatEvent.ScrollToAnchor -> TODO()
             }
         }
 
@@ -246,6 +251,16 @@ fun EntryProviderScope<NavKey>.chatGraph(
         ObserveEffect(searchViewModel.event) { event ->
             when (event) {
                 SearchEvent.NavigateBack -> backstack.removeLastOrNull()
+                is SearchEvent.NavigateToMessage -> {
+                    backstack.add(
+                        HomeDestination.Chat(
+                            currentUserId = event.currentUserId,
+                            otherUserId = screen.otherUserId,
+                            anchorSendAt = event.anchorSendAt,
+                            anchorMessageId = event.anchorMessageId
+                        )
+                    )
+                }
             }
         }
 
@@ -277,6 +292,17 @@ fun EntryProviderScope<NavKey>.chatGraph(
         ObserveEffect(viewModel.event) { event ->
             when (event) {
                 PinEvent.NavigateBack -> backstack.removeLastOrNull()
+                is PinEvent.NavigateToConversation -> {
+                    backstack.removeIf { key -> key is HomeDestination.Chat }
+                    backstack.add(
+                        HomeDestination.Chat(
+                            currentUserId = event.currentUserId,
+                            otherUserId = event.otherUserId,
+                            anchorMessageId = event.messageId
+                        )
+                    )
+                    backstack.removeIf { key -> key is Pin }
+                }
             }
         }
 

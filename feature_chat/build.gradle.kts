@@ -18,6 +18,9 @@ dependencies {
     implementation(libs.androidx.paging.compose)
     //Zoomable for Image zoonm
     implementation(libs.zoomable)
+    //Emoji2
+    implementation("androidx.emoji2:emoji2-emojipicker:1.6.0")
+
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)

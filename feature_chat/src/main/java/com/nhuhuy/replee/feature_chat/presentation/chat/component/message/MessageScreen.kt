@@ -2,7 +2,6 @@ package com.nhuhuy.replee.feature_chat.presentation.chat.component.message
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -14,11 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.PushPin
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -34,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.unit.dp
-import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import com.nhuhuy.replee.core.common.utils.formatToChatTime
@@ -45,26 +41,26 @@ import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.StatusContent
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.TypingItem
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.emote.EmoteFlowRow
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @OptIn(FlowPreview::class)
 @Composable
 fun MessageScreen(
-    otherUserReadTime: Long,
-    isOtherUserTyping: Boolean,
+    modifier: Modifier = Modifier,
+    anchorMessageId: String? = null,
+    recipientReadAt: Long,
+    showTypingIndicator: Boolean,
     lazyListState: LazyListState,
     otherUserImg: String,
     otherUserName: String,
     onAction: (ChatAction) -> Unit,
-    modifier: Modifier = Modifier,
     currentUserId: String,
     pagingItems: LazyPagingItems<LocalPathMessage>,
 ) {
     val scope = rememberCoroutineScope()
-
     val isAtBottom by remember {
         derivedStateOf {
             lazyListState.firstVisibleItemIndex == 0 &&
@@ -78,8 +74,6 @@ fun MessageScreen(
         }
     }
 
-    val refreshState = pagingItems.loadState.append
-
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
@@ -92,7 +86,7 @@ fun MessageScreen(
         ) {
             item {
                 TypingItem(
-                    visible = isOtherUserTyping,
+                    visible = showTypingIndicator,
                     name = otherUserName,
                     imgUrl = otherUserImg,
                     modifier = Modifier.fillMaxWidth()
@@ -103,19 +97,15 @@ fun MessageScreen(
                 count = pagingItems.itemCount,
                 key = pagingItems.itemKey { item -> item.message.messageId },
             ) { index ->
-                val localPathMessage = pagingItems[index] ?: return@items
-                val isMine = localPathMessage.message.senderId == currentUserId
-                Timber.d("Message: $localPathMessage")
-                val replyTo = if (localPathMessage.message.repliedMessageId == currentUserId) "You"
-                else otherUserName
+                val messageData = pagingItems[index] ?: return@items
+                val isCurrentUser = messageData.message.senderId == currentUserId
+                val isAnchor = messageData.message.messageId == anchorMessageId
+                val replyTo =
+                    if (messageData.message.repliedMessageSenderId == currentUserId) "You"
+                    else otherUserName
                 MessageLayout(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .animateItem(
-                            fadeInSpec = null,
-                        ),
-                    isMine = isMine,
-                    showTimeContent = false,
+                    modifier = Modifier,
+                    isCurrentUser = isCurrentUser,
                     userImage = {
                         UserImage(
                             userName = otherUserName,
@@ -129,11 +119,11 @@ fun MessageScreen(
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Text(
-                                text = localPathMessage.message.sentAt.formatToChatTime(),
+                                text = messageData.message.sentAt.formatToChatTime(),
                                 style = MaterialTheme.typography.labelSmall
                             )
 
-                            if (localPathMessage.message.pinned) {
+                            if (messageData.message.pinned) {
                                 Icon(
                                     imageVector = Icons.Rounded.PushPin,
                                     contentDescription = null,
@@ -143,63 +133,59 @@ fun MessageScreen(
                             }
                         }
                     },
+                    reactionContent = {
+                        val allReactions =
+                            messageData.message.ownerReactions + messageData.message.otherUserReactions
+                        EmoteFlowRow(
+                            onReactionClick = { reaction ->
+                                onAction(
+                                    ChatAction.OnMessageReactionClick(
+                                        reaction = reaction,
+                                        messageId = messageData.message.messageId
+                                    )
+                                )
+                            },
+                            modifier = Modifier,
+                            reactions = allReactions,
+                        )
+                    },
                     statusContent = {
                         StatusContent(
-                            otherUserReadingTime = otherUserReadTime,
-                            message = localPathMessage.message,
+                            otherUserReadingTime = recipientReadAt,
+                            message = messageData.message,
                             receiverImageUrl = otherUserImg,
                             receiverName = otherUserName,
                         )
                     },
                     messageContent = {
                         MessageContainer(
+                            isAnchor = isAnchor,
                             replyTo = replyTo,
-                            localPathMessage = localPathMessage,
-                            isMine = isMine,
+                            messageItem = messageData,
+                            isCurrentUser = isCurrentUser,
                             onClick = {
-                                when (localPathMessage.message.type) {
+                                when (messageData.message.type) {
                                     MessageType.TEXT -> {
 
                                     }
-
                                     MessageType.IMAGE -> {
                                         onAction(
                                             ChatAction.OnImagePress(
-                                                urlKey = localPathMessage.localPath
-                                                    ?: localPathMessage.message.remoteUrl.orEmpty(),
+                                                urlKey = messageData.localPath
+                                                    ?: messageData.message.remoteUrl.orEmpty(),
                                             )
                                         )
                                     }
                                 }
                             },
                             onLongClick = {
-                                onAction(ChatAction.OnMessageLongPress(message = localPathMessage.message))
+                                onAction(ChatAction.OnMessageLongPress(message = messageData.message))
                             }
                         )
                     }
                 )
             }
 
-        }
-
-
-        AnimatedVisibility(
-            visible = refreshState is LoadState.Loading,
-            modifier = Modifier.align(Alignment.TopCenter)
-        ) {
-            Box(
-                modifier = Modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                        shape = CircleShape
-                    )
-                    .padding(8.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp)
-                )
-            }
         }
 
         AnimatedVisibility(
@@ -235,7 +221,6 @@ fun Modifier.onMessageLongPress(
     onClick: () -> Unit = {}
 ): Modifier = composed {
     val interactionSource = remember { MutableInteractionSource() }
-
     this.combinedClickable(
         interactionSource = interactionSource,
         indication = LocalIndication.current,

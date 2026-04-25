@@ -52,12 +52,12 @@ suspend inline fun <T, R> optimizeRead(
     if (items.isEmpty()) return@coroutineScope emptyList()
 
     val chunks = items.distinct().chunked(30)
-
-    // Bắn tất cả request cùng lúc
     val deferredResults = chunks.map { chunk ->
         async {
             try {
                 action(chunk)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e("OptimizedRead", "Error in optimizedRead: ${e.message}")
                 emptyList()

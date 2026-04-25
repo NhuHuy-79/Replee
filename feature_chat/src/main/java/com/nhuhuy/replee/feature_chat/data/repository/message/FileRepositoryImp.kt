@@ -20,6 +20,7 @@ import com.nhuhuy.core.domain.repository.FileRepository
 import com.nhuhuy.replee.core.data.data_source.FileStorageDataSource
 import com.nhuhuy.replee.core.data.data_source.FileValidator
 import com.nhuhuy.replee.core.data.data_source.file_path.FilePathLocalDataSource
+import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.execute
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
 import com.nhuhuy.replee.core.network.quailify.Retrofit
@@ -42,7 +43,7 @@ class FileRepositoryImp @Inject constructor(
     private val fileValidator: FileValidator,
     private val fileStorageDataSource: FileStorageDataSource,
     @ApplicationContext private val context: Context,
-    private val ioDispatcher: CoroutineDispatcher,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @Retrofit private val uploadFileService: UploadFileService,
 ) : FileRepository {
     override suspend fun uploadImageWithOption(

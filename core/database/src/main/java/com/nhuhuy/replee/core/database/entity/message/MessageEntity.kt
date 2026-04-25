@@ -45,4 +45,7 @@ data class MessageEntity(
     val repliedMessageType: String? = null,
     @ColumnInfo("repliedMessageRemoteUrl")
     val repliedMessageRemoteUrl: String? = null,
+    //ver1
+    val ownerReactions: List<String> = emptyList(),
+    val otherUserReactions: List<String> = emptyList()
 )

@@ -15,7 +15,7 @@ import com.nhuhuy.replee.core.network.imp.RetrofitUploader
 import com.nhuhuy.replee.core.network.quailify.Retrofit
 import com.nhuhuy.replee.feature_auth.data.data_source.AuthNetworkDataSource
 import com.nhuhuy.replee.feature_auth.data.data_source.AuthNetworkDataSourceImp
-import com.nhuhuy.replee.feature_chat.data.NotificationHelper
+import com.nhuhuy.replee.feature_chat.data.NotificationManager
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSourceImp
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
@@ -28,11 +28,13 @@ import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSour
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSourceImp
 import com.nhuhuy.replee.feature_chat.data.source.metadata.MetaDataNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.metadata.MetaDataNetworkDataSourceImpl
+import com.nhuhuy.replee.feature_chat.data.source.paging.PagingMessageNetworkDataSource
+import com.nhuhuy.replee.feature_chat.data.source.paging.PagingMessageNetworkDataSourceImp
 import com.nhuhuy.replee.feature_profile.data.source.ProfileLocalDataSource
 import com.nhuhuy.replee.feature_profile.data.source.ProfileLocalDataSourceImp
 import com.nhuhuy.replee.feature_profile.data.source.ProfileNetworkDataSource
 import com.nhuhuy.replee.feature_profile.data.source.ProfileNetworkDataSourceImp
-import com.nhuhuy.replee.helper.NotificationHelperImp
+import com.nhuhuy.replee.helper.NotificationManagerImp
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -104,5 +106,8 @@ abstract class DataSourceModuleBinder {
     abstract fun bindAccountNetworkDataSource(imp: AccountNetworkDataSourceImp): AccountNetworkDataSource
 
     @Binds
-    abstract fun bindNotificationHelper(imp: NotificationHelperImp): NotificationHelper
+    abstract fun bindNotificationHelper(imp: NotificationManagerImp): NotificationManager
+
+    @Binds
+    abstract fun bindPageMessageNetworkDataSource(imp: PagingMessageNetworkDataSourceImp): PagingMessageNetworkDataSource
 }

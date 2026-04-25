@@ -62,6 +62,16 @@ class PinViewModel @AssistedInject constructor(
                 is PinAction.OnPinOff -> {
                     unPinMessageUseCase(action.message)
                 }
+
+                is PinAction.OnMessageClick -> {
+                    onEvent(
+                        PinEvent.NavigateToConversation(
+                            currentUserId = state.value.currentUser.id,
+                            otherUserId = state.value.otherUser.id,
+                            messageId = action.message.messageId
+                        )
+                    )
+                }
             }
         }
     }

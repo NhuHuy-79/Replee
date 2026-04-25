@@ -82,6 +82,19 @@ class SearchViewModel @AssistedInject constructor(
                 SearchAction.OnNavigateBack -> {
                     onEvent(SearchEvent.NavigateBack)
                 }
+
+                is SearchAction.OnMessagePress -> {
+                    val message = action.message
+                    val currentUserId =
+                        if (message.senderId == otherUserId) message.receiverId else message.senderId
+                    onEvent(
+                        SearchEvent.NavigateToMessage(
+                            currentUserId = currentUserId,
+                            anchorMessageId = action.message.messageId,
+                            anchorSendAt = action.message.sentAt
+                        )
+                    )
+                }
             }
         }
     }

@@ -6,6 +6,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import com.nhuhuy.replee.feature_chat.data.SyncManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -19,7 +20,7 @@ class SyncConversationWorker @AssistedInject constructor(
     @Assisted private val parameters: WorkerParameters,
     private val sessionManager: SessionManager,
     private val syncManager: SyncManager,
-    private val dispatcher: CoroutineDispatcher
+    @IoDispatcher private val dispatcher: CoroutineDispatcher
 ) : CoroutineWorker(context, parameters) {
     override suspend fun doWork(): Result {
         return withContext(dispatcher) {

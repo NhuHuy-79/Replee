@@ -24,4 +24,6 @@ data class MessageDTO(
     val repliedMessageSenderId: String? = null,
     val repliedMessageType: MessageType? = null,
     val repliedMessageRemoteUrl: String? = null,
+    //ver1
+    val reactions: Map<String, List<String>> = emptyMap()
 )

@@ -17,13 +17,26 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.text.T
 @Composable
 fun MessageContent(
     localPathMessage: LocalPathMessage,
-    isMine: Boolean,
+    isAnchor: Boolean,
+    isCurrentUser: Boolean,
     onLongClick: () -> Unit,
     onClick: (message: Message) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val message = localPathMessage.message
     val isReplying = message.repliedMessageId != null
+
+    val containerColor = when {
+        isAnchor -> MaterialTheme.colorScheme.tertiaryContainer
+        isCurrentUser -> MaterialTheme.colorScheme.primaryContainer
+        else -> MaterialTheme.colorScheme.secondaryContainer
+    }
+
+    val contentColor = when {
+        isAnchor -> MaterialTheme.colorScheme.onTertiaryContainer
+        isCurrentUser -> MaterialTheme.colorScheme.onPrimaryContainer
+        else -> MaterialTheme.colorScheme.onSecondaryContainer
+    }
 
     Box(
         modifier = Modifier
@@ -38,18 +51,22 @@ fun MessageContent(
                 TextMessage(
                     modifier = modifier,
                     isReplying = isReplying,
-                    isMine = isMine,
                     localPathMessage = localPathMessage,
+                    containerColor = containerColor,
+                    contentColor = contentColor
                 )
             }
 
             MessageType.IMAGE -> {
                 ImageMessage(
                     localPathMessage = localPathMessage,
-                    modifier = Modifier.border(
+                    modifier = modifier.border(
                         width = 2.dp,
                         color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = RoundedCornerShape(16.dp)
+                        shape = if (isReplying) RoundedCornerShape(
+                            bottomEnd = 16.dp,
+                            bottomStart = 16.dp
+                        ) else RoundedCornerShape(16.dp)
                     )
                 )
             }

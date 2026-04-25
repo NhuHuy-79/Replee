@@ -22,11 +22,14 @@ interface MessageLocalDataSource {
     suspend fun getMessageListById(messageIds: List<String>): List<MessageEntity>
     suspend fun getUnsyncedMessageByType(messageType: MessageType): List<MessageEntity>
     suspend fun getUnsyncedMessages(): List<MessageEntity>
+    suspend fun getIndexOfMessage(conversationId: String, messageId: String): Int
     suspend fun getMessagesByQuery(conversationId: String, query: String): List<MessageEntity>
     suspend fun getNewestMessageInConversation(conversationId: String): MessageEntity?
     fun observeMessages(conversationId: String): Flow<List<MessageEntity>>
     fun observeMessagesWithQuery(conversationId: String, query: String): Flow<List<MessageEntity>>
     fun observePinnedMessages(conversationId: String): Flow<List<MessageEntity>>
+
+    suspend fun getNewerMessages(senderId: String, sendAt: Long): List<MessageEntity>
 
     // --- UPDATE ---
     suspend fun updatePinStatus(messageId: String, pinned: Boolean)
@@ -40,6 +43,11 @@ interface MessageLocalDataSource {
         receiverId: String,
         status: MessageStatus
     ): List<MessageEntity>
+    suspend fun updateReactions(
+        messageId: String,
+        ownerReactions: List<String>,
+        otherUserReactions: List<String>
+    )
 
     // --- DELETE ---
     suspend fun deleteMessage(message: MessageEntity)
@@ -74,6 +82,15 @@ class MessageLocalDataSourceImp @Inject constructor(
     }
 
     // --- READ ---
+
+    override suspend fun getNewerMessages(senderId: String, sendAt: Long): List<MessageEntity> {
+        return messageDao.getNewerMessages(senderId = senderId, sentAt = sendAt)
+    }
+
+
+    override suspend fun getIndexOfMessage(conversationId: String, messageId: String): Int {
+        return messageDao.getIndexOfMessage(conversationId = conversationId, messageId = messageId)
+    }
     override fun observePinnedMessages(conversationId: String): Flow<List<MessageEntity>> {
         return messageDao.observePinnedMessages(conversationId)
     }
@@ -188,6 +205,14 @@ class MessageLocalDataSourceImp @Inject constructor(
             }
             list
         }
+    }
+
+    override suspend fun updateReactions(
+        messageId: String,
+        ownerReactions: List<String>,
+        otherUserReactions: List<String>
+    ) {
+        messageDao.updateReactions(messageId, ownerReactions, otherUserReactions)
     }
 
     // --- DELETE ---

@@ -5,6 +5,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import com.nhuhuy.replee.feature_chat.data.SyncManager
 import com.nhuhuy.replee.feature_chat.data.repository.message.MESSAGE_ID_INPUT
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
@@ -22,7 +23,7 @@ class SendFileWorker @AssistedInject constructor(
     private val sendFileSyncUseCase: SendFileSyncUseCase,
     private val workerScheduler: WorkerScheduler,
     private val syncManager: SyncManager,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result = withContext(ioDispatcher) {
         val messageId = inputData.getString(MESSAGE_ID_INPUT) ?: return@withContext Result.retry()

@@ -8,15 +8,19 @@ import com.nhuhuy.core.domain.model.ValidateFileResult
 import com.nhuhuy.core.domain.usecase.GetAccountByIdUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
+import com.nhuhuy.replee.feature_chat.data.NotificationManager
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.CheckBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.ObserveOwnerIsBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.UnblockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.SendFileMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.ValidateFileSizeUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.AddReactionUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.DeleteMessageUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.GetMessagePositionUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveLocalMessagesUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.PinMessageUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.RemoveReactionUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.UnPinMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.UpdateUnreadMessageUseCase
@@ -30,17 +34,18 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToInformation
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToPin
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToSearch
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.FullImage
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.MessageOption
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.None
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
+import com.nhuhuy.replee.feature_chat.utils.ChatSessionManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,9 +64,15 @@ import kotlin.time.Duration.Companion.seconds
 class ChatViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
+    @Assisted("messageId") private val anchorMessageId: String? = null,
+
+    //update 1
+    private val chatSessionManager: ChatSessionManager,
+    private val notificationManager: NotificationManager,
+
     private val updateReadTimeUseCase: UpdateReadTimeUseCase,
     private val updateUnreadMessageUseCase: UpdateUnreadMessageUseCase,
-    private val getReadTimeUseCase: GetReadTimeUseCase,
+    getReadTimeUseCase: GetReadTimeUseCase,
     private val unblockUserUseCase: UnblockUserUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
     private val getAccountByIdUseCase: GetAccountByIdUseCase,
@@ -74,9 +85,12 @@ class ChatViewModel @AssistedInject constructor(
     private val validateFileSizeUseCase: ValidateFileSizeUseCase,
     private val deleteMessageUseCase: DeleteMessageUseCase,
     private val updateTypingUseCase: UpdateTypingUseCase,
-    private val getTypingUseCase: GetTypingUseCase,
+    getTypingUseCase: GetTypingUseCase,
     private val pinMessageUseCase: PinMessageUseCase,
     private val unPinMessageUseCase: UnPinMessageUseCase,
+    private val addReactionUseCase: AddReactionUseCase,
+    private val removeReactionUseCase: RemoveReactionUseCase,
+    private val getMessagePositionUseCase: GetMessagePositionUseCase
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
     private var currentUserReadingTime = 0L
     private var listenMessageChangeJob: Job? = null
@@ -90,9 +104,18 @@ class ChatViewModel @AssistedInject constructor(
 
     val blocked = observeOwnerIsBlockUseCase(ownerId = currentUserId, otherUserId = otherUserId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5.seconds), false)
-    private val _state = MutableStateFlow(ChatState(currentUserId = currentUserId))
+    private val _state = MutableStateFlow(
+        ChatState(
+            currentUserId = currentUserId,
+            messageAnchorId = anchorMessageId.orEmpty(),
+            isInitialJumpLoading = anchorMessageId != null
+        )
+    )
 
-    val pagedMessages = observeLocalMessagesUseCase(conversationId)
+    val pagedMessages = observeLocalMessagesUseCase(
+        anchorMessageId = anchorMessageId,
+        conversationId = conversationId
+    )
         .cachedIn(viewModelScope)
 
     val otherLastReadingTime =
@@ -105,10 +128,12 @@ class ChatViewModel @AssistedInject constructor(
     override val state: StateFlow<ChatState>
         get() = _state.asStateFlow()
 
+    private val stateValue: ChatState get() = state.value
+
     init {
-
+        chatSessionManager.setCurrentChatId(conversationId = conversationId)
+        notificationManager.cancelNotification(notificationId = conversationId.hashCode())
         loadInitialData()
-
         //Listen to Message
         listenToMessageChange()
     }
@@ -117,21 +142,33 @@ class ChatViewModel @AssistedInject constructor(
         viewModelScope.launch {
             supervisorScope {
                 launch {
+                    val anchorPosition = async {
+                        anchorMessageId?.let { messageId ->
+                            getMessagePositionUseCase(
+                                conversationId = conversationId,
+                                messageId = messageId
+                            )
+                        }
+                    }
+
                     val blockedDeferred = async {
                         checkBlockUseCase(currentUserId, otherUserId)
                     }
 
-                    val userDeferred = async {
+                    val currentUserDataDeferred = async {
+                        getAccountByIdUseCase(currentUserId)
+                    }
+
+                    val otherUserDeferred = async {
                         getAccountByIdUseCase(otherUserId)
                     }
 
-                    val blocked = blockedDeferred.await()
-                    val user = userDeferred.await()
-
                     _state.reduce {
                         copy(
-                            isBlocked = blocked,
-                            otherUser = user
+                            isBlocked = blockedDeferred.await(),
+                            otherUser = otherUserDeferred.await(),
+                            currentUser = currentUserDataDeferred.await(),
+                            messagePosition = anchorPosition.await() ?: 0
                         )
                     }
                 }
@@ -326,6 +363,54 @@ class ChatViewModel @AssistedInject constructor(
                         )
                     )
                 }
+
+                ChatAction.OnScrollToAnchorDone -> {
+
+                }
+
+                is ChatAction.OnReactionSelect -> {
+                    val messageId = stateValue.currentMessage?.messageId
+                    _state.reduce {
+                        copy(overlay = None, currentMessage = null)
+                    }
+
+                    messageId?.let { id ->
+                        addReactionUseCase(
+                            conversationId = conversationId,
+                            messageId = id,
+                            reaction = action.reaction,
+                            userId = currentUserId
+                        )
+                    }
+
+                }
+
+                is ChatAction.OnReactionDelete -> {
+                    removeReactionUseCase(
+                        conversationId = conversationId,
+                        messageId = action.messageId,
+                        reaction = action.reaction,
+                        userId = currentUserId
+                    )
+                }
+
+                ChatAction.OnReactionMoreClick -> {
+                    _state.reduce {
+                        copy(
+                            overlay = ChatOverlay.EmojiPicker
+                        )
+                    }
+                }
+
+                is ChatAction.OnMessageReactionClick -> {
+                    removeReactionUseCase(
+                        conversationId = conversationId,
+                        messageId = action.messageId,
+                        reaction = action.reaction,
+                        userId = currentUserId
+                    )
+                }
+
             }
         }
     }
@@ -372,6 +457,7 @@ class ChatViewModel @AssistedInject constructor(
         fun create(
             @Assisted("otherUserId") otherUserId: String,
             @Assisted("currentUserId") currentUserId: String,
+            @Assisted("messageId") anchorMessageId: String? = null
         ): ChatViewModel
     }
 
@@ -380,15 +466,8 @@ class ChatViewModel @AssistedInject constructor(
     }
 
     override fun onCleared() {
+        chatSessionManager.setCurrentChatId(conversationId = null)
         updateTypingStatusJob = null
-        viewModelScope.launch(NonCancellable) {
-            updateTypingUseCase(
-                conversationId = conversationId,
-                userId = currentUserId,
-                typing = false
-            )
-        }
         super.onCleared()
     }
-
 }

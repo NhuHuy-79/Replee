@@ -3,6 +3,7 @@ package com.nhuhuy.replee.feature_chat.data.repository.conversation
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.data.data_store.AppDataStore
 import com.nhuhuy.replee.core.data.data_store.SeedColor
+import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
@@ -15,7 +16,7 @@ import javax.inject.Inject
 
 class OptionRepositoryImp @Inject constructor(
     private val appDataStore: AppDataStore,
-    private val ioDispatcher: CoroutineDispatcher,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource
 ) : OptionRepository {

@@ -2,6 +2,7 @@ package com.nhuhuy.replee.feature_chat.data.repository.metadata
 
 import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.feature_chat.data.source.metadata.MetaDataNetworkDataSource
 import com.nhuhuy.replee.feature_chat.domain.repository.MetaDataRepository
@@ -16,7 +17,7 @@ import javax.inject.Inject
 class MetaDataRepositoryImp @Inject constructor(
     private val sessionManager: SessionManager,
     private val metaDataNetworkDataSource: MetaDataNetworkDataSource,
-    private val ioDispatcher: CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : MetaDataRepository {
     override suspend fun updateMyTyping(
         conversationId: String,

@@ -5,7 +5,9 @@ import com.google.firebase.messaging.RemoteMessage
 import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.usecase.UpdateDeviceTokenUseCase
 import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
+import com.nhuhuy.replee.feature_chat.domain.model.converastion.Conversation
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
+import com.nhuhuy.replee.feature_chat.utils.ChatSessionManager
 import com.nhuhuy.replee.notification.NotificationParser
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
@@ -21,6 +23,9 @@ import javax.inject.Inject
 class PushNotificationService() : FirebaseMessagingService() {
     @Inject
     lateinit var updateDeviceTokenUseCase: UpdateDeviceTokenUseCase
+
+    @Inject
+    lateinit var chatSessionManager: ChatSessionManager
 
     @Inject
     lateinit var conversationRepository: ConversationRepository
@@ -39,7 +44,6 @@ class PushNotificationService() : FirebaseMessagingService() {
     var dispatcher: CoroutineDispatcher = Dispatchers.IO
     private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
-
     override fun onNewToken(token: String) {
         scope.launch {
             updateDeviceTokenUseCase(token)
@@ -50,22 +54,29 @@ class PushNotificationService() : FirebaseMessagingService() {
     override fun onMessageReceived(message: RemoteMessage) {
         scope.launch {
             val currentUserId = sessionManager.getUserIdOrNull()
+            var conversation: Conversation? = null
             val notificationBody = notificationParser.getNotificationBody(message)
 
+            when {
+                notificationBody == null -> {
+                    Timber.d("Notification body is null")
+                    return@launch
+                }
 
-            if (notificationBody == null) {
-                Timber.d("Notification body is null")
-                return@launch
+                notificationBody.senderId == currentUserId -> {
+                    Timber.d("Notification is from current user")
+                    return@launch
+                }
+
+                chatSessionManager.currentChatId == notificationBody.conversationId -> {
+                    Timber.d("Notification is from current chat")
+                    return@launch
+                }
             }
 
-            if (notificationBody.senderId == currentUserId) {
-                Timber.d("Notification is from current user")
-                return@launch
-            }
+            conversation =
+                conversationRepository.getConversationById(notificationBody.conversationId)
 
-            val conversation = conversationRepository.getConversationById(
-                conversationId = notificationBody.conversationId
-            )
 
             workerScheduler.scheduleSaveMessageWorker(conversationId = notificationBody.conversationId)
 

@@ -20,7 +20,11 @@ sealed interface ChatAction : UiAction{
     data class OnImagePress(val urlKey: String) : ChatAction
     data object OnMessageDelete : ChatAction
     data object OnMessagePin : ChatAction
+    data class OnReactionSelect(val reaction: String) : ChatAction
+    data class OnReactionDelete(val reaction: String, val messageId: String) : ChatAction
+    data object OnReactionMoreClick : ChatAction
     data object OnMessageUnPin : ChatAction
     data object OnNewMessageTrigger : ChatAction
-
+    data object OnScrollToAnchorDone : ChatAction
+    data class OnMessageReactionClick(val reaction: String, val messageId: String) : ChatAction
 }

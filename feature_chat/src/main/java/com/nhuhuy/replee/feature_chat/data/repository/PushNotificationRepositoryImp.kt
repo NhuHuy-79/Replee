@@ -3,6 +3,7 @@ package com.nhuhuy.replee.feature_chat.data.repository
 import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.data.mapper.toAccount
+import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.execute
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.network.api.fcm.ContentType
@@ -23,7 +24,7 @@ class PushNotificationRepositoryImp @Inject constructor(
     private val accountLocalDataSource: AccountLocalDataSource,
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val pushNotificationNetworkDataSource: PushNotificationNetworkDataSource,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : PushNotificationRepository {
 
     private suspend fun createConversationRequest(

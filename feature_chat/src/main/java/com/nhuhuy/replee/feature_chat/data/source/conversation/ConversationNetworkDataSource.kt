@@ -13,7 +13,6 @@ import com.nhuhuy.replee.core.network.utils.optimizedWrite
 import com.nhuhuy.replee.core.network.utils.toMilliseconds
 import com.nhuhuy.replee.feature_chat.data.model.network.ConversationDTO
 import com.nhuhuy.replee.feature_chat.data.model.network.MessageDTO
-import com.nhuhuy.replee.feature_chat.utils.updateFieldValue
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -39,7 +38,6 @@ interface ConversationNetworkDataSource {
     suspend fun updateConversationDataMap(dataMaps: List<Map<String, Any>>)
 
     suspend fun updateLastMessage(message: MessageDTO, conversation: ConversationDTO)
-    suspend fun updateSeedColor(conversationId: String, seedColor: Long)
     suspend fun updateMutedStatus(conversationId: String, uid: String, muted: Boolean)
     suspend fun updatePinnedStatus(conversationId: String, uid: String, pinned: Boolean)
     fun streamConversationsByOwner(ownerId: String): Flow<List<ConversationDTO>>
@@ -207,10 +205,6 @@ class ConversationNetworkDataSourceImp @Inject constructor(
             .await()
     }
 
-    override suspend fun updateSeedColor(conversationId: String, seedColor: Long) {
-        val documentRef = collection.document(conversationId)
-        documentRef.updateFieldValue("seedColor", seedColor)
-    }
 
     override suspend fun updateMutedStatus(conversationId: String, uid: String, muted: Boolean) {
         val field = FieldPath.of("isMuted", uid)

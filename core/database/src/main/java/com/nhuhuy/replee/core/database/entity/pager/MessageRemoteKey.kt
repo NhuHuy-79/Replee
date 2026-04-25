@@ -23,7 +23,8 @@ import com.nhuhuy.replee.core.database.entity.conversation.ConversationEntity
 data class MessageRemoteKey(
     @PrimaryKey
     val conversationId: String,
-    val oldestCreatedAt: Long?,
-    val oldestMessageId: String?,
-    val endReached: Boolean
+    val beforeMessageId: String,
+    val afterMessageId: String,
+    val endReached: Boolean = false,
+    val startReached: Boolean = false,
 )

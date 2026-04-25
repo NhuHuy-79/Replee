@@ -54,9 +54,10 @@ class MetaDataNetworkDataSourceImpl @Inject constructor(
             .child(userId)
 
         if (typing) {
-            ref.setValue(true).await()
             ref.onDisconnect().removeValue().await()
+            ref.setValue(true).await()
         } else {
+            ref.onDisconnect().cancel().await()
             ref.removeValue().await()
         }
     }

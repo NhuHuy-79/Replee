@@ -5,17 +5,21 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
+import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.CoreDatabase
+import com.nhuhuy.replee.core.database.LocalTransactionRunner
 import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
-import com.nhuhuy.replee.feature_chat.data.source.message.LocalPathMessageRemoteMediator
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
+import com.nhuhuy.replee.feature_chat.data.source.paging.MessageRemoteMediator
+import com.nhuhuy.replee.feature_chat.data.source.paging.PagingMessageNetworkDataSource
 import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.model.message.Message
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
@@ -31,21 +35,26 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class MessageRepositoryImp @Inject constructor(
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val localTransactionRunner: LocalTransactionRunner,
     private val coreDatabase: CoreDatabase,
-    private val messageNetworkDataSource: MessageNetworkDataSource,
-    private val conversationLocalDataSource: ConversationLocalDataSource,
     private val messageLocalDataSource: MessageLocalDataSource,
-    private val ioDispatcher: CoroutineDispatcher
+    private val messageNetworkDataSource: MessageNetworkDataSource,
+    private val pagingMessageNetworkDataSource: PagingMessageNetworkDataSource,
+    private val conversationLocalDataSource: ConversationLocalDataSource,
+    private val sessionManager: SessionManager,
+
 ) : MessageRepository {
 
     // --- CREATE / SEND---
 
     override suspend fun sendMessage(message: Message): NetworkResult<String> {
         return executeWithTimeout(dispatcher = ioDispatcher) {
-            val entity = message.toMessageEntity()
-            messageLocalDataSource.upsertMessage(message = entity)
-            conversationLocalDataSource.updateLastMessage(message = entity)
-
+            localTransactionRunner.runInTransaction {
+                val entity = message.toMessageEntity()
+                messageLocalDataSource.upsertMessage(message = entity)
+                conversationLocalDataSource.updateLastMessage(message = entity)
+            }
             val dto = message.toMessageDTO().copy(status = MessageStatus.SYNCED)
             messageNetworkDataSource.sendMessage(message = dto)
 
@@ -59,6 +68,13 @@ class MessageRepositoryImp @Inject constructor(
     }
 
     // --- READ / OBSERVE ---
+
+    override suspend fun getIndexOfMessage(conversationId: String, messageId: String): Int {
+        return messageLocalDataSource.getIndexOfMessage(
+            conversationId = conversationId,
+            messageId = messageId
+        )
+    }
 
     override suspend fun getMessageListById(messageIds: List<String>): List<Message> {
         return withContext(ioDispatcher) {
@@ -74,19 +90,24 @@ class MessageRepositoryImp @Inject constructor(
     }
 
     @OptIn(ExperimentalPagingApi::class)
-    override fun observeLocalMessageWithPaging(conversationId: String): Flow<PagingData<LocalPathMessage>> {
+    override fun observeLocalMessageWithPaging(
+        anchorMessageId: String?,
+        conversationId: String
+    ): Flow<PagingData<LocalPathMessage>> {
         val messageDao = coreDatabase.provideMessageDao()
         return Pager(
             config = PagingConfig(
                 pageSize = 20,
-                initialLoadSize = 20,
+                initialLoadSize = 60,
                 enablePlaceholders = false,
-                prefetchDistance = 5
+                prefetchDistance = 2
             ),
-            remoteMediator = LocalPathMessageRemoteMediator(
+            remoteMediator = MessageRemoteMediator(
+                currentUserId = sessionManager.getUserIdOrNull(),
+                messageIdToJump = anchorMessageId,
                 conversationId = conversationId,
                 coreDatabase = coreDatabase,
-                messageNetworkDataSource = messageNetworkDataSource
+                pagingMessageNetworkDataSource = pagingMessageNetworkDataSource
             )
         ) {
             messageDao.getMessagesPagingSource(conversationId)
@@ -170,6 +191,61 @@ class MessageRepositoryImp @Inject constructor(
         }
     }
 
+    override suspend fun addReaction(
+        conversationId: String,
+        messageId: String,
+        userId: String,
+        reaction: String
+    ): NetworkResult<Unit> {
+        return executeWithTimeout(ioDispatcher) {
+            val entity = messageLocalDataSource.getMessageById(messageId)
+            entity?.let {
+                val currentUserId = sessionManager.getUserIdOrNull()
+                val isOwner = userId == currentUserId
+
+                val newOwnerReactions =
+                    if (isOwner) it.ownerReactions + reaction else it.ownerReactions
+                val newOtherUserReactions =
+                    if (!isOwner) it.otherUserReactions + reaction else it.otherUserReactions
+
+                messageLocalDataSource.updateReactions(
+                    messageId,
+                    newOwnerReactions,
+                    newOtherUserReactions
+                )
+
+            }
+            messageNetworkDataSource.addReaction(conversationId, messageId, userId, reaction)
+        }
+    }
+
+    override suspend fun removeReaction(
+        conversationId: String,
+        messageId: String,
+        userId: String,
+        reaction: String
+    ): NetworkResult<Unit> {
+        return executeWithTimeout(ioDispatcher) {
+            val entity = messageLocalDataSource.getMessageById(messageId)
+            entity?.let {
+                val currentUserId = sessionManager.getUserIdOrNull()
+                val isOwner = userId == currentUserId
+
+                val newOwnerReactions =
+                    if (isOwner) it.ownerReactions - reaction else it.ownerReactions
+                val newOtherUserReactions =
+                    if (!isOwner) it.otherUserReactions - reaction else it.otherUserReactions
+
+                messageLocalDataSource.updateReactions(
+                    messageId,
+                    newOwnerReactions,
+                    newOtherUserReactions
+                )
+            }
+            messageNetworkDataSource.removeReaction(conversationId, messageId, userId, reaction)
+        }
+    }
+
     // --- DELETE ---
 
     override suspend fun deleteMessage(message: Message): NetworkResult<String> {
@@ -196,11 +272,12 @@ class MessageRepositoryImp @Inject constructor(
         timestamp: Long
     ): NetworkResult<Unit> {
         return executeWithTimeout(ioDispatcher) {
+            val currentUserId = sessionManager.getUserIdOrNull()
             val entities = messageNetworkDataSource.fetchMessagesInConversationByTimestamp(
                 conversationId = conversationId,
                 timestamp = timestamp
             ).map { messageDTO ->
-                messageDTO.toMessage().toMessageEntity()
+                messageDTO.toMessage(currentUserId).toMessageEntity()
             }
 
             messageLocalDataSource.upsertMessages(entities)
@@ -208,6 +285,7 @@ class MessageRepositoryImp @Inject constructor(
     }
 
     override fun listenMessageChanges(conversationId: String): Flow<Unit> {
+        val currentUserId = sessionManager.getUserIdOrNull()
         return messageNetworkDataSource.listenMessageChangesByConversationId(conversationId)
             .map { dataChanges ->
                 val upserts = mutableListOf<Message>()
@@ -217,7 +295,7 @@ class MessageRepositoryImp @Inject constructor(
                     when (change) {
                         is DataChange.Delete -> deletes.add(change.id)
                         is DataChange.Upsert -> upserts.add(
-                            change.data.toMessage()
+                            change.data.toMessage(currentUserId)
                         )
                     }
                 }

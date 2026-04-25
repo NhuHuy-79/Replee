@@ -29,6 +29,16 @@ interface MessageDao : BaseDao<MessageEntity> {
     @Query("SELECT * FROM message WHERE type = :messageType AND status = 'FAILED'")
     suspend fun getUnSyncedMessageByType(messageType: String): List<MessageEntity>
 
+    @Query(
+        """
+        SELECT * FROM message 
+        WHERE conversationId = :conversationId
+        ORDER BY sentAt DESC 
+        LIMIT 1
+    """
+    )
+    suspend fun getLatestMessage(conversationId: String): MessageEntity?
+
     @Transaction
     @Query("SELECT * FROM message WHERE conversationId = :conversationId AND deleted = 0 ORDER BY sentAt DESC")
     fun getMessagesPagingSource(conversationId: String): PagingSource<Int, MessageWithLocalPath>
@@ -48,6 +58,21 @@ interface MessageDao : BaseDao<MessageEntity> {
     @Query("SELECT * FROM message WHERE conversationId = :conversationId AND content LIKE :query AND type = 'TEXT'")
     fun observeMessagesWithQuery(conversationId: String, query: String): Flow<List<MessageEntity>>
 
+    // Get Message Counts
+    @Query("SELECT COUNT(*) FROM message WHERE conversationId = :id")
+    fun countMessagesInRoom(id: String): Int
+
+    // Lấy 4 tin nhắn mới hơn của người gửi đó
+    @Query(
+        """
+        SELECT * FROM message 
+        WHERE senderId = :senderId 
+        AND sentAt > :sentAt 
+        ORDER BY sentAt ASC 
+        LIMIT 4
+    """
+    )
+    suspend fun getNewerMessages(senderId: String, sentAt: Long): List<MessageEntity>
 
     // --- UPDATE  ---
     @Query("UPDATE message SET pinned = :pinned WHERE messageId = :messageId")
@@ -87,6 +112,12 @@ interface MessageDao : BaseDao<MessageEntity> {
     @Query("UPDATE message SET deleted = 1 WHERE messageId IN (:messageIds)")
     suspend fun softDeleteAllMessages(messageIds: List<String>)
 
+    @Query("UPDATE message SET ownerReactions = :ownerReactions, otherUserReactions = :otherUserReactions WHERE messageId = :messageId")
+    suspend fun updateReactions(
+        messageId: String,
+        ownerReactions: List<String>,
+        otherUserReactions: List<String>
+    )
 
     // --- DELETE  ---
 
@@ -131,7 +162,6 @@ interface MessageDao : BaseDao<MessageEntity> {
 
         networkMessages.forEach { networkMsg ->
             val localMsg = getMessageById(networkMsg.messageId)
-
             if (localMsg == null) {
                 upsert(networkMsg)
             } else {
@@ -143,4 +173,15 @@ interface MessageDao : BaseDao<MessageEntity> {
             }
         }
     }
+
+
+    @Query(
+        """
+    SELECT COUNT(*) FROM message 
+    WHERE conversationId = :conversationId 
+    AND deleted = 0 
+    AND sentAt > (SELECT sentAt FROM message WHERE messageId = :messageId)
+"""
+    )
+    suspend fun getIndexOfMessage(conversationId: String, messageId: String): Int
 }

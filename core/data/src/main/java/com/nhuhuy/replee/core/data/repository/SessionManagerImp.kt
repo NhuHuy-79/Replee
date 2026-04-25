@@ -8,6 +8,7 @@ import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.model.AuthenticatedState
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.data.data_store.AppDataStore
+import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.execute
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import kotlinx.coroutines.CoroutineDispatcher
@@ -26,7 +27,7 @@ class SessionManagerImp @Inject constructor(
     private val dataStore: AppDataStore,
     private val auth: FirebaseAuth,
     private val accountLocalDataSource: AccountLocalDataSource,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : SessionManager {
 
     override val userIdState: Flow<String?>

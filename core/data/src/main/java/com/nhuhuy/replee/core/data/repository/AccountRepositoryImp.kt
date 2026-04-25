@@ -8,6 +8,7 @@ import com.nhuhuy.core.domain.repository.AccountRepository
 import com.nhuhuy.replee.core.data.mapper.toAccount
 import com.nhuhuy.replee.core.data.mapper.toAccountDTO
 import com.nhuhuy.replee.core.data.mapper.toAccountEntity
+import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.execute
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
@@ -22,7 +23,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class AccountRepositoryImp @Inject constructor(
-    private val ioDispatcher: CoroutineDispatcher,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val sessionManager: SessionManager,
     private val accountNetworkDataSource: AccountNetworkDataSource,
     private val accountLocalDataSource: AccountLocalDataSource,

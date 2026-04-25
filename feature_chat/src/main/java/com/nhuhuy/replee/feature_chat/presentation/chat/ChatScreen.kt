@@ -54,10 +54,12 @@ import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.BlockOverlay
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.ReplyBanner
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.dialog.FullImageDialog
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.emote.FullScreenEmojiPickerDialog
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageInput
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageScreen
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageSheet
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction.OnReactionSelect
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
 import com.nhuhuy.replee.feature_chat.presentation.shared.Banner
@@ -103,6 +105,12 @@ fun ChatScreen(
             onAction(ChatAction.OnImageSend(uri))
         } else {
             Timber.e("No media selected")
+        }
+    }
+
+    LaunchedEffect(pagedMessages.loadState) {
+        if (pagedMessages.loadState.isIdle && state.messagePosition > 0) {
+            lazyListState.scrollToItem(state.messagePosition)
         }
     }
 
@@ -157,8 +165,9 @@ fun ChatScreen(
                 )
             } else {
                 MessageScreen(
-                    otherUserReadTime = otherUserReadTime,
-                    isOtherUserTyping = typingUsers.contains(state.otherUser.id),
+                    anchorMessageId = state.messageAnchorId,
+                    recipientReadAt = otherUserReadTime,
+                    showTypingIndicator = typingUsers.contains(state.otherUser.id),
                     lazyListState = lazyListState,
                     otherUserImg = state.otherUser.imageUrl,
                     otherUserName = state.otherUser.name,
@@ -236,6 +245,10 @@ fun ChatScreen(
                     onMessageDelete = {
                         onAction(ChatAction.OnMessageDelete)
                     },
+                    onReactionSelect = { reaction -> onAction(OnReactionSelect(reaction)) },
+                    onReactionMoreClick = {
+                        onAction(ChatAction.OnReactionMoreClick)
+                    },
                     onMessageCopy = {
                         scope.launch {
                             val clipData = ClipData.newPlainText(
@@ -249,6 +262,19 @@ fun ChatScreen(
 
                     }
                 )
+            }
+
+            ChatOverlay.EmojiPicker -> {
+                FullScreenEmojiPickerDialog(
+                    onDismiss = { onAction(ChatAction.OnDismiss) },
+                    onEmojiSelected = { reaction ->
+                        onAction(OnReactionSelect(reaction))
+                    }
+                )
+            }
+
+            is ChatOverlay.MessageReaction -> {
+
             }
         }
     }

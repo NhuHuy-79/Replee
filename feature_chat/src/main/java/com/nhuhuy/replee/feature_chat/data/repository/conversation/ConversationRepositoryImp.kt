@@ -3,6 +3,8 @@ package com.nhuhuy.replee.feature_chat.data.repository.conversation
 import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.data.mapper.toAccountEntity
+import com.nhuhuy.replee.core.data.utils.ApplicationCoroutineScope
+import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.execute
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
@@ -20,6 +22,7 @@ import com.nhuhuy.replee.feature_chat.domain.model.message.Message
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
@@ -29,7 +32,8 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class ConversationRepositoryImp @Inject constructor(
-    private val ioDispatcher: CoroutineDispatcher,
+    @ApplicationCoroutineScope private val externalScope: CoroutineScope,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val sessionManager: SessionManager,
     private val accountLocalDataSource: AccountLocalDataSource,
     private val accountNetworkDataSource: AccountNetworkDataSource,
@@ -164,11 +168,12 @@ class ConversationRepositoryImp @Inject constructor(
     override suspend fun markAllMessagesRead(
         conversationId: String,
         currentUserId: String
-    ): NetworkResult<String> {
-        return execute {
-            conversationLocalDataSource.clearUnreadMessages(conversationId)
-            conversationNetworkDataSource.deleteAllUnreadMessages(conversationId, currentUserId)
-            conversationId
+    ): NetworkResult<Unit> {
+        return withContext(externalScope.coroutineContext) {
+            executeWithTimeout(ioDispatcher) {
+                conversationLocalDataSource.clearUnreadMessages(conversationId)
+                conversationNetworkDataSource.deleteAllUnreadMessages(conversationId, currentUserId)
+            }
         }
     }
 

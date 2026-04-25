@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -36,37 +37,38 @@ import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 
 @Composable
 fun MessageContainer(
+    isAnchor: Boolean = false,
     replyTo: String,
-    localPathMessage: LocalPathMessage,
-    isMine: Boolean,
+    messageItem: LocalPathMessage,
+    isCurrentUser: Boolean,
     onClick: (message: Message) -> Unit,
     onLongClick: () -> Unit
 ) {
-    val isReplying: Boolean = localPathMessage.message.repliedMessageId != null
-    val message = localPathMessage.message
-
+    val isReplying: Boolean = messageItem.message.repliedMessageId != null
+    val message = messageItem.message
     var replyWidth by remember { mutableStateOf(0.dp) }
     val density = LocalDensity.current
-
     Column(
-        modifier = Modifier,
-        horizontalAlignment = if (isMine) Alignment.End else Alignment.Start
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = if (isCurrentUser) Alignment.End else Alignment.Start
     ) {
         if (isReplying) {
             ReplyContent(
-                sender = replyTo,
+                replyTo = replyTo,
                 content = message.repliedMessageContent.orEmpty(),
                 type = message.repliedMessageType,
                 remoteUrl = message.repliedMessageRemoteUrl,
-                modifier = Modifier.onSizeChanged { size ->
+                modifier = Modifier
+                    .onSizeChanged { size ->
                     replyWidth = with(density) { size.width.toDp() }
                 }
             )
         }
 
         MessageContent(
-            localPathMessage = localPathMessage,
-            isMine = isMine,
+            localPathMessage = messageItem,
+            isAnchor = isAnchor,
+            isCurrentUser = isCurrentUser,
             onClick = onClick,
             onLongClick = onLongClick,
             modifier = Modifier
@@ -81,7 +83,7 @@ fun MessageContainer(
 
 @Composable
 fun ReplyContent(
-    sender: String,
+    replyTo: String,
     content: String,
     type: MessageType?,
     remoteUrl: String?,
@@ -116,7 +118,7 @@ fun ReplyContent(
                 .padding(horizontal = 8.dp)
         ) {
             Text(
-                text = stringResource(R.string.reply_title, sender),
+                text = stringResource(R.string.reply_title, replyTo),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary
             )
