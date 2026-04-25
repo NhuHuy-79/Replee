@@ -69,20 +69,33 @@ internal fun Project.configureApplicationBuildTypes(
     val cleanWebClientId = rawWebClientId.toString().replace("\"", "")
 
     applicationExtension.apply {
+        signingConfigs {
+            signingConfigs {
+                create("release") {
+                    val path = localProperties.getProperty("KEYSTORE_PATH")
+                    if (path != null && rootProject.file(path).exists()) {
+                        storeFile = rootProject.file(path)
+                        storePassword = localProperties.getProperty("KEYSTORE_PASSWORD")
+                        keyAlias = localProperties.getProperty("KEY_ALIAS")
+                        keyPassword = localProperties.getProperty("KEY_PASSWORD")
+                    }
+                }
+            }
+        }
         buildFeatures {
             buildConfig = true
         }
 
         buildTypes {
             getByName("release") {
-                isMinifyEnabled = false
-                isShrinkResources = false
+                isMinifyEnabled = true
+                isShrinkResources = true
 
                 proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    getDefaultProguardFile("proguard-android.txt"),
                     "proguard-rules.pro"
                 )
-                signingConfig = signingConfigs.getByName("debug")
+                signingConfig = signingConfigs.getByName("release")
                 buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$cleanWebClientId\"")
             }
 
