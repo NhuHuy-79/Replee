@@ -3,6 +3,7 @@ package com.nhuhuy.replee.feature_auth.data.repository
 import com.nhuhuy.core.domain.model.Account
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.data.mapper.toAccount
+import com.nhuhuy.replee.core.data.utils.IoDispatcher
 
 import com.nhuhuy.replee.core.data.utils.execute
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
@@ -13,7 +14,7 @@ import javax.inject.Inject
 
 class AuthRepositoryImp @Inject constructor(
     private val authNetworkDataSource: AuthNetworkDataSource,
-    private val ioDispatcher: CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : AuthRepository {
     override suspend fun signInWithGoogle(idToken: String): NetworkResult<Account> {
         return executeWithTimeout(dispatcher = ioDispatcher) {

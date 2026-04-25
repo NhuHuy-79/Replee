@@ -7,6 +7,7 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.nhuhuy.core.domain.SessionManager
 import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.network.model.DataChange
@@ -39,7 +40,7 @@ class MessageRepositoryImp @Inject constructor(
     private val conversationLocalDataSource: ConversationLocalDataSource,
     private val messageLocalDataSource: MessageLocalDataSource,
     private val sessionManager: SessionManager,
-    private val ioDispatcher: CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : MessageRepository {
 
     // --- CREATE / SEND---

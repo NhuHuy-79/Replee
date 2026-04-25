@@ -3,6 +3,7 @@ package com.nhuhuy.replee.feature_profile.data.source
 import com.nhuhuy.replee.core.data.data_store.AppDataStore
 import com.nhuhuy.replee.core.data.data_store.NotificationMode
 import com.nhuhuy.replee.core.data.data_store.ThemeMode
+import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -19,7 +20,7 @@ interface ProfileLocalDataSource {
 }
 
 class ProfileLocalDataSourceImp @Inject constructor(
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val appDataStore: AppDataStore,
 ) : ProfileLocalDataSource {
     override suspend fun updateLocalUserImage() {

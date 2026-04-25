@@ -11,6 +11,7 @@ import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
 import com.nhuhuy.core.domain.repository.FileMetadata
+import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +21,7 @@ import java.io.File
 import javax.inject.Inject
 
 class FileStorageDataSource @Inject constructor(
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     @ApplicationContext private val context: Context
 ) {
     suspend fun saveToInternalStorage(uri: Uri): String {

@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.feature_chat.data.repository
 
+import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import com.nhuhuy.replee.core.database.entity.message_action.ActionType
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageActionDataSource
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageAction
@@ -10,7 +11,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MessageActionRepositoryImp @Inject constructor(
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val messageActionLocalDataSource: MessageActionDataSource,
 ) : MessageActionRepository {
     override suspend fun upsertAction(action: MessageAction) {

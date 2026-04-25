@@ -5,6 +5,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import com.nhuhuy.replee.feature_profile.domain.usecase.sync.UploadAvatarSyncUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -17,7 +18,7 @@ class UploadAvatarWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted params: WorkerParameters,
     private val uploadAvatarSyncUseCase: UploadAvatarSyncUseCase,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         return withContext(ioDispatcher) {

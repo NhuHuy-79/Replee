@@ -5,6 +5,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import com.nhuhuy.replee.feature_chat.domain.usecase.sync.FetchNewMessagesSyncUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -16,7 +17,7 @@ class SaveNewMessageWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
     private val fetchNewMessagesSyncUseCase: FetchNewMessagesSyncUseCase,
-    private val ioDispatcher: CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : CoroutineWorker(context, workerParams) {
     override suspend fun doWork(): Result {
         return withContext(ioDispatcher) {

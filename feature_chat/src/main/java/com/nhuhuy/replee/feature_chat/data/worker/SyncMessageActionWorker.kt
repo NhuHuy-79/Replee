@@ -5,6 +5,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import com.nhuhuy.replee.feature_chat.domain.usecase.sync.DeleteMessagesSyncUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.sync.PinMessageSyncUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.sync.UnPinMessageSyncUseCase
@@ -17,7 +18,7 @@ import kotlinx.coroutines.withContext
 
 @HiltWorker
 class SyncMessageActionWorker @AssistedInject constructor(
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val deleteMessagesSyncUseCase: DeleteMessagesSyncUseCase,
     private val pinMessageSyncUseCase: PinMessageSyncUseCase,
     private val unPinMessageSyncUseCase: UnPinMessageSyncUseCase,
