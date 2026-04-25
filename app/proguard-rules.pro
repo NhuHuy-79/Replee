@@ -68,4 +68,20 @@
 -keep class com.nhuhuy.replee.feature_profile.domain.**{ *; }
 -keep class com.nhuhuy.replee.feature_profile.presentation.profile.state.** { *; }
 
+-dontwarn org.junit.**
+-dontwarn io.mockk.**
+-dontwarn org.robolectric.**
+-dontwarn com.google.auto.service.**
+-dontwarn org.junit.jupiter.api.extension.**
+
+-keep class com.google.android.gms.** { *; }
+-keep class com.google.firebase.** { *; }
+
+-keep class com.google.android.gms.auth.api.signin.** { *; }
+-keep class com.google.android.gms.common.api.** { *; }
+
+-keepattributes Signature, *Annotation*, InnerClasses, EnclosingMethod, Exceptions
+
+-dontwarn com.google.android.gms.**
+
 -printseeds seeds.txt

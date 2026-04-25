@@ -21,6 +21,10 @@ internal fun Project.configureKotlinAndroid(
             sourceCompatibility = JavaVersion.VERSION_17
             targetCompatibility = JavaVersion.VERSION_17
         }
+
+        packaging {
+
+        }
     }
 
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
@@ -32,7 +36,6 @@ internal fun Project.configureKotlinAndroid(
     }
 }
 
-// File: AndroidCompose.kt
 internal fun Project.configureAndroidCompose(
     commonExtension: CommonExtension<*, *, *, *, *, *>
 ) {
@@ -41,7 +44,6 @@ internal fun Project.configureAndroidCompose(
     commonExtension.apply {
         buildFeatures.compose = true
         buildFeatures.resValues = true
-
     }
 
     dependencies {
@@ -70,20 +72,15 @@ internal fun Project.configureApplicationBuildTypes(
 
     applicationExtension.apply {
         signingConfigs {
-            signingConfigs {
-                create("release") {
-                    val path = localProperties.getProperty("KEYSTORE_PATH")
-                    if (path != null && rootProject.file(path).exists()) {
-                        storeFile = rootProject.file(path)
-                        storePassword = localProperties.getProperty("KEYSTORE_PASSWORD")
-                        keyAlias = localProperties.getProperty("KEY_ALIAS")
-                        keyPassword = localProperties.getProperty("KEY_PASSWORD")
-                    }
+            create("release") {
+                val path = localProperties.getProperty("KEYSTORE_PATH")
+                if (path != null && rootProject.file(path).exists()) {
+                    storeFile = rootProject.file(path)
+                    storePassword = localProperties.getProperty("KEYSTORE_PASSWORD")
+                    keyAlias = localProperties.getProperty("KEY_ALIAS")
+                    keyPassword = localProperties.getProperty("KEY_PASSWORD")
                 }
             }
-        }
-        buildFeatures {
-            buildConfig = true
         }
 
         buildTypes {
@@ -92,7 +89,7 @@ internal fun Project.configureApplicationBuildTypes(
                 isShrinkResources = true
 
                 proguardFiles(
-                    getDefaultProguardFile("proguard-android.txt"),
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
                     "proguard-rules.pro"
                 )
                 signingConfig = signingConfigs.getByName("release")

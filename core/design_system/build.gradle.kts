@@ -10,6 +10,8 @@ android {
 dependencies {
     api(libs.coil.compose)
     api(libs.coil.network.okhttp)
+    api("androidx.emoji2:emoji2-emojipicker:1.6.0")
+    api("androidx.emoji2:emoji2-views:1.6.0")
     implementation(project(":core:common"))
     implementation(project(":core:domain"))
     implementation(libs.androidx.activity.compose)
