@@ -62,6 +62,12 @@ internal fun Project.configureApplicationBuildTypes(
         localProperties.load(localPropertiesFile.inputStream())
     }
 
+    val rawWebClientId = System.getenv("GOOGLE_WEB_CLIENT_ID")
+        ?: localProperties.getProperty("GOOGLE_WEB_CLIENT_ID")
+        ?: "dummy_id_for_ci"
+
+    val cleanWebClientId = rawWebClientId.toString().replace("\"", "")
+
     applicationExtension.apply {
         buildFeatures {
             buildConfig = true
@@ -69,23 +75,18 @@ internal fun Project.configureApplicationBuildTypes(
 
         buildTypes {
             getByName("release") {
-                isMinifyEnabled = true
-                isShrinkResources = true
+                isMinifyEnabled = false
+                isShrinkResources = false
 
                 proguardFiles(
                     getDefaultProguardFile("proguard-android-optimize.txt"),
                     "proguard-rules.pro"
                 )
                 signingConfig = signingConfigs.getByName("debug")
+                buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$cleanWebClientId\"")
             }
 
             getByName("debug") {
-                val rawWebClientId = System.getenv("GOOGLE_WEB_CLIENT_ID")
-                    ?: localProperties.getProperty("GOOGLE_WEB_CLIENT_ID")
-                    ?: "dummy_id_for_ci"
-
-                val cleanWebClientId = rawWebClientId.toString().replace("\"", "")
-
                 buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$cleanWebClientId\"")
             }
         }
