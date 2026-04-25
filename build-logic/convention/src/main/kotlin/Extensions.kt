@@ -10,6 +10,8 @@ import java.util.Properties
 internal fun Project.configureKotlinAndroid(
     commonExtension: CommonExtension<*, *, *, *, *, *>
 ) {
+    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+
     commonExtension.apply {
         compileSdk = ProjectConfig.COMPILE_SDK
 
@@ -23,16 +25,38 @@ internal fun Project.configureKotlinAndroid(
         }
 
         packaging {
-
+            resources {
+                excludes += "/META-INF/{AL2.0,LGPL2.1}"
+                excludes += "**/res/font/roboto*"
+                excludes += "**/res/font/notosans*"
+                excludes += "**/res/font/noto_sans*"
+                excludes += "**/res/font/noto_emoji*"
+                excludes += "**/res/font/emoji*"
+                excludes += "**/res/font/Noto*"
+                excludes += "**/assets/fonts/Roboto*"
+                excludes += "**/assets/fonts/Noto*"
+                excludes += "**/assets/fonts/emoji*"
+            }
         }
     }
 
-    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-
     dependencies {
+        add("implementation", libs.findLibrary("androidx-core-ktx").get())
+        add("implementation", libs.findLibrary("androidx-lifecycle-runtime-ktx").get())
+        add("implementation", libs.findLibrary("androidx-appcompat").get())
+        add("implementation", libs.findLibrary("material").get())
+
+        // Common Test
         add("testImplementation", libs.findLibrary("junit").get())
         add("testImplementation", libs.findLibrary("mockk").get())
         add("testImplementation", libs.findLibrary("kotlinx-coroutines-test").get())
+        libs.findLibrary("truth").ifPresent { add("testImplementation", it.get()) }
+        libs.findLibrary("turbine").ifPresent { add("testImplementation", it.get()) }
+
+        // Common Android Test
+        libs.findLibrary("androidx-junit").ifPresent { add("androidTestImplementation", it.get()) }
+        libs.findLibrary("androidx-espresso-core")
+            .ifPresent { add("androidTestImplementation", it.get()) }
     }
 }
 
@@ -50,8 +74,18 @@ internal fun Project.configureAndroidCompose(
         val bom = libs.findLibrary("androidx-compose-bom").get()
         add("implementation", platform(bom))
         add("androidTestImplementation", platform(bom))
+
+        add("implementation", libs.findLibrary("androidx-ui").get())
+        add("implementation", libs.findLibrary("androidx-ui-graphics").get())
         add("implementation", libs.findLibrary("androidx-ui-tooling-preview").get())
+        add("implementation", libs.findLibrary("androidx-material3").get())
+        add("implementation", libs.findLibrary("androidx-activity-compose").get())
+        
         add("debugImplementation", libs.findLibrary("androidx-ui-tooling").get())
+        libs.findLibrary("androidx-ui-test-manifest")
+            .ifPresent { add("debugImplementation", it.get()) }
+        libs.findLibrary("androidx-ui-test-junit4")
+            .ifPresent { add("androidTestImplementation", it.get()) }
     }
 }
 
