@@ -16,7 +16,7 @@ class UpdateUnreadMessageUseCase @Inject constructor(
     suspend operator fun invoke(
         conversationId: String,
         receiverId: String,
-    ): NetworkResult<String> {
+    ): NetworkResult<Unit> {
         return conversationRepository.markAllMessagesRead(
             conversationId = conversationId,
             currentUserId = receiverId

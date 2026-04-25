@@ -168,11 +168,12 @@ class ConversationRepositoryImp @Inject constructor(
     override suspend fun markAllMessagesRead(
         conversationId: String,
         currentUserId: String
-    ): NetworkResult<String> {
-        return executeWithTimeout(ioDispatcher) {
-            conversationLocalDataSource.clearUnreadMessages(conversationId)
-            conversationNetworkDataSource.deleteAllUnreadMessages(conversationId, currentUserId)
-            conversationId
+    ): NetworkResult<Unit> {
+        return withContext(externalScope.coroutineContext) {
+            executeWithTimeout(ioDispatcher) {
+                conversationLocalDataSource.clearUnreadMessages(conversationId)
+                conversationNetworkDataSource.deleteAllUnreadMessages(conversationId, currentUserId)
+            }
         }
     }
 

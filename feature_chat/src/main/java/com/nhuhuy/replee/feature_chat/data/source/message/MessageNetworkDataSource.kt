@@ -44,7 +44,7 @@ interface MessageNetworkDataSource {
         timestamp: Long
     ): List<MessageDTO>
 
-    suspend fun sendMessage(message: MessageDTO)
+    suspend fun sendMessage(message: MessageDTO): String
     suspend fun sendMessages(list: List<MessageDTO>): List<String>
     suspend fun fetchMessagesByConversationId(conversationId: String): List<MessageDTO>
     suspend fun deleteMessage(conversationId: String, messageId: String)
@@ -214,21 +214,25 @@ class MessageNetworkDataSourceImp @Inject constructor(
         )
     }
 
-    override suspend fun sendMessage(message: MessageDTO) {
-        val data = mapOf(
-            "lastMessageTime" to message.sendAt,
-            "lastMessageContent" to message.content,
-            "lastSenderId" to message.senderId,
-            "lastMessageType" to message.type
+    override suspend fun sendMessage(message: MessageDTO): String {
+        val conversationRef = collection.document(message.conversationId)
+        val messageRef = collection.document(message.conversationId)
+            .collection(MESSAGE_SUBCOLLECTION)
+            .document(message.messageId)
 
-        )
-        collection.document(message.conversationId).apply {
-            update(data).await()
-            collection(MESSAGE_SUBCOLLECTION)
-                .document(message.messageId)
-                .set(message)
-                .await()
-        }
+        return firestore.runTransaction { transaction ->
+            transaction.update(
+                conversationRef, mapOf(
+                    "lastMessageTime" to message.sendAt,
+                    "lastMessageContent" to message.content,
+                    "lastSenderId" to message.senderId,
+                    "lastMessageType" to message.type
+                )
+            )
+
+            transaction.set(messageRef, message)
+            message.messageId
+        }.await()
     }
 
     override suspend fun sendMessages(

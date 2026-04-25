@@ -10,11 +10,14 @@ import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.CoreDatabase
+import com.nhuhuy.replee.core.database.LocalTransactionRunner
+import com.nhuhuy.replee.core.network.manager.NetworkTransactionRunner
 import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessage
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageDTO
 import com.nhuhuy.replee.feature_chat.data.mapper.toMessageEntity
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSource
+import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.paging.MessageRemoteMediator
@@ -34,22 +37,28 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class MessageRepositoryImp @Inject constructor(
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val localTransactionRunner: LocalTransactionRunner,
+    private val networkTransactionRunner: NetworkTransactionRunner,
     private val coreDatabase: CoreDatabase,
+    private val messageLocalDataSource: MessageLocalDataSource,
     private val messageNetworkDataSource: MessageNetworkDataSource,
     private val pagingMessageNetworkDataSource: PagingMessageNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource,
-    private val messageLocalDataSource: MessageLocalDataSource,
+    private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val sessionManager: SessionManager,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+
 ) : MessageRepository {
 
     // --- CREATE / SEND---
 
     override suspend fun sendMessage(message: Message): NetworkResult<String> {
         return executeWithTimeout(dispatcher = ioDispatcher) {
-            val entity = message.toMessageEntity()
-            messageLocalDataSource.upsertMessage(message = entity)
-            conversationLocalDataSource.updateLastMessage(message = entity)
+            localTransactionRunner.runInTransaction {
+                val entity = message.toMessageEntity()
+                messageLocalDataSource.upsertMessage(message = entity)
+                conversationLocalDataSource.updateLastMessage(message = entity)
+            }
             val dto = message.toMessageDTO().copy(status = MessageStatus.SYNCED)
             messageNetworkDataSource.sendMessage(message = dto)
 

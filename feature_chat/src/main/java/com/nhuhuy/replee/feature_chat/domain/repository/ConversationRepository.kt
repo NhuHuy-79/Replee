@@ -29,7 +29,7 @@ interface ConversationRepository {
     suspend fun markAllMessagesRead(
         conversationId: String,
         currentUserId: String
-    ): NetworkResult<String>
+    ): NetworkResult<Unit>
 
     suspend fun deleteMetadataLastMessage(message: Message): NetworkResult<String>
 }
