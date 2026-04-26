@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @Immutable
@@ -36,7 +35,7 @@ sealed interface RecoverPasswordAction : UiAction {
 }
 
 @HiltViewModel
-class RecoverPasswordViewModel @Inject constructor(
+class ForgotPasswordViewModel @Inject constructor(
     private val inputValidator: InputValidator,
     private val sendRecoveryEmailUseCase: SendRecoveryEmailUseCase,
 ) : BaseViewModel<RecoverPasswordAction, RecoverPasswordEvent, RecoveryPasswordState>() {
@@ -62,10 +61,9 @@ class RecoverPasswordViewModel @Inject constructor(
                         }
                         .onFailure { throwable ->
                             _state.reduce { copy(showLoading = false) }
-                            onEvent(RecoverPasswordEvent.Failure(throwable.toRemoteFailure()))
+                            onEvent(RecoverPasswordEvent.SendEmailFailure(throwable.toRemoteFailure()))
 
                         }
-
                 }
 
                 is RecoverPasswordAction.OnEmailChange -> {
@@ -80,10 +78,5 @@ class RecoverPasswordViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        Timber.d("RecoverPasswordViewModel cleared")
     }
 }

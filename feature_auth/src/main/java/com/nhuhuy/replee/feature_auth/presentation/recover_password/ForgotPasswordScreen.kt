@@ -1,7 +1,7 @@
+
 package com.nhuhuy.replee.feature_auth.presentation.recover_password
 
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
@@ -13,20 +13,18 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.core.design_system.component.CommonButton
 import com.nhuhuy.replee.core.design_system.component.NormalTextField
-import com.nhuhuy.replee.core.design_system.component.VisibleLoadingScreen
 import com.nhuhuy.replee.feature_auth.R
 import com.nhuhuy.replee.feature_auth.presentation.shared.AuthLayout
 import com.nhuhuy.replee.feature_auth.utils.toUiText
 
 @Composable
-fun RecoverPasswordScreen(
+fun ForgotPasswordScreen(
     state: RecoveryPasswordState,
     snackBarHostState: SnackbarHostState,
     onAction: (RecoverPasswordAction) -> Unit
-) = BoxContainer {
+) {
     AuthLayout(
         titleRes = R.string.recover_screen_title,
         bgRes = R.drawable.bg_forgot_password,
@@ -77,9 +75,4 @@ fun RecoverPasswordScreen(
             )
         }
     }
-
-    VisibleLoadingScreen(
-        modifier = Modifier.fillMaxSize(),
-        show = state.showLoading
-    )
 }

@@ -16,14 +16,11 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.ui.NavDisplay
 import com.nhuhuy.replee.core.design_system.ObserveEffect
-import com.nhuhuy.replee.feature_auth.R
 import com.nhuhuy.replee.feature_auth.data.model.toStringRes
+import com.nhuhuy.replee.feature_auth.navigation.ForgotPasswordRoute
 import com.nhuhuy.replee.feature_auth.presentation.login.LoginEvent
 import com.nhuhuy.replee.feature_auth.presentation.login.LoginScreen
 import com.nhuhuy.replee.feature_auth.presentation.login.LoginViewModel
-import com.nhuhuy.replee.feature_auth.presentation.recover_password.RecoverPasswordEvent
-import com.nhuhuy.replee.feature_auth.presentation.recover_password.RecoverPasswordScreen
-import com.nhuhuy.replee.feature_auth.presentation.recover_password.RecoverPasswordViewModel
 import com.nhuhuy.replee.feature_auth.presentation.sign_up.SignUpEvent
 import com.nhuhuy.replee.feature_auth.presentation.sign_up.SignUpScreen
 import com.nhuhuy.replee.feature_auth.presentation.sign_up.SignUpViewModel
@@ -162,32 +159,10 @@ fun EntryProviderScope<NavKey>.authGraph(
     entry<AuthDestination.ForgotPassword>(
         metadata = AUTH_METADATA_TRANSITION
     ) { _ ->
-        val viewModel: RecoverPasswordViewModel = hiltViewModel()
-        val state by viewModel.state.collectAsStateWithLifecycle()
-        val snackBarHostState = remember { SnackbarHostState() }
-        val resource = LocalResources.current
-        ObserveEffect(viewModel.event) { event ->
-            when (event) {
-                is RecoverPasswordEvent.Failure -> {
-                    snackBarHostState.showSnackbar(
-                        message = resource.getString(event.error.toUiText()),
-                        duration = SnackbarDuration.Short
-                    )
-                }
 
-                RecoverPasswordEvent.NavigateBack -> backstack.removeLastOrNull()
-                RecoverPasswordEvent.SendEmailSuccessfully -> {
-                    snackBarHostState.showSnackbar(
-                        message = resource.getString(R.string.recover_screen_success_snack_bar),
-                        duration = SnackbarDuration.Short
-                    )
-                }
-            }
-        }
-        RecoverPasswordScreen(
-            state = state,
-            snackBarHostState = snackBarHostState,
-            onAction = viewModel::onAction
+        ForgotPasswordRoute(
+            onNavigateBack = backstack::removeLastOrNull,
+            viewModel = hiltViewModel()
         )
     }
 }

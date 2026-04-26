@@ -6,7 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import com.nhuhuy.replee.feature_auth.presentation.login.LoginScreen
 import com.nhuhuy.replee.feature_auth.presentation.login.LoginState
-import com.nhuhuy.replee.feature_auth.presentation.recover_password.RecoverPasswordScreen
+import com.nhuhuy.replee.feature_auth.presentation.recover_password.ForgotPasswordScreen
 import com.nhuhuy.replee.feature_auth.presentation.recover_password.RecoveryPasswordState
 import com.nhuhuy.replee.feature_auth.presentation.sign_up.SignUpScreen
 import com.nhuhuy.replee.feature_auth.presentation.sign_up.SignUpState
@@ -35,7 +35,7 @@ fun SignUpTheme(){
 @Preview
 fun RecoverPasswordTheme(){
     val snackBarHostState = remember { SnackbarHostState() }
-    RecoverPasswordScreen(
+    ForgotPasswordScreen(
         state = RecoveryPasswordState(),
         snackBarHostState = snackBarHostState
     ){
