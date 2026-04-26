@@ -111,6 +111,7 @@ class ConversationNotificationFactory @Inject constructor(
             .setName(context.getString(R.string.app_name))
             .setKey(response.receiverId)
             .build()
+
         val messagingStyle = NotificationCompat.MessagingStyle(user)
 
         if (recentMessageEntities.isNotEmpty()) {

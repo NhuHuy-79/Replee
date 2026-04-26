@@ -21,6 +21,7 @@ class MessageRemoteMediator(
     private val coreDatabase: CoreDatabase,
     private val pagingMessageNetworkDataSource: PagingMessageNetworkDataSource
 ) : RemoteMediator<Int, MessageWithLocalPath>() {
+    private val isPagingLocked = messageIdToJump != null
     private val messageDao = coreDatabase.provideMessageDao()
     private val remoteKeyDao = coreDatabase.provideMessageRemoteKeyDao()
 
@@ -29,6 +30,10 @@ class MessageRemoteMediator(
         state: PagingState<Int, MessageWithLocalPath>
     ): MediatorResult {
         return try {
+            if (isPagingLocked && loadType != LoadType.REFRESH) {
+                return MediatorResult.Success(endOfPaginationReached = true)
+            }
+
             Timber.d("CurrentThread: ${Thread.currentThread().name}")
             val currentRemoteKey = remoteKeyDao.get(conversationId = conversationId)
             val pageSize = state.config.pageSize.toLong()
@@ -45,7 +50,7 @@ class MessageRemoteMediator(
                         pagingMessageNetworkDataSource.fetchMessageListAroundAnchor(
                             conversationId = conversationId,
                             messageId = messageIdToJump,
-                            pageSize = 15
+                            pageSize = pageSize
                         )
                     }
                 }

@@ -97,10 +97,10 @@ class MessageRepositoryImp @Inject constructor(
         val messageDao = coreDatabase.provideMessageDao()
         return Pager(
             config = PagingConfig(
-                pageSize = 20,
+                pageSize = if (anchorMessageId == null) 20 else 15,
                 initialLoadSize = 60,
                 enablePlaceholders = false,
-                prefetchDistance = 2
+                prefetchDistance = if (anchorMessageId == null) 5 else 1
             ),
             remoteMediator = MessageRemoteMediator(
                 currentUserId = sessionManager.getUserIdOrNull(),
