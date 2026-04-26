@@ -4,37 +4,22 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalResources
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.ui.NavDisplay
-import com.nhuhuy.replee.core.design_system.ObserveEffect
-import com.nhuhuy.replee.feature_auth.data.model.toStringRes
 import com.nhuhuy.replee.feature_auth.navigation.ForgotPasswordRoute
-import com.nhuhuy.replee.feature_auth.presentation.login.LoginEvent
-import com.nhuhuy.replee.feature_auth.presentation.login.LoginScreen
-import com.nhuhuy.replee.feature_auth.presentation.login.LoginViewModel
-import com.nhuhuy.replee.feature_auth.presentation.sign_up.SignUpEvent
-import com.nhuhuy.replee.feature_auth.presentation.sign_up.SignUpScreen
-import com.nhuhuy.replee.feature_auth.presentation.sign_up.SignUpViewModel
-import com.nhuhuy.replee.feature_auth.utils.toUiText
+import com.nhuhuy.replee.feature_auth.navigation.LoginRoute
+import com.nhuhuy.replee.feature_auth.navigation.SignUpRoute
 import kotlinx.serialization.Serializable
 
 @Serializable
 sealed interface AuthDestination : NavKey {
     @Serializable
     data object Login : AuthDestination
-
     @Serializable
     data object SignUp : AuthDestination
-
     @Serializable
     data object ForgotPassword : AuthDestination
 }
@@ -72,94 +57,46 @@ fun EntryProviderScope<NavKey>.authGraph(
     entry<AuthDestination.Login>(
         metadata = AUTH_METADATA_TRANSITION
     ) { _ ->
-        val viewModel: LoginViewModel = hiltViewModel()
-        val state by viewModel.state.collectAsStateWithLifecycle()
-        val snackBarHostState = remember { SnackbarHostState() }
-        val resource = LocalResources.current
-        ObserveEffect(viewModel.event) { event ->
-            when (event) {
-                is LoginEvent.Failure -> {
-                    snackBarHostState.showSnackbar(
-                        message = resource.getString(event.error.toUiText()),
-                        duration = SnackbarDuration.Short
+        LoginRoute(
+            viewModel = hiltViewModel(),
+            onNavigateToForgotPassword = {
+                backstack.add(AuthDestination.ForgotPassword)
+            },
+            onNavigateToHome = { uid ->
+                backstack.clear()
+                backstack.add(
+                    HomeDestination.ConversationList(
+                        currentUserId = uid
                     )
-                }
-
-                is LoginEvent.NavigateToHome -> {
-                    backstack.clear()
-                    backstack.add(
-                        HomeDestination.ConversationList(
-                            currentUserId = event.uid
-                        )
-                    )
-                }
-
-                LoginEvent.NavigateToRecover -> {
-                    backstack.add(AuthDestination.ForgotPassword)
-                }
-
-                LoginEvent.NavigateToSignUp -> {
-                    backstack.add(AuthDestination.SignUp)
-                }
-
-                is LoginEvent.GoogleErrorSnackBar -> {
-                    val stringRes = event.error.toStringRes()
-                    if (stringRes != null) {
-                        snackBarHostState.showSnackbar(
-                            message = resource.getString(stringRes),
-                            duration = SnackbarDuration.Short
-                        )
-                    }
-                }
-            }
-        }
-        LoginScreen(
-            state = state,
-            snackBarHostState = snackBarHostState,
-            onAction = viewModel::onAction
+                )
+            },
+            onNavigateToSignUp = {
+                backstack.add(AuthDestination.SignUp)
+            },
         )
     }
 
     entry<AuthDestination.SignUp>(
         metadata = AUTH_METADATA_TRANSITION
-    ) { _ ->
-        val viewModel: SignUpViewModel = hiltViewModel()
-        val state by viewModel.state.collectAsStateWithLifecycle()
-        val snackBarHostState = remember { SnackbarHostState() }
-        val resource = LocalResources.current
-        ObserveEffect(viewModel.event) { event ->
-            when (event) {
-                is SignUpEvent.Failure -> {
-                    snackBarHostState.showSnackbar(
-                        message = resource.getString(event.error.toUiText()),
-                        duration = SnackbarDuration.Short
+    ) {
+        SignUpRoute(
+            viewModel = hiltViewModel(),
+            onNavigateBack = backstack::removeLastOrNull,
+            onNavigateToHome = { uid ->
+                backstack.clear()
+                backstack.add(
+                    HomeDestination.ConversationList(
+                        currentUserId = uid
                     )
-                }
-
-                SignUpEvent.NavigateBack -> backstack.removeLastOrNull()
-                is SignUpEvent.NavigateToHome -> {
-                    backstack.removeAll { destination ->
-                        destination is AuthDestination
-                    }
-                    backstack.add(
-                        HomeDestination.ConversationList(
-                            currentUserId = event.uid
-                        )
-                    )
-                }
+                )
             }
-        }
-        SignUpScreen(
-            state = state,
-            snackBarHostState = snackBarHostState,
-            onAction = viewModel::onAction
         )
+
     }
 
     entry<AuthDestination.ForgotPassword>(
         metadata = AUTH_METADATA_TRANSITION
-    ) { _ ->
-
+    ) {
         ForgotPasswordRoute(
             onNavigateBack = backstack::removeLastOrNull,
             viewModel = hiltViewModel()
