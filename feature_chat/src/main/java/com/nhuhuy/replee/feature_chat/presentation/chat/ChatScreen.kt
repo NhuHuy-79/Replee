@@ -2,7 +2,6 @@
 
 package com.nhuhuy.replee.feature_chat.presentation.chat
 
-import android.content.ClipData
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,13 +29,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.ClipEntry
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -47,24 +43,17 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.paging.compose.LazyPagingItems
 import com.nhuhuy.replee.core.common.utils.showLongToast
-import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.core.design_system.launcher.rememberCameraRequestPicker
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.BlockOverlay
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.ReplyBanner
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.dialog.FullImageDialog
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.emote.FullScreenEmojiPickerDialog
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageInput
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageScreen
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageSheet
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction.OnReactionSelect
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
 import com.nhuhuy.replee.feature_chat.presentation.shared.Banner
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -76,10 +65,11 @@ fun ChatScreen(
     blocked: Boolean,
     state: ChatState,
     onAction: (ChatAction) -> Unit,
-) = BoxContainer {
+) {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
+
     LaunchedEffect(state.isReplying) {
         if (state.isReplying) {
             delay(100)
@@ -95,8 +85,6 @@ fun ChatScreen(
             context.showLongToast(R.string.permission_camera)
         }
     )
-    val localClipboard = LocalClipboard.current
-    val scope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
@@ -212,69 +200,6 @@ fun ChatScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                 )
-            }
-        }
-
-        when (val overlay = state.overlay) {
-            is ChatOverlay.FullImage -> {
-                FullImageDialog(
-                    url = overlay.url,
-                    onDismiss = {
-                        onAction(ChatAction.OnDismiss)
-                    }
-                )
-            }
-
-            ChatOverlay.None -> Unit
-            is ChatOverlay.MessageOption -> {
-                MessageSheet(
-                    currentUserId = state.currentUserId,
-                    message = overlay.message,
-                    onDismiss = {
-                        onAction(ChatAction.OnDismiss)
-                    },
-                    onMessagePin = {
-                        onAction(ChatAction.OnMessagePin)
-                    },
-                    onMessageUnPin = {
-                        onAction(ChatAction.OnMessageUnPin)
-                    },
-                    onMessageReply = {
-                        onAction(ChatAction.OnMessageReply)
-                    },
-                    onMessageDelete = {
-                        onAction(ChatAction.OnMessageDelete)
-                    },
-                    onReactionSelect = { reaction -> onAction(OnReactionSelect(reaction)) },
-                    onReactionMoreClick = {
-                        onAction(ChatAction.OnReactionMoreClick)
-                    },
-                    onMessageCopy = {
-                        scope.launch {
-                            val clipData = ClipData.newPlainText(
-                                "plain text",
-                                state.currentMessage?.content.orEmpty()
-                            )
-                            val clipEntry = ClipEntry(clipData)
-                            localClipboard.setClipEntry(clipEntry)
-                            onAction(ChatAction.OnDismiss)
-                        }
-
-                    }
-                )
-            }
-
-            ChatOverlay.EmojiPicker -> {
-                FullScreenEmojiPickerDialog(
-                    onDismiss = { onAction(ChatAction.OnDismiss) },
-                    onEmojiSelected = { reaction ->
-                        onAction(OnReactionSelect(reaction))
-                    }
-                )
-            }
-
-            is ChatOverlay.MessageReaction -> {
-
             }
         }
     }
