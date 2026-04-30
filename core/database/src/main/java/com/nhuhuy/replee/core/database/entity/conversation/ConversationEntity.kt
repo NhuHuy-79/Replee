@@ -45,6 +45,8 @@ data class ConversationEntity(
     val blocked: Boolean = false,
     @ColumnInfo(name = "deleted", defaultValue = "false")
     val deleted: Boolean = false,
+    @ColumnInfo(name = "lastTimeDeleted", defaultValue = "0")
+    val lastTimeDeleted: Long? = null,
     //Add sync
     @ColumnInfo(name = "synced", defaultValue = "false")
     val synced: Boolean = false,

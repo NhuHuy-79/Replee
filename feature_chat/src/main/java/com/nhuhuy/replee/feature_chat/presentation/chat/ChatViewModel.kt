@@ -28,6 +28,7 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.GetReadTimeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.GetTypingUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.UpdateReadTimeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.UpdateTypingUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.option.DeleteConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.sync.SyncMessageUseCase
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
@@ -90,7 +91,8 @@ class ChatViewModel @AssistedInject constructor(
     private val unPinMessageUseCase: UnPinMessageUseCase,
     private val addReactionUseCase: AddReactionUseCase,
     private val removeReactionUseCase: RemoveReactionUseCase,
-    private val getMessagePositionUseCase: GetMessagePositionUseCase
+    private val getMessagePositionUseCase: GetMessagePositionUseCase,
+    private val deleteConversationUseCase: DeleteConversationUseCase
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
     private var currentUserReadingTime = 0L
     private var listenMessageChangeJob: Job? = null
@@ -411,6 +413,10 @@ class ChatViewModel @AssistedInject constructor(
                     )
                 }
 
+                ChatAction.DeleteConversation -> {
+                    deleteConversationUseCase(conversationId)
+                    onEvent(ChatEvent.OnDeleteConfirmed)
+                }
             }
         }
     }

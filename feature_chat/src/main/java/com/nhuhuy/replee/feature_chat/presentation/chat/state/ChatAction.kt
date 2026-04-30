@@ -27,4 +27,5 @@ sealed interface ChatAction : UiAction{
     data object OnNewMessageTrigger : ChatAction
     data object OnScrollToAnchorDone : ChatAction
     data class OnMessageReactionClick(val reaction: String, val messageId: String) : ChatAction
+    data object DeleteConversation : ChatAction
 }

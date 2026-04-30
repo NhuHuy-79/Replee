@@ -82,6 +82,9 @@ interface ConversationDao : BaseDao<ConversationEntity> {
     @Query("UPDATE conversation SET deleted = :deleted WHERE id = :conversationId")
     suspend fun updateDeleteStatus(conversationId: String, deleted: Boolean)
 
+    @Query("UPDATE conversation SET deleted = :deleted, lastTimeDeleted = :timestamp WHERE id = :conversationId")
+    suspend fun updateDeleteAndTimestamp(conversationId: String, deleted: Boolean, timestamp: Long)
+
     @Query("UPDATE conversation SET blocked = :blocked WHERE id = :conversationId")
     suspend fun updateBlockStatus(conversationId: String, blocked: Boolean)
 

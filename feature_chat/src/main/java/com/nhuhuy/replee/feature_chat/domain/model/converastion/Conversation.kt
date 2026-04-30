@@ -23,5 +23,6 @@ data class Conversation(
     val muted: Boolean = false,
     val pinned: Boolean = false,
     val blocked: Boolean = false,
-    val deleted: Boolean = false
+    val deleted: Boolean = false,
+    val lastTimeDeleted: Long? = null
 )

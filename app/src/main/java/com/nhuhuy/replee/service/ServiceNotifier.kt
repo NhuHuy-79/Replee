@@ -23,16 +23,21 @@ class ServiceNotifierImp @Inject constructor(
 ) : ServiceNotifier {
     override suspend fun showConversationNotification(body: NotificationResponse) {
         val notificationMode = appDataStore.observeNotification().first()
-        val notificationId = body.conversationId.hashCode()
         if (notificationMode == NotificationMode.NONE){
             Timber.d("User turn off notification!")
             return
         }
 
         val notification = notificationFactory.execute(body)
+        val summaryNotification = notificationFactory.createSummaryNotification(body)
+
+        val childId = body.messageId.hashCode()
+        val summaryId = body.conversationId.hashCode()
+
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED){
-            NotificationManagerCompat.from(context)
-                .notify(notificationId, notification)
+            val manager = NotificationManagerCompat.from(context)
+            manager.notify(childId, notification)
+            manager.notify(summaryId, summaryNotification)
         } else {
             Timber.e("Permission not granted")
         }

@@ -25,4 +25,5 @@ google-services.json
 #Apk-dm
 *.dm
 *.apk
+.artifacts
 

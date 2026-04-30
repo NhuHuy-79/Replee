@@ -100,7 +100,7 @@ class OptionViewModel @AssistedInject constructor(
                         }
 
                         SecondaryOption.DELETE_CONVERSATION -> {
-                            _state.reduce { copy(overlay = OptionOverlay.DELETE_CHAT) }
+                            _state.reduce { copy(overlay = OptionOverlay.DELETE_CONFIRMATION) }
                         }
                     }
                 }
@@ -121,6 +121,14 @@ class OptionViewModel @AssistedInject constructor(
                         currentUserId = currentUserId,
                         pinned = action.enable
                     )
+                }
+
+                OptionAction.OnDeleteConfirmed -> {
+                    deleteConversationUseCase(conversationId)
+                    _state.reduce {
+                        copy(overlay = OptionOverlay.NONE)
+                    }
+                    onEvent(OptionEvent.NavigateToConversation)
                 }
 
                 OptionAction.OnConversationDelete -> {

@@ -27,4 +27,5 @@ sealed interface ChatEvent : UiEvent{
         val otherUserName: String,
         val otherUserEmail: String
     ): ChatEvent
+    data object OnDeleteConfirmed : ChatEvent
 }

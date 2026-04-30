@@ -108,5 +108,6 @@
     <!--Reply Message-->
     <string name="reply_image">Image</string>
     <string name="reply_title">Replying to %1$s</string>
+    <string name="notification_new_messages">Tin nhắn mới từ %1$s</string>
 
 </resources>

@@ -1,10 +1,10 @@
 package com.nhuhuy.replee.feature_chat.data.mapper
 
-import com.nhuhuy.replee.core.database.entity.message_action.MessageActionEntity
-import com.nhuhuy.replee.feature_chat.domain.model.message.MessageAction
+import com.nhuhuy.replee.core.database.entity.message_action.ChatActionEntity
+import com.nhuhuy.replee.feature_chat.domain.model.message.ChatAction
 
-fun MessageAction.toEntity(): MessageActionEntity {
-    return MessageActionEntity(
+fun ChatAction.toEntity(): ChatActionEntity {
+    return ChatActionEntity(
         targetId = targetId,
         actionType = actionType,
         payload = payload,
@@ -12,8 +12,8 @@ fun MessageAction.toEntity(): MessageActionEntity {
     )
 }
 
-fun MessageActionEntity.toAction(): MessageAction {
-    return MessageAction(
+fun ChatActionEntity.toAction(): ChatAction {
+    return ChatAction(
         id = id,
         targetId = targetId,
         actionType = actionType,

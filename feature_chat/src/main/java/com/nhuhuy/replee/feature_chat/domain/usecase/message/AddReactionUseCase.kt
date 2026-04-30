@@ -4,14 +4,14 @@ import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.core.domain.model.onFailure
 import com.nhuhuy.replee.core.database.entity.message_action.ActionType
 import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
-import com.nhuhuy.replee.feature_chat.domain.model.message.MessageAction
-import com.nhuhuy.replee.feature_chat.domain.repository.MessageActionRepository
+import com.nhuhuy.replee.feature_chat.domain.model.message.ChatAction
+import com.nhuhuy.replee.feature_chat.domain.repository.ChatActionRepository
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import javax.inject.Inject
 
 class AddReactionUseCase @Inject constructor(
     private val messageRepository: MessageRepository,
-    private val messageActionRepository: MessageActionRepository,
+    private val chatActionRepository: ChatActionRepository,
     private val workerScheduler: WorkerScheduler,
 ) {
     suspend operator fun invoke(
@@ -26,13 +26,13 @@ class AddReactionUseCase @Inject constructor(
             userId = userId,
             reaction = reaction
         ).onFailure {
-            val newMessageAction = MessageAction(
+            val newMessageAction = ChatAction(
                 targetId = messageId,
                 actionType = ActionType.UPDATE_REACTION,
                 payload = reaction
             )
 
-            messageActionRepository.upsertAction(newMessageAction)
+            chatActionRepository.upsertAction(newMessageAction)
             workerScheduler.scheduleMessageActionWorker()
         }
     }

@@ -10,7 +10,7 @@ import androidx.room.PrimaryKey
         Index(value = ["targetId"])
     ]
 )
-data class MessageActionEntity(
+data class ChatActionEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val targetId: String,

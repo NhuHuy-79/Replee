@@ -22,7 +22,6 @@ interface OptionRepository {
         pinned: Boolean
     ): NetworkResult<Unit>
 
-    suspend fun deleteConversation(conversationId: String): NetworkResult<Unit>
     fun observeChatColor(): Flow<SeedColor>
     suspend fun selectColor(color: SeedColor)
 }

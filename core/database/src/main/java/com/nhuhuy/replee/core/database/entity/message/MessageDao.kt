@@ -74,6 +74,21 @@ interface MessageDao : BaseDao<MessageEntity> {
     )
     suspend fun getNewerMessages(senderId: String, sentAt: Long): List<MessageEntity>
 
+    @Query(
+        """
+        SELECT * FROM message 
+        WHERE conversationId = :conversationId 
+        AND sentAt < :sentAt 
+        ORDER BY sentAt DESC 
+        LIMIT :limit
+    """
+    )
+    suspend fun getOlderMessages(
+        conversationId: String,
+        sentAt: Long,
+        limit: Int
+    ): List<MessageEntity>
+
     // --- UPDATE  ---
     @Query("UPDATE message SET pinned = :pinned WHERE messageId = :messageId")
     suspend fun updatePinStatus(messageId: String, pinned: Boolean)

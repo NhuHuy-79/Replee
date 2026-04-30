@@ -69,12 +69,6 @@ class OptionRepositoryImp @Inject constructor(
         }
     }
 
-    override suspend fun deleteConversation(conversationId: String): NetworkResult<Unit> {
-        return executeWithTimeout {
-
-        }
-    }
-
     override fun observeChatColor(): Flow<SeedColor> {
         return appDataStore.observeChatColor()
     }

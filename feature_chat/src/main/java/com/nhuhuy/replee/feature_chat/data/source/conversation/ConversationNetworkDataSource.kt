@@ -47,6 +47,8 @@ interface ConversationNetworkDataSource {
         limit: Int
     ): Flow<List<DataChange<ConversationDTO>>>
 
+    suspend fun updateIsDeletedMultiConversations(dataMaps: List<Map<String, Any>>)
+
 }
 
 class ConversationNetworkDataSourceImp @Inject constructor(
@@ -257,6 +259,10 @@ class ConversationNetworkDataSourceImp @Inject constructor(
             .orderBy("lastMessageTime", Query.Direction.DESCENDING)
             .limit(limit.toLong())
         return query.observeMultipleDataChanges<ConversationDTO>()
+    }
+
+    override suspend fun updateIsDeletedMultiConversations(dataMaps: List<Map<String, Any>>) {
+        updateConversationDataMap(dataMaps)
     }
 
 }

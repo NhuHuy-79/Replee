@@ -193,4 +193,42 @@ class ConversationRepositoryImp @Inject constructor(
         }
     }
 
+    override suspend fun deleteConversation(id: String): NetworkResult<Unit> {
+        return execute {
+            val uid = sessionManager.requireUserId()
+            val now = System.currentTimeMillis()
+            conversationLocalDataSource.updateDeleteAndTimestamp(id, true, now)
+
+            val patch = mapOf(
+                "id" to id,
+                "isDeleted.$uid" to true,
+                "lastTimeDeleted.$uid" to now
+            )
+            conversationNetworkDataSource.updateConversationDataMap(listOf(patch))
+        }
+    }
+
+    override suspend fun deleteMultipleConversations(ids: List<String>): NetworkResult<Unit> {
+        return execute {
+            val uid = sessionManager.requireUserId()
+            val now = System.currentTimeMillis()
+            val patches = mutableListOf<Map<String, Any>>()
+
+            ids.forEach { id ->
+                conversationLocalDataSource.updateDeleteAndTimestamp(id, true, now)
+                patches.add(
+                    mapOf(
+                        "id" to id,
+                        "isDeleted.$uid" to true,
+                        "lastTimeDeleted.$uid" to now
+                    )
+                )
+            }
+
+            if (patches.isNotEmpty()) {
+                conversationNetworkDataSource.updateIsDeletedMultiConversations(patches)
+            }
+        }
+    }
+
 }
