@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.paging.compose.LazyPagingItems
 import com.nhuhuy.replee.core.common.utils.showLongToast
-import com.nhuhuy.replee.core.design_system.launcher.rememberCameraRequestPicker
+import com.nhuhuy.replee.core.presentation.launcher.rememberCameraRequestPicker
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.BlockOverlay

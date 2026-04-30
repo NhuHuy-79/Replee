@@ -34,9 +34,9 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import com.nhuhuy.replee.core.common.utils.formatToChatTime
-import com.nhuhuy.replee.core.design_system.animation.slideInVerticallyAnimation
-import com.nhuhuy.replee.core.design_system.animation.slideOutVerticallyAnimation
 import com.nhuhuy.replee.core.design_system.component.UserImage
+import com.nhuhuy.replee.core.presentation.animation.slideInVerticallyAnimation
+import com.nhuhuy.replee.core.presentation.animation.slideOutVerticallyAnimation
 import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
 import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.StatusContent

@@ -25,6 +25,7 @@ include(":app")
 
 include(":core:common")
 include(":core:design_system")
+include(":core:presentation")
 include(":feature_chat")
 include(":feature_auth")
 include(":core:database")

@@ -19,9 +19,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.replee.core.design_system.animation.slideInVerticallyAnimation
-import com.nhuhuy.replee.core.design_system.animation.slideOutVerticallyAnimation
 import com.nhuhuy.replee.core.design_system.component.UserImage
+import com.nhuhuy.replee.core.presentation.animation.slideInVerticallyAnimation
+import com.nhuhuy.replee.core.presentation.animation.slideOutVerticallyAnimation
 
 @Composable
 fun TypingItem(
