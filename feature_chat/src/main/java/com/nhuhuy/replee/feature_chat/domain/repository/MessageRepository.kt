@@ -56,6 +56,8 @@ interface MessageRepository {
         reaction: String
     ): NetworkResult<Unit>
 
+    suspend fun updateReactionMultiMessage(messages: List<Message>): NetworkResult<Unit>
+
     // --- DELETE ---
     suspend fun deleteMessage(message: Message): NetworkResult<String>
     suspend fun deleteMultipleMessage(messages: List<Message>): NetworkResult<Unit>

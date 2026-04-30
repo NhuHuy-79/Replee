@@ -102,6 +102,8 @@ interface MessageNetworkDataSource {
         userId: String,
         reaction: String
     )
+
+    suspend fun updateReactionMultiMessage(messages: List<MessageDTO>)
 }
 
 class MessageNetworkDataSourceImp @Inject constructor(
@@ -528,6 +530,32 @@ class MessageNetworkDataSourceImp @Inject constructor(
             .document(messageId)
             .update("reactions.$userId", FieldValue.arrayRemove(reaction))
             .await()
+    }
+
+    override suspend fun updateReactionMultiMessage(messages: List<MessageDTO>) {
+        if (messages.isEmpty()) return
+        val context = currentCoroutineContext()
+        optimizedWrite(
+            items = messages,
+            singleWrite = { message ->
+                collection.document(message.conversationId)
+                    .collection(MESSAGE_SUBCOLLECTION)
+                    .document(message.messageId)
+                    .update("reactions", message.reactions)
+                    .await()
+            },
+            batchWrite = { chunkMessages ->
+                firestore.runBatch { batch ->
+                    for (message in chunkMessages) {
+                        context.ensureActive()
+                        val ref = collection.document(message.conversationId)
+                            .collection(MESSAGE_SUBCOLLECTION)
+                            .document(message.messageId)
+                        batch.update(ref, "reactions", message.reactions)
+                    }
+                }.await()
+            }
+        )
     }
 
 }

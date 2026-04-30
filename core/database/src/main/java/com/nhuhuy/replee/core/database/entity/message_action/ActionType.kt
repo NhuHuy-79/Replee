@@ -5,5 +5,6 @@ enum class ActionType {
     EDIT,
     MARK_AS_READ,
     PIN,
-    UNPIN
+    UNPIN,
+    UPDATE_REACTION
 }

@@ -246,6 +246,15 @@ class MessageRepositoryImp @Inject constructor(
         }
     }
 
+    override suspend fun updateReactionMultiMessage(messages: List<Message>): NetworkResult<Unit> {
+        return executeWithTimeout(ioDispatcher) {
+            val currentUserId = sessionManager.getUserIdOrNull()
+            messageNetworkDataSource.updateReactionMultiMessage(
+                messages = messages.map { it.toMessageDTO(currentUserId) }
+            )
+        }
+    }
+
     // --- DELETE ---
 
     override suspend fun deleteMessage(message: Message): NetworkResult<String> {

@@ -1,11 +1,18 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.message
 
 import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.core.domain.model.onFailure
+import com.nhuhuy.replee.core.database.entity.message_action.ActionType
+import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
+import com.nhuhuy.replee.feature_chat.domain.model.message.MessageAction
+import com.nhuhuy.replee.feature_chat.domain.repository.MessageActionRepository
 import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
 import javax.inject.Inject
 
 class AddReactionUseCase @Inject constructor(
-    private val repository: MessageRepository
+    private val messageRepository: MessageRepository,
+    private val messageActionRepository: MessageActionRepository,
+    private val workerScheduler: WorkerScheduler,
 ) {
     suspend operator fun invoke(
         conversationId: String,
@@ -13,11 +20,20 @@ class AddReactionUseCase @Inject constructor(
         userId: String,
         reaction: String
     ): NetworkResult<Unit> {
-        return repository.addReaction(
+        return messageRepository.addReaction(
             conversationId = conversationId,
             messageId = messageId,
             userId = userId,
             reaction = reaction
-        )
+        ).onFailure {
+            val newMessageAction = MessageAction(
+                targetId = messageId,
+                actionType = ActionType.UPDATE_REACTION,
+                payload = reaction
+            )
+
+            messageActionRepository.upsertAction(newMessageAction)
+            workerScheduler.scheduleMessageActionWorker()
+        }
     }
 }

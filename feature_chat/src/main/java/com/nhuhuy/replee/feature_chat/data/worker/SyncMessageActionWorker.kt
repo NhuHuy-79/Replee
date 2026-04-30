@@ -9,6 +9,7 @@ import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import com.nhuhuy.replee.feature_chat.domain.usecase.sync.DeleteMessagesSyncUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.sync.PinMessageSyncUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.sync.UnPinMessageSyncUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.sync.UpdateReactionSyncUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -22,6 +23,7 @@ class SyncMessageActionWorker @AssistedInject constructor(
     private val deleteMessagesSyncUseCase: DeleteMessagesSyncUseCase,
     private val pinMessageSyncUseCase: PinMessageSyncUseCase,
     private val unPinMessageSyncUseCase: UnPinMessageSyncUseCase,
+    private val updateReactionSyncUseCase: UpdateReactionSyncUseCase,
     @Assisted private val context: Context,
     @Assisted private val params: WorkerParameters
 ) : CoroutineWorker(context, params) {
@@ -32,11 +34,13 @@ class SyncMessageActionWorker @AssistedInject constructor(
             val deleteDeferred = async { deleteMessagesSyncUseCase() }
             val pinDeferred = async { pinMessageSyncUseCase() }
             val unpinDeferred = async { unPinMessageSyncUseCase() }
+            val reactionDeferred = async { updateReactionSyncUseCase() }
 
             val results = listOf(
                 deleteDeferred.await(),
                 pinDeferred.await(),
-                unpinDeferred.await()
+                unpinDeferred.await(),
+                reactionDeferred.await()
             )
 
             val isAnyFailed = results.any { result -> result is NetworkResult.Failure }
