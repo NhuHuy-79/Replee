@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_profile.domain.usecase
 
-import com.nhuhuy.core.domain.SessionManager
-import com.nhuhuy.core.domain.repository.PresenceRepository
+import com.nhuhuy.replee.core.domain.SessionManager
+import com.nhuhuy.replee.core.domain.repository.PresenceRepository
 import javax.inject.Inject
 
 class LogOutUseCase @Inject constructor(

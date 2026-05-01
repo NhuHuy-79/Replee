@@ -1,8 +1,8 @@
 package com.nhuhuy.replee.feature_profile.domain.usecase
 
 import com.google.common.truth.Truth
-import com.nhuhuy.core.domain.repository.FileMetadata
-import com.nhuhuy.core.domain.repository.FileRepository
+import com.nhuhuy.replee.core.domain.repository.FileMetadata
+import com.nhuhuy.replee.core.domain.repository.FileRepository
 import com.nhuhuy.replee.feature_profile.FakeParameters.Companion.fakeAccount
 import com.nhuhuy.replee.feature_profile.FakeParameters.Companion.fakeInternalPath
 import com.nhuhuy.replee.feature_profile.FakeParameters.Companion.fakeUriPath

@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nhuhuy.replee.core.design_system.component.SheetContainer
 import com.nhuhuy.replee.feature_chat.R
-import com.nhuhuy.replee.feature_chat.domain.model.message.Message
-import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
+import com.nhuhuy.replee.core.model.Message
+import com.nhuhuy.replee.core.model.MessageType
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.emote.basicReactions
 
 

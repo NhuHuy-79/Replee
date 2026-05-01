@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.option
 
-import com.nhuhuy.replee.core.data.data_store.AppDataStore
+import com.nhuhuy.replee.core.database.data_store.AppDataStore
 import javax.inject.Inject
 
 class ObserveThemeUseCase @Inject constructor(

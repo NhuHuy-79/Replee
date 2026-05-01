@@ -1,11 +1,11 @@
 package com.nhuhuy.replee.feature_profile.domain.usecase
 
 import com.google.common.truth.Truth
-import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.repository.AccountRepository
+import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.domain.repository.AccountRepository
 import com.nhuhuy.replee.feature_profile.FakeParameters.Companion.fakeAccount
 import com.nhuhuy.replee.feature_profile.FakeParameters.Companion.fakeException
-import com.nhuhuy.replee.feature_profile.domain.repository.ProfileRepository
+import com.nhuhuy.replee.core.domain.repository.ProfileRepository
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest

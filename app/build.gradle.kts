@@ -13,6 +13,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:model"))
     implementation(project(":core:common"))
     implementation(project(":core:domain"))
     implementation(project(":core:network"))
@@ -20,6 +21,7 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:test"))
     implementation(project(":core:design_system"))
+    implementation(project(":core:sync"))
     implementation(project(":feature_chat"))
     implementation(project(":feature_auth"))
     implementation(project(":feature_profile"))

@@ -3,15 +3,15 @@ package com.nhuhuy.replee.feature_profile.presentation
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
-import com.nhuhuy.core.domain.model.Account
-import com.nhuhuy.core.domain.model.onFailure
-import com.nhuhuy.core.domain.model.onSuccess
-import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
+import com.nhuhuy.replee.core.model.Account
+import com.nhuhuy.replee.core.model.onFailure
+import com.nhuhuy.replee.core.model.onSuccess
+import com.nhuhuy.replee.core.domain.usecase.GetCurrentAccountUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.ScreenState
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.utils.InputValidator
-import com.nhuhuy.replee.core.data.data_store.AppDataStore
+import com.nhuhuy.replee.core.database.data_store.AppDataStore
 import com.nhuhuy.replee.core.data.mapper.toRemoteFailure
 import com.nhuhuy.replee.core.data.mapper.toScreenState
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
@@ -26,7 +26,7 @@ import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileEvent
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileEvent.UpdatePassword.Failure
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -169,11 +169,11 @@ class ProfileViewModel @Inject constructor(
 
                 is ProfileAction.OnPhotoPicker.Select -> {
                     _profileActionResult.reduce { copy(updateAvatarLoading = true) }
-                    val workerId = uploadAvatarUseCase(
+                    val uid = uploadAvatarUseCase(
                         uid = state.value.account.id,
                         uriPath = action.uri.toString()
                     )
-                    observeUploadAvatarUseCase(workerId).collect { info ->
+                    observeUploadAvatarUseCase(uid).collect { info ->
                         when (info?.state) {
                             WorkInfo.State.RUNNING -> {
                                 _profileActionResult.reduce { copy(updateAvatarLoading = true) }

@@ -1,13 +1,13 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.option
 
-import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.model.onFailure
-import com.nhuhuy.core.domain.model.onSuccess
-import com.nhuhuy.replee.core.database.entity.message_action.ActionType
-import com.nhuhuy.replee.feature_chat.data.SyncManager
-import com.nhuhuy.replee.feature_chat.domain.model.message.ChatAction
-import com.nhuhuy.replee.feature_chat.domain.repository.ChatActionRepository
-import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
+import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.onFailure
+import com.nhuhuy.replee.core.model.onSuccess
+import com.nhuhuy.replee.core.model.ActionType
+import com.nhuhuy.replee.core.sync.SyncManager
+import com.nhuhuy.replee.core.model.ChatAction
+import com.nhuhuy.replee.core.domain.repository.ChatActionRepository
+import com.nhuhuy.replee.core.domain.repository.ConversationRepository
 import javax.inject.Inject
 
 class DeleteConversationUseCase @Inject constructor(

@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.option
 
-import com.nhuhuy.replee.core.data.data_store.SeedColor
-import com.nhuhuy.replee.feature_chat.domain.repository.OptionRepository
+import com.nhuhuy.replee.core.model.SeedColor
+import com.nhuhuy.replee.core.domain.repository.OptionRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

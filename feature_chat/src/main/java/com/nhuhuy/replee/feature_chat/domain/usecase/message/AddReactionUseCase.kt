@@ -1,12 +1,12 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.message
 
-import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.model.onFailure
-import com.nhuhuy.replee.core.database.entity.message_action.ActionType
-import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
-import com.nhuhuy.replee.feature_chat.domain.model.message.ChatAction
-import com.nhuhuy.replee.feature_chat.domain.repository.ChatActionRepository
-import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
+import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.onFailure
+import com.nhuhuy.replee.core.model.ActionType
+import com.nhuhuy.replee.core.domain.worker.WorkerScheduler
+import com.nhuhuy.replee.core.model.ChatAction
+import com.nhuhuy.replee.core.domain.repository.ChatActionRepository
+import com.nhuhuy.replee.core.domain.repository.MessageRepository
 import javax.inject.Inject
 
 class AddReactionUseCase @Inject constructor(

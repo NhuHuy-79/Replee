@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_chat.presentation.search.state
 
 import com.nhuhuy.replee.core.common.base.UiAction
-import com.nhuhuy.replee.feature_chat.domain.model.message.Message
+import com.nhuhuy.replee.core.model.Message
 
 sealed interface SearchAction : UiAction {
     data class OnQueryChange(val query: String) : SearchAction

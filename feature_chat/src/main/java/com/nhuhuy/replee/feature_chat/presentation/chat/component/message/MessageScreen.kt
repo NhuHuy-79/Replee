@@ -37,8 +37,8 @@ import com.nhuhuy.replee.core.common.utils.formatToChatTime
 import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.core.presentation.animation.slideInVerticallyAnimation
 import com.nhuhuy.replee.core.presentation.animation.slideOutVerticallyAnimation
-import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
-import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
+import com.nhuhuy.replee.core.model.LocalPathMessage
+import com.nhuhuy.replee.core.model.MessageType
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.StatusContent
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.TypingItem
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.emote.EmoteFlowRow

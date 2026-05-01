@@ -35,10 +35,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.core.domain.model.Account
+import com.nhuhuy.replee.core.model.Account
 import com.nhuhuy.replee.core.design_system.component.SheetContainer
 import com.nhuhuy.replee.core.design_system.component.UserImage
-import com.nhuhuy.replee.feature_chat.domain.model.message.Message
+import com.nhuhuy.replee.core.model.Message
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

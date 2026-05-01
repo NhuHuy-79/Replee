@@ -1,17 +1,17 @@
 package com.nhuhuy.replee.feature_chat.viewmodel
 
-import com.nhuhuy.core.domain.model.Account
-import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
-import com.nhuhuy.core.domain.usecase.SearchAccountByEmailUseCase
+import com.nhuhuy.replee.core.model.Account
+import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.domain.usecase.GetCurrentAccountUseCase
+import com.nhuhuy.replee.core.domain.usecase.SearchAccountByEmailUseCase
 import com.nhuhuy.replee.core.test.MainDispatcherRule
 import com.nhuhuy.replee.feature_chat.domain.usecase.account.SetUserOnlineUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.account.UpdateCurrentAccountUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetSearchHistoryUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.ObserveLocalConversationListUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationListUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.sync.SyncConversationUsersUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.sync.SyncConversationsUseCase
+import com.nhuhuy.replee.core.sync.usecase.SyncConversationUsersUseCase
+import com.nhuhuy.replee.core.sync.usecase.SyncConversationsUseCase
 import com.nhuhuy.replee.feature_chat.presentation.conversation.ConversationViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify

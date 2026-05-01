@@ -1,8 +1,8 @@
 package com.nhuhuy.replee.feature_chat.presentation.search
 
 import androidx.lifecycle.viewModelScope
-import com.nhuhuy.core.domain.usecase.GetAccountByIdUseCase
-import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
+import com.nhuhuy.replee.core.domain.usecase.GetAccountByIdUseCase
+import com.nhuhuy.replee.core.domain.usecase.GetCurrentAccountUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SearchMessageUseCase

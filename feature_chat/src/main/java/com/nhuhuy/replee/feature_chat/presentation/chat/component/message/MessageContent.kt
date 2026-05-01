@@ -8,9 +8,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
-import com.nhuhuy.replee.feature_chat.domain.model.message.Message
-import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
+import com.nhuhuy.replee.core.model.LocalPathMessage
+import com.nhuhuy.replee.core.model.Message
+import com.nhuhuy.replee.core.model.MessageType
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.image.ImageMessage
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.text.TextMessage
 

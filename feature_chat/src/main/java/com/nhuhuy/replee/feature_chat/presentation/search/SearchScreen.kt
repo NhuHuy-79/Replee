@@ -16,7 +16,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.replee.feature_chat.domain.model.message.Message
+import com.nhuhuy.replee.core.model.Message
 import com.nhuhuy.replee.feature_chat.presentation.search.component.SearchResultItem
 import com.nhuhuy.replee.feature_chat.presentation.search.component.SearchTopBar
 import com.nhuhuy.replee.feature_chat.presentation.search.state.SearchAction

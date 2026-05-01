@@ -3,7 +3,7 @@ package com.nhuhuy.replee.feature_chat.data.worker
 import android.content.Context
 import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
-import jakarta.inject.Inject
+import javax.inject.Inject
 
 interface MessageWorkerScheduler {
     suspend fun scheduleMessageSyncWorker(messageId: String, conversationId: String)

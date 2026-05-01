@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_profile
 
-import com.nhuhuy.core.domain.model.Account
-import com.nhuhuy.core.domain.model.AuthServiceProvider
+import com.nhuhuy.replee.core.model.Account
+import com.nhuhuy.replee.core.model.AuthServiceProvider
 import java.util.UUID
 
 class FakeParameters {

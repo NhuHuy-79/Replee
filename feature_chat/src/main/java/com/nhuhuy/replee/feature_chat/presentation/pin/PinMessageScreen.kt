@@ -44,8 +44,8 @@ import coil3.compose.SubcomposeAsyncImage
 import com.nhuhuy.replee.core.common.utils.formatToChatTime
 import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.feature_chat.R
-import com.nhuhuy.replee.feature_chat.domain.model.message.Message
-import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
+import com.nhuhuy.replee.core.model.Message
+import com.nhuhuy.replee.core.model.MessageType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

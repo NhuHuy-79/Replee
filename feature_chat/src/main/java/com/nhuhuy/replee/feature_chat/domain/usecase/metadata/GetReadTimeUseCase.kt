@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.metadata
 
-import com.nhuhuy.replee.feature_chat.domain.repository.MetaDataRepository
+import com.nhuhuy.replee.core.domain.repository.MetaDataRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

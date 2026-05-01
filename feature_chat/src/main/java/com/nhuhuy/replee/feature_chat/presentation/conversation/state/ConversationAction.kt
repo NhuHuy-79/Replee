@@ -1,9 +1,9 @@
 package com.nhuhuy.replee.feature_chat.presentation.conversation.state
 
-import com.nhuhuy.core.domain.model.Account
-import com.nhuhuy.core.domain.model.SearchHistoryResult
+import com.nhuhuy.replee.core.model.Account
+import com.nhuhuy.replee.core.model.SearchHistoryResult
 import com.nhuhuy.replee.core.common.base.UiAction
-import com.nhuhuy.replee.feature_chat.domain.model.converastion.Conversation
+import com.nhuhuy.replee.core.model.Conversation
 
 sealed interface ConversationAction : UiAction{
     data object OnSearch: ConversationAction

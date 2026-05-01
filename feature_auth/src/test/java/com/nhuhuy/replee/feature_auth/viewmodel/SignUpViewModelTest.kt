@@ -4,7 +4,7 @@ package com.nhuhuy.replee.feature_auth.viewmodel
 
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.model.NetworkResult
 import com.nhuhuy.replee.core.common.base.ValidateResult
 import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.data.mapper.toRemoteFailure

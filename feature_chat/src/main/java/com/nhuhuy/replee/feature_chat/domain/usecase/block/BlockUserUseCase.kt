@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.block
 
-import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.repository.AccountRepository
+import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.domain.repository.AccountRepository
 import javax.inject.Inject
 
 class BlockUserUseCase @Inject constructor(

@@ -2,8 +2,8 @@ package com.nhuhuy.replee.feature_auth.presentation.sign_up
 
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
-import com.nhuhuy.core.domain.model.onFailure
-import com.nhuhuy.core.domain.model.onSuccess
+import com.nhuhuy.replee.core.model.onFailure
+import com.nhuhuy.replee.core.model.onSuccess
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.UiAction
 import com.nhuhuy.replee.core.common.base.UiState
