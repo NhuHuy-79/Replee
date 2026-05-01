@@ -14,7 +14,7 @@ import com.nhuhuy.replee.feature_chat.domain.model.converastion.Conversation
 import com.nhuhuy.replee.feature_chat.domain.usecase.account.SetUserOnlineUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.account.UpdateCurrentAccountUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetSearchHistoryUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.LoadConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.ObserveLocalConversationListUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationListUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.sync.SyncConversationUsersUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.sync.SyncConversationsUseCase
@@ -47,7 +47,7 @@ class ConversationViewModel @AssistedInject constructor(
     @Assisted private val currentUserId: String,
     private val setUserOnlineUseCase: SetUserOnlineUseCase,
     private val getSearchHistoryUseCase: GetSearchHistoryUseCase,
-    private val loadConversationUseCase: LoadConversationUseCase,
+    private val observeLocalConversationListUseCase: ObserveLocalConversationListUseCase,
     private val saveConversationListUseCase: SaveConversationListUseCase,
     private val updateCurrentAccountUseCase: UpdateCurrentAccountUseCase,
     private val getCurrentAccountUseCase: GetCurrentAccountUseCase,
@@ -77,7 +77,7 @@ class ConversationViewModel @AssistedInject constructor(
     }
 
     val conversationState: StateFlow<ScreenState<List<Conversation>>> =
-        loadConversationUseCase(ownerId = currentUserId).map { list ->
+        observeLocalConversationListUseCase(ownerId = currentUserId).map { list ->
             ScreenState.Success(list)
         }.stateIn(
             viewModelScope, SharingStarted.WhileSubscribed(5000), ScreenState.Loading

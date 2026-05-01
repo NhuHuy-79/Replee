@@ -8,7 +8,7 @@ import com.nhuhuy.replee.core.test.MainDispatcherRule
 import com.nhuhuy.replee.feature_chat.domain.usecase.account.SetUserOnlineUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.account.UpdateCurrentAccountUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetSearchHistoryUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.LoadConversationUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.ObserveLocalConversationListUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationListUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.sync.SyncConversationUsersUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.sync.SyncConversationsUseCase
@@ -33,7 +33,7 @@ class ConversationViewModelTest {
     private lateinit var setUserOnlineUseCase: SetUserOnlineUseCase
     private lateinit var getSearchHistoryUseCase: GetSearchHistoryUseCase
     private lateinit var syncConversationUseCase: SyncConversationsUseCase
-    private lateinit var loadConversationUseCase: LoadConversationUseCase
+    private lateinit var observeLocalConversationListUseCase: ObserveLocalConversationListUseCase
     private lateinit var saveConversationListUseCase: SaveConversationListUseCase
     private lateinit var updateCurrentAccountUseCase: UpdateCurrentAccountUseCase
     private lateinit var getCurrentAccountUseCase: GetCurrentAccountUseCase
@@ -46,7 +46,7 @@ class ConversationViewModelTest {
         setUserOnlineUseCase = mockk()
         getSearchHistoryUseCase = mockk()
         syncConversationUseCase = mockk()
-        loadConversationUseCase = mockk()
+        observeLocalConversationListUseCase = mockk()
         saveConversationListUseCase = mockk()
         updateCurrentAccountUseCase = mockk()
         getCurrentAccountUseCase = mockk()
@@ -63,7 +63,7 @@ class ConversationViewModelTest {
 
         // Mock các Flow
         coEvery { getSearchHistoryUseCase(currentUserId) } returns flowOf(emptyList())
-        coEvery { loadConversationUseCase(currentUserId) } returns flowOf(emptyList())
+        coEvery { observeLocalConversationListUseCase(currentUserId) } returns flowOf(emptyList())
         coEvery { syncConversationUsersUseCase(currentUserId) } returns flowOf(Unit)
 
         // Mock các Suspend function trả về Result/Unit
@@ -76,7 +76,7 @@ class ConversationViewModelTest {
             currentUserId = currentUserId,
             setUserOnlineUseCase = setUserOnlineUseCase,
             getSearchHistoryUseCase = getSearchHistoryUseCase,
-            loadConversationUseCase = loadConversationUseCase,
+            observeLocalConversationListUseCase = observeLocalConversationListUseCase,
             saveConversationListUseCase = saveConversationListUseCase,
             updateCurrentAccountUseCase = updateCurrentAccountUseCase,
             getCurrentAccountUseCase = getCurrentAccountUseCase,
@@ -90,7 +90,7 @@ class ConversationViewModelTest {
         // --- THEN: Xác thực các hành vi ---
         coVerify {
             getSearchHistoryUseCase(currentUserId)
-            loadConversationUseCase(currentUserId)
+            observeLocalConversationListUseCase(currentUserId)
             updateCurrentAccountUseCase(currentUserId)
             setUserOnlineUseCase(currentUserId)
             getCurrentAccountUseCase()
