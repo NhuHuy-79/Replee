@@ -5,13 +5,13 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nhuhuy.replee.core.network.manager.NetworkStatus
 import com.nhuhuy.replee.core.presentation.ObserveEffect
-import com.nhuhuy.replee.feature_home.presentation.ConversationScreen
-import com.nhuhuy.replee.feature_home.presentation.ConversationViewModel
-import com.nhuhuy.replee.feature_home.presentation.state.ConversationEvent
+import com.nhuhuy.replee.feature_home.presentation.HomeScreen
+import com.nhuhuy.replee.feature_home.presentation.HomeViewModel
+import com.nhuhuy.replee.feature_home.presentation.state.HomeEvent
 
 @Composable
 fun ConversationRoute(
-    viewModel: ConversationViewModel,
+    viewModel: HomeViewModel,
     networkStatus: NetworkStatus,
     onNavigateToChatRoom: (currentUserId: String, otherUserId: String) -> Unit,
     onNavigateToProfile: () -> Unit,
@@ -22,21 +22,21 @@ fun ConversationRoute(
 
     ObserveEffect(viewModel.event) { event ->
         when (event) {
-            is ConversationEvent.NavigateToChatRoom -> {
+            is HomeEvent.NavigateToChatRoom -> {
                 onNavigateToChatRoom(event.currentUserId, event.otherUserId)
             }
 
-            ConversationEvent.GoToProfile -> {
+            HomeEvent.GoToProfile -> {
                 onNavigateToProfile()
             }
 
-            is ConversationEvent.Error -> {
+            is HomeEvent.Error -> {
                 // Handle error
             }
         }
     }
 
-    ConversationScreen(
+    HomeScreen(
         networkStatus = networkStatus,
         conversationListState = conversationListState,
         state = state,

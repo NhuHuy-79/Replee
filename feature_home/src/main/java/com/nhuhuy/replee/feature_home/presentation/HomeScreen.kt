@@ -33,15 +33,15 @@ import com.nhuhuy.replee.core.presentation.component.Banner
 import com.nhuhuy.replee.core.presentation.component.BoxContainer
 import com.nhuhuy.replee.feature_home.R
 import com.nhuhuy.replee.feature_home.presentation.component.RetryScreen
-import com.nhuhuy.replee.feature_home.presentation.state.ConversationAction
+import com.nhuhuy.replee.feature_home.presentation.state.HomeAction
 
 @Composable
-fun ConversationScreen(
+fun HomeScreen(
     networkStatus: NetworkStatus,
     conversationListState: ScreenState<List<Conversation>>,
-    state: com.nhuhuy.replee.feature_home.presentation.state.ConversationState,
+    state: com.nhuhuy.replee.feature_home.presentation.state.HomeState,
     searchHistory: List<SearchHistoryResult>,
-    onAction: (ConversationAction) -> Unit
+    onAction: (HomeAction) -> Unit
 ) = BoxContainer {
     val snackBarHost = remember { SnackbarHostState() }
     val localResource = LocalResources.current
@@ -96,22 +96,22 @@ fun ConversationScreen(
                 expand = state.expandSearchBar,
                 input = state.searchQuery,
                 onSearch = {
-                    onAction(ConversationAction.OnSearch)
+                    onAction(HomeAction.OnSearch)
                 },
                 onValueChange = { value ->
-                    onAction(ConversationAction.OnQueryChange(value))
+                    onAction(HomeAction.OnQueryChange(value))
                 },
                 onExpandChange = { expand ->
-                    onAction(ConversationAction.OnExpandChange(expand))
+                    onAction(HomeAction.OnExpandChange(expand))
                 },
                 onAvatarClick = { account ->
-                    onAction(ConversationAction.OnAvatarClick(account = account))
+                    onAction(HomeAction.OnAvatarClick(account = account))
                 },
                 goToProfile = {
-                    onAction(ConversationAction.OnOwnerClick)
+                    onAction(HomeAction.OnOwnerClick)
                 },
                 onSearchResultClick = { result ->
-                    onAction(ConversationAction.OnSearchResultClick(result))
+                    onAction(HomeAction.OnSearchResultClick(result))
                 }
             )
 
@@ -121,7 +121,7 @@ fun ConversationScreen(
                     _root_ide_package_.com.nhuhuy.replee.feature_home.presentation.component.ConversationList(
                         conversationList = conversationList,
                         onConversationClick = { conversation ->
-                            onAction(ConversationAction.OnConversationClick(conversation))
+                            onAction(HomeAction.OnHomeClick(conversation))
                         },
                         modifier = Modifier
                             .fillMaxSize()
@@ -132,7 +132,7 @@ fun ConversationScreen(
                     RetryScreen(
                         modifier = Modifier.fillMaxSize(),
                         onRetry = {
-                            onAction(ConversationAction.Retry)
+                            onAction(HomeAction.Retry)
                         }
                     )
                 },

@@ -14,7 +14,7 @@ import com.nhuhuy.replee.feature_chat.presentation.option.OptionViewModel
 import com.nhuhuy.replee.feature_chat.presentation.pin.PinViewModel
 import com.nhuhuy.replee.feature_chat.presentation.search.SearchViewModel
 import com.nhuhuy.replee.feature_home.navigation.ConversationRoute
-import com.nhuhuy.replee.feature_home.presentation.ConversationViewModel
+import com.nhuhuy.replee.feature_home.presentation.HomeViewModel
 import com.nhuhuy.replee.navigation.HomeDestination.Information
 import com.nhuhuy.replee.navigation.HomeDestination.Pin
 import com.nhuhuy.replee.navigation.HomeDestination.Search
@@ -60,8 +60,8 @@ fun EntryProviderScope<NavKey>.chatGraph(
 ) {
     entry<HomeDestination.ConversationList> { screen ->
         val networkStatus = LocalNetworkStatus.current
-        val viewModel: ConversationViewModel = hiltViewModel(
-            creationCallback = { factory: ConversationViewModel.Factory ->
+        val viewModel: HomeViewModel = hiltViewModel(
+            creationCallback = { factory: HomeViewModel.Factory ->
                 factory.create(
                     currentUserId = screen.currentUserId
                 )

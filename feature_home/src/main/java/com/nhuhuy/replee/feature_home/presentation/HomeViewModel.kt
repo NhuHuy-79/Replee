@@ -18,7 +18,7 @@ import com.nhuhuy.replee.feature_home.domain.usecase.account.UpdateCurrentAccoun
 import com.nhuhuy.replee.feature_home.domain.usecase.conversation.GetSearchHistoryUseCase
 import com.nhuhuy.replee.feature_home.domain.usecase.conversation.ObserveLocalConversationListUseCase
 import com.nhuhuy.replee.feature_home.domain.usecase.conversation.SaveConversationListUseCase
-import com.nhuhuy.replee.feature_home.presentation.state.ConversationAction
+import com.nhuhuy.replee.feature_home.presentation.state.HomeAction
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -35,8 +35,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = ConversationViewModel.Factory::class)
-class ConversationViewModel @AssistedInject constructor(
+@HiltViewModel(assistedFactory = HomeViewModel.Factory::class)
+class HomeViewModel @AssistedInject constructor(
     @Assisted private val currentUserId: String,
     private val setUserOnlineUseCase: SetUserOnlineUseCase,
     private val getSearchHistoryUseCase: GetSearchHistoryUseCase,
@@ -47,10 +47,10 @@ class ConversationViewModel @AssistedInject constructor(
     private val searchAccountByEmailUseCase: SearchAccountByEmailUseCase,
     private val syncConversationUsersUseCase: SyncConversationUsersUseCase,
     private val syncConversationUseCase: SyncConversationsUseCase
-) : BaseViewModel<ConversationAction, com.nhuhuy.replee.feature_home.presentation.state.ConversationEvent, com.nhuhuy.replee.feature_home.presentation.state.ConversationState>() {
+) : BaseViewModel<HomeAction, com.nhuhuy.replee.feature_home.presentation.state.HomeEvent, com.nhuhuy.replee.feature_home.presentation.state.HomeState>() {
     private val _state =
-        MutableStateFlow(com.nhuhuy.replee.feature_home.presentation.state.ConversationState())
-    override val state: StateFlow<com.nhuhuy.replee.feature_home.presentation.state.ConversationState>
+        MutableStateFlow(com.nhuhuy.replee.feature_home.presentation.state.HomeState())
+    override val state: StateFlow<com.nhuhuy.replee.feature_home.presentation.state.HomeState>
         get() = _state.asStateFlow()
 
     private var listenConversationJob: Job? = null
@@ -91,26 +91,26 @@ class ConversationViewModel @AssistedInject constructor(
             .launchIn(viewModelScope)
     }
 
-    override fun onAction(action: ConversationAction) {
+    override fun onAction(action: HomeAction) {
         viewModelScope.launch {
             when (action) {
-                ConversationAction.OnAddFabClick -> {
+                HomeAction.OnAddFabClick -> {
                     _state.reduce {
                         copy(bottomSheet = com.nhuhuy.replee.feature_home.presentation.state.BottomSheet.OPEN)
                     }
                 }
 
-                is ConversationAction.OnConversationClick -> {
+                is HomeAction.OnHomeClick -> {
                     val conversation = action.conversation
                     onEvent(
-                        com.nhuhuy.replee.feature_home.presentation.state.ConversationEvent.NavigateToChatRoom(
+                        com.nhuhuy.replee.feature_home.presentation.state.HomeEvent.NavigateToChatRoom(
                             currentUserId = currentUserId,
                             otherUserId = conversation.otherUserId
                         )
                     )
                 }
 
-                ConversationAction.OnDismissPress -> {
+                HomeAction.OnDismissPress -> {
                     _state.reduce {
                         copy(
                             bottomSheet = com.nhuhuy.replee.feature_home.presentation.state.BottomSheet.CLOSE,
@@ -119,7 +119,7 @@ class ConversationViewModel @AssistedInject constructor(
                     }
                 }
 
-                ConversationAction.OnSearch -> {
+                HomeAction.OnSearch -> {
                     _state.reduce {
                         copy(searchState = ScreenState.Loading)
                     }
@@ -133,7 +133,7 @@ class ConversationViewModel @AssistedInject constructor(
                     }
                 }
 
-                ConversationAction.OnSearchBarClose -> {
+                HomeAction.OnSearchBarClose -> {
                     _state.reduce {
                         copy(
                             expandSearchBar = false,
@@ -143,20 +143,20 @@ class ConversationViewModel @AssistedInject constructor(
                     }
                 }
 
-                ConversationAction.Retry -> {
+                HomeAction.Retry -> {
                     //Avoid spamming retry button
                     val synchronizingState = state.value.synchronizingState
                     if (synchronizingState == com.nhuhuy.replee.feature_home.presentation.state.SynchronizingState.SYNC) return@launch
                     synchronizeInitialData()
                 }
 
-                is ConversationAction.OnQueryChange -> {
+                is HomeAction.OnQueryChange -> {
                     _state.reduce {
                         copy(searchQuery = action.value)
                     }
                 }
 
-                is ConversationAction.OnExpandChange -> {
+                is HomeAction.OnExpandChange -> {
                     _state.reduce {
                         copy(expandSearchBar = action.expand)
                     }
@@ -167,34 +167,34 @@ class ConversationViewModel @AssistedInject constructor(
                     }
                 }
 
-                is ConversationAction.OnAvatarClick -> {
+                is HomeAction.OnAvatarClick -> {
                     onEvent(
-                        com.nhuhuy.replee.feature_home.presentation.state.ConversationEvent.NavigateToChatRoom(
+                        com.nhuhuy.replee.feature_home.presentation.state.HomeEvent.NavigateToChatRoom(
                             currentUserId = currentUserId,
                             otherUserId = action.account.id
                         )
                     )
                 }
 
-                ConversationAction.OnOwnerClick -> {
-                    onEvent(com.nhuhuy.replee.feature_home.presentation.state.ConversationEvent.GoToProfile)
+                HomeAction.OnOwnerClick -> {
+                    onEvent(com.nhuhuy.replee.feature_home.presentation.state.HomeEvent.GoToProfile)
                 }
 
-                ConversationAction.OnImagePress -> {
+                HomeAction.OnImagePress -> {
                     _state.reduce {
                         copy(dialog = com.nhuhuy.replee.feature_home.presentation.state.Dialog.FULL_IMAGE)
                     }
                 }
 
-                ConversationAction.OnMessageLongPress -> {
+                HomeAction.OnMessageLongPress -> {
                     _state.reduce {
                         copy(dialog = com.nhuhuy.replee.feature_home.presentation.state.Dialog.MESSAGE)
                     }
                 }
 
-                is ConversationAction.OnSearchResultClick -> {
+                is HomeAction.OnSearchResultClick -> {
                     onEvent(
-                        com.nhuhuy.replee.feature_home.presentation.state.ConversationEvent.NavigateToChatRoom(
+                        com.nhuhuy.replee.feature_home.presentation.state.HomeEvent.NavigateToChatRoom(
                             currentUserId = currentUserId,
                             otherUserId = action.historyResult.uid
                         )
@@ -232,7 +232,7 @@ class ConversationViewModel @AssistedInject constructor(
     interface Factory {
         fun create(
             @Assisted currentUserId: String
-        ): ConversationViewModel
+        ): HomeViewModel
     }
 
     override fun onCleared() {

@@ -7,7 +7,7 @@ import com.nhuhuy.replee.core.model.account.Account
 import com.nhuhuy.replee.core.model.chat.SearchHistoryResult
 
 @Immutable
-data class ConversationState(
+data class HomeState(
     val searchState: ScreenState<List<Account>> = ScreenState.Idle,
     val searchHistory: List<SearchHistoryResult> = emptyList(),
     val currentUser: Account = Account(),
