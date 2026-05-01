@@ -1,7 +1,7 @@
-package com.nhuhuy.core.domain.usecase
+package com.nhuhuy.replee.core.domain.usecase
 
-import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.repository.AccountRepository
+import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.domain.repository.AccountRepository
 
 class UpdateDeviceTokenUseCase(
     private val accountRepository: AccountRepository

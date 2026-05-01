@@ -1,6 +1,6 @@
-package com.nhuhuy.core.domain.repository
+package com.nhuhuy.replee.core.domain.repository
 
-import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.model.NetworkResult
 import kotlinx.coroutines.flow.Flow
 
 interface PresenceRepository {

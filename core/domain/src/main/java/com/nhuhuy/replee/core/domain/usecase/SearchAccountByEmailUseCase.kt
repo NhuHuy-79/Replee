@@ -1,10 +1,10 @@
-package com.nhuhuy.core.domain.usecase
+package com.nhuhuy.replee.core.domain.usecase
 
-import com.nhuhuy.core.domain.model.Account
-import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.model.SearchHistoryResult
-import com.nhuhuy.core.domain.model.onSuccess
-import com.nhuhuy.core.domain.repository.AccountRepository
+import com.nhuhuy.replee.core.model.Account
+import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.SearchHistoryResult
+import com.nhuhuy.replee.core.model.onSuccess
+import com.nhuhuy.replee.core.domain.repository.AccountRepository
 
 class SearchAccountByEmailUseCase(
     private val accountRepository: AccountRepository
