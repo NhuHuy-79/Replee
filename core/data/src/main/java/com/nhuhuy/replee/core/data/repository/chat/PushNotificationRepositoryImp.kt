@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.core.data.repository.chat
 
 import com.nhuhuy.replee.core.domain.SessionManager
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.data.mapper.toAccount
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.execute
@@ -10,8 +10,8 @@ import com.nhuhuy.replee.core.network.api.fcm.ContentType
 import com.nhuhuy.replee.core.network.api.fcm.ConversationNotificationRequest
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.PushNotificationNetworkDataSource
-import com.nhuhuy.replee.core.model.Message
-import com.nhuhuy.replee.core.model.MessageType
+import com.nhuhuy.replee.core.model.chat.Message
+import com.nhuhuy.replee.core.model.chat.MessageType
 import com.nhuhuy.replee.core.domain.repository.PushNotificationRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

@@ -1,11 +1,11 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.file
 
-import com.nhuhuy.replee.core.model.FilePath
+import com.nhuhuy.replee.core.model.chat.FilePath
 import com.nhuhuy.replee.core.domain.repository.FileMetadata
 import com.nhuhuy.replee.core.domain.repository.FileRepository
-import com.nhuhuy.replee.core.model.Message
-import com.nhuhuy.replee.core.model.MessageStatus
-import com.nhuhuy.replee.core.model.MessageType
+import com.nhuhuy.replee.core.model.chat.Message
+import com.nhuhuy.replee.core.model.chat.MessageStatus
+import com.nhuhuy.replee.core.model.chat.MessageType
 import com.nhuhuy.replee.core.domain.repository.MessageRepository
 import timber.log.Timber
 import java.util.UUID

@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_chat.viewmodel
 
-import com.nhuhuy.replee.core.model.Account
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.account.Account
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.domain.usecase.GetCurrentAccountUseCase
 import com.nhuhuy.replee.core.domain.usecase.SearchAccountByEmailUseCase
 import com.nhuhuy.replee.core.test.MainDispatcherRule

@@ -31,9 +31,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.nhuhuy.replee.feature_chat.R
-import com.nhuhuy.replee.core.model.LocalPathMessage
-import com.nhuhuy.replee.core.model.Message
-import com.nhuhuy.replee.core.model.MessageType
+import com.nhuhuy.replee.core.model.chat.LocalPathMessage
+import com.nhuhuy.replee.core.model.chat.Message
+import com.nhuhuy.replee.core.model.chat.MessageType
 
 @Composable
 fun MessageContainer(

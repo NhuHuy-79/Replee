@@ -1,8 +1,8 @@
 package com.nhuhuy.replee.core.domain.repository
 
 import androidx.paging.PagingData
-import com.nhuhuy.replee.core.model.LocalPathMessage
-import com.nhuhuy.replee.core.model.Message
+import com.nhuhuy.replee.core.model.chat.LocalPathMessage
+import com.nhuhuy.replee.core.model.chat.Message
 import kotlinx.coroutines.flow.Flow
 
 interface MessageQueryRepository {

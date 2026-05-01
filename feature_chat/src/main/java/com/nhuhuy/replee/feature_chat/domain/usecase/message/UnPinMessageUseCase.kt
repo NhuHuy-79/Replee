@@ -1,10 +1,10 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.message
 
-import com.nhuhuy.replee.core.model.onFailure
-import com.nhuhuy.replee.core.model.ActionType
+import com.nhuhuy.replee.core.model.error_handling.onFailure
+import com.nhuhuy.replee.core.model.chat.ActionType
 import com.nhuhuy.replee.core.domain.worker.WorkerScheduler
-import com.nhuhuy.replee.core.model.ChatAction
-import com.nhuhuy.replee.core.model.Message
+import com.nhuhuy.replee.core.model.chat.ChatAction
+import com.nhuhuy.replee.core.model.chat.Message
 import com.nhuhuy.replee.core.domain.repository.ChatActionRepository
 import com.nhuhuy.replee.core.domain.repository.MessageRepository
 import javax.inject.Inject

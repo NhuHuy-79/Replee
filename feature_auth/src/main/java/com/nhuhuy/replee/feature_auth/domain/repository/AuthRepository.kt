@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_auth.domain.repository
 
-import com.nhuhuy.replee.core.model.Account
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.account.Account
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 
 interface AuthRepository {
     suspend fun signInWithGoogle(idToken: String): NetworkResult<Account>

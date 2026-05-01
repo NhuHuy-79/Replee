@@ -91,6 +91,8 @@ class RetrofitUploader @Inject constructor(
                 uploadPreset = presetPart
             )
             response.body()?.secureUrl ?: throw IOException("Upload failed")
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
         } catch (e: Exception) {
             throw IOException("Error: ${e.message}")
         }

@@ -4,10 +4,11 @@ package com.nhuhuy.replee.feature_chat.presentation.chat
 
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import com.nhuhuy.replee.core.model.ValidateFileResult
-import com.nhuhuy.replee.core.domain.usecase.GetAccountByIdUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
+import com.nhuhuy.replee.core.domain.usecase.GetAccountByIdUseCase
+import com.nhuhuy.replee.core.model.validate.ValidateFileResult
+import com.nhuhuy.replee.core.sync.usecase.SyncMessageUseCase
 import com.nhuhuy.replee.feature_chat.data.NotificationManager
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.CheckBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.ObserveOwnerIsBlockUseCase
@@ -29,7 +30,6 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.GetTypingUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.UpdateReadTimeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.UpdateTypingUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.option.DeleteConversationUseCase
-import com.nhuhuy.replee.core.sync.usecase.SyncMessageUseCase
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToInformation

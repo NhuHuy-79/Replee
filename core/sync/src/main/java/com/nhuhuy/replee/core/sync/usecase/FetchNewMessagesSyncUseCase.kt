@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.core.sync.usecase
 
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.domain.repository.MessageRepository
 import javax.inject.Inject
 

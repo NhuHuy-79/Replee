@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.message
 
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.domain.repository.MessageRepository
 import javax.inject.Inject
 

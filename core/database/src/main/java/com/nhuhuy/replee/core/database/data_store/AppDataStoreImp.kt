@@ -4,9 +4,9 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.nhuhuy.replee.core.model.NotificationMode
-import com.nhuhuy.replee.core.model.SeedColor
-import com.nhuhuy.replee.core.model.ThemeMode
+import com.nhuhuy.replee.core.model.settings.NotificationMode
+import com.nhuhuy.replee.core.model.settings.SeedColor
+import com.nhuhuy.replee.core.model.settings.ThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import timber.log.Timber

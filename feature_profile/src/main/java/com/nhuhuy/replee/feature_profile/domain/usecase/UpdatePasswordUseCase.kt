@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.feature_profile.domain.usecase
 
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.domain.repository.AccountRepository
 import com.nhuhuy.replee.core.domain.repository.ProfileRepository
 import javax.inject.Inject

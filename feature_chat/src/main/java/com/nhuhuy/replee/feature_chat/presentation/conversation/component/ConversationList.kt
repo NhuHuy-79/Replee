@@ -29,9 +29,9 @@ import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.common.utils.formatToChatTime
 import com.nhuhuy.replee.core.design_system.canvas.AvatarContainer
 import com.nhuhuy.replee.core.design_system.component.UserImage
+import com.nhuhuy.replee.core.model.chat.Conversation
+import com.nhuhuy.replee.core.model.chat.MessageType
 import com.nhuhuy.replee.feature_chat.R
-import com.nhuhuy.replee.core.model.Conversation
-import com.nhuhuy.replee.core.model.MessageType
 import com.nhuhuy.replee.feature_chat.utils.getMainName
 
 @Composable

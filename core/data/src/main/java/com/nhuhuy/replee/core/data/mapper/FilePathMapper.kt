@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.core.data.mapper
 
-import com.nhuhuy.replee.core.model.FilePath
+import com.nhuhuy.replee.core.model.chat.FilePath
 import com.nhuhuy.replee.core.database.entity.file_path.FilePathEntity
 
 fun FilePath.toEntity() = FilePathEntity(

@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_profile.domain.usecase
 
 import com.google.common.truth.Truth
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.domain.repository.AccountRepository
 import com.nhuhuy.replee.feature_profile.FakeParameters.Companion.fakeAccount
 import com.nhuhuy.replee.feature_profile.FakeParameters.Companion.fakeException

@@ -1,10 +1,10 @@
 package com.nhuhuy.replee.core.database.data_source
 
-import com.nhuhuy.replee.core.model.ActionType
 import com.nhuhuy.replee.core.database.entity.message_action.ChatActionDao
 import com.nhuhuy.replee.core.database.mapper.toAction
 import com.nhuhuy.replee.core.database.mapper.toEntity
-import com.nhuhuy.replee.core.model.ChatAction
+import com.nhuhuy.replee.core.model.chat.ActionType
+import com.nhuhuy.replee.core.model.chat.ChatAction
 import javax.inject.Inject
 
 interface ChatActionDataSource {

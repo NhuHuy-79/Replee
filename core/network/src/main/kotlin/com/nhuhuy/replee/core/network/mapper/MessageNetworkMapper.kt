@@ -1,8 +1,6 @@
 package com.nhuhuy.replee.core.network.mapper
 
-import com.nhuhuy.replee.core.model.Message
-import com.nhuhuy.replee.core.model.MessageStatus
-import com.nhuhuy.replee.core.model.MessageType
+import com.nhuhuy.replee.core.model.chat.Message
 import com.nhuhuy.replee.core.network.model.MessageDTO
 import com.nhuhuy.replee.core.network.utils.toMilliseconds
 

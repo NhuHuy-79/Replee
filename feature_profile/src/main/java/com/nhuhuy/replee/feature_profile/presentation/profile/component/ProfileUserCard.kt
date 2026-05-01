@@ -22,8 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.replee.core.model.Account
-import com.nhuhuy.replee.core.model.AuthServiceProvider
+import com.nhuhuy.replee.core.model.account.Account
+import com.nhuhuy.replee.core.model.account.AuthServiceProvider
 import com.nhuhuy.replee.core.design_system.component.UserImage
 
 @Composable

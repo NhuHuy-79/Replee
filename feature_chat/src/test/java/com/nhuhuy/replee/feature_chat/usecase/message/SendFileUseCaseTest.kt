@@ -2,7 +2,7 @@ package com.nhuhuy.replee.feature_chat.usecase.message
 
 import com.nhuhuy.replee.core.domain.repository.FileMetadata
 import com.nhuhuy.replee.core.domain.repository.FileRepository
-import com.nhuhuy.replee.core.model.MessageType
+import com.nhuhuy.replee.core.model.chat.MessageType
 import com.nhuhuy.replee.core.domain.repository.MessageRepository
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.SendFileMessageUseCase
 import io.mockk.coEvery

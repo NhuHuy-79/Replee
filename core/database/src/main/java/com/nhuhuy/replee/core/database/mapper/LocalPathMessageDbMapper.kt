@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.core.database.mapper
 
 import com.nhuhuy.replee.core.database.entity.file_path.MessageWithLocalPath
-import com.nhuhuy.replee.core.model.LocalPathMessage
+import com.nhuhuy.replee.core.model.chat.LocalPathMessage
 
 fun MessageWithLocalPath.toLocalPathMessage(): LocalPathMessage {
     return LocalPathMessage(

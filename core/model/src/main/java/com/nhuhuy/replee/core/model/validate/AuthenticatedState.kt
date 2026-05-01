@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.model
+package com.nhuhuy.replee.core.model.validate
 
 sealed interface AuthenticatedState {
     data object Loading : AuthenticatedState

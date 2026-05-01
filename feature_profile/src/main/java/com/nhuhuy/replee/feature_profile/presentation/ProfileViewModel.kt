@@ -3,9 +3,9 @@ package com.nhuhuy.replee.feature_profile.presentation
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
-import com.nhuhuy.replee.core.model.Account
-import com.nhuhuy.replee.core.model.onFailure
-import com.nhuhuy.replee.core.model.onSuccess
+import com.nhuhuy.replee.core.model.account.Account
+import com.nhuhuy.replee.core.model.error_handling.onFailure
+import com.nhuhuy.replee.core.model.error_handling.onSuccess
 import com.nhuhuy.replee.core.domain.usecase.GetCurrentAccountUseCase
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.ScreenState

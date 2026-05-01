@@ -1,10 +1,9 @@
 package com.nhuhuy.replee.feature_profile.domain.usecase
 
-import com.nhuhuy.replee.core.model.FilePath
+import com.nhuhuy.replee.core.model.chat.FilePath
 import com.nhuhuy.replee.core.domain.repository.FileMetadata
 import com.nhuhuy.replee.core.domain.repository.FileRepository
 import com.nhuhuy.replee.core.domain.worker.WorkerScheduler
-import java.util.UUID
 import javax.inject.Inject
 
 class UploadAvatarUseCase @Inject constructor(

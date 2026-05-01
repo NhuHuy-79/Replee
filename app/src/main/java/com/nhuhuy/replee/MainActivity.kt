@@ -13,7 +13,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.nhuhuy.replee.core.model.ThemeMode
+import com.nhuhuy.replee.core.model.settings.ThemeMode
 import com.nhuhuy.replee.core.design_system.theme.DynamicRepleeTheme
 import com.nhuhuy.replee.core.network.manager.NetworkStatus
 import com.nhuhuy.replee.feature_chat.utils.toPrimaryColor

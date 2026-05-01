@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.model
+package com.nhuhuy.replee.core.model.settings
 
 enum class NotificationMode {
     NONE,

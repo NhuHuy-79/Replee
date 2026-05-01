@@ -1,8 +1,8 @@
 package com.nhuhuy.replee.core.data.repository
 
-import com.nhuhuy.replee.core.model.NetworkResult
-import com.nhuhuy.replee.core.model.NotificationMode
-import com.nhuhuy.replee.core.model.ThemeMode
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.model.settings.NotificationMode
+import com.nhuhuy.replee.core.model.settings.ThemeMode
 import com.nhuhuy.replee.core.data.utils.execute
 import com.nhuhuy.replee.core.database.data_source.ProfileLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.ProfileNetworkDataSource

@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.core.domain.repository
 
-import com.nhuhuy.replee.core.model.Conversation
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.chat.Conversation
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import kotlinx.coroutines.flow.Flow
 
 interface ConversationQueryRepository {

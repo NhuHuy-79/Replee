@@ -2,7 +2,7 @@ package com.nhuhuy.replee.core.data.mapper
 
 import com.google.firebase.firestore.FieldValue
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationAndUser
-import com.nhuhuy.replee.core.model.MessageType
+import com.nhuhuy.replee.core.model.chat.MessageType
 import com.nhuhuy.replee.core.network.model.ConversationDTO
 
 //Create new object to upload

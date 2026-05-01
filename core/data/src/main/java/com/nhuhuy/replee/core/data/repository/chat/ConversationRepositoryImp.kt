@@ -1,27 +1,26 @@
 package com.nhuhuy.replee.core.data.repository.chat
 
-import com.nhuhuy.replee.core.domain.SessionManager
-import com.nhuhuy.replee.core.model.NetworkResult
-import com.nhuhuy.replee.core.data.mapper.toAccountEntity
 import com.nhuhuy.replee.core.common.utils.ApplicationCoroutineScope
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
+import com.nhuhuy.replee.core.data.mapper.createConversationDTO
+import com.nhuhuy.replee.core.data.mapper.toAccountEntity
 import com.nhuhuy.replee.core.data.utils.execute
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
-import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.network.model.DataChange
-import com.nhuhuy.replee.core.data.mapper.createConversationDTO
-import com.nhuhuy.replee.core.database.mapper.toConversation
-import com.nhuhuy.replee.core.network.mapper.toConversation as toConversationNetwork
-import com.nhuhuy.replee.core.database.mapper.toConversationEntity
-import com.nhuhuy.replee.core.network.mapper.toMessageDTO
-import com.nhuhuy.replee.core.database.mapper.toMessageEntity
 import com.nhuhuy.replee.core.database.data_source.ConversationLocalDataSource
-import com.nhuhuy.replee.core.network.data_source.ConversationNetworkDataSource
-import com.nhuhuy.replee.core.model.Conversation
-import com.nhuhuy.replee.core.model.Message
-import com.nhuhuy.replee.core.model.MessageType
+import com.nhuhuy.replee.core.database.mapper.toConversation
+import com.nhuhuy.replee.core.database.mapper.toConversationEntity
+import com.nhuhuy.replee.core.database.mapper.toMessageEntity
+import com.nhuhuy.replee.core.domain.SessionManager
 import com.nhuhuy.replee.core.domain.repository.ConversationRepository
+import com.nhuhuy.replee.core.model.chat.Conversation
+import com.nhuhuy.replee.core.model.chat.Message
+import com.nhuhuy.replee.core.model.chat.MessageType
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.ConversationNetworkDataSource
+import com.nhuhuy.replee.core.network.mapper.toMessageDTO
+import com.nhuhuy.replee.core.network.model.DataChange
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -31,6 +30,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
+import com.nhuhuy.replee.core.network.mapper.toConversation as toConversationNetwork
 
 class ConversationRepositoryImp @Inject constructor(
     @ApplicationCoroutineScope private val externalScope: CoroutineScope,

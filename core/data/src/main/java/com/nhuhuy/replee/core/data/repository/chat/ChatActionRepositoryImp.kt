@@ -1,10 +1,10 @@
 package com.nhuhuy.replee.core.data.repository.chat
 
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
-import com.nhuhuy.replee.core.model.ActionType
 import com.nhuhuy.replee.core.database.data_source.ChatActionDataSource
-import com.nhuhuy.replee.core.model.ChatAction
 import com.nhuhuy.replee.core.domain.repository.ChatActionRepository
+import com.nhuhuy.replee.core.model.chat.ActionType
+import com.nhuhuy.replee.core.model.chat.ChatAction
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

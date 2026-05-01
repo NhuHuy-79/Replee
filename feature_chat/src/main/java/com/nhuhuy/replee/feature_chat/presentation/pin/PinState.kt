@@ -1,10 +1,10 @@
 package com.nhuhuy.replee.feature_chat.presentation.pin
 
-import com.nhuhuy.replee.core.model.Account
+import com.nhuhuy.replee.core.model.account.Account
 import com.nhuhuy.replee.core.common.base.UiAction
 import com.nhuhuy.replee.core.common.base.UiEvent
 import com.nhuhuy.replee.core.common.base.UiState
-import com.nhuhuy.replee.core.model.Message
+import com.nhuhuy.replee.core.model.chat.Message
 
 data class PinState(
     val currentUser: Account = Account(),

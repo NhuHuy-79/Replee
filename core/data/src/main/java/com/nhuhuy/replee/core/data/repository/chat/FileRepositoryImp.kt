@@ -2,19 +2,10 @@ package com.nhuhuy.replee.core.data.repository.chat
 
 import android.content.Context
 import androidx.core.net.toUri
-import androidx.work.BackoffPolicy
-import androidx.work.Constraints
-import androidx.work.ExistingWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.OutOfQuotaPolicy
-import androidx.work.WorkManager
-import androidx.work.WorkRequest
-import androidx.work.workDataOf
-import com.nhuhuy.replee.core.model.FilePath
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.chat.FilePath
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.model.UploadFileState
-import com.nhuhuy.replee.core.model.ValidateFileResult
+import com.nhuhuy.replee.core.model.validate.ValidateFileResult
 import com.nhuhuy.replee.core.domain.repository.FileMetadata
 import com.nhuhuy.replee.core.domain.repository.FileRepository
 import com.nhuhuy.replee.core.data.data_source.FileStorageDataSource
@@ -31,7 +22,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 const val MESSAGE_ID_INPUT = "message_id_input"

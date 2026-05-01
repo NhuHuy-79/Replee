@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.model
+package com.nhuhuy.replee.core.model.error_handling
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

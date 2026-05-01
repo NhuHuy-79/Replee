@@ -2,8 +2,8 @@ package com.nhuhuy.replee.core.database.mapper
 
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationAndUser
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationEntity
-import com.nhuhuy.replee.core.model.Conversation
-import com.nhuhuy.replee.core.model.MessageType
+import com.nhuhuy.replee.core.model.chat.Conversation
+import com.nhuhuy.replee.core.model.chat.MessageType
 
 //Domain save to local
 fun Conversation.toConversationEntity(): ConversationEntity {

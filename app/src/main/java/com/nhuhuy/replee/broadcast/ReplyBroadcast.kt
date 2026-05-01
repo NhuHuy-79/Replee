@@ -5,8 +5,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationManagerCompat
-import com.nhuhuy.replee.core.model.onFailure
-import com.nhuhuy.replee.core.model.onSuccess
+import com.nhuhuy.replee.core.model.error_handling.onFailure
+import com.nhuhuy.replee.core.model.error_handling.onSuccess
 import com.nhuhuy.replee.notification.EXTRA_CONVERSATION_ID
 import com.nhuhuy.replee.notification.EXTRA_NOTIFICATION_ID
 import com.nhuhuy.replee.notification.EXTRA_RECEIVER_ID

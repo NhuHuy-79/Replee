@@ -1,8 +1,8 @@
 package com.nhuhuy.replee.core.data.repository.chat
 
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.database.data_store.AppDataStore
-import com.nhuhuy.replee.core.model.SeedColor
+import com.nhuhuy.replee.core.model.settings.SeedColor
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.data_source.ConversationLocalDataSource

@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_chat.utils
 
 import androidx.compose.ui.graphics.Color
-import com.nhuhuy.replee.core.model.SeedColor
+import com.nhuhuy.replee.core.model.settings.SeedColor
 
 fun SeedColor.toPrimaryColor(): Color {
     return when (this) {

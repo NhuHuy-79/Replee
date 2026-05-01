@@ -1,9 +1,10 @@
 package com.nhuhuy.replee.feature_auth.viewmodel
 
 import app.cash.turbine.test
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.common.base.ValidateResult
 import com.nhuhuy.replee.core.common.utils.InputValidator
+import com.nhuhuy.replee.core.model.account.Account
 import com.nhuhuy.replee.core.test.MainDispatcherRule
 import com.nhuhuy.replee.feature_auth.data.model.GoogleCredentialResult
 import com.nhuhuy.replee.feature_auth.domain.usecase.LoginWithEmailUseCase
@@ -106,7 +107,7 @@ class LoginViewModelTest {
         // Arrange
         val idToken = "google_token"
         val googleResult = GoogleCredentialResult.Success(idToken = idToken)
-        val fakeAccount = mockk<com.nhuhuy.replee.core.model.Account> {
+        val fakeAccount = mockk<Account> {
             every { id } returns "google_user_id"
         }
 

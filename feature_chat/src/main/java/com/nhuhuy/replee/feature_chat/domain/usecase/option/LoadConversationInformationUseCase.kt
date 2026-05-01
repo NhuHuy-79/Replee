@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.option
 
-import com.nhuhuy.replee.core.model.Conversation
+import com.nhuhuy.replee.core.model.chat.Conversation
 import com.nhuhuy.replee.core.domain.repository.ConversationRepository
 import javax.inject.Inject
 

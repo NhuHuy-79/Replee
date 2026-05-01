@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_chat
 
-import com.nhuhuy.replee.core.model.Message
-import com.nhuhuy.replee.core.model.MessageStatus
+import com.nhuhuy.replee.core.model.chat.Message
+import com.nhuhuy.replee.core.model.chat.MessageStatus
 
 class FakeParameters {
     companion object {

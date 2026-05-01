@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.message
 
 import androidx.paging.PagingData
-import com.nhuhuy.replee.core.model.LocalPathMessage
+import com.nhuhuy.replee.core.model.chat.LocalPathMessage
 import com.nhuhuy.replee.core.domain.repository.MessageRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

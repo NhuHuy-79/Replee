@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.core.sync.usecase
 
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.domain.repository.AccountRepository
 import com.nhuhuy.replee.core.domain.repository.FileRepository
 import com.nhuhuy.replee.core.data.utils.flatMap

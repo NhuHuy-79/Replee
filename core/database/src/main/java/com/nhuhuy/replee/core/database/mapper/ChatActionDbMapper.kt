@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.core.database.mapper
 
 import com.nhuhuy.replee.core.database.entity.message_action.ChatActionEntity
-import com.nhuhuy.replee.core.model.ChatAction
+import com.nhuhuy.replee.core.model.chat.ChatAction
 
 fun ChatAction.toEntity(): ChatActionEntity {
     return ChatActionEntity(

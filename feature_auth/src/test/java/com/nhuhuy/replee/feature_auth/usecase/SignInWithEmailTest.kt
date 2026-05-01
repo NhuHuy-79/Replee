@@ -3,7 +3,7 @@ package com.nhuhuy.replee.feature_auth.usecase
 import com.google.common.truth.Truth
 import com.nhuhuy.replee.core.domain.SessionManager
 import com.nhuhuy.replee.core.domain.repository.AccountRepository
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.feature_auth.FakeParameters.Companion.FAKE_TOKEN
 import com.nhuhuy.replee.feature_auth.FakeParameters.Companion.fakeAccount
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository

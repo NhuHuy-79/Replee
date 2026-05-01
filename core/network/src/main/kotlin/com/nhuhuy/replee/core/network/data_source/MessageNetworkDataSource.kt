@@ -13,7 +13,7 @@ import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.core.network.model.observeMultipleDataChanges
 import com.nhuhuy.replee.core.network.utils.optimizedWrite
 import com.nhuhuy.replee.core.network.utils.toMilliseconds
-import com.nhuhuy.replee.core.model.MessageStatus
+import com.nhuhuy.replee.core.model.chat.MessageStatus
 import com.nhuhuy.replee.core.network.model.MessageDTO
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.currentCoroutineContext

@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.metadata
 
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.domain.repository.MetaDataRepository
 import javax.inject.Inject
 

@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.core.data.repository.chat
 
 import com.nhuhuy.replee.core.domain.SessionManager
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.network.data_source.MetaDataNetworkDataSource

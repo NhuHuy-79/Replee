@@ -2,9 +2,9 @@ package com.nhuhuy.replee.feature_chat.presentation.chat.state
 
 
 import androidx.compose.runtime.Immutable
-import com.nhuhuy.replee.core.model.Account
 import com.nhuhuy.replee.core.common.base.UiState
-import com.nhuhuy.replee.core.model.Message
+import com.nhuhuy.replee.core.model.account.Account
+import com.nhuhuy.replee.core.model.chat.Message
 
 @Immutable
 data class ChatState(

@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.model
+package com.nhuhuy.replee.core.model.chat
 
 data class SearchHistoryResult(
     val imgUrl: String,

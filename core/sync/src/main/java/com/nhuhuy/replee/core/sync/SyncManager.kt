@@ -9,9 +9,9 @@ import com.nhuhuy.replee.core.network.quailify.Retrofit
 import com.nhuhuy.replee.core.database.mapper.toMessage
 import com.nhuhuy.replee.core.network.mapper.toMessageDTO
 import com.nhuhuy.replee.core.data.mapper.toUpdatePatch
-import com.nhuhuy.replee.core.model.MessageStatus
-import com.nhuhuy.replee.core.model.MessageType
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.chat.MessageStatus
+import com.nhuhuy.replee.core.model.chat.MessageType
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.execute
 import kotlinx.coroutines.CoroutineDispatcher

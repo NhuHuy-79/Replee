@@ -1,8 +1,8 @@
 package com.nhuhuy.replee.core.network.mapper
 
 import com.google.firebase.firestore.FieldValue
-import com.nhuhuy.replee.core.model.Conversation
-import com.nhuhuy.replee.core.model.MessageType
+import com.nhuhuy.replee.core.model.chat.Conversation
+import com.nhuhuy.replee.core.model.chat.MessageType
 import com.nhuhuy.replee.core.network.model.ConversationDTO
 import com.nhuhuy.replee.core.network.utils.toMilliseconds
 

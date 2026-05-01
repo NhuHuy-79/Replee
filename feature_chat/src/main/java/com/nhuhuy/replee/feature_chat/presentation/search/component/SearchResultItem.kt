@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.common.utils.formatToChatTime
 import com.nhuhuy.replee.core.design_system.component.UserImage
-import com.nhuhuy.replee.core.model.Message
+import com.nhuhuy.replee.core.model.chat.Message
 
 @Composable
 fun SearchResultItem(

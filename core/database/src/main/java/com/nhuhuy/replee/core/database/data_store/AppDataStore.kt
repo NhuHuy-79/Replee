@@ -1,8 +1,8 @@
 package com.nhuhuy.replee.core.database.data_store
 
-import com.nhuhuy.replee.core.model.NotificationMode
-import com.nhuhuy.replee.core.model.SeedColor
-import com.nhuhuy.replee.core.model.ThemeMode
+import com.nhuhuy.replee.core.model.settings.NotificationMode
+import com.nhuhuy.replee.core.model.settings.SeedColor
+import com.nhuhuy.replee.core.model.settings.ThemeMode
 import kotlinx.coroutines.flow.Flow
 
 interface AppDataStore {

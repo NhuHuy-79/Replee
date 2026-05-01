@@ -4,8 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
-import com.nhuhuy.replee.core.model.ActionType
 import com.nhuhuy.replee.core.database.base.BaseDao
+import com.nhuhuy.replee.core.model.chat.ActionType
 
 @Dao
 interface ChatActionDao : BaseDao<ChatActionEntity> {

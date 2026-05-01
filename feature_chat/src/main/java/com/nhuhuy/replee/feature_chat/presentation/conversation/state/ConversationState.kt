@@ -1,10 +1,10 @@
 package com.nhuhuy.replee.feature_chat.presentation.conversation.state
 
 import androidx.compose.runtime.Immutable
-import com.nhuhuy.replee.core.model.Account
-import com.nhuhuy.replee.core.model.SearchHistoryResult
 import com.nhuhuy.replee.core.common.base.ScreenState
 import com.nhuhuy.replee.core.common.base.UiState
+import com.nhuhuy.replee.core.model.account.Account
+import com.nhuhuy.replee.core.model.chat.SearchHistoryResult
 
 @Immutable
 data class ConversationState(

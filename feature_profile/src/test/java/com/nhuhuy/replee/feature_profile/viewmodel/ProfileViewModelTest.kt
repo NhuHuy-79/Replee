@@ -2,13 +2,13 @@ package com.nhuhuy.replee.feature_profile.viewmodel
 
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.domain.usecase.GetCurrentAccountUseCase
 import com.nhuhuy.replee.core.common.base.ValidateResult
 import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.database.data_store.AppDataStore
-import com.nhuhuy.replee.core.model.NotificationMode
-import com.nhuhuy.replee.core.model.ThemeMode
+import com.nhuhuy.replee.core.model.settings.NotificationMode
+import com.nhuhuy.replee.core.model.settings.ThemeMode
 import com.nhuhuy.replee.core.test.MainDispatcherRule
 import com.nhuhuy.replee.feature_profile.FakeParameters.Companion.fakeAccount
 import com.nhuhuy.replee.feature_profile.FakeParameters.Companion.fakeException

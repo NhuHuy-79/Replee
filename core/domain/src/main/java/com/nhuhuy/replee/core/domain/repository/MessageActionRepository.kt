@@ -1,8 +1,8 @@
 package com.nhuhuy.replee.core.domain.repository
 
-import com.nhuhuy.replee.core.model.Message
-import com.nhuhuy.replee.core.model.MessageStatus
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.chat.Message
+import com.nhuhuy.replee.core.model.chat.MessageStatus
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 
 interface MessageActionRepository {
     // --- CREATE / SEND ---

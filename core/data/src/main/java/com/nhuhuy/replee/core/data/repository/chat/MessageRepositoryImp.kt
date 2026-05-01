@@ -6,7 +6,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.nhuhuy.replee.core.domain.SessionManager
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.CoreDatabase
@@ -21,9 +21,9 @@ import com.nhuhuy.replee.core.database.data_source.MessageLocalDataSource
 import com.nhuhuy.replee.core.network.data_source.MessageNetworkDataSource
 import com.nhuhuy.replee.core.data.MessageRemoteMediator
 import com.nhuhuy.replee.core.network.data_source.PagingMessageNetworkDataSource
-import com.nhuhuy.replee.core.model.LocalPathMessage
-import com.nhuhuy.replee.core.model.Message
-import com.nhuhuy.replee.core.model.MessageStatus
+import com.nhuhuy.replee.core.model.chat.LocalPathMessage
+import com.nhuhuy.replee.core.model.chat.Message
+import com.nhuhuy.replee.core.model.chat.MessageStatus
 import com.nhuhuy.replee.core.database.mapper.toLocalPathMessage
 import com.nhuhuy.replee.core.domain.repository.MessageRepository
 import kotlinx.coroutines.CoroutineDispatcher

@@ -3,8 +3,8 @@ package com.nhuhuy.replee.core.network.model
 import androidx.annotation.Keep
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.ServerTimestamp
-import com.nhuhuy.replee.core.model.MessageStatus
-import com.nhuhuy.replee.core.model.MessageType
+import com.nhuhuy.replee.core.model.chat.MessageStatus
+import com.nhuhuy.replee.core.model.chat.MessageType
 
 @Keep
 data class MessageDTO(

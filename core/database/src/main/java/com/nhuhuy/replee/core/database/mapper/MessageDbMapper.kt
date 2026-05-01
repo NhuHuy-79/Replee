@@ -1,9 +1,9 @@
 package com.nhuhuy.replee.core.database.mapper
 
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
-import com.nhuhuy.replee.core.model.Message
-import com.nhuhuy.replee.core.model.MessageStatus
-import com.nhuhuy.replee.core.model.MessageType
+import com.nhuhuy.replee.core.model.chat.Message
+import com.nhuhuy.replee.core.model.chat.MessageStatus
+import com.nhuhuy.replee.core.model.chat.MessageType
 
 fun MessageEntity.toMessage() : Message{
     return Message(

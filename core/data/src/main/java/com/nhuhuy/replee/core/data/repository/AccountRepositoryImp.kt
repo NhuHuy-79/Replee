@@ -1,18 +1,18 @@
 package com.nhuhuy.replee.core.data.repository
 
-import com.nhuhuy.replee.core.domain.SessionManager
-import com.nhuhuy.replee.core.model.Account
-import com.nhuhuy.replee.core.model.NetworkResult
-import com.nhuhuy.replee.core.model.SearchHistoryResult
-import com.nhuhuy.replee.core.domain.repository.AccountRepository
+import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.mapper.toAccount
 import com.nhuhuy.replee.core.data.mapper.toAccountDTO
 import com.nhuhuy.replee.core.data.mapper.toAccountEntity
-import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.execute
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.database.entity.search_history.SearchHistoryEntity
+import com.nhuhuy.replee.core.domain.SessionManager
+import com.nhuhuy.replee.core.domain.repository.AccountRepository
+import com.nhuhuy.replee.core.model.account.Account
+import com.nhuhuy.replee.core.model.chat.SearchHistoryResult
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.network.model.AccountDTO
 import kotlinx.coroutines.CoroutineDispatcher

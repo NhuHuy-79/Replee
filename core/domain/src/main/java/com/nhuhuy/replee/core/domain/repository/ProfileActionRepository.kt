@@ -1,8 +1,8 @@
 package com.nhuhuy.replee.core.domain.repository
 
-import com.nhuhuy.replee.core.model.NetworkResult
-import com.nhuhuy.replee.core.model.NotificationMode
-import com.nhuhuy.replee.core.model.ThemeMode
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.model.settings.NotificationMode
+import com.nhuhuy.replee.core.model.settings.ThemeMode
 
 interface ProfileActionRepository {
     suspend fun updateNotification(mode: NotificationMode)

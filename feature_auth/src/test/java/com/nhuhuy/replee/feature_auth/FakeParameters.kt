@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.feature_auth
 
-import com.nhuhuy.replee.core.model.Account
+import com.nhuhuy.replee.core.model.account.Account
 
 class FakeParameters {
     companion object {

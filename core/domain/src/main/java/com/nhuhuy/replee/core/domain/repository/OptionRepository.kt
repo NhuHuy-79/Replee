@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.core.domain.repository
 
-import com.nhuhuy.replee.core.model.NetworkResult
-import com.nhuhuy.replee.core.model.SeedColor
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.model.settings.SeedColor
 import kotlinx.coroutines.flow.Flow
 
 interface OptionRepository {

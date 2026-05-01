@@ -5,8 +5,8 @@ import androidx.credentials.CredentialManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
 import com.nhuhuy.replee.core.domain.SessionManager
-import com.nhuhuy.replee.core.model.AuthenticatedState
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.validate.AuthenticatedState
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.database.data_store.AppDataStore
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.execute

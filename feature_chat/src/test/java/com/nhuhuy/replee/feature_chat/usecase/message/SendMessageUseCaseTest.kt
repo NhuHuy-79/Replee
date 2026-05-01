@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_chat.usecase.message
 
 import com.google.common.truth.Truth
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.feature_chat.FakeParameters.Companion.fakeException
 import com.nhuhuy.replee.feature_chat.FakeParameters.Companion.fakeMessage
 import com.nhuhuy.replee.core.sync.SyncManager

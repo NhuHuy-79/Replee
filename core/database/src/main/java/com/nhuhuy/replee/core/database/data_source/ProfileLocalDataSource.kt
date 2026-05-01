@@ -1,8 +1,8 @@
 package com.nhuhuy.replee.core.database.data_source
 
 import com.nhuhuy.replee.core.database.data_store.AppDataStore
-import com.nhuhuy.replee.core.model.NotificationMode
-import com.nhuhuy.replee.core.model.ThemeMode
+import com.nhuhuy.replee.core.model.settings.NotificationMode
+import com.nhuhuy.replee.core.model.settings.ThemeMode
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

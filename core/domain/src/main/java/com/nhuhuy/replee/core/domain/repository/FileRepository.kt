@@ -1,9 +1,9 @@
 package com.nhuhuy.replee.core.domain.repository
 
-import com.nhuhuy.replee.core.model.FilePath
-import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.model.chat.FilePath
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.model.UploadFileState
-import com.nhuhuy.replee.core.model.ValidateFileResult
+import com.nhuhuy.replee.core.model.validate.ValidateFileResult
 
 import kotlinx.coroutines.flow.Flow
 
