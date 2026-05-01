@@ -26,6 +26,7 @@ fun Conversation.toConversationEntity(): ConversationEntity {
         blocked = this.blocked,
         pinned = this.pinned,
         deleted = this.deleted,
+        lastTimeDeleted = this.lastTimeDeleted,
         synced = true,
         lastMessageId = lastMessageId,
         lastTimeSyncs = System.currentTimeMillis(),
@@ -52,6 +53,8 @@ fun ConversationAndUser.createConversationDTO(): ConversationDTO {
         isPinned = mapOf(conversation.ownerId to conversation.pinned),
         isMuted = mapOf(conversation.ownerId to conversation.muted),
         isDeleted = mapOf(conversation.ownerId to conversation.deleted),
+        lastTimeDeleted = conversation.lastTimeDeleted?.let { mapOf(conversation.ownerId to it) }
+            ?: emptyMap(),
         memberIds = listOf(conversation.ownerId, conversation.otherUserId),
         unReadMessages = mapOf(conversation.ownerId to conversation.unreadMessageCount)
     )
@@ -64,6 +67,7 @@ fun ConversationAndUser.toUpdatePatch(uid: String): Map<String, Any> {
     map["isPinned.$uid"] = conversation.pinned
     map["isBlocked.$uid"] = conversation.blocked
     map["isDeleted.$uid"] = conversation.deleted
+    map["lastTimeDeleted.$uid"] = conversation.lastTimeDeleted ?: 0L
     map["nickName.$uid"] = conversation.otherUserNick
     map["unReadMessages.$uid"] = conversation.unreadMessageCount
 
@@ -106,6 +110,7 @@ fun ConversationDTO.toConversation(
         lastDeletedMessageId = lastDeletedMessageId,
         unreadMessageCount = unReadMessages[ownerId] ?: 0,
         deleted = isDeleted[ownerId] ?: false,
+        lastTimeDeleted = lastTimeDeleted[ownerId],
         blocked = isBlocked[ownerId] ?: false,
         muted = isMuted[ownerId] ?: false,
         pinned = isPinned[ownerId] ?: false,
@@ -134,6 +139,7 @@ fun ConversationAndUser.toConversation(): Conversation {
         otherUserImg = otherUser?.imageUrl.orEmpty(),
         blocked = conversation.blocked,
         deleted = conversation.deleted,
+        lastTimeDeleted = conversation.lastTimeDeleted,
         otherUserOnline = otherUser?.isOnline ?: false
     )
 }

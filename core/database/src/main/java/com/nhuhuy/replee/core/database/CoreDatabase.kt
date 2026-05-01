@@ -14,8 +14,8 @@ import com.nhuhuy.replee.core.database.entity.file_path.FilePathDao
 import com.nhuhuy.replee.core.database.entity.file_path.FilePathEntity
 import com.nhuhuy.replee.core.database.entity.message.MessageDao
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
-import com.nhuhuy.replee.core.database.entity.message_action.MessageActionDao
-import com.nhuhuy.replee.core.database.entity.message_action.MessageActionEntity
+import com.nhuhuy.replee.core.database.entity.message_action.ChatActionDao
+import com.nhuhuy.replee.core.database.entity.message_action.ChatActionEntity
 import com.nhuhuy.replee.core.database.entity.pager.MessageRemoteKey
 import com.nhuhuy.replee.core.database.entity.pager.MessageRemoteKeyDao
 import com.nhuhuy.replee.core.database.entity.search_history.SearchHistoryDao
@@ -29,8 +29,8 @@ import com.nhuhuy.replee.core.database.entity.search_history.SearchHistoryEntity
         MessageRemoteKey::class,
         SearchHistoryEntity::class,
         FilePathEntity::class,
-        MessageActionEntity::class],
-    version = 42,
+        ChatActionEntity::class],
+    version = 45,
     exportSchema = true
 )
 @TypeConverters(CoreConverter::class)
@@ -41,7 +41,7 @@ abstract class CoreDatabase : RoomDatabase() {
     abstract fun provideMessageDao(): MessageDao
     abstract fun provideMessageRemoteKeyDao(): MessageRemoteKeyDao
     abstract fun provideFilePathDao(): FilePathDao
-    abstract fun provideMessageActionDao(): MessageActionDao
+    abstract fun provideChatActionDao(): ChatActionDao
 }
 
 val Migration_15_16 = object : Migration(15, 16) {

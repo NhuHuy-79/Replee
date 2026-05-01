@@ -26,5 +26,6 @@ enum class OptionOverlay {
     NONE,
     SET_NICK_NAME,
     DELETE_CHAT,
-    SELECT_COLOR
+    SELECT_COLOR,
+    DELETE_CONFIRMATION
 }

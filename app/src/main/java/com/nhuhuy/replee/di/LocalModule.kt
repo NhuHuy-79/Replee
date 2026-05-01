@@ -44,7 +44,7 @@ object LocalModuleProvider {
 
     @Provides
     @Singleton
-    fun provideMessageActionDao(database: CoreDatabase) = database.provideMessageActionDao()
+    fun provideChatActionDao(database: CoreDatabase) = database.provideChatActionDao()
 
 
     @Provides

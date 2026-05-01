@@ -6,9 +6,11 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.nhuhuy.core.domain.model.NetworkResult
 import com.nhuhuy.replee.core.data.utils.IoDispatcher
+import com.nhuhuy.replee.feature_chat.domain.usecase.sync.DeleteConversationSyncUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.sync.DeleteMessagesSyncUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.sync.PinMessageSyncUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.sync.UnPinMessageSyncUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.sync.UpdateReactionSyncUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -17,11 +19,13 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 
 @HiltWorker
-class SyncMessageActionWorker @AssistedInject constructor(
+class SyncChatActionWorker @AssistedInject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val deleteMessagesSyncUseCase: DeleteMessagesSyncUseCase,
+    private val deleteConversationSyncUseCase: DeleteConversationSyncUseCase,
     private val pinMessageSyncUseCase: PinMessageSyncUseCase,
     private val unPinMessageSyncUseCase: UnPinMessageSyncUseCase,
+    private val updateReactionSyncUseCase: UpdateReactionSyncUseCase,
     @Assisted private val context: Context,
     @Assisted private val params: WorkerParameters
 ) : CoroutineWorker(context, params) {
@@ -30,13 +34,17 @@ class SyncMessageActionWorker @AssistedInject constructor(
             if (runAttemptCount >= 5) return@withContext Result.failure()
 
             val deleteDeferred = async { deleteMessagesSyncUseCase() }
+            val deleteConversationDeferred = async { deleteConversationSyncUseCase() }
             val pinDeferred = async { pinMessageSyncUseCase() }
             val unpinDeferred = async { unPinMessageSyncUseCase() }
+            val reactionDeferred = async { updateReactionSyncUseCase() }
 
             val results = listOf(
                 deleteDeferred.await(),
+                deleteConversationDeferred.await(),
                 pinDeferred.await(),
-                unpinDeferred.await()
+                unpinDeferred.await(),
+                reactionDeferred.await()
             )
 
             val isAnyFailed = results.any { result -> result is NetworkResult.Failure }

@@ -82,6 +82,7 @@ fun ChatRoute(
 
             is ChatEvent.SendImage.Failure -> {}
             ChatEvent.SendImage.Success -> {}
+            ChatEvent.OnDeleteConfirmed -> onNavigateBack()
         }
     }
 

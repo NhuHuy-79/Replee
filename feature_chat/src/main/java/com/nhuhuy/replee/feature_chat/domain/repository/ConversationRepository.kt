@@ -32,4 +32,7 @@ interface ConversationRepository {
     ): NetworkResult<Unit>
 
     suspend fun deleteMetadataLastMessage(message: Message): NetworkResult<String>
+
+    suspend fun deleteConversation(id: String): NetworkResult<Unit>
+    suspend fun deleteMultipleConversations(ids: List<String>): NetworkResult<Unit>
 }

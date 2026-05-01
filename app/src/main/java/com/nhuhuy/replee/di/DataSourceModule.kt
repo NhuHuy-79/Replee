@@ -20,8 +20,8 @@ import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocal
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationLocalDataSourceImp
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.feature_chat.data.source.conversation.ConversationNetworkDataSourceImp
-import com.nhuhuy.replee.feature_chat.data.source.message.MessageActionDataSource
-import com.nhuhuy.replee.feature_chat.data.source.message.MessageActionDataSourceImp
+import com.nhuhuy.replee.feature_chat.data.source.message.ChatActionDataSource
+import com.nhuhuy.replee.feature_chat.data.source.message.ChatActionDataSourceImp
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSourceImp
 import com.nhuhuy.replee.feature_chat.data.source.message.MessageNetworkDataSource
@@ -45,9 +45,9 @@ import dagger.hilt.components.SingletonComponent
 abstract class DataSourceModuleBinder {
     //Chat Module
     @Binds
-    abstract fun bindMessageActionDataSource(
-        imp: MessageActionDataSourceImp
-    ): MessageActionDataSource
+    abstract fun bindChatActionDataSource(
+        imp: ChatActionDataSourceImp
+    ): ChatActionDataSource
     @Binds
     abstract fun bindPresenceNetworkDataSource(
         imp: FirebasePresenceDataSource

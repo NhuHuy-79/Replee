@@ -34,6 +34,9 @@ data class ConversationDTO(
     @get:PropertyName("isDeleted")
     val isDeleted: Map<String, Boolean> = emptyMap(),
 
+    @get:PropertyName("lastTimeDeleted")
+    val lastTimeDeleted: Map<String, Long> = emptyMap(),
+
     @get:PropertyName("isBlocked")
     val isBlocked: Map<String, Boolean> = emptyMap(),
 )

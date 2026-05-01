@@ -40,7 +40,19 @@ interface MessageDao : BaseDao<MessageEntity> {
     suspend fun getLatestMessage(conversationId: String): MessageEntity?
 
     @Transaction
-    @Query("SELECT * FROM message WHERE conversationId = :conversationId AND deleted = 0 ORDER BY sentAt DESC")
+    @Query(
+        """
+    SELECT m.* FROM message m
+    INNER JOIN conversation c ON m.conversationId = c.id
+    WHERE m.conversationId = :conversationId 
+      AND (
+          c.deleted = 0 
+          OR 
+          (c.deleted = 1 AND m.sentAt > c.lastTimeDeleted) 
+      )
+    ORDER BY m.sentAt DESC
+"""
+    )
     fun getMessagesPagingSource(conversationId: String): PagingSource<Int, MessageWithLocalPath>
 
     @Query("SELECT * FROM message WHERE conversationId = :conversationId AND content LIKE :query")
@@ -73,6 +85,21 @@ interface MessageDao : BaseDao<MessageEntity> {
     """
     )
     suspend fun getNewerMessages(senderId: String, sentAt: Long): List<MessageEntity>
+
+    @Query(
+        """
+        SELECT * FROM message 
+        WHERE conversationId = :conversationId 
+        AND sentAt < :sentAt 
+        ORDER BY sentAt DESC 
+        LIMIT :limit
+    """
+    )
+    suspend fun getOlderMessages(
+        conversationId: String,
+        sentAt: Long,
+        limit: Int
+    ): List<MessageEntity>
 
     // --- UPDATE  ---
     @Query("UPDATE message SET pinned = :pinned WHERE messageId = :messageId")

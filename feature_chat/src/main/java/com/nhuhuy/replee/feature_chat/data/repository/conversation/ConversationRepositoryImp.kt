@@ -184,12 +184,50 @@ class ConversationRepositoryImp @Inject constructor(
             if (conversation.lastMessageId == message.messageId) {
                 //updateLastMessage
             }
-            //Compare lastMessageId in Conversation and Message Id.
+            //Compare lastMessageId in Conversation and MessageId.
             //Delete lastMessage metadata and replace by lastClose Message.
             TODO("Implemenet logic here")
 
             message.conversationId
 
+        }
+    }
+
+    override suspend fun deleteConversation(id: String): NetworkResult<Unit> {
+        return execute {
+            val uid = sessionManager.requireUserId()
+            val now = System.currentTimeMillis()
+            conversationLocalDataSource.updateDeleteAndTimestamp(id, true, now)
+
+            val patch = mapOf(
+                "id" to id,
+                "isDeleted.$uid" to true,
+                "lastTimeDeleted.$uid" to now
+            )
+            conversationNetworkDataSource.updateConversationDataMap(listOf(patch))
+        }
+    }
+
+    override suspend fun deleteMultipleConversations(ids: List<String>): NetworkResult<Unit> {
+        return execute {
+            val uid = sessionManager.requireUserId()
+            val now = System.currentTimeMillis()
+            val patches = mutableListOf<Map<String, Any>>()
+
+            ids.forEach { id ->
+                conversationLocalDataSource.updateDeleteAndTimestamp(id, true, now)
+                patches.add(
+                    mapOf(
+                        "id" to id,
+                        "isDeleted.$uid" to true,
+                        "lastTimeDeleted.$uid" to now
+                    )
+                )
+            }
+
+            if (patches.isNotEmpty()) {
+                conversationNetworkDataSource.updateIsDeletedMultiConversations(patches)
+            }
         }
     }
 

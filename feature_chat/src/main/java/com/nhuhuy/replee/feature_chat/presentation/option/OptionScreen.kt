@@ -160,7 +160,26 @@ fun OptionScreen(
                     onAction(OptionAction.OnDismiss)
                 },
                 onConfirm = {
-                    onAction(OptionAction.OnConversationDelete)
+                    onAction(OptionAction.OnDeleteConfirmed)
+                },
+                title = R.string.dialog_delete_conversation,
+                content = R.string.dialog_delete_conversation_content,
+                icon = {
+                    Icon(
+                        imageVector = Icons.Rounded.DeleteOutline,
+                        contentDescription = null
+                    )
+                }
+            )
+        }
+
+        OptionOverlay.DELETE_CONFIRMATION -> {
+            AlertDialogContainer(
+                onDismiss = {
+                    onAction(OptionAction.OnDismiss)
+                },
+                onConfirm = {
+                    onAction(OptionAction.OnDeleteConfirmed)
                 },
                 title = R.string.dialog_delete_conversation,
                 content = R.string.dialog_delete_conversation_content,

@@ -34,6 +34,7 @@ interface ConversationLocalDataSource {
     suspend fun updateDeleteStatus(conversationId: String, deleted: Boolean)
     suspend fun updateBlockStatus(conversationId: String, blocked: Boolean)
     suspend fun updateConversationSyncedStatus(conversationId: String, synced: Boolean)
+    suspend fun updateDeleteAndTimestamp(conversationId: String, deleted: Boolean, timestamp: Long)
     suspend fun updateSyncStatusOfConversations(conversationIds: List<String>, synced: Boolean)
     suspend fun updatePinnedStatus(conversationId: String, pinned: Boolean)
     suspend fun updateLastMessage(message: MessageEntity)
@@ -143,6 +144,14 @@ class ConversationLocalDataSourceImp @Inject constructor(
 
     override suspend fun updateBlockStatus(conversationId: String, blocked: Boolean) {
         conversationDao.updateBlockStatus(conversationId, blocked)
+    }
+
+    override suspend fun updateDeleteAndTimestamp(
+        conversationId: String,
+        deleted: Boolean,
+        timestamp: Long
+    ) {
+        conversationDao.updateDeleteAndTimestamp(conversationId, deleted, timestamp)
     }
 
     override suspend fun updateConversationSyncedStatus(conversationId: String, synced: Boolean) {

@@ -15,5 +15,6 @@ sealed interface OptionAction : UiAction {
     data object OnConversationDelete : OptionAction
     data object OnNickNameSet : OptionAction
     data object OnDismiss : OptionAction
+    data object OnDeleteConfirmed : OptionAction
 }
 

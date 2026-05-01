@@ -23,16 +23,17 @@ import com.nhuhuy.replee.R
 import com.nhuhuy.replee.broadcast.ReplyBroadcast
 import com.nhuhuy.replee.core.network.api.fcm.ContentType
 import com.nhuhuy.replee.core.network.api.fcm.NotificationResponse
-import com.nhuhuy.replee.feature_chat.data.source.message.MessageLocalDataSource
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 abstract class NotificationFactory(
-    private val context: Context
+    protected val context: Context
 ) {
     abstract suspend fun execute(response: NotificationResponse): Notification
+
+    abstract fun createSummaryNotification(response: NotificationResponse): Notification
 
     abstract fun showResult(success: Boolean): Notification
 
@@ -65,9 +66,7 @@ abstract class NotificationFactory(
             val result = context.imageLoader.execute(request)
 
             if (result is SuccessResult) {
-                val image = result.image
-
-                return@withContext when (image) {
+                return@withContext when (val image = result.image) {
                     is BitmapImage -> image.bitmap
                     else -> null
                 }
@@ -85,20 +84,12 @@ const val EXTRA_CONVERSATION_ID = "conversation_id"
 const val EXTRA_NOTIFICATION_ID = "notification_id"
 
 class ConversationNotificationFactory @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val messageLocalDataSource: MessageLocalDataSource,
+    @ApplicationContext context: Context,
 ) : NotificationFactory(context = context) {
+
     override suspend fun execute(response: NotificationResponse): Notification {
         val channelId = context.getString(R.string.notification_channel)
         val bitmap = loadBitmapForNotification(response.senderImg)
-
-        val lastMessageEntity = messageLocalDataSource.getMessageById(response.messageId)
-        val recentMessageEntities = lastMessageEntity?.let {
-            messageLocalDataSource.getNewerMessages(
-                senderId = response.senderId,
-                sendAt = it.sentAt ?: -1
-            )
-        } ?: emptyList()
 
         val sender = Person.Builder()
             .setName(response.senderName)
@@ -113,28 +104,7 @@ class ConversationNotificationFactory @Inject constructor(
             .build()
 
         val messagingStyle = NotificationCompat.MessagingStyle(user)
-
-        if (recentMessageEntities.isNotEmpty()) {
-            recentMessageEntities
-                .filter { entity -> entity.messageId != lastMessageEntity?.messageId }
-                .map { messageEntity ->
-                    val message = NotificationCompat.MessagingStyle.Message(
-                        messageEntity.content,
-                        messageEntity.sentAt ?: -1,
-                        sender
-                    )
-                    messagingStyle.addHistoricMessage(message)
-                }
-        }
-
-        val notificationMessage = NotificationCompat.MessagingStyle.Message(
-            getContent(response),
-            System.currentTimeMillis(),
-            sender
-        )
-
-        messagingStyle.addMessage(notificationMessage)
-
+            .addMessage(getContent(response), System.currentTimeMillis(), sender)
 
         val contentIntent =
             context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
@@ -157,12 +127,12 @@ class ConversationNotificationFactory @Inject constructor(
             putExtra(EXTRA_CONVERSATION_ID, response.conversationId)
             putExtra(EXTRA_SENDER_ID, response.receiverId)
             putExtra(EXTRA_RECEIVER_ID, response.senderId)
-            putExtra(EXTRA_NOTIFICATION_ID, response.hashCode())
+            putExtra(EXTRA_NOTIFICATION_ID, response.messageId.hashCode())
         }
 
         val replyPendingIntent = PendingIntent.getBroadcast(
             context,
-            response.conversationId.hashCode(),
+            response.messageId.hashCode(),
             replyIntent,
             PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
@@ -190,11 +160,34 @@ class ConversationNotificationFactory @Inject constructor(
             .setStyle(messagingStyle)
             .setContentIntent(contentPendingIntent)
             .setGroup(response.conversationId)
+            .setGroupSummary(false)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setOnlyAlertOnce(true)
             .addAction(replyAction)
             .setShortcutId(response.conversationId)
             .setLocusId(LocusIdCompat(response.conversationId))
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setAutoCancel(true)
+            .build()
+    }
+
+    override fun createSummaryNotification(response: NotificationResponse): Notification {
+        val channelId = context.getString(R.string.notification_channel)
+        return NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(R.drawable.ic_circle_notification)
+            .setContentTitle(context.getString(R.string.app_name))
+            .setContentText(
+                context.getString(
+                    R.string.notification_new_messages,
+                    response.senderName
+                )
+            )
+            .setStyle(
+                NotificationCompat.InboxStyle()
+                    .setSummaryText(response.senderName)
+            )
+            .setGroup(response.conversationId)
+            .setGroupSummary(true)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
             .setAutoCancel(true)
             .build()
