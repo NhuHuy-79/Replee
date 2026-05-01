@@ -1,14 +1,9 @@
-package com.nhuhuy.replee.di
+package com.nhuhuy.replee.core.database.di
 
 import android.content.Context
 import androidx.room.Room
-import com.nhuhuy.replee.core.data.data_store.AppDataStore
-import com.nhuhuy.replee.core.data.data_store.AppDataStoreImp
 import com.nhuhuy.replee.core.database.CoreDatabase
-import com.nhuhuy.replee.core.database.LocalTransactionRunner
-import com.nhuhuy.replee.core.database.LocalTransactionRunnerImp
 import com.nhuhuy.replee.core.database.Migration_15_16
-import com.nhuhuy.replee.core.database.entity.account.AccountDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,13 +13,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object LocalModuleProvider {
-
-    @Provides
-    @Singleton
-    fun provideAppDataStore(@ApplicationContext context: Context): AppDataStore {
-        return AppDataStoreImp(context)
-    }
+object DatabaseModule {
 
     @Provides
     @Singleton
@@ -46,7 +35,6 @@ object LocalModuleProvider {
     @Singleton
     fun provideChatActionDao(database: CoreDatabase) = database.provideChatActionDao()
 
-
     @Provides
     @Singleton
     fun provideMessageRemoteKeyDao(database: CoreDatabase) = database.provideMessageRemoteKeyDao()
@@ -61,15 +49,5 @@ object LocalModuleProvider {
 
     @Provides
     @Singleton
-    fun provideAccountDao(database: CoreDatabase): AccountDao {
-        return database.provideAccountDao()
-    }
-
-    @Provides
-    @Singleton
-    fun provideLocalTransactionRunner(database: CoreDatabase): LocalTransactionRunner {
-        return LocalTransactionRunnerImp(database)
-    }
+    fun provideAccountDao(database: CoreDatabase) = database.provideAccountDao()
 }
-
-

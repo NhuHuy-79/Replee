@@ -13,12 +13,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.nhuhuy.replee.core.common.base.ValidateResult
 import com.nhuhuy.replee.core.design_system.component.CommonButton
 import com.nhuhuy.replee.core.design_system.component.NormalTextField
 import com.nhuhuy.replee.core.design_system.component.SheetContainer
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
-import com.nhuhuy.replee.core.design_system.toUiText
 import com.nhuhuy.replee.feature_chat.R
+
+fun ValidateResult.toUiText(): Int? {
+    return when (this) {
+        ValidateResult.NameError.TOO_LONG -> com.nhuhuy.replee.core.design_system.R.string.error_name_too_long
+        else -> null
+    }
+}
 
 @Composable
 fun SetNickNameSheet(

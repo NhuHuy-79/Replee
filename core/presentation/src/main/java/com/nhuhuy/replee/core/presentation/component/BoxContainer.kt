@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.design_system.component
+package com.nhuhuy.replee.core.presentation.component
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -12,12 +12,12 @@ fun BoxContainer(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit,
 
-){
+    ) {
     Box(
         modifier = modifier
             .fillMaxSize(),
         contentAlignment = Alignment.Center
-    ){
+    ) {
         content()
     }
 }

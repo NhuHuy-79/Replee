@@ -10,8 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nhuhuy.replee.core.common.utils.showShortToast
-import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.core.presentation.ObserveEffect
+import com.nhuhuy.replee.core.presentation.component.BoxContainer
 import com.nhuhuy.replee.feature_profile.R
 import com.nhuhuy.replee.feature_profile.presentation.ProfileScreen
 import com.nhuhuy.replee.feature_profile.presentation.ProfileViewModel

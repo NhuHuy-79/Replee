@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.di
+package com.nhuhuy.replee.core.network.di
 
 import android.content.Context
 import androidx.credentials.CredentialManager
@@ -26,7 +26,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object NetworkModuleProvider {
+object NetworkModule {
 
     @Provides
     @Singleton
@@ -35,6 +35,7 @@ object NetworkModuleProvider {
     ): CredentialManager {
         return CredentialManager.create(context)
     }
+
     @Provides
     @Singleton
     fun provideLoggingInterceptor(): HttpLoggingInterceptor {
@@ -81,7 +82,6 @@ object NetworkModuleProvider {
             .build()
     }
 
-
     @Provides
     @Singleton
     fun provideCloudinaryApi(@CloudinaryUrl retrofit: Retrofit): CloudinaryApi {
@@ -104,4 +104,3 @@ object NetworkModuleProvider {
     @Singleton
     fun provideFirebaseMessaging() = Firebase.messaging
 }
-

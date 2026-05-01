@@ -9,9 +9,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalResources
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.nhuhuy.replee.core.design_system.ObserveEffect
-import com.nhuhuy.replee.core.design_system.component.BoxContainer
-import com.nhuhuy.replee.core.design_system.component.VisibleLoadingScreen
+import com.nhuhuy.replee.core.presentation.ObserveEffect
+import com.nhuhuy.replee.core.presentation.component.BoxContainer
+import com.nhuhuy.replee.core.presentation.component.VisibleLoadingScreen
 import com.nhuhuy.replee.feature_auth.R
 import com.nhuhuy.replee.feature_auth.presentation.recover_password.ForgotPasswordScreen
 import com.nhuhuy.replee.feature_auth.presentation.recover_password.ForgotPasswordViewModel

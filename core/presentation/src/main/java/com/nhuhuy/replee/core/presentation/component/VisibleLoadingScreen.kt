@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.design_system.component
+package com.nhuhuy.replee.core.presentation.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -25,7 +25,7 @@ import com.nhuhuy.replee.core.design_system.R
 @Composable
 fun LoadingScreen(
     modifier: Modifier = Modifier,
-){
+) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -45,11 +45,12 @@ fun LoadingScreen(
         )
     }
 }
+
 @Composable
 fun VisibleLoadingScreen(
     modifier: Modifier,
     show: Boolean
-){
+) {
     AnimatedVisibility(
         visible = show,
         modifier = modifier.clickable(enabled = false, onClick = {})

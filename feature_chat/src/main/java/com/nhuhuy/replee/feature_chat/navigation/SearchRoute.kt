@@ -3,7 +3,7 @@ package com.nhuhuy.replee.feature_chat.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.nhuhuy.replee.core.design_system.ObserveEffect
+import com.nhuhuy.replee.core.presentation.ObserveEffect
 import com.nhuhuy.replee.feature_chat.presentation.search.SearchScreen
 import com.nhuhuy.replee.feature_chat.presentation.search.SearchViewModel
 import com.nhuhuy.replee.feature_chat.presentation.search.state.SearchEvent

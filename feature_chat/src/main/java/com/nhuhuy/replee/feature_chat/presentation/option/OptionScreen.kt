@@ -26,7 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.data.data_store.SeedColor
 import com.nhuhuy.replee.core.design_system.component.AlertDialogContainer
-import com.nhuhuy.replee.core.design_system.component.BoxContainer
+import com.nhuhuy.replee.core.presentation.component.BoxContainer
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.presentation.option.component.InformationUser
 import com.nhuhuy.replee.feature_chat.presentation.option.component.SecondaryOption

@@ -7,7 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalResources
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.nhuhuy.replee.core.design_system.ObserveEffect
+import com.nhuhuy.replee.core.presentation.ObserveEffect
 import com.nhuhuy.replee.feature_auth.presentation.sign_up.SignUpEvent
 import com.nhuhuy.replee.feature_auth.presentation.sign_up.SignUpScreen
 import com.nhuhuy.replee.feature_auth.presentation.sign_up.SignUpViewModel

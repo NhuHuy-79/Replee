@@ -9,6 +9,7 @@ android {
 
 dependencies {
     api(libs.androidx.material.icons.extended)
+    api(libs.kotlinx.serialization.json)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

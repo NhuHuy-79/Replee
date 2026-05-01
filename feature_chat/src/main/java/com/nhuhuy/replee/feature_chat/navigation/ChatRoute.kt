@@ -8,8 +8,8 @@ import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.nhuhuy.replee.core.design_system.ObserveEffect
-import com.nhuhuy.replee.core.design_system.component.BoxContainer
+import com.nhuhuy.replee.core.presentation.ObserveEffect
+import com.nhuhuy.replee.core.presentation.component.BoxContainer
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatScreen
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatViewModel
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.dialog.FullImageDialog
