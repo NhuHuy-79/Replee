@@ -78,4 +78,8 @@ class SessionManagerImp @Inject constructor(
         return execute { firebaseMessaging.token.await() }
     }
 
+    override suspend fun logOut() {
+        auth.signOut()
+    }
+
 }

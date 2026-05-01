@@ -33,7 +33,7 @@ class LogOutUseCaseTest {
         // Assert
         coVerify {
             presenceRepository.setOffline(fakeAccount.id)
-            sessionManager.logout()
+            sessionManager.logOut()
         }
     }
 
@@ -47,6 +47,6 @@ class LogOutUseCaseTest {
 
         // Assert
         coVerify(exactly = 0) { presenceRepository.setOffline(any()) }
-        coVerify { sessionManager.logout() }
+        coVerify { sessionManager.logOut() }
     }
 }

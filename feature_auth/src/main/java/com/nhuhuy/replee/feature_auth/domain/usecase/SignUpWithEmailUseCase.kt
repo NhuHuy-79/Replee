@@ -37,7 +37,7 @@ class SignUpWithEmailUseCase @Inject constructor(
                 sessionManager.refreshAuthenticationToken(token)
             }
         }.onFailure {
-            sessionManager.logout()
+            sessionManager.logOut()
         }
     }
 }

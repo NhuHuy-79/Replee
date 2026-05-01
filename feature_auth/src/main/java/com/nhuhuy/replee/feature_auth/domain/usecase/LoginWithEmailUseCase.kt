@@ -30,7 +30,7 @@ class LoginWithEmailUseCase @Inject constructor(
             }
         }.onFailure {
             //Rollback user if all request return a Failure.
-            sessionManager.logout()
+            sessionManager.logOut()
         }
     }
 

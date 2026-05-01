@@ -13,6 +13,6 @@ class LogOutUseCase @Inject constructor(
         uid?.let {
             presenceRepository.setOffline(uid)
         }
-        sessionManager.logout()
+        sessionManager.logOut()
     }
 }

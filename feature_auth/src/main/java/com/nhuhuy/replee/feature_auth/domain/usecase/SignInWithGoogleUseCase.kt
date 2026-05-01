@@ -32,7 +32,7 @@ class SignInWithGoogleUseCase @Inject constructor(
                 }
             }
             .onFailure {
-                sessionManager.logout()
+                sessionManager.logOut()
             }
     }
 }

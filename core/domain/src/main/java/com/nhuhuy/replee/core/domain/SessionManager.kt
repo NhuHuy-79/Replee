@@ -13,5 +13,6 @@ interface SessionManager {
     fun getUserIdOrNull(): String?
     suspend fun getNewAuthenticatedToken(): String
     suspend fun getCurrentDeviceToken(): NetworkResult<String>
+    suspend fun logOut()
 }
 

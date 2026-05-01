@@ -110,7 +110,7 @@ class LoginWithEmailTest {
             authRepository.loginWithEmail(fakeAccount.email, "password")
             sessionManager.getCurrentDeviceToken()
             accountRepository.updateDeviceToken(FAKE_TOKEN)
-            sessionManager.logout()
+            sessionManager.logOut()
         }
     }
 
@@ -145,7 +145,7 @@ class LoginWithEmailTest {
         Truth.assertThat(result).isEqualTo(expected)
 
         coVerify {
-            sessionManager.logout()
+            sessionManager.logOut()
         }
     }
 

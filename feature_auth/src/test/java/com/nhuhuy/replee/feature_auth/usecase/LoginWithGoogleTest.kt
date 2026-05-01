@@ -91,7 +91,7 @@ class SignInWithGoogleTest {
         // Assert
         Truth.assertThat(result).isEqualTo(expected)
 
-        coVerify { sessionManager.logout() }
+        coVerify { sessionManager.logOut() }
         coVerify(exactly = 0) { accountRepository.createAccount(any(), any()) }
     }
 
@@ -113,7 +113,7 @@ class SignInWithGoogleTest {
         // Assert
         Truth.assertThat(result).isEqualTo(expected)
 
-        coVerify { sessionManager.logout() }
+        coVerify { sessionManager.logOut() }
         coVerify(exactly = 0) { accountRepository.createAccount(any(), any()) }
     }
 
@@ -139,6 +139,6 @@ class SignInWithGoogleTest {
         // Assert
         Truth.assertThat(result).isEqualTo(expected)
 
-        coVerify { sessionManager.logout() }
+        coVerify { sessionManager.logOut() }
     }
 }
