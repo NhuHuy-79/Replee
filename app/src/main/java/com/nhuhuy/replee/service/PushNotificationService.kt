@@ -2,10 +2,10 @@ package com.nhuhuy.replee.service
 
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.nhuhuy.core.domain.SessionManager
-import com.nhuhuy.core.domain.usecase.UpdateDeviceTokenUseCase
-import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
-import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
+import com.nhuhuy.replee.core.domain.SessionManager
+import com.nhuhuy.replee.core.domain.usecase.UpdateDeviceTokenUseCase
+import com.nhuhuy.replee.core.domain.worker.WorkerScheduler
+import com.nhuhuy.replee.core.domain.repository.ConversationRepository
 import com.nhuhuy.replee.feature_chat.utils.ChatSessionManager
 import com.nhuhuy.replee.notification.NotificationParser
 import dagger.hilt.android.AndroidEntryPoint

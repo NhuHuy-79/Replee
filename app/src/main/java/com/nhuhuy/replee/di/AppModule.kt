@@ -1,10 +1,8 @@
 package com.nhuhuy.replee.di
 
 import com.nhuhuy.replee.feature_chat.data.NotificationManager
-import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
 import com.nhuhuy.replee.helper.NotificationManagerImp
 import com.nhuhuy.replee.notification.NotificationParser
-import com.nhuhuy.replee.worker.WorkerSchedulerImp
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -19,10 +17,6 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindNotificationHelper(imp: NotificationManagerImp): NotificationManager
-
-    @Binds
-    @Singleton
-    abstract fun bindSyncScheduler(imp: WorkerSchedulerImp): WorkerScheduler
 }
 
 @Module

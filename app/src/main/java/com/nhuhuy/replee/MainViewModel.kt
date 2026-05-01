@@ -3,8 +3,8 @@ package com.nhuhuy.replee
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nhuhuy.replee.core.data.data_store.SeedColor
-import com.nhuhuy.replee.core.data.data_store.ThemeMode
+import com.nhuhuy.replee.core.model.SeedColor
+import com.nhuhuy.replee.core.model.ThemeMode
 import com.nhuhuy.replee.core.network.manager.ConnectivityObserver
 import com.nhuhuy.replee.core.network.manager.NetworkStatus
 import com.nhuhuy.replee.feature_chat.domain.usecase.option.ObserveChatColorUseCase
@@ -12,7 +12,7 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.option.ObserveThemeUseCase
 import com.nhuhuy.replee.usecase.CheckAuthenticatedUseCase
 import com.nhuhuy.replee.usecase.ObserveAuthenticationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
+import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine

@@ -46,7 +46,7 @@
 -keep class com.nhuhuy.replee.core.data.** { *; }
 -keep class com.nhuhuy.replee.core.database.base.BaseDao
 -keep class com.nhuhuy.replee.core.database.entity.** { *; }
--keep class com.nhuhuy.core.domain.model.** { *; }
+-keep class com.nhuhuy.replee.core.model.** { *; }
 -keep class com.nhuhuy.replee.core.network.model.** { *;}
 -keep class com.nhuhuy.replee.core.network.api.** { *; }
 
