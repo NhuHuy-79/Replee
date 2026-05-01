@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.core.data.repository
 
-import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.repository.PresenceRepository
+import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.domain.repository.PresenceRepository
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.PresenceNetworkDataSource

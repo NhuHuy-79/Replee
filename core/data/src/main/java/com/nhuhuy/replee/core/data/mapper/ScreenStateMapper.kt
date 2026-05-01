@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.core.data.mapper
 
-import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.model.NetworkResult
 import com.nhuhuy.replee.core.common.base.ScreenState
 
 fun <T> NetworkResult<T>.toScreenState(): ScreenState<T> {

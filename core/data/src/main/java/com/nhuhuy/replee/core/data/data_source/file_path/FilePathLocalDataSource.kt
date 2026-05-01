@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.core.data.data_source.file_path
 
-import com.nhuhuy.core.domain.model.FilePath
+import com.nhuhuy.replee.core.model.FilePath
 import com.nhuhuy.replee.core.data.mapper.toEntity
 import com.nhuhuy.replee.core.data.mapper.toFilePath
 import com.nhuhuy.replee.core.database.entity.file_path.FilePathDao

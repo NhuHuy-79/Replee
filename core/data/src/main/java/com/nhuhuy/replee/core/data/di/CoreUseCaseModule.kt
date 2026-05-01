@@ -1,10 +1,10 @@
 package com.nhuhuy.replee.core.data.di
 
-import com.nhuhuy.core.domain.repository.AccountRepository
-import com.nhuhuy.core.domain.usecase.GetAccountByIdUseCase
-import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
-import com.nhuhuy.core.domain.usecase.SearchAccountByEmailUseCase
-import com.nhuhuy.core.domain.usecase.UpdateDeviceTokenUseCase
+import com.nhuhuy.replee.core.domain.repository.AccountRepository
+import com.nhuhuy.replee.core.domain.usecase.GetAccountByIdUseCase
+import com.nhuhuy.replee.core.domain.usecase.GetCurrentAccountUseCase
+import com.nhuhuy.replee.core.domain.usecase.SearchAccountByEmailUseCase
+import com.nhuhuy.replee.core.domain.usecase.UpdateDeviceTokenUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

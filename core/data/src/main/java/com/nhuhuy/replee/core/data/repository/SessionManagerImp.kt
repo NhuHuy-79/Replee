@@ -4,11 +4,11 @@ import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
-import com.nhuhuy.core.domain.SessionManager
-import com.nhuhuy.core.domain.model.AuthenticatedState
-import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.replee.core.data.data_store.AppDataStore
-import com.nhuhuy.replee.core.data.utils.IoDispatcher
+import com.nhuhuy.replee.core.domain.SessionManager
+import com.nhuhuy.replee.core.model.AuthenticatedState
+import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.core.database.data_store.AppDataStore
+import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.execute
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import kotlinx.coroutines.CoroutineDispatcher
