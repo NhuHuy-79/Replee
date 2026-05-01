@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.nhuhuy.replee.feature_chat.presentation.conversation
+package com.nhuhuy.replee.feature_home.presentation
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -29,21 +29,17 @@ import com.nhuhuy.replee.core.model.chat.Conversation
 import com.nhuhuy.replee.core.model.chat.SearchHistoryResult
 import com.nhuhuy.replee.core.network.manager.NetworkStatus
 import com.nhuhuy.replee.core.presentation.ScreenStateHost
+import com.nhuhuy.replee.core.presentation.component.Banner
 import com.nhuhuy.replee.core.presentation.component.BoxContainer
-import com.nhuhuy.replee.feature_chat.R
-import com.nhuhuy.replee.feature_chat.presentation.conversation.component.ConversationList
-import com.nhuhuy.replee.feature_chat.presentation.conversation.component.ConversationSearchBar
-import com.nhuhuy.replee.feature_chat.presentation.conversation.component.NotificationPermissionHandler
-import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationAction
-import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationState
-import com.nhuhuy.replee.feature_chat.presentation.shared.Banner
-import com.nhuhuy.replee.feature_chat.presentation.shared.RetryScreen
+import com.nhuhuy.replee.feature_home.R
+import com.nhuhuy.replee.feature_home.presentation.component.RetryScreen
+import com.nhuhuy.replee.feature_home.presentation.state.ConversationAction
 
 @Composable
 fun ConversationScreen(
     networkStatus: NetworkStatus,
     conversationListState: ScreenState<List<Conversation>>,
-    state: ConversationState,
+    state: com.nhuhuy.replee.feature_home.presentation.state.ConversationState,
     searchHistory: List<SearchHistoryResult>,
     onAction: (ConversationAction) -> Unit
 ) = BoxContainer {
@@ -65,7 +61,7 @@ fun ConversationScreen(
 
         ) {
 
-            NotificationPermissionHandler(
+            _root_ide_package_.com.nhuhuy.replee.feature_home.presentation.component.NotificationPermissionHandler(
                 onDeny = {
                     snackBarHost.showSnackbar(
                         message = localResource.getString(R.string.notification_permission_denied),
@@ -93,7 +89,7 @@ fun ConversationScreen(
                 )
             }
 
-            ConversationSearchBar(
+            _root_ide_package_.com.nhuhuy.replee.feature_home.presentation.component.ConversationSearchBar(
                 currentUser = state.currentUser,
                 state = state.searchState,
                 searchHistory = searchHistory,
@@ -122,7 +118,7 @@ fun ConversationScreen(
             ScreenStateHost(
                 state = conversationListState,
                 success = { conversationList ->
-                    ConversationList(
+                    _root_ide_package_.com.nhuhuy.replee.feature_home.presentation.component.ConversationList(
                         conversationList = conversationList,
                         onConversationClick = { conversation ->
                             onAction(ConversationAction.OnConversationClick(conversation))

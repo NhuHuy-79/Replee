@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.conversation.component
+package com.nhuhuy.replee.feature_home.presentation.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -31,8 +31,8 @@ import com.nhuhuy.replee.core.design_system.canvas.AvatarContainer
 import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.core.model.chat.Conversation
 import com.nhuhuy.replee.core.model.chat.MessageType
-import com.nhuhuy.replee.feature_chat.R
-import com.nhuhuy.replee.feature_chat.utils.getMainName
+import com.nhuhuy.replee.feature_home.R
+import com.nhuhuy.replee.feature_home.utils.getMainName
 
 @Composable
 fun ConversationList(

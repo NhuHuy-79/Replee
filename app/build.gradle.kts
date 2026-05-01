@@ -22,6 +22,7 @@ dependencies {
     implementation(project(":core:test"))
     implementation(project(":core:design_system"))
     implementation(project(":core:sync"))
+    implementation(project(":feature_home"))
     implementation(project(":feature_chat"))
     implementation(project(":feature_auth"))
     implementation(project(":feature_profile"))

@@ -44,6 +44,7 @@ import androidx.core.net.toUri
 import androidx.paging.compose.LazyPagingItems
 import com.nhuhuy.replee.core.common.utils.showLongToast
 import com.nhuhuy.replee.core.model.chat.LocalPathMessage
+import com.nhuhuy.replee.core.presentation.component.Banner
 import com.nhuhuy.replee.core.presentation.launcher.rememberCameraRequestPicker
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.BlockOverlay
@@ -52,7 +53,6 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.Messag
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageScreen
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
-import com.nhuhuy.replee.feature_chat.presentation.shared.Banner
 import kotlinx.coroutines.delay
 import timber.log.Timber
 

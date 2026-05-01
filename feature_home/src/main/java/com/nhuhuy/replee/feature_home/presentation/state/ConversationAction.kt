@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.conversation.state
+package com.nhuhuy.replee.feature_home.presentation.state
 
 import com.nhuhuy.replee.core.common.base.UiAction
 import com.nhuhuy.replee.core.model.account.Account

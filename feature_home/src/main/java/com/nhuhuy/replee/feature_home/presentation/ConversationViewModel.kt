@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.conversation
+package com.nhuhuy.replee.feature_home.presentation
 
 import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
@@ -13,19 +13,12 @@ import com.nhuhuy.replee.core.model.error_handling.onFailure
 import com.nhuhuy.replee.core.model.error_handling.onSuccess
 import com.nhuhuy.replee.core.sync.usecase.SyncConversationUsersUseCase
 import com.nhuhuy.replee.core.sync.usecase.SyncConversationsUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.account.SetUserOnlineUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.account.UpdateCurrentAccountUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetSearchHistoryUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.ObserveLocalConversationListUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationListUseCase
-import com.nhuhuy.replee.feature_chat.presentation.conversation.state.BottomSheet
-import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationAction
-import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent
-import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent.GoToProfile
-import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationEvent.NavigateToChatRoom
-import com.nhuhuy.replee.feature_chat.presentation.conversation.state.ConversationState
-import com.nhuhuy.replee.feature_chat.presentation.conversation.state.Dialog
-import com.nhuhuy.replee.feature_chat.presentation.conversation.state.SynchronizingState
+import com.nhuhuy.replee.feature_home.domain.usecase.account.SetUserOnlineUseCase
+import com.nhuhuy.replee.feature_home.domain.usecase.account.UpdateCurrentAccountUseCase
+import com.nhuhuy.replee.feature_home.domain.usecase.conversation.GetSearchHistoryUseCase
+import com.nhuhuy.replee.feature_home.domain.usecase.conversation.ObserveLocalConversationListUseCase
+import com.nhuhuy.replee.feature_home.domain.usecase.conversation.SaveConversationListUseCase
+import com.nhuhuy.replee.feature_home.presentation.state.ConversationAction
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -54,9 +47,10 @@ class ConversationViewModel @AssistedInject constructor(
     private val searchAccountByEmailUseCase: SearchAccountByEmailUseCase,
     private val syncConversationUsersUseCase: SyncConversationUsersUseCase,
     private val syncConversationUseCase: SyncConversationsUseCase
-    ) : BaseViewModel<ConversationAction, ConversationEvent, ConversationState>() {
-    private val _state = MutableStateFlow(ConversationState())
-    override val state: StateFlow<ConversationState>
+) : BaseViewModel<ConversationAction, com.nhuhuy.replee.feature_home.presentation.state.ConversationEvent, com.nhuhuy.replee.feature_home.presentation.state.ConversationState>() {
+    private val _state =
+        MutableStateFlow(com.nhuhuy.replee.feature_home.presentation.state.ConversationState())
+    override val state: StateFlow<com.nhuhuy.replee.feature_home.presentation.state.ConversationState>
         get() = _state.asStateFlow()
 
     private var listenConversationJob: Job? = null
@@ -102,14 +96,14 @@ class ConversationViewModel @AssistedInject constructor(
             when (action) {
                 ConversationAction.OnAddFabClick -> {
                     _state.reduce {
-                        copy(bottomSheet = BottomSheet.OPEN)
+                        copy(bottomSheet = com.nhuhuy.replee.feature_home.presentation.state.BottomSheet.OPEN)
                     }
                 }
 
                 is ConversationAction.OnConversationClick -> {
                     val conversation = action.conversation
                     onEvent(
-                        NavigateToChatRoom(
+                        com.nhuhuy.replee.feature_home.presentation.state.ConversationEvent.NavigateToChatRoom(
                             currentUserId = currentUserId,
                             otherUserId = conversation.otherUserId
                         )
@@ -118,7 +112,10 @@ class ConversationViewModel @AssistedInject constructor(
 
                 ConversationAction.OnDismissPress -> {
                     _state.reduce {
-                        copy(bottomSheet = BottomSheet.CLOSE, dialog = Dialog.NONE)
+                        copy(
+                            bottomSheet = com.nhuhuy.replee.feature_home.presentation.state.BottomSheet.CLOSE,
+                            dialog = com.nhuhuy.replee.feature_home.presentation.state.Dialog.NONE
+                        )
                     }
                 }
 
@@ -149,7 +146,7 @@ class ConversationViewModel @AssistedInject constructor(
                 ConversationAction.Retry -> {
                     //Avoid spamming retry button
                     val synchronizingState = state.value.synchronizingState
-                    if (synchronizingState == SynchronizingState.SYNC) return@launch
+                    if (synchronizingState == com.nhuhuy.replee.feature_home.presentation.state.SynchronizingState.SYNC) return@launch
                     synchronizeInitialData()
                 }
 
@@ -172,7 +169,7 @@ class ConversationViewModel @AssistedInject constructor(
 
                 is ConversationAction.OnAvatarClick -> {
                     onEvent(
-                        NavigateToChatRoom(
+                        com.nhuhuy.replee.feature_home.presentation.state.ConversationEvent.NavigateToChatRoom(
                             currentUserId = currentUserId,
                             otherUserId = action.account.id
                         )
@@ -180,24 +177,24 @@ class ConversationViewModel @AssistedInject constructor(
                 }
 
                 ConversationAction.OnOwnerClick -> {
-                    onEvent(GoToProfile)
+                    onEvent(com.nhuhuy.replee.feature_home.presentation.state.ConversationEvent.GoToProfile)
                 }
 
                 ConversationAction.OnImagePress -> {
                     _state.reduce {
-                        copy(dialog = Dialog.FULL_IMAGE)
+                        copy(dialog = com.nhuhuy.replee.feature_home.presentation.state.Dialog.FULL_IMAGE)
                     }
                 }
 
                 ConversationAction.OnMessageLongPress -> {
                     _state.reduce {
-                        copy(dialog = Dialog.MESSAGE)
+                        copy(dialog = com.nhuhuy.replee.feature_home.presentation.state.Dialog.MESSAGE)
                     }
                 }
 
                 is ConversationAction.OnSearchResultClick -> {
                     onEvent(
-                        NavigateToChatRoom(
+                        com.nhuhuy.replee.feature_home.presentation.state.ConversationEvent.NavigateToChatRoom(
                             currentUserId = currentUserId,
                             otherUserId = action.historyResult.uid
                         )
@@ -210,21 +207,21 @@ class ConversationViewModel @AssistedInject constructor(
     private suspend fun synchronizeInitialData() {
         _state.reduce {
             copy(
-                synchronizingState = SynchronizingState.SYNC
+                synchronizingState = com.nhuhuy.replee.feature_home.presentation.state.SynchronizingState.SYNC
             )
         }
         saveConversationListUseCase()
             .onSuccess {
                 _state.reduce {
                     copy(
-                        synchronizingState = SynchronizingState.NONE
+                        synchronizingState = com.nhuhuy.replee.feature_home.presentation.state.SynchronizingState.NONE
                     )
                 }
             }
             .onFailure {
                 _state.reduce {
                     copy(
-                        synchronizingState = SynchronizingState.FAILURE
+                        synchronizingState = com.nhuhuy.replee.feature_home.presentation.state.SynchronizingState.FAILURE
                     )
                 }
             }

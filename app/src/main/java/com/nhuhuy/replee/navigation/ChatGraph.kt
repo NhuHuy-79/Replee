@@ -6,15 +6,15 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.nhuhuy.replee.LocalNetworkStatus
 import com.nhuhuy.replee.feature_chat.navigation.ChatRoute
-import com.nhuhuy.replee.feature_chat.navigation.ConversationRoute
 import com.nhuhuy.replee.feature_chat.navigation.OptionRoute
 import com.nhuhuy.replee.feature_chat.navigation.PinRoute
 import com.nhuhuy.replee.feature_chat.navigation.SearchRoute
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatViewModel
-import com.nhuhuy.replee.feature_chat.presentation.conversation.ConversationViewModel
 import com.nhuhuy.replee.feature_chat.presentation.option.OptionViewModel
 import com.nhuhuy.replee.feature_chat.presentation.pin.PinViewModel
 import com.nhuhuy.replee.feature_chat.presentation.search.SearchViewModel
+import com.nhuhuy.replee.feature_home.navigation.ConversationRoute
+import com.nhuhuy.replee.feature_home.presentation.ConversationViewModel
 import com.nhuhuy.replee.navigation.HomeDestination.Information
 import com.nhuhuy.replee.navigation.HomeDestination.Pin
 import com.nhuhuy.replee.navigation.HomeDestination.Search

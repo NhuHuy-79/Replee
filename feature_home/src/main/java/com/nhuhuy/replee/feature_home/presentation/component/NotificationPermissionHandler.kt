@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.conversation.component
+package com.nhuhuy.replee.feature_home.presentation.component
 
 import android.Manifest
 import android.content.pm.PackageManager

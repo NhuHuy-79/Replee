@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.domain.usecase.account
+package com.nhuhuy.replee.feature_home.domain.usecase.account
 
 import com.nhuhuy.replee.core.domain.repository.PresenceRepository
 import javax.inject.Inject

@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.conversation.state
+package com.nhuhuy.replee.feature_home.presentation.state
 
 import androidx.compose.runtime.Immutable
 import com.nhuhuy.replee.core.common.base.ScreenState

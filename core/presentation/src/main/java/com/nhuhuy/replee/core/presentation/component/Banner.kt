@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.shared
+package com.nhuhuy.replee.core.presentation.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

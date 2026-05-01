@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.shared
+package com.nhuhuy.replee.feature_home.presentation.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -21,7 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.replee.feature_chat.R
+import com.nhuhuy.replee.feature_home.R
 
 @Composable
 fun RetryScreen(
@@ -29,7 +29,9 @@ fun RetryScreen(
     onRetry: () -> Unit,
 ){
     Column(
-        modifier = modifier.fillMaxSize().padding(16.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

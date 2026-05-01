@@ -1,8 +1,8 @@
-package com.nhuhuy.replee.feature_chat.domain.usecase.conversation
+package com.nhuhuy.replee.feature_home.domain.usecase.conversation
 
-import com.nhuhuy.replee.core.model.error_handling.NetworkResult
-import com.nhuhuy.replee.core.model.chat.Conversation
 import com.nhuhuy.replee.core.domain.repository.ConversationRepository
+import com.nhuhuy.replee.core.model.chat.Conversation
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import javax.inject.Inject
 
 class SaveConversationListUseCase @Inject constructor(

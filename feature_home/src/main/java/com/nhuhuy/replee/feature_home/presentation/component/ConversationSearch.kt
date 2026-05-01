@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.conversation.component
+package com.nhuhuy.replee.feature_home.presentation.component
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,7 +36,7 @@ import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.core.model.account.Account
 import com.nhuhuy.replee.core.model.chat.SearchHistoryResult
 import com.nhuhuy.replee.core.presentation.ScreenStateHost
-import com.nhuhuy.replee.feature_chat.R
+import com.nhuhuy.replee.feature_home.R
 import java.util.Locale
 
 @ExperimentalMaterial3Api

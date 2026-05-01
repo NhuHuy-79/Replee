@@ -10,10 +10,10 @@ import com.nhuhuy.replee.core.domain.usecase.GetAccountByIdUseCase
 import com.nhuhuy.replee.core.model.validate.ValidateFileResult
 import com.nhuhuy.replee.core.sync.usecase.SyncMessageUseCase
 import com.nhuhuy.replee.feature_chat.data.NotificationManager
+import com.nhuhuy.replee.feature_chat.domain.usecase.GetConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.CheckBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.ObserveOwnerIsBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.UnblockUserUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.SendFileMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.file.ValidateFileSizeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.AddReactionUseCase
@@ -66,11 +66,9 @@ class ChatViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
     @Assisted("messageId") private val anchorMessageId: String? = null,
-
     //update 1
     private val chatSessionManager: ChatSessionManager,
     private val notificationManager: NotificationManager,
-
     private val updateReadTimeUseCase: UpdateReadTimeUseCase,
     private val updateUnreadMessageUseCase: UpdateUnreadMessageUseCase,
     getReadTimeUseCase: GetReadTimeUseCase,
