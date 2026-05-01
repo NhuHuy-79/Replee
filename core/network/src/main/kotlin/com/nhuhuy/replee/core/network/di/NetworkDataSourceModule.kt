@@ -2,8 +2,6 @@ package com.nhuhuy.replee.core.network.di
 
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSourceImp
-import com.nhuhuy.replee.core.network.data_source.AuthNetworkDataSource
-import com.nhuhuy.replee.core.network.data_source.AuthNetworkDataSourceImp
 import com.nhuhuy.replee.core.network.data_source.ConversationNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.ConversationNetworkDataSourceImp
 import com.nhuhuy.replee.core.network.data_source.FirebasePresenceDataSource
@@ -35,9 +33,6 @@ abstract class NetworkDataSourceModule {
     @Singleton
     abstract fun bindAccountNetworkDataSource(imp: AccountNetworkDataSourceImp): AccountNetworkDataSource
 
-    @Binds
-    @Singleton
-    abstract fun bindAuthNetworkDataSource(imp: AuthNetworkDataSourceImp): AuthNetworkDataSource
 
     @Binds
     @Singleton

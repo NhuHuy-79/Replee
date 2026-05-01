@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.network.data_source
+package com.nhuhuy.replee.feature_auth.data.data_source
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
@@ -6,15 +6,6 @@ import com.nhuhuy.replee.core.model.AuthServiceProvider
 import com.nhuhuy.replee.core.network.model.AccountDTO
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
-
-interface AuthNetworkDataSource {
-    suspend fun getCurrentAuthToken(): String
-    suspend fun getCurrentUid(): String
-    suspend fun signInWithEmail(email: String, password: String): String
-    suspend fun signInWithGoogle(idToken: String): AccountDTO
-    suspend fun signUpWithEmail(name: String, email: String, password: String): AccountDTO
-    suspend fun sendRecoverPasswordEmail(email: String)
-}
 
 class AuthNetworkDataSourceImp @Inject constructor(
     private val firebaseAuth: FirebaseAuth
@@ -76,7 +67,7 @@ class AuthNetworkDataSourceImp @Inject constructor(
     }
 
     override suspend fun sendRecoverPasswordEmail(email: String) {
-        firebaseAuth.sendPasswordResetEmail(email)
+        firebaseAuth.sendPasswordResetEmail(email).await()
     }
 
 }

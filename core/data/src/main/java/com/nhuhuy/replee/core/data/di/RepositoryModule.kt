@@ -1,7 +1,6 @@
 package com.nhuhuy.replee.core.data.di
 
 import com.nhuhuy.replee.core.data.repository.AccountRepositoryImp
-import com.nhuhuy.replee.core.data.repository.AuthRepositoryImp
 import com.nhuhuy.replee.core.data.repository.PresenceRepositoryImp
 import com.nhuhuy.replee.core.data.repository.ProfileRepositoryImp
 import com.nhuhuy.replee.core.data.repository.SessionManagerImp
@@ -16,7 +15,6 @@ import com.nhuhuy.replee.core.domain.SessionManager
 import com.nhuhuy.replee.core.domain.repository.AccountActionRepository
 import com.nhuhuy.replee.core.domain.repository.AccountQueryRepository
 import com.nhuhuy.replee.core.domain.repository.AccountRepository
-import com.nhuhuy.replee.core.domain.repository.AuthRepository
 import com.nhuhuy.replee.core.domain.repository.ChatActionRepository
 import com.nhuhuy.replee.core.domain.repository.ConversationActionRepository
 import com.nhuhuy.replee.core.domain.repository.ConversationQueryRepository
@@ -54,9 +52,6 @@ abstract class RepositoryModule {
     @Singleton
     abstract fun bindAccountActionRepository(imp: AccountRepositoryImp): AccountActionRepository
 
-    @Binds
-    @Singleton
-    abstract fun bindAuthRepository(imp: AuthRepositoryImp): AuthRepository
 
     @Binds
     @Singleton

@@ -1,14 +1,13 @@
-package com.nhuhuy.replee.core.data.repository
+package com.nhuhuy.replee.feature_auth.data.repository
 
-import com.nhuhuy.replee.core.model.Account
-import com.nhuhuy.replee.core.model.NetworkResult
-import com.nhuhuy.replee.core.data.mapper.toAccount
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
-
+import com.nhuhuy.replee.core.data.mapper.toAccount
 import com.nhuhuy.replee.core.data.utils.execute
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
-import com.nhuhuy.replee.core.network.data_source.AuthNetworkDataSource
-import com.nhuhuy.replee.core.domain.repository.AuthRepository
+import com.nhuhuy.replee.core.model.Account
+import com.nhuhuy.replee.core.model.NetworkResult
+import com.nhuhuy.replee.feature_auth.data.data_source.AuthNetworkDataSource
+import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Inject
 
