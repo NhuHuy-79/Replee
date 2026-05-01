@@ -31,6 +31,17 @@ interface MessageDao : BaseDao<MessageEntity> {
 
     @Query(
         """
+        SELECT * FROM message 
+        WHERE conversationId = :conversationId
+        ORDER BY sentAt DESC 
+        LIMIT 1
+    """
+    )
+    suspend fun getLatestMessage(conversationId: String): MessageEntity?
+
+    @Transaction
+    @Query(
+        """
     SELECT m.* FROM message m
     INNER JOIN conversation c ON m.conversationId = c.id
     WHERE m.conversationId = :conversationId 
@@ -42,10 +53,6 @@ interface MessageDao : BaseDao<MessageEntity> {
     ORDER BY m.sentAt DESC
 """
     )
-    suspend fun getLatestMessage(conversationId: String): MessageEntity?
-
-    @Transaction
-    @Query("SELECT * FROM message WHERE conversationId = :conversationId AND deleted = 0 ORDER BY sentAt DESC")
     fun getMessagesPagingSource(conversationId: String): PagingSource<Int, MessageWithLocalPath>
 
     @Query("SELECT * FROM message WHERE conversationId = :conversationId AND content LIKE :query")

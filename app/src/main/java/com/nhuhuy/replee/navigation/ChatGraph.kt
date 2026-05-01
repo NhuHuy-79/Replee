@@ -148,7 +148,9 @@ fun EntryProviderScope<NavKey>.chatGraph(
             viewModel = viewModel,
             onNavigateBack = { backstack.removeLastOrNull() },
             onNavigateToConversation = {
-                // Handle
+                backstack.removeIf { navKey ->
+                    navKey is HomeDestination.Chat || navKey is Information
+                }
             }
         )
     }
