@@ -184,7 +184,7 @@ class ConversationRepositoryImp @Inject constructor(
             if (conversation.lastMessageId == message.messageId) {
                 //updateLastMessage
             }
-            //Compare lastMessageId in Conversation and Message Id.
+            //Compare lastMessageId in Conversation and MessageId.
             //Delete lastMessage metadata and replace by lastClose Message.
             TODO("Implemenet logic here")
 

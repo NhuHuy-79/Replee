@@ -31,11 +31,16 @@ interface MessageDao : BaseDao<MessageEntity> {
 
     @Query(
         """
-        SELECT * FROM message 
-        WHERE conversationId = :conversationId
-        ORDER BY sentAt DESC 
-        LIMIT 1
-    """
+    SELECT m.* FROM message m
+    INNER JOIN conversation c ON m.conversationId = c.id
+    WHERE m.conversationId = :conversationId 
+      AND (
+          c.deleted = 0 
+          OR 
+          (c.deleted = 1 AND m.sentAt > c.lastTimeDeleted) 
+      )
+    ORDER BY m.sentAt DESC
+"""
     )
     suspend fun getLatestMessage(conversationId: String): MessageEntity?
 

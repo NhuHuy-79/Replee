@@ -14,9 +14,6 @@ import com.nhuhuy.replee.core.database.entity.account.AccountEntity
         Index(value = ["ownerId", "pinned", "lastMessageTime"]),
         Index(value = ["otherUserId"]),
         Index(value = ["synced"]),
-        Index(
-            value = ["ownerId", "deleted", "lastMessageTime", "pinned"],
-        )
     ]
 )
 data class ConversationEntity(

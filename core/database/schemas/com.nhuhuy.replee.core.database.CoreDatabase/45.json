@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 43,
-    "identityHash": "9072ed87381c02492946a73bf665149b",
+    "version": 45,
+    "identityHash": "cb3c2e456a739a7e6c6ea43fe3df56cd",
     "entities": [
       {
         "tableName": "accounts",
@@ -277,18 +277,6 @@
             ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_conversation_synced` ON `${TABLE_NAME}` (`synced`)"
-          },
-          {
-            "name": "index_conversation_ownerId_deleted_lastMessageTime_pinned",
-            "unique": false,
-            "columnNames": [
-              "ownerId",
-              "deleted",
-              "lastMessageTime",
-              "pinned"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_conversation_ownerId_deleted_lastMessageTime_pinned` ON `${TABLE_NAME}` (`ownerId`, `deleted`, `lastMessageTime`, `pinned`)"
           }
         ]
       },
@@ -764,7 +752,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9072ed87381c02492946a73bf665149b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cb3c2e456a739a7e6c6ea43fe3df56cd')"
     ]
   }
 }
