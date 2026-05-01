@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.core.domain
 
-import com.nhuhuy.replee.core.model.validate.AuthenticatedState
 import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.model.validate.AuthenticatedState
 import kotlinx.coroutines.flow.Flow
 
 interface SessionManager {
@@ -13,6 +13,5 @@ interface SessionManager {
     fun getUserIdOrNull(): String?
     suspend fun getNewAuthenticatedToken(): String
     suspend fun getCurrentDeviceToken(): NetworkResult<String>
-    suspend fun logout()
 }
 
