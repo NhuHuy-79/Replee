@@ -1,6 +1,6 @@
-package com.nhuhuy.replee.feature_chat.domain.model.converastion
+package com.nhuhuy.replee.core.model
 
-import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
+import com.nhuhuy.replee.core.model.MessageType
 
 data class Conversation(
     val id: String = "",

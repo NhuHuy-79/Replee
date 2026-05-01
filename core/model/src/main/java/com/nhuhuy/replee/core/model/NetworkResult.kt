@@ -1,4 +1,4 @@
-package com.nhuhuy.core.domain.model
+package com.nhuhuy.replee.core.model
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

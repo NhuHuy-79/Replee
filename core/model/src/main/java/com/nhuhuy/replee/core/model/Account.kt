@@ -1,4 +1,4 @@
-package com.nhuhuy.core.domain.model
+package com.nhuhuy.replee.core.model
 
 data class Account(
     val id: String = "",

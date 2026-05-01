@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.database.entity.message_action
+package com.nhuhuy.replee.core.model
 
 enum class ActionType {
     DELETE,
