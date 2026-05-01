@@ -3,6 +3,7 @@ package com.nhuhuy.replee.core.database.entity.message_action
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.nhuhuy.replee.core.model.ActionType
 
 @Entity(
     tableName = "message_modifier",

@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.core.network.data_source
 
 
-import com.nhuhuy.core.domain.model.UploadFileState
+import com.nhuhuy.replee.core.model.UploadFileState
 import kotlinx.coroutines.flow.Flow
 
 interface UploadFileService {

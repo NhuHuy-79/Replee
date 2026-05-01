@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.core.network.imp
 
 import android.webkit.MimeTypeMap
-import com.nhuhuy.core.domain.model.UploadFileState
+import com.nhuhuy.replee.core.model.UploadFileState
 import com.nhuhuy.replee.core.network.BuildConfig
 import com.nhuhuy.replee.core.network.api.cloudinary.CloudinaryApi
 import com.nhuhuy.replee.core.network.data_source.UploadFileService

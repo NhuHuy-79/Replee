@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.core.database.data_source
 
 import android.util.Log
-import com.nhuhuy.core.domain.model.SearchHistoryResult
+import com.nhuhuy.replee.core.model.SearchHistoryResult
 import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.database.entity.account.AccountEntity
 import com.nhuhuy.replee.core.database.entity.search_history.SearchHistoryEntity
