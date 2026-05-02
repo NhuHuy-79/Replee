@@ -7,14 +7,14 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.toObjects
+import com.nhuhuy.replee.core.model.chat.MessageStatus
 import com.nhuhuy.replee.core.network.model.Constant
 import com.nhuhuy.replee.core.network.model.Constant.Firestore.MESSAGE_SUBCOLLECTION
 import com.nhuhuy.replee.core.network.model.DataChange
+import com.nhuhuy.replee.core.network.model.MessageDTO
 import com.nhuhuy.replee.core.network.model.observeMultipleDataChanges
 import com.nhuhuy.replee.core.network.utils.optimizedWrite
 import com.nhuhuy.replee.core.network.utils.toMilliseconds
-import com.nhuhuy.replee.core.model.chat.MessageStatus
-import com.nhuhuy.replee.core.network.model.MessageDTO
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -36,6 +36,13 @@ interface MessageNetworkDataSource {
         status: MessageStatus,
         receiverId: String,
     )
+
+    suspend fun fetchPinnedMessageBefore(
+        currentUserId: String,
+        conversationId: String,
+        lastMessageId: String,
+        limit: Int
+    ): List<MessageDTO>
 
     suspend fun deleteMultipleMessage(messages: List<MessageDTO>)
     suspend fun pinMultipleMessage(messages: List<MessageDTO>, pinned: Boolean)
@@ -154,6 +161,35 @@ class MessageNetworkDataSourceImp @Inject constructor(
                 }.await()
             },
         )
+    }
+
+    override suspend fun fetchPinnedMessageBefore(
+        currentUserId: String,
+        conversationId: String,
+        lastMessageId: String,
+        limit: Int
+    ): List<MessageDTO> {
+        var query = collection.document(conversationId)
+            .collection(MESSAGE_SUBCOLLECTION)
+            .whereEqualTo("pinned", true)
+            .orderBy("sendAt", Query.Direction.DESCENDING)
+            .orderBy(FieldPath.documentId(), Query.Direction.DESCENDING)
+            .limit(limit.toLong())
+
+        if (lastMessageId.isNotEmpty()) {
+            val lastDocument = collection.document(conversationId)
+                .collection(MESSAGE_SUBCOLLECTION)
+                .document(lastMessageId)
+                .get()
+                .await()
+            query = query.startAfter(lastDocument)
+        }
+
+        val snapshot = query
+            .get()
+            .await()
+
+        return snapshot.toObjects<MessageDTO>()
     }
 
     override suspend fun deleteMultipleMessage(messages: List<MessageDTO>) {

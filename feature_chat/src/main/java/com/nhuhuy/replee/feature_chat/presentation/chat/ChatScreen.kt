@@ -153,6 +153,7 @@ fun ChatScreen(
                 )
             } else {
                 MessageScreen(
+                    anchorMessagePosition = state.messagePosition,
                     anchorMessageId = state.messageAnchorId,
                     recipientReadAt = otherUserReadTime,
                     showTypingIndicator = typingUsers.contains(state.otherUser.id),

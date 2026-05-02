@@ -170,11 +170,10 @@ class ConversationRepositoryImp @Inject constructor(
         conversationId: String,
         currentUserId: String
     ): NetworkResult<Unit> {
-        return withContext(externalScope.coroutineContext) {
-            executeWithTimeout(ioDispatcher) {
-                conversationLocalDataSource.clearUnreadMessages(conversationId)
-                conversationNetworkDataSource.deleteAllUnreadMessages(conversationId, currentUserId)
-            }
+        return executeWithTimeout(ioDispatcher) {
+            Timber.d("Delete unread messages")
+            conversationLocalDataSource.clearUnreadMessages(conversationId)
+            conversationNetworkDataSource.deleteAllUnreadMessages(conversationId, currentUserId)
         }
     }
 

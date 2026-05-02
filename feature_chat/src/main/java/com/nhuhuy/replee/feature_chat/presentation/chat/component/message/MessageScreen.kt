@@ -2,6 +2,7 @@ package com.nhuhuy.replee.feature_chat.presentation.chat.component.message
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.PushPin
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -25,22 +27,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import com.nhuhuy.replee.core.common.utils.formatToChatTime
 import com.nhuhuy.replee.core.design_system.component.UserImage
-import com.nhuhuy.replee.core.presentation.animation.slideInVerticallyAnimation
-import com.nhuhuy.replee.core.presentation.animation.slideOutVerticallyAnimation
 import com.nhuhuy.replee.core.model.chat.LocalPathMessage
 import com.nhuhuy.replee.core.model.chat.MessageType
+import com.nhuhuy.replee.core.presentation.animation.slideInVerticallyAnimation
+import com.nhuhuy.replee.core.presentation.animation.slideOutVerticallyAnimation
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.StatusContent
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.TypingItem
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.TypingAnimatedIndicator
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.emote.EmoteFlowRow
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import kotlinx.coroutines.FlowPreview
@@ -50,7 +55,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun MessageScreen(
     modifier: Modifier = Modifier,
-    anchorMessageId: String? = null,
+    anchorMessageId: String,
+    anchorMessagePosition: Int = 1,
     recipientReadAt: Long,
     showTypingIndicator: Boolean,
     lazyListState: LazyListState,
@@ -65,6 +71,26 @@ fun MessageScreen(
         derivedStateOf {
             lazyListState.firstVisibleItemIndex == 0 &&
                     lazyListState.firstVisibleItemScrollOffset == 0
+        }
+    }
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(pagingItems.loadState, anchorMessageId) {
+        if (anchorMessageId.isEmpty()) {
+            isLoading = false
+            return@LaunchedEffect
+        }
+
+        val isLoadFinished = pagingItems.loadState.refresh is LoadState.NotLoading
+
+        if (isLoadFinished) {
+            val targetIndex = (0 until pagingItems.itemCount).firstOrNull { index ->
+                pagingItems[index]?.message?.messageId == anchorMessageId
+            }
+            if (targetIndex != null) {
+                lazyListState.scrollToItem(targetIndex)
+                isLoading = false
+            }
         }
     }
 
@@ -85,7 +111,7 @@ fun MessageScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp, alignment = Alignment.Bottom)
         ) {
             item {
-                TypingItem(
+                TypingAnimatedIndicator(
                     visible = showTypingIndicator,
                     name = otherUserName,
                     imgUrl = otherUserImg,
@@ -186,6 +212,17 @@ fun MessageScreen(
                 )
             }
 
+        }
+
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.background),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
         }
 
         AnimatedVisibility(

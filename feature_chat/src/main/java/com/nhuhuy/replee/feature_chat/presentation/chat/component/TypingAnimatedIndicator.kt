@@ -25,7 +25,7 @@ import com.nhuhuy.replee.core.presentation.animation.slideOutVerticallyAnimation
 import com.nhuhuy.replee.feature_chat.R
 
 @Composable
-fun TypingItem(
+fun TypingAnimatedIndicator(
     visible: Boolean,
     name: String,
     imgUrl: String,

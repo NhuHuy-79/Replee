@@ -66,7 +66,7 @@ class ConversationLocalDataSourceImp @Inject constructor(
     }
 
     override suspend fun clearUnreadMessages(conversationId: String) {
-        conversationDao.clearUnreadMessages(conversationId)
+        conversationDao.deleteUnreadMessage(conversationId)
     }
 
     override fun observeOtherUserInConversation(currentUserId: String): Flow<List<String>> {

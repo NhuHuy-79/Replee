@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
+import com.nhuhuy.replee.core.common.utils.ApplicationCoroutineScope
 import com.nhuhuy.replee.core.domain.usecase.GetAccountByIdUseCase
 import com.nhuhuy.replee.core.model.validate.ValidateFileResult
 import com.nhuhuy.replee.core.sync.usecase.SyncMessageUseCase
@@ -45,6 +46,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -66,6 +68,7 @@ class ChatViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
     @Assisted("messageId") private val anchorMessageId: String? = null,
+    @ApplicationCoroutineScope private val externalScope: CoroutineScope,
     //update 1
     private val chatSessionManager: ChatSessionManager,
     private val notificationManager: NotificationManager,
@@ -472,6 +475,17 @@ class ChatViewModel @AssistedInject constructor(
     override fun onCleared() {
         chatSessionManager.setCurrentChatId(conversationId = null)
         updateTypingStatusJob = null
+        externalScope.launch {
+            updateTypingUseCase(
+                conversationId = conversationId,
+                userId = currentUserId,
+                typing = false
+            )
+            updateUnreadMessageUseCase(
+                conversationId = conversationId,
+                receiverId = otherUserId
+            )
+        }
         super.onCleared()
     }
 }
