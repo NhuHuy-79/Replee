@@ -23,7 +23,7 @@ class PinViewModel @AssistedInject constructor(
     @Assisted("conversationId") private val conversationId: String,
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
-    private val observePinnedMessagesUseCase: ObservePinnedMessagesUseCase,
+    observePinnedMessagesUseCase: ObservePinnedMessagesUseCase,
     private val getCurrentAccountUseCase: GetCurrentAccountUseCase,
     private val getAccountByIdUseCase: GetAccountByIdUseCase,
     private val unPinMessageUseCase: UnPinMessageUseCase

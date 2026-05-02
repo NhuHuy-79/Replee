@@ -223,7 +223,7 @@ fun MessageScreen(
         }
 
         AnimatedVisibility(
-            visible = !isAtBottom,
+            visible = !isAtBottom || anchorMessageId != null,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(16.dp),
