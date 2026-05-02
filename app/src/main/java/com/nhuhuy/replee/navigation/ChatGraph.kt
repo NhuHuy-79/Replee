@@ -51,7 +51,8 @@ sealed interface HomeDestination : NavKey {
     @Serializable
     data class Pin(
         val conversationId: String,
-        val otherUserId: String
+        val otherUserId: String,
+        val currentUserId: String,
     ) : HomeDestination
 }
 
@@ -107,11 +108,12 @@ fun EntryProviderScope<NavKey>.chatGraph(
                     )
                 )
             },
-            onNavigateToPin = { conversationId, otherUserId ->
+            onNavigateToPin = { conversationId, otherUserId, currentUserId ->
                 backstack.add(
                     Pin(
                         conversationId = conversationId,
-                        otherUserId = otherUserId
+                        otherUserId = otherUserId,
+                        currentUserId = currentUserId
                     )
                 )
             },
@@ -187,7 +189,8 @@ fun EntryProviderScope<NavKey>.chatGraph(
             creationCallback = { factory: PinViewModel.Factory ->
                 factory.create(
                     conversationId = screen.conversationId,
-                    otherUserId = screen.otherUserId
+                    otherUserId = screen.otherUserId,
+                    currentUserId = screen.currentUserId
                 )
             }
         )

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -55,7 +54,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MessageScreen(
     modifier: Modifier = Modifier,
-    anchorMessageId: String,
+    anchorMessageId: String?,
     anchorMessagePosition: Int = 1,
     recipientReadAt: Long,
     showTypingIndicator: Boolean,
@@ -76,22 +75,20 @@ fun MessageScreen(
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(pagingItems.loadState, anchorMessageId) {
-        if (anchorMessageId.isEmpty()) {
+        if (anchorMessageId.isNullOrEmpty()) {
             isLoading = false
             return@LaunchedEffect
         }
 
-        val isLoadFinished = pagingItems.loadState.refresh is LoadState.NotLoading
-
-        if (isLoadFinished) {
-            val targetIndex = (0 until pagingItems.itemCount).firstOrNull { index ->
-                pagingItems[index]?.message?.messageId == anchorMessageId
-            }
-            if (targetIndex != null) {
-                lazyListState.scrollToItem(targetIndex)
+        when (pagingItems.loadState.refresh) {
+            is LoadState.Error -> isLoading = false
+            LoadState.Loading -> isLoading = true
+            is LoadState.NotLoading -> {
+                lazyListState.scrollToItem(anchorMessagePosition)
                 isLoading = false
             }
         }
+
     }
 
     LaunchedEffect(pagingItems.itemCount) {
@@ -115,7 +112,7 @@ fun MessageScreen(
                     visible = showTypingIndicator,
                     name = otherUserName,
                     imgUrl = otherUserImg,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
                 )
             }
 
@@ -236,7 +233,12 @@ fun MessageScreen(
             FilledTonalIconButton(
                 onClick = {
                     scope.launch {
-                        lazyListState.animateScrollToItem(0)
+                        if (!anchorMessageId.isNullOrEmpty()) {
+                            onAction(ChatAction.OnScrollToBottom)
+                        } else {
+                            lazyListState.scrollToItem(0)
+
+                        }
                     }
                 },
                 colors = IconButtonDefaults.iconButtonColors(

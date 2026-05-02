@@ -26,7 +26,7 @@ fun ChatRoute(
     viewModel: ChatViewModel,
     onNavigateBack: () -> Unit,
     onNavigateToSearch: (conversationId: String, otherUserId: String) -> Unit,
-    onNavigateToPin: (conversationId: String, otherUserId: String) -> Unit,
+    onNavigateToPin: (conversationId: String, otherUserId: String, currentUserId: String) -> Unit,
     onNavigateToInformation: (
         otherUserImg: String,
         currentUserId: String,
@@ -54,7 +54,11 @@ fun ChatRoute(
                 event.otherUserId
             )
 
-            is ChatEvent.NavigateToPin -> onNavigateToPin(event.conversationId, event.otherUserId)
+            is ChatEvent.NavigateToPin -> onNavigateToPin(
+                event.conversationId,
+                event.otherUserId,
+                event.currentUserId
+            )
             is ChatEvent.NavigateToInformation -> onNavigateToInformation(
                 event.otherUserImg,
                 event.currentUserId,

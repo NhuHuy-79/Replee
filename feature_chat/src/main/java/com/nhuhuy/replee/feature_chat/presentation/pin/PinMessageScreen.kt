@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -40,18 +39,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import coil3.compose.SubcomposeAsyncImage
 import com.nhuhuy.replee.core.common.utils.formatToChatTime
 import com.nhuhuy.replee.core.design_system.component.UserImage
-import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.core.model.chat.Message
 import com.nhuhuy.replee.core.model.chat.MessageType
+import com.nhuhuy.replee.feature_chat.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PinnedMessagesScreen(
     state: PinState,
-    pinnedMessages: List<Message>,
+    pinnedMessages: LazyPagingItems<Message>,
     onAction: (PinAction) -> Unit
 ) {
     Scaffold(
@@ -77,7 +79,7 @@ fun PinnedMessagesScreen(
             )
         }, containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
-        if (pinnedMessages.isEmpty()) {
+        if (pinnedMessages.itemCount == 0) {
             EmptyPinnedState(modifier = Modifier.padding(paddingValues))
         } else {
             LazyColumn(
@@ -87,23 +89,30 @@ fun PinnedMessagesScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(pinnedMessages, key = { it.messageId }) { message ->
-                    val userName =
-                        if (message.senderId == state.currentUser.id) state.currentUser.name else state.otherUser.name
-                    val userImg =
-                        if (message.senderId == state.currentUser.id) state.currentUser.imageUrl else state.otherUser.imageUrl
-                    PinnedMessageItem(
-                        userName = userName, userImg = userImg, message = message,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .animateItem(),
-                        onMessageUnPin = { message ->
-                            onAction(PinAction.OnPinOff(message))
-                        },
-                        onMessageClick = { message ->
-                            onAction(PinAction.OnMessageClick(message))
-                        }
-                    )
+                items(
+                    count = pinnedMessages.itemCount,
+                    key = pinnedMessages.itemKey { message -> message.messageId },
+                    contentType = pinnedMessages.itemContentType { message -> message.type }
+                ) { index ->
+                    val message = pinnedMessages[index]
+                    message?.let {
+                        val userName =
+                            if (message.senderId == state.currentUser.id) state.currentUser.name else state.otherUser.name
+                        val userImg =
+                            if (message.senderId == state.currentUser.id) state.currentUser.imageUrl else state.otherUser.imageUrl
+                        PinnedMessageItem(
+                            userName = userName, userImg = userImg, message = message,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .animateItem(),
+                            onMessageUnPin = { message ->
+                                onAction(PinAction.OnPinOff(message))
+                            },
+                            onMessageClick = { message ->
+                                onAction(PinAction.OnMessageClick(message))
+                            }
+                        )
+                    }
                 }
             }
         }

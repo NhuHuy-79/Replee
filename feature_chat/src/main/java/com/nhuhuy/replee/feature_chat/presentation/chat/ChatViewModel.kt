@@ -20,17 +20,16 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.file.ValidateFileSizeUseCas
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.AddReactionUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.DeleteMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.GetMessagePositionUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.MarkMessagesReadUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveLocalMessagesUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.PinMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.RemoveReactionUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.UnPinMessageUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.message.UpdateUnreadMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.GetReadTimeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.GetTypingUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.UpdateReadTimeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.UpdateTypingUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.option.DeleteConversationUseCase
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent.NavigateToInformation
@@ -56,7 +55,10 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
@@ -68,32 +70,30 @@ class ChatViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
     @Assisted("messageId") private val anchorMessageId: String? = null,
-    @ApplicationCoroutineScope private val externalScope: CoroutineScope,
-    //update 1
-    private val chatSessionManager: ChatSessionManager,
-    private val notificationManager: NotificationManager,
-    private val updateReadTimeUseCase: UpdateReadTimeUseCase,
-    private val updateUnreadMessageUseCase: UpdateUnreadMessageUseCase,
+    @param:ApplicationCoroutineScope private val externalScope: CoroutineScope,
+    observeLocalMessagesUseCase: ObserveLocalMessagesUseCase,
     getReadTimeUseCase: GetReadTimeUseCase,
+    observeOwnerIsBlockUseCase: ObserveOwnerIsBlockUseCase,
+    getTypingUseCase: GetTypingUseCase,
+    notificationManager: NotificationManager,
+    private val chatSessionManager: ChatSessionManager,
+    private val updateReadTimeUseCase: UpdateReadTimeUseCase,
+    private val markMessagesReadUseCase: MarkMessagesReadUseCase,
     private val unblockUserUseCase: UnblockUserUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
     private val getAccountByIdUseCase: GetAccountByIdUseCase,
-    observeOwnerIsBlockUseCase: ObserveOwnerIsBlockUseCase,
     private val syncMessageUseCase: SyncMessageUseCase,
     private val getConversationUseCase: GetConversationUseCase,
-    observeLocalMessagesUseCase: ObserveLocalMessagesUseCase,
     private val checkBlockUseCase: CheckBlockUseCase,
     private val sendFileMessageUseCase: SendFileMessageUseCase,
     private val validateFileSizeUseCase: ValidateFileSizeUseCase,
     private val deleteMessageUseCase: DeleteMessageUseCase,
     private val updateTypingUseCase: UpdateTypingUseCase,
-    getTypingUseCase: GetTypingUseCase,
     private val pinMessageUseCase: PinMessageUseCase,
     private val unPinMessageUseCase: UnPinMessageUseCase,
     private val addReactionUseCase: AddReactionUseCase,
     private val removeReactionUseCase: RemoveReactionUseCase,
-    private val getMessagePositionUseCase: GetMessagePositionUseCase,
-    private val deleteConversationUseCase: DeleteConversationUseCase
+    private val getMessagePositionUseCase: GetMessagePositionUseCase
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
     private var currentUserReadingTime = 0L
     private var listenMessageChangeJob: Job? = null
@@ -107,19 +107,25 @@ class ChatViewModel @AssistedInject constructor(
 
     val blocked = observeOwnerIsBlockUseCase(ownerId = currentUserId, otherUserId = otherUserId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5.seconds), false)
+
     private val _state = MutableStateFlow(
         ChatState(
             currentUserId = currentUserId,
-            messageAnchorId = anchorMessageId.orEmpty(),
+            messageAnchorId = anchorMessageId,
             isInitialJumpLoading = anchorMessageId != null
         )
     )
 
-    val pagedMessages = observeLocalMessagesUseCase(
-        anchorMessageId = anchorMessageId,
-        conversationId = conversationId
-    )
-        .cachedIn(viewModelScope)
+    val pagedMessages = state
+        .map { it.messageAnchorId }
+        .distinctUntilChanged()
+        .flatMapLatest { anchor ->
+            observeLocalMessagesUseCase(
+                anchorMessageId = anchor,
+                conversationId = conversationId
+            )
+                .cachedIn(viewModelScope)
+        }
 
     val otherLastReadingTime =
         getReadTimeUseCase(conversationId = conversationId, otherUserId = otherUserId)
@@ -137,7 +143,6 @@ class ChatViewModel @AssistedInject constructor(
         chatSessionManager.setCurrentChatId(conversationId = conversationId)
         notificationManager.cancelNotification(notificationId = conversationId.hashCode())
         loadInitialData()
-        //Listen to Message
         listenToMessageChange()
     }
 
@@ -182,7 +187,7 @@ class ChatViewModel @AssistedInject constructor(
 
                 launch {
                     updateReadingTime()
-                    updateUnreadMessageUseCase(
+                    markMessagesReadUseCase(
                         conversationId = conversationId,
                         receiverId = currentUserId
                     )
@@ -342,13 +347,7 @@ class ChatViewModel @AssistedInject constructor(
                     }
                 }
 
-                ChatAction.OnNewMessageTrigger -> {
-                    updateReadingTime()
-                    updateUnreadMessageUseCase(
-                        conversationId = conversationId,
-                        receiverId = currentUserId
-                    )
-                }
+                ChatAction.OnNewMessageTrigger -> updateReadingTime()
 
                 ChatAction.OnSearchClick -> {
                     onEvent(
@@ -362,7 +361,9 @@ class ChatViewModel @AssistedInject constructor(
                 ChatAction.OnPinClick -> {
                     onEvent(
                         NavigateToPin(
-                            conversationId = conversationId, otherUserId = otherUserId
+                            conversationId = conversationId,
+                            otherUserId = otherUserId,
+                            currentUserId = currentUserId
                         )
                     )
                 }
@@ -414,9 +415,10 @@ class ChatViewModel @AssistedInject constructor(
                     )
                 }
 
-                ChatAction.DeleteConversation -> {
-                    deleteConversationUseCase(conversationId)
-                    onEvent(ChatEvent.OnDeleteConfirmed)
+                is ChatAction.OnScrollToBottom -> {
+                    _state.reduce {
+                        copy(messageAnchorId = null)
+                    }
                 }
             }
         }
@@ -481,7 +483,7 @@ class ChatViewModel @AssistedInject constructor(
                 userId = currentUserId,
                 typing = false
             )
-            updateUnreadMessageUseCase(
+            markMessagesReadUseCase(
                 conversationId = conversationId,
                 receiverId = otherUserId
             )

@@ -10,7 +10,7 @@ sealed interface ChatAction : UiAction{
     data object OnMessageCancelReply : ChatAction
     data class OnMessageLongPress(val message: Message) : ChatAction
     data class OnMessageInputChanged(val messageInput: String) : ChatAction
-    object OnSendMessageClicked : ChatAction
+    data object OnSendMessageClicked : ChatAction
     data class OnImageSend(val uri: Uri) : ChatAction
     object OnBackClick: ChatAction
     data object OnUnblockUser : ChatAction
@@ -27,5 +27,5 @@ sealed interface ChatAction : UiAction{
     data object OnNewMessageTrigger : ChatAction
     data object OnScrollToAnchorDone : ChatAction
     data class OnMessageReactionClick(val reaction: String, val messageId: String) : ChatAction
-    data object DeleteConversation : ChatAction
+    data object OnScrollToBottom : ChatAction
 }

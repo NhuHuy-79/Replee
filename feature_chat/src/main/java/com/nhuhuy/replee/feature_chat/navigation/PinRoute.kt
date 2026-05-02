@@ -3,6 +3,7 @@ package com.nhuhuy.replee.feature_chat.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.nhuhuy.replee.core.presentation.ObserveEffect
 import com.nhuhuy.replee.feature_chat.presentation.pin.PinEvent
 import com.nhuhuy.replee.feature_chat.presentation.pin.PinViewModel
@@ -14,7 +15,7 @@ fun PinRoute(
     onNavigateBack: () -> Unit,
     onNavigateToConversation: (currentUserId: String, otherUserId: String, messageId: String) -> Unit
 ) {
-    val pinnedMessages by viewModel.pinnedMessage.collectAsStateWithLifecycle()
+    val pinnedMessages = viewModel.pinnedMessages.collectAsLazyPagingItems()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     ObserveEffect(viewModel.event) { event ->

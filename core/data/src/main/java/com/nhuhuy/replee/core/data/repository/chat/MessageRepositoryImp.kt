@@ -5,27 +5,27 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
-import com.nhuhuy.replee.core.domain.SessionManager
-import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
+import com.nhuhuy.replee.core.data.MessageRemoteMediator
+import com.nhuhuy.replee.core.data.PinnedMessagePagingSource
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.database.LocalTransactionRunner
-import com.nhuhuy.replee.core.network.model.DataChange
-import com.nhuhuy.replee.core.database.mapper.toMessage
-import com.nhuhuy.replee.core.database.mapper.toMessageEntity
-import com.nhuhuy.replee.core.network.mapper.toMessage as toMessageNetwork
-import com.nhuhuy.replee.core.network.mapper.toMessageDTO
 import com.nhuhuy.replee.core.database.data_source.ConversationLocalDataSource
 import com.nhuhuy.replee.core.database.data_source.MessageLocalDataSource
-import com.nhuhuy.replee.core.network.data_source.MessageNetworkDataSource
-import com.nhuhuy.replee.core.data.MessageRemoteMediator
-import com.nhuhuy.replee.core.network.data_source.PagingMessageNetworkDataSource
+import com.nhuhuy.replee.core.database.mapper.toLocalPathMessage
+import com.nhuhuy.replee.core.database.mapper.toMessage
+import com.nhuhuy.replee.core.database.mapper.toMessageEntity
+import com.nhuhuy.replee.core.domain.SessionManager
+import com.nhuhuy.replee.core.domain.repository.MessageRepository
 import com.nhuhuy.replee.core.model.chat.LocalPathMessage
 import com.nhuhuy.replee.core.model.chat.Message
 import com.nhuhuy.replee.core.model.chat.MessageStatus
-import com.nhuhuy.replee.core.database.mapper.toLocalPathMessage
-import com.nhuhuy.replee.core.domain.repository.MessageRepository
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.network.data_source.MessageNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.PagingMessageNetworkDataSource
+import com.nhuhuy.replee.core.network.mapper.toMessageDTO
+import com.nhuhuy.replee.core.network.model.DataChange
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
+import com.nhuhuy.replee.core.network.mapper.toMessage as toMessageNetwork
 
 class MessageRepositoryImp @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
@@ -88,6 +89,21 @@ class MessageRepositoryImp @Inject constructor(
         return withContext(ioDispatcher) {
             messageLocalDataSource.getNewestMessageInConversation(conversationId)?.toMessage()
         }
+    }
+
+    override fun observePinnedMessages(
+        conversationId: String,
+        currentUserId: String
+    ): Flow<PagingData<Message>> {
+        return Pager(
+            config = PagingConfig(pageSize = 10)
+        ) {
+            PinnedMessagePagingSource(
+                conversationId = conversationId,
+                currentUserId = currentUserId,
+                messageNetworkDataSource = messageNetworkDataSource
+            )
+        }.flow
     }
 
     @OptIn(ExperimentalPagingApi::class)

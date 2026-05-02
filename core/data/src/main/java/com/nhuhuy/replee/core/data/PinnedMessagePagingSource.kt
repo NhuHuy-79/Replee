@@ -1,10 +1,11 @@
-package com.nhuhuy.replee.feature_chat.data.paging
+package com.nhuhuy.replee.core.data
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.nhuhuy.replee.core.model.chat.Message
 import com.nhuhuy.replee.core.network.data_source.MessageNetworkDataSource
 import com.nhuhuy.replee.core.network.mapper.toMessage
+import timber.log.Timber
 
 class PinnedMessagePagingSource(
     private val messageNetworkDataSource: MessageNetworkDataSource,
@@ -37,12 +38,15 @@ class PinnedMessagePagingSource(
                 data.last().messageId
             }
 
+            Timber.d("Pinned Message: ${data.size}")
+
             LoadResult.Page(
                 data = data,
                 prevKey = prevKey,
                 nextKey = nextKey
             )
         } catch (e: Exception) {
+            Timber.e(e)
             LoadResult.Error(e)
         }
     }

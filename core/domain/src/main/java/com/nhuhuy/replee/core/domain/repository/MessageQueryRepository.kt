@@ -8,6 +8,11 @@ import kotlinx.coroutines.flow.Flow
 interface MessageQueryRepository {
     suspend fun getMessageListById(messageIds: List<String>): List<Message>
     suspend fun getNewestMessageInConversation(conversationId: String): Message?
+    fun observePinnedMessages(
+        conversationId: String,
+        currentUserId: String,
+    ): Flow<PagingData<Message>>
+
     fun observeLocalMessageWithPaging(
         anchorMessageId: String? = null,
         conversationId: String

@@ -6,7 +6,8 @@ sealed interface ChatEvent : UiEvent{
     data class NavigateToSearch(val conversationId: String, val otherUserId: String) : ChatEvent
     data class NavigateToPin(
         val conversationId: String,
-        val otherUserId: String
+        val otherUserId: String,
+        val currentUserId: String
     ) : ChatEvent
     data object NavigateBack : ChatEvent
 
