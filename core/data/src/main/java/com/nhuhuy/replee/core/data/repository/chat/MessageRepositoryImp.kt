@@ -8,6 +8,7 @@ import androidx.paging.map
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.paging_source.MessageRemoteMediator
 import com.nhuhuy.replee.core.data.paging_source.PinnedMessagePagingSource
+import com.nhuhuy.replee.core.data.paging_source.SearchedMessagePagingSource
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.database.LocalTransactionRunner
@@ -146,18 +147,24 @@ class MessageRepositoryImp @Inject constructor(
         }
     }
 
-    override fun observeLocalMessagesWithQuery(
+    override fun observeMessagesWithQuery(
+        currentUserId: String,
         conversationId: String,
         query: String
-    ): Flow<List<Message>> {
-        return messageLocalDataSource.observeMessagesWithQuery(
-            conversationId = conversationId,
-            query = query
-        ).map { entities ->
-            entities.map { entity ->
-                entity.toMessage()
-            }
-        }.flowOn(ioDispatcher)
+    ): Flow<PagingData<Message>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 20
+            )
+        ) {
+            SearchedMessagePagingSource(
+                currentUserId = currentUserId,
+                conversationId = conversationId,
+                searchQuery = query,
+                messageNetworkDataSource = messageNetworkDataSource,
+                conversationNetworkDataSource = conversationNetworkDataSource
+            )
+        }.flow
     }
 
     override suspend fun updatePinStatusMessage(

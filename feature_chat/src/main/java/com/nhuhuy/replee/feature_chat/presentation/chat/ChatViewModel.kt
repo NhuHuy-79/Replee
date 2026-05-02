@@ -353,7 +353,8 @@ class ChatViewModel @AssistedInject constructor(
                     onEvent(
                         NavigateToSearch(
                             conversationId = conversationId,
-                            otherUserId = otherUserId
+                            otherUserId = otherUserId,
+                            currentUserId = currentUserId
                         )
                     )
                 }

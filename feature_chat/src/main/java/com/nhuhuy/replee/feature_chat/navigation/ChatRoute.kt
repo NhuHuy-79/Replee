@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 fun ChatRoute(
     viewModel: ChatViewModel,
     onNavigateBack: () -> Unit,
-    onNavigateToSearch: (conversationId: String, otherUserId: String) -> Unit,
+    onNavigateToSearch: (conversationId: String, otherUserId: String, currentUserId: String) -> Unit,
     onNavigateToPin: (conversationId: String, otherUserId: String, currentUserId: String) -> Unit,
     onNavigateToInformation: (
         otherUserImg: String,
@@ -51,7 +51,8 @@ fun ChatRoute(
             ChatEvent.NavigateBack -> onNavigateBack()
             is ChatEvent.NavigateToSearch -> onNavigateToSearch(
                 event.conversationId,
-                event.otherUserId
+                event.otherUserId,
+                event.currentUserId
             )
 
             is ChatEvent.NavigateToPin -> onNavigateToPin(

@@ -45,6 +45,15 @@ interface MessageNetworkDataSource {
         afterTimestamp: Long?
     ): List<MessageDTO>
 
+    suspend fun fetchMessageByQuery(
+        currentUserId: String,
+        conversationId: String,
+        lastMessageId: String,
+        limit: Int,
+        afterTimestamp: Long?,
+        query: String
+    ): List<MessageDTO>
+
     suspend fun deleteMultipleMessage(messages: List<MessageDTO>)
     suspend fun pinMultipleMessage(messages: List<MessageDTO>, pinned: Boolean)
     suspend fun fetchMessagesInConversationByTimestamp(
@@ -143,7 +152,6 @@ class MessageNetworkDataSourceImp @Inject constructor(
             .await()
 
         if (snapshots.isEmpty) {
-            Timber.d("Không có tin nhắn nào cần cập nhật trạng thái.")
             return
         }
 
@@ -162,6 +170,47 @@ class MessageNetworkDataSourceImp @Inject constructor(
                 }.await()
             },
         )
+    }
+
+    override suspend fun fetchMessageByQuery(
+        currentUserId: String,
+        conversationId: String,
+        lastMessageId: String,
+        limit: Int,
+        afterTimestamp: Long?,
+        query: String
+    ): List<MessageDTO> {
+        var firestoreQuery: Query = collection.document(conversationId)
+            .collection(MESSAGE_SUBCOLLECTION)
+
+        firestoreQuery = firestoreQuery
+            .orderBy("content")
+            .orderBy("sendAt", Query.Direction.DESCENDING)
+            .orderBy(FieldPath.documentId(), Query.Direction.DESCENDING)
+            .startAt(query)
+            .endAt(query + "\uf8ff")
+            .limit(limit.toLong())
+
+        if (lastMessageId.isNotEmpty()) {
+            val lastDocument = collection.document(conversationId)
+                .collection(MESSAGE_SUBCOLLECTION)
+                .document(lastMessageId)
+                .get()
+                .await()
+
+            if (lastDocument.exists()) {
+                firestoreQuery = firestoreQuery.startAfter(lastDocument)
+            }
+        }
+
+        val snapshot = firestoreQuery.get().await()
+        val messages = snapshot.toObjects<MessageDTO>()
+
+        return if (afterTimestamp != null) {
+            messages.filter { (it.sendAt?.toMilliseconds() ?: 0L) > afterTimestamp }
+        } else {
+            messages
+        }
     }
 
     override suspend fun fetchPinnedMessageBefore(
@@ -482,17 +531,14 @@ class MessageNetworkDataSourceImp @Inject constructor(
             return emptyList()
         }
 
-        // 1. Lấy những tin cũ hơn hoặc bằng Anchor (Sắp xếp Giảm dần)
         val olderQuery = collection.document(conversationId)
             .collection(MESSAGE_SUBCOLLECTION)
-            /* .whereLessThanOrEqualTo("sendAt", anchor)*/
             .orderBy("sendAt", Query.Direction.DESCENDING)
             .orderBy(FieldPath.documentId(), Query.Direction.DESCENDING)
             .startAt(anchor, anchorMessageId)
             .limit(halfLimit.toLong())
             .get().await()
 
-        // 2. Lấy những tin mới hơn Anchor (Sắp xếp Tăng dần)
         val newerQuery = collection.document(conversationId)
             .collection(MESSAGE_SUBCOLLECTION)
             .orderBy("sendAt", Query.Direction.ASCENDING)

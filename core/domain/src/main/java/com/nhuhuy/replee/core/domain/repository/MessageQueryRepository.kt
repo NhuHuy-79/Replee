@@ -19,7 +19,11 @@ interface MessageQueryRepository {
     ): Flow<PagingData<LocalPathMessage>>
 
     fun observePinnedMessages(conversationId: String): Flow<List<Message>>
-    fun observeLocalMessagesWithQuery(conversationId: String, query: String): Flow<List<Message>>
+    fun observeMessagesWithQuery(
+        currentUserId: String,
+        conversationId: String,
+        query: String
+    ): Flow<PagingData<Message>>
     suspend fun getIndexOfMessage(conversationId: String, messageId: String): Int
     fun listenMessageChanges(conversationId: String): Flow<Unit>
 }

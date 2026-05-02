@@ -24,6 +24,7 @@ import kotlinx.serialization.Serializable
 sealed interface HomeDestination : NavKey {
     @Serializable
     data class ConversationList(val currentUserId: String) : HomeDestination
+
     @Serializable
     data class Chat(
         val currentUserId: String,
@@ -44,6 +45,7 @@ sealed interface HomeDestination : NavKey {
 
     @Serializable
     data class Search(
+        val currentUserId: String,
         val conversationId: String,
         val otherUserId: String
     ) : HomeDestination
@@ -100,11 +102,12 @@ fun EntryProviderScope<NavKey>.chatGraph(
         ChatRoute(
             viewModel = viewModel,
             onNavigateBack = { backstack.removeLastOrNull() },
-            onNavigateToSearch = { conversationId, otherUserId ->
+            onNavigateToSearch = { conversationId, otherUserId, currentUserId ->
                 backstack.add(
                     Search(
                         conversationId = conversationId,
-                        otherUserId = otherUserId
+                        otherUserId = otherUserId,
+                        currentUserId = currentUserId,
                     )
                 )
             },
@@ -162,7 +165,8 @@ fun EntryProviderScope<NavKey>.chatGraph(
             creationCallback = { factory: SearchViewModel.Factory ->
                 factory.create(
                     conversationId = screen.conversationId,
-                    otherUserId = screen.otherUserId
+                    otherUserId = screen.otherUserId,
+                    currentUserId = screen.currentUserId
                 )
             }
         )
@@ -170,8 +174,11 @@ fun EntryProviderScope<NavKey>.chatGraph(
         SearchRoute(
             otherUserId = screen.otherUserId,
             viewModel = searchViewModel,
-            onNavigateBack = { backstack.removeLastOrNull() },
-            onNavigateToMessage = { currentUserId, otherUserId, anchorSendAt, anchorMessageId ->
+            onNavigateBack = {
+                backstack.removeLastOrNull()
+            },
+            onNavigateToChat = { currentUserId, otherUserId, anchorSendAt, anchorMessageId ->
+                backstack.removeIf { key -> key is HomeDestination.Chat }
                 backstack.add(
                     HomeDestination.Chat(
                         currentUserId = currentUserId,
@@ -180,6 +187,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
                         anchorMessageId = anchorMessageId
                     )
                 )
+                backstack.removeIf { key -> key is Search }
             }
         )
     }
