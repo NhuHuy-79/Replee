@@ -41,7 +41,8 @@ interface MessageNetworkDataSource {
         currentUserId: String,
         conversationId: String,
         lastMessageId: String,
-        limit: Int
+        limit: Int,
+        afterTimestamp: Long?
     ): List<MessageDTO>
 
     suspend fun deleteMultipleMessage(messages: List<MessageDTO>)
@@ -167,7 +168,8 @@ class MessageNetworkDataSourceImp @Inject constructor(
         currentUserId: String,
         conversationId: String,
         lastMessageId: String,
-        limit: Int
+        limit: Int,
+        afterTimestamp: Long?
     ): List<MessageDTO> {
         var query = collection.document(conversationId)
             .collection(MESSAGE_SUBCOLLECTION)
@@ -183,6 +185,10 @@ class MessageNetworkDataSourceImp @Inject constructor(
                 .get()
                 .await()
             query = query.startAfter(lastDocument)
+        }
+
+        if (afterTimestamp != null) {
+            query = query.whereGreaterThan("sendAt", afterTimestamp)
         }
 
         val snapshot = query

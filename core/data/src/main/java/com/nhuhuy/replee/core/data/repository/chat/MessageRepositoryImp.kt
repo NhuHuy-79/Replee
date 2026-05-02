@@ -6,8 +6,8 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
-import com.nhuhuy.replee.core.data.MessageRemoteMediator
-import com.nhuhuy.replee.core.data.PinnedMessagePagingSource
+import com.nhuhuy.replee.core.data.paging_source.MessageRemoteMediator
+import com.nhuhuy.replee.core.data.paging_source.PinnedMessagePagingSource
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.database.LocalTransactionRunner
@@ -22,6 +22,7 @@ import com.nhuhuy.replee.core.model.chat.LocalPathMessage
 import com.nhuhuy.replee.core.model.chat.Message
 import com.nhuhuy.replee.core.model.chat.MessageStatus
 import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.network.data_source.ConversationNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.MessageNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.PagingMessageNetworkDataSource
 import com.nhuhuy.replee.core.network.mapper.toMessageDTO
@@ -44,6 +45,7 @@ class MessageRepositoryImp @Inject constructor(
     private val messageNetworkDataSource: MessageNetworkDataSource,
     private val pagingMessageNetworkDataSource: PagingMessageNetworkDataSource,
     private val conversationLocalDataSource: ConversationLocalDataSource,
+    private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val sessionManager: SessionManager,
 
 ) : MessageRepository {
@@ -96,12 +98,13 @@ class MessageRepositoryImp @Inject constructor(
         currentUserId: String
     ): Flow<PagingData<Message>> {
         return Pager(
-            config = PagingConfig(pageSize = 10)
+            config = PagingConfig(pageSize = 20),
         ) {
             PinnedMessagePagingSource(
                 conversationId = conversationId,
                 currentUserId = currentUserId,
-                messageNetworkDataSource = messageNetworkDataSource
+                messageNetworkDataSource = messageNetworkDataSource,
+                conversationNetworkDataSource = conversationNetworkDataSource
             )
         }.flow
     }

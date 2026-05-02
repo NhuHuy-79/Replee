@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.data
+package com.nhuhuy.replee.core.data.paging_source
 
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
@@ -9,10 +9,9 @@ import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.database.entity.file_path.MessageWithLocalPath
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
 import com.nhuhuy.replee.core.database.entity.pager.MessageRemoteKey
-import com.nhuhuy.replee.core.database.mapper.toMessage
 import com.nhuhuy.replee.core.database.mapper.toMessageEntity
 import com.nhuhuy.replee.core.network.data_source.PagingMessageNetworkDataSource
-import com.nhuhuy.replee.core.network.mapper.toMessage as toMessageNetwork
+import com.nhuhuy.replee.core.network.mapper.toMessage
 import timber.log.Timber
 
 @OptIn(ExperimentalPagingApi::class)
@@ -88,7 +87,7 @@ class MessageRemoteMediator(
             }
 
             val messageEntities: List<MessageEntity> = messageDTOList.map { messageDTO ->
-                messageDTO.toMessageNetwork(currentUserId = currentUserId).toMessageEntity()
+                messageDTO.toMessage(currentUserId = currentUserId).toMessageEntity()
             }
 
             val isDataEmpty = messageEntities.isEmpty()

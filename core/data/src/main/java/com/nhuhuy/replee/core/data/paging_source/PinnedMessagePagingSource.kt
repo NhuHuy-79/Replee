@@ -1,14 +1,16 @@
-package com.nhuhuy.replee.core.data
+package com.nhuhuy.replee.core.data.paging_source
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.nhuhuy.replee.core.model.chat.Message
+import com.nhuhuy.replee.core.network.data_source.ConversationNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.MessageNetworkDataSource
 import com.nhuhuy.replee.core.network.mapper.toMessage
 import timber.log.Timber
 
 class PinnedMessagePagingSource(
     private val messageNetworkDataSource: MessageNetworkDataSource,
+    private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val conversationId: String,
     private val currentUserId: String
 ) : PagingSource<String, Message>() {
@@ -19,12 +21,15 @@ class PinnedMessagePagingSource(
     override suspend fun load(params: LoadParams<String>): LoadResult<String, Message> {
         return try {
             val currentKey: String? = params.key
+            val afterTimestamp = conversationNetworkDataSource.fetchConversationById(conversationId)
+                ?.lastTimeDeleted[currentUserId]
             val pageSize = params.loadSize
             val messageDTOs = messageNetworkDataSource.fetchPinnedMessageBefore(
                 conversationId = conversationId,
                 currentUserId = currentUserId,
                 lastMessageId = currentKey.orEmpty(),
-                limit = pageSize
+                limit = pageSize,
+                afterTimestamp = afterTimestamp
             )
 
             val data = messageDTOs.map { messageDTO ->
