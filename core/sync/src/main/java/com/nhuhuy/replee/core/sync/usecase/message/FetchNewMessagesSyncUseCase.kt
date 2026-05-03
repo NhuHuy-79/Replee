@@ -1,7 +1,7 @@
-package com.nhuhuy.replee.core.sync.usecase
+package com.nhuhuy.replee.core.sync.usecase.message
 
-import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.domain.repository.MessageRepository
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import javax.inject.Inject
 
 class FetchNewMessagesSyncUseCase @Inject constructor(

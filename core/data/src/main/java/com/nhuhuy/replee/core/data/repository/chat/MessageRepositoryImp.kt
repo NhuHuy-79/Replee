@@ -25,6 +25,7 @@ import com.nhuhuy.replee.core.model.chat.MessageStatus
 import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.network.data_source.ConversationNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.MessageNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.NetworkTransactionRunner
 import com.nhuhuy.replee.core.network.data_source.PagingMessageNetworkDataSource
 import com.nhuhuy.replee.core.network.mapper.toMessageDTO
 import com.nhuhuy.replee.core.network.model.DataChange
@@ -42,6 +43,7 @@ class MessageRepositoryImp @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val localTransactionRunner: LocalTransactionRunner,
     private val coreDatabase: CoreDatabase,
+    private val networkTransactionRunner: NetworkTransactionRunner,
     private val messageLocalDataSource: MessageLocalDataSource,
     private val messageNetworkDataSource: MessageNetworkDataSource,
     private val pagingMessageNetworkDataSource: PagingMessageNetworkDataSource,
@@ -49,7 +51,7 @@ class MessageRepositoryImp @Inject constructor(
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val sessionManager: SessionManager,
 
-) : MessageRepository {
+    ) : MessageRepository {
 
     // --- CREATE / SEND---
 
@@ -61,8 +63,7 @@ class MessageRepositoryImp @Inject constructor(
                 conversationLocalDataSource.updateLastMessage(message = entity)
             }
             val dto = message.toMessageDTO().copy(status = MessageStatus.SYNCED)
-            messageNetworkDataSource.sendMessage(message = dto)
-
+            networkTransactionRunner.sendMessageAndUpdateConversation(dto)
             message.messageId
         }
     }
@@ -173,17 +174,12 @@ class MessageRepositoryImp @Inject constructor(
         pinned: Boolean
     ): NetworkResult<String> {
         return executeWithTimeout(ioDispatcher) {
-            messageLocalDataSource.updatePinStatus(
+            messageLocalDataSource.updatePinStatus(messageId = messageId, pinned = pinned)
+            networkTransactionRunner.pinMessageAndUpdateConversation(
                 messageId = messageId,
-                pinned = pinned
-            )
-
-            messageNetworkDataSource.updatePinStatus(
                 conversationId = conversationId,
-                messageId = messageId,
                 pinned = pinned
             )
-
             messageId
         }
     }

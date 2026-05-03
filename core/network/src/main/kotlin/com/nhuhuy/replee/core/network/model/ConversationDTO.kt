@@ -10,19 +10,16 @@ import com.nhuhuy.replee.core.model.chat.MessageType
 data class ConversationDTO(
     val id: String = "",
     val unReadMessages: Map<String, Int> = emptyMap(),
-
-    //Unchanged data
     val memberIds : List<String> = emptyList(),
+
     @ServerTimestamp
     val createdAt: Timestamp? = null,
-
     val lastMessageId: String = "",
     val lastMessageContent: String = "",
     val lastSenderId: String = "",
     val lastMessageTime: Timestamp? = null,
     val lastMessageType: MessageType = MessageType.TEXT,
     val lastDeletedMessageId: String? = null,
-
     val nickName: Map<String, String> = emptyMap(),
 
     @get:PropertyName("isMuted")
@@ -39,5 +36,8 @@ data class ConversationDTO(
 
     @get:PropertyName("isBlocked")
     val isBlocked: Map<String, Boolean> = emptyMap(),
+
+    @ServerTimestamp
+    val lastSynced: Timestamp? = null
 )
 

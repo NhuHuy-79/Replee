@@ -9,6 +9,10 @@ import com.nhuhuy.replee.core.network.data_source.MessageNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.MessageNetworkDataSourceImp
 import com.nhuhuy.replee.core.network.data_source.MetaDataNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.MetaDataNetworkDataSourceImpl
+import com.nhuhuy.replee.core.network.data_source.NetworkMultipleWriteRunner
+import com.nhuhuy.replee.core.network.data_source.NetworkMultipleWriteRunnerImpl
+import com.nhuhuy.replee.core.network.data_source.NetworkTransactionRunner
+import com.nhuhuy.replee.core.network.data_source.NetworkTransactionRunnerImpl
 import com.nhuhuy.replee.core.network.data_source.PagingMessageNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.PagingMessageNetworkDataSourceImp
 import com.nhuhuy.replee.core.network.data_source.PresenceNetworkDataSource
@@ -32,7 +36,6 @@ abstract class NetworkDataSourceModule {
     @Binds
     @Singleton
     abstract fun bindAccountNetworkDataSource(imp: AccountNetworkDataSourceImp): AccountNetworkDataSource
-
 
     @Binds
     @Singleton
@@ -66,4 +69,12 @@ abstract class NetworkDataSourceModule {
     @Binds
     @Singleton
     abstract fun bindProfileNetworkDataSource(imp: ProfileNetworkDataSourceImp): ProfileNetworkDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindNetworkTransactionRunner(impl: NetworkTransactionRunnerImpl): NetworkTransactionRunner
+
+    @Binds
+    @Singleton
+    abstract fun bindNetworkMultipleWriteRunner(impl: NetworkMultipleWriteRunnerImpl): NetworkMultipleWriteRunner
 }

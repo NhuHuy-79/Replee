@@ -1,14 +1,14 @@
-package com.nhuhuy.replee.core.sync.usecase
+package com.nhuhuy.replee.core.sync.usecase.message
 
 import com.nhuhuy.replee.core.domain.SessionManager
+import com.nhuhuy.replee.core.domain.repository.ConversationRepository
+import com.nhuhuy.replee.core.domain.repository.FileRepository
+import com.nhuhuy.replee.core.domain.repository.MessageRepository
+import com.nhuhuy.replee.core.domain.repository.PushNotificationRepository
+import com.nhuhuy.replee.core.model.chat.MessageStatus
 import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.model.error_handling.onFailure
 import com.nhuhuy.replee.core.model.error_handling.onSuccess
-import com.nhuhuy.replee.core.domain.repository.FileRepository
-import com.nhuhuy.replee.core.model.chat.MessageStatus
-import com.nhuhuy.replee.core.domain.repository.ConversationRepository
-import com.nhuhuy.replee.core.domain.repository.MessageRepository
-import com.nhuhuy.replee.core.domain.repository.PushNotificationRepository
 import javax.inject.Inject
 
 class SendFileSyncUseCase @Inject constructor(

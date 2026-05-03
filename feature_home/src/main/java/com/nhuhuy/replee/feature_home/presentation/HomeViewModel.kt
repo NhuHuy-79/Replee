@@ -11,8 +11,8 @@ import com.nhuhuy.replee.core.model.chat.Conversation
 import com.nhuhuy.replee.core.model.chat.SearchHistoryResult
 import com.nhuhuy.replee.core.model.error_handling.onFailure
 import com.nhuhuy.replee.core.model.error_handling.onSuccess
-import com.nhuhuy.replee.core.sync.usecase.SyncConversationUsersUseCase
-import com.nhuhuy.replee.core.sync.usecase.SyncConversationsUseCase
+import com.nhuhuy.replee.core.sync.usecase.conversation.SyncConversationUsersUseCase
+import com.nhuhuy.replee.core.sync.usecase.conversation.SyncConversationsUseCase
 import com.nhuhuy.replee.feature_home.domain.usecase.account.SetUserOnlineUseCase
 import com.nhuhuy.replee.feature_home.domain.usecase.account.UpdateCurrentAccountUseCase
 import com.nhuhuy.replee.feature_home.domain.usecase.conversation.GetSearchHistoryUseCase

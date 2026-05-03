@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.sync.usecase
+package com.nhuhuy.replee.core.sync.usecase.message
 
 import com.nhuhuy.replee.core.domain.repository.MessageRepository
 import kotlinx.coroutines.flow.Flow

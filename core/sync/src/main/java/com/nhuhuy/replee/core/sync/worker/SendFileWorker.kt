@@ -4,13 +4,13 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
-import com.nhuhuy.replee.core.sync.SyncManager
 import com.nhuhuy.replee.core.domain.worker.MESSAGE_ID_INPUT
-import com.nhuhuy.replee.core.model.chat.MessageStatus
-import com.nhuhuy.replee.core.sync.usecase.SendFileSyncUseCase
 import com.nhuhuy.replee.core.domain.worker.WorkerScheduler
+import com.nhuhuy.replee.core.model.chat.MessageStatus
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.sync.SyncManager
+import com.nhuhuy.replee.core.sync.usecase.message.SendFileSyncUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher

@@ -1,9 +1,9 @@
-package com.nhuhuy.replee.core.sync.usecase
+package com.nhuhuy.replee.core.sync.usecase.account
 
-import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.data.utils.flatMap
 import com.nhuhuy.replee.core.domain.repository.AccountRepository
 import com.nhuhuy.replee.core.domain.repository.FileRepository
-import com.nhuhuy.replee.core.data.utils.flatMap
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import javax.inject.Inject
 
 class UploadAvatarSyncUseCase @Inject constructor(
