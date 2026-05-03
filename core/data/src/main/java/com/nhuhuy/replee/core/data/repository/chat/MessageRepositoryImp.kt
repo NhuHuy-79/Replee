@@ -186,18 +186,6 @@ class MessageRepositoryImp @Inject constructor(
 
     // --- UPDATE  ---
 
-    override suspend fun pinMultipleRemoteMessage(
-        messages: List<Message>,
-        pinned: Boolean
-    ): NetworkResult<Unit> {
-        return executeWithTimeout(ioDispatcher) {
-            messageNetworkDataSource.pinMultipleMessage(
-                messages = messages.map { it.toMessageDTO() },
-                pinned = pinned
-            )
-        }
-    }
-
     override suspend fun updateRemoteUrlMessage(
         messageId: String,
         remoteUrl: String,
@@ -269,31 +257,12 @@ class MessageRepositoryImp @Inject constructor(
         }
     }
 
-    override suspend fun updateReactionMultiMessage(messages: List<Message>): NetworkResult<Unit> {
-        return executeWithTimeout(ioDispatcher) {
-            val currentUserId = sessionManager.getUserIdOrNull()
-            messageNetworkDataSource.updateReactionMultiMessage(
-                messages = messages.map { it.toMessageDTO(currentUserId) }
-            )
-        }
-    }
-
     // --- DELETE ---
 
     override suspend fun deleteMessage(message: Message): NetworkResult<String> {
         return executeWithTimeout(dispatcher = ioDispatcher) {
             messageLocalDataSource.deleteMessage(message.toMessageEntity())
             message.messageId
-        }
-    }
-
-    override suspend fun deleteMultipleMessage(messages: List<Message>): NetworkResult<Unit> {
-        return executeWithTimeout(ioDispatcher) {
-            messageLocalDataSource.deleteAllMessages(messages)
-            messageNetworkDataSource.deleteMultipleMessage(
-                messages = messages.map { message -> message.toMessageDTO() }
-            )
-
         }
     }
 

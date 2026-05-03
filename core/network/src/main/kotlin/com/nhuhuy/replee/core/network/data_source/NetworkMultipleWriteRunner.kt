@@ -11,6 +11,10 @@ interface NetworkMultipleWriteRunner {
     suspend fun deleteMessagesAndUpdateConversations(messageDTOs: List<MessageDTO>)
     suspend fun pinMessagesAndUpdateConversation(messageDTOs: List<MessageDTO>, pinned: Boolean)
     suspend fun sendMessagesAndUpdateConversation(messageDTOs: List<MessageDTO>)
+    suspend fun reactToMessageAndUpdateConversation(
+        messageDTOs: List<MessageDTO>,
+        currentUserId: String
+    )
 }
 
 class NetworkMultipleWriteRunnerImpl @Inject constructor(
@@ -65,6 +69,28 @@ class NetworkMultipleWriteRunnerImpl @Inject constructor(
                         "lastMessageContent" to messageDTO.content,
                         "lastSenderId" to messageDTO.senderId,
                         "lastMessageType" to messageDTO.type,
+                        "lastSync" to FieldValue.serverTimestamp()
+                    )
+                )
+            },
+        )
+    }
+
+    override suspend fun reactToMessageAndUpdateConversation(
+        messageDTOs: List<MessageDTO>,
+        currentUserId: String
+    ) {
+        firebaseFirestore.multipleRunBatch(
+            items = messageDTOs,
+            block = { messageDTO, transaction ->
+                val conversationRef = chatCollection.document(messageDTO.conversationId)
+                val messageRef =
+                    conversationRef.collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
+                        .document(messageDTO.messageId)
+                val reaction = messageDTO.reactions[currentUserId]
+                transaction.update(messageRef, "reactions.$currentUserId", reaction)
+                transaction.update(
+                    conversationRef, mapOf(
                         "lastSync" to FieldValue.serverTimestamp()
                     )
                 )

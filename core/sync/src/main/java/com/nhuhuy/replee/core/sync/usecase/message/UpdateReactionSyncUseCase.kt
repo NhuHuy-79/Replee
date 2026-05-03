@@ -6,10 +6,12 @@ import com.nhuhuy.replee.core.model.chat.ActionType
 import com.nhuhuy.replee.core.model.chat.Message
 import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.model.error_handling.onSuccess
+import com.nhuhuy.replee.core.sync.domain.MessageSyncRepository
 import javax.inject.Inject
 
 class UpdateReactionSyncUseCase @Inject constructor(
     private val messageRepository: MessageRepository,
+    private val messageSyncRepository: MessageSyncRepository,
     private val chatActionRepository: ChatActionRepository,
 ) {
     suspend operator fun invoke(): NetworkResult<Unit> {
@@ -20,7 +22,7 @@ class UpdateReactionSyncUseCase @Inject constructor(
         val messageIds: List<String> = messageActions.map { action -> action.targetId }.distinct()
         val messages: List<Message> = messageRepository.getMessageListById(messageIds)
 
-        return messageRepository.updateReactionMultiMessage(messages)
+        return messageSyncRepository.reactToMessages(messages)
             .onSuccess {
                 chatActionRepository.deleteMessageActionListById(
                     actionIds = messageActions.map { it.id }

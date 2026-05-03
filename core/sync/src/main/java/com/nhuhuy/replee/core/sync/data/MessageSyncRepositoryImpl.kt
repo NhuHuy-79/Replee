@@ -2,6 +2,7 @@ package com.nhuhuy.replee.core.sync.data
 
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
+import com.nhuhuy.replee.core.domain.SessionManager
 import com.nhuhuy.replee.core.model.chat.Message
 import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.network.data_source.NetworkMultipleWriteRunner
@@ -12,6 +13,7 @@ import javax.inject.Inject
 
 class MessageSyncRepositoryImpl @Inject constructor(
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val sessionManager: SessionManager,
     private val multipleWriteRunner: NetworkMultipleWriteRunner
 ) : MessageSyncRepository {
     override suspend fun deleteMessages(messages: List<Message>): NetworkResult<Unit> {
@@ -40,6 +42,15 @@ class MessageSyncRepositoryImpl @Inject constructor(
         return executeWithTimeout(dispatcher = ioDispatcher) {
             multipleWriteRunner.sendMessagesAndUpdateConversation(
                 messageDTOs = messages.map { message -> message.toMessageDTO() }
+            )
+        }
+    }
+
+    override suspend fun reactToMessages(messages: List<Message>): NetworkResult<Unit> {
+        return executeWithTimeout(dispatcher = ioDispatcher) {
+            multipleWriteRunner.reactToMessageAndUpdateConversation(
+                messageDTOs = messages.map { message -> message.toMessageDTO() },
+                currentUserId = sessionManager.getUserIdOrNull().orEmpty()
             )
         }
     }

@@ -29,13 +29,6 @@ interface MessageLocalDataSource {
     fun observeMessagesWithQuery(conversationId: String, query: String): Flow<List<MessageEntity>>
     fun observePinnedMessages(conversationId: String): Flow<List<MessageEntity>>
 
-    suspend fun getNewerMessages(senderId: String, sendAt: Long): List<MessageEntity>
-    suspend fun getOlderMessages(
-        conversationId: String,
-        sentAt: Long,
-        limit: Int
-    ): List<MessageEntity>
-
     // --- UPDATE ---
     suspend fun updatePinStatus(messageId: String, pinned: Boolean)
     suspend fun updateMessageStatus(status: MessageStatus, messageId: String)
@@ -43,11 +36,6 @@ interface MessageLocalDataSource {
     suspend fun updateSyncStatus(messageIds: List<String>, status: MessageStatus)
     suspend fun updateRemoteUrlMessage(messageIdWithUrl: Map<String, String>)
     suspend fun updateRemoteUrlMessage(messageId: String, remoteUrl: String, status: MessageStatus)
-    suspend fun updateMessageStatusInConversation(
-        conversationId: String,
-        receiverId: String,
-        status: MessageStatus
-    ): List<MessageEntity>
     suspend fun updateReactions(
         messageId: String,
         ownerReactions: List<String>,
@@ -57,7 +45,6 @@ interface MessageLocalDataSource {
     // --- DELETE ---
     suspend fun deleteMessage(message: MessageEntity)
     suspend fun deleteMessageByConversationId(limit: Int)
-    suspend fun deleteAllMessages(messages: List<Message>)
 }
 
 class MessageLocalDataSourceImp @Inject constructor(
@@ -87,18 +74,6 @@ class MessageLocalDataSourceImp @Inject constructor(
     }
 
     // --- READ ---
-
-    override suspend fun getNewerMessages(senderId: String, sendAt: Long): List<MessageEntity> {
-        return messageDao.getNewerMessages(senderId = senderId, sentAt = sendAt)
-    }
-
-    override suspend fun getOlderMessages(
-        conversationId: String,
-        sentAt: Long,
-        limit: Int
-    ): List<MessageEntity> {
-        return messageDao.getOlderMessages(conversationId, sentAt, limit)
-    }
 
 
     override suspend fun getIndexOfMessage(conversationId: String, messageId: String): Int {
@@ -198,28 +173,6 @@ class MessageLocalDataSourceImp @Inject constructor(
         )
     }
 
-    override suspend fun updateMessageStatusInConversation(
-        conversationId: String,
-        receiverId: String,
-        status: MessageStatus,
-    ): List<MessageEntity> {
-        return coreDatabase.withTransaction {
-            val list = messageDao.getMessageByStatus(
-                conversationId = conversationId,
-                status = status.name
-            )
-
-            if (list.isNotEmpty()) {
-                messageDao.updateMessageStatusInConversation(
-                    conversationId = conversationId,
-                    receiverId = receiverId,
-                    status = status.name
-                )
-            }
-            list
-        }
-    }
-
     override suspend fun updateReactions(
         messageId: String,
         ownerReactions: List<String>,
@@ -243,7 +196,4 @@ class MessageLocalDataSourceImp @Inject constructor(
     override suspend fun deleteMessageByConversationId(limit: Int) =
         messageDao.deleteMessageByConversationId(limit)
 
-    override suspend fun deleteAllMessages(messages: List<Message>) {
-        messageDao.deleteMessagesByIds(messages.map { it.messageId })
-    }
 }

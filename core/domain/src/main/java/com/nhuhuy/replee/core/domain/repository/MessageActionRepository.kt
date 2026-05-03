@@ -16,11 +16,6 @@ interface MessageActionRepository {
         pinned: Boolean
     ): NetworkResult<String>
 
-    suspend fun pinMultipleRemoteMessage(
-        messages: List<Message>,
-        pinned: Boolean
-    ): NetworkResult<Unit>
-
     suspend fun updateRemoteUrlMessage(
         messageId: String,
         remoteUrl: String,
@@ -41,11 +36,8 @@ interface MessageActionRepository {
         reaction: String
     ): NetworkResult<Unit>
 
-    suspend fun updateReactionMultiMessage(messages: List<Message>): NetworkResult<Unit>
-
     // --- DELETE ---
     suspend fun deleteMessage(message: Message): NetworkResult<String>
-    suspend fun deleteMultipleMessage(messages: List<Message>): NetworkResult<Unit>
 
     // --- SYNC / NETWORK ---
     suspend fun fetchMessagesByTimestamp(
