@@ -1,18 +1,18 @@
-package com.nhuhuy.replee.feature_chat.viewmodel
+package com.nhuhuy.replee.feature_home
 
-import com.nhuhuy.replee.core.model.account.Account
-import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.domain.usecase.GetCurrentAccountUseCase
 import com.nhuhuy.replee.core.domain.usecase.SearchAccountByEmailUseCase
-import com.nhuhuy.replee.core.test.MainDispatcherRule
-import com.nhuhuy.replee.feature_chat.domain.usecase.account.SetUserOnlineUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.account.UpdateCurrentAccountUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetSearchHistoryUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.ObserveLocalConversationListUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.SaveConversationListUseCase
+import com.nhuhuy.replee.core.model.account.Account
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.sync.usecase.SyncConversationUsersUseCase
 import com.nhuhuy.replee.core.sync.usecase.SyncConversationsUseCase
-import com.nhuhuy.replee.feature_chat.presentation.conversation.ConversationViewModel
+import com.nhuhuy.replee.core.test.MainDispatcherRule
+import com.nhuhuy.replee.feature_home.domain.usecase.account.SetUserOnlineUseCase
+import com.nhuhuy.replee.feature_home.domain.usecase.account.UpdateCurrentAccountUseCase
+import com.nhuhuy.replee.feature_home.domain.usecase.conversation.GetSearchHistoryUseCase
+import com.nhuhuy.replee.feature_home.domain.usecase.conversation.ObserveLocalConversationListUseCase
+import com.nhuhuy.replee.feature_home.domain.usecase.conversation.SaveConversationListUseCase
+import com.nhuhuy.replee.feature_home.presentation.HomeViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -72,7 +72,7 @@ class ConversationViewModelTest {
         coEvery { getCurrentAccountUseCase() } returns mockAccount
         coEvery { syncConversationUseCase(currentUserId, 20) } returns flowOf(Unit)
 
-        ConversationViewModel(
+        HomeViewModel(
             currentUserId = currentUserId,
             setUserOnlineUseCase = setUserOnlineUseCase,
             getSearchHistoryUseCase = getSearchHistoryUseCase,

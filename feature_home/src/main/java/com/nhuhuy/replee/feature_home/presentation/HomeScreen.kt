@@ -2,15 +2,11 @@
 
 package com.nhuhuy.replee.feature_home.presentation
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,27 +18,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalResources
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.common.base.ScreenState
 import com.nhuhuy.replee.core.model.chat.Conversation
 import com.nhuhuy.replee.core.model.chat.SearchHistoryResult
-import com.nhuhuy.replee.core.network.manager.NetworkStatus
 import com.nhuhuy.replee.core.presentation.ScreenStateHost
-import com.nhuhuy.replee.core.presentation.component.Banner
-import com.nhuhuy.replee.core.presentation.component.BoxContainer
 import com.nhuhuy.replee.feature_home.R
+import com.nhuhuy.replee.feature_home.presentation.component.ConversationList
+import com.nhuhuy.replee.feature_home.presentation.component.ConversationSearchBar
+import com.nhuhuy.replee.feature_home.presentation.component.NotificationPermissionHandler
 import com.nhuhuy.replee.feature_home.presentation.component.RetryScreen
 import com.nhuhuy.replee.feature_home.presentation.state.HomeAction
+import com.nhuhuy.replee.feature_home.presentation.state.HomeState
 
 @Composable
 fun HomeScreen(
-    networkStatus: NetworkStatus,
     conversationListState: ScreenState<List<Conversation>>,
-    state: com.nhuhuy.replee.feature_home.presentation.state.HomeState,
+    state: HomeState,
     searchHistory: List<SearchHistoryResult>,
     onAction: (HomeAction) -> Unit
-) = BoxContainer {
+) {
     val snackBarHost = remember { SnackbarHostState() }
     val localResource = LocalResources.current
     Scaffold(
@@ -52,16 +47,14 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    color = MaterialTheme.colorScheme.surface
-                )
+                .background(color = MaterialTheme.colorScheme.surface)
                 .padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
 
         ) {
 
-            _root_ide_package_.com.nhuhuy.replee.feature_home.presentation.component.NotificationPermissionHandler(
+            NotificationPermissionHandler(
                 onDeny = {
                     snackBarHost.showSnackbar(
                         message = localResource.getString(R.string.notification_permission_denied),
@@ -76,20 +69,7 @@ fun HomeScreen(
                 }
             )
 
-            AnimatedVisibility(
-                visible = networkStatus is NetworkStatus.Offline,
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                Banner(
-                    label = stringResource(R.string.network_failed),
-                    modifier = Modifier.fillMaxWidth(),
-                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
-                )
-            }
-
-            _root_ide_package_.com.nhuhuy.replee.feature_home.presentation.component.ConversationSearchBar(
+            ConversationSearchBar(
                 currentUser = state.currentUser,
                 state = state.searchState,
                 searchHistory = searchHistory,
@@ -118,7 +98,7 @@ fun HomeScreen(
             ScreenStateHost(
                 state = conversationListState,
                 success = { conversationList ->
-                    _root_ide_package_.com.nhuhuy.replee.feature_home.presentation.component.ConversationList(
+                    ConversationList(
                         conversationList = conversationList,
                         onConversationClick = { conversation ->
                             onAction(HomeAction.OnHomeClick(conversation))

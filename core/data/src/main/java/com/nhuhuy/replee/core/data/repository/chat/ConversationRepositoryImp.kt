@@ -1,6 +1,5 @@
 package com.nhuhuy.replee.core.data.repository.chat
 
-import com.nhuhuy.replee.core.common.utils.ApplicationCoroutineScope
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.mapper.createConversationDTO
 import com.nhuhuy.replee.core.data.mapper.toAccountEntity
@@ -22,7 +21,6 @@ import com.nhuhuy.replee.core.network.data_source.ConversationNetworkDataSource
 import com.nhuhuy.replee.core.network.mapper.toMessageDTO
 import com.nhuhuy.replee.core.network.model.DataChange
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
@@ -33,8 +31,7 @@ import javax.inject.Inject
 import com.nhuhuy.replee.core.network.mapper.toConversation as toConversationNetwork
 
 class ConversationRepositoryImp @Inject constructor(
-    @ApplicationCoroutineScope private val externalScope: CoroutineScope,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val sessionManager: SessionManager,
     private val accountLocalDataSource: AccountLocalDataSource,
     private val accountNetworkDataSource: AccountNetworkDataSource,
@@ -102,7 +99,6 @@ class ConversationRepositoryImp @Inject constructor(
 
     override fun observeLocalConversationList(ownerId: String): Flow<List<Conversation>> {
         return conversationLocalDataSource.observeConversationAndUsers(ownerId)
-            .distinctUntilChanged()
             .map { entities ->
                 Timber.d("Entities: ${entities.size}")
                 entities.map { entity -> entity.toConversation() }

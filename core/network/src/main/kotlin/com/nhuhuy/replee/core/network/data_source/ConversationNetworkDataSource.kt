@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.core.network.data_source
 
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -12,7 +13,6 @@ import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.core.network.model.MessageDTO
 import com.nhuhuy.replee.core.network.model.observeMultipleDataChanges
 import com.nhuhuy.replee.core.network.utils.optimizedWrite
-import com.nhuhuy.replee.core.network.utils.toMilliseconds
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -195,8 +195,7 @@ class ConversationNetworkDataSourceImp @Inject constructor(
         val data = mapOf(
             "lastMessageId" to messageDTO.messageId,
             "lastMessageContent" to messageDTO.content,
-            "lastMessageTime" to (messageDTO.sendAt?.toMilliseconds()
-                ?: System.currentTimeMillis()),
+            "lastMessageTime" to (messageDTO.sendAt ?: Timestamp.now()),
             "lastSenderId" to messageDTO.senderId,
             "lastMessageType" to messageDTO.type.name,
             "unReadMessages.${messageDTO.receiverId}" to FieldValue.increment(1)

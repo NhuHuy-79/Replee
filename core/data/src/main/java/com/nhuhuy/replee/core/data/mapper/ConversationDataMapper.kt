@@ -1,9 +1,11 @@
 package com.nhuhuy.replee.core.data.mapper
 
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.nhuhuy.replee.core.database.entity.conversation.ConversationAndUser
 import com.nhuhuy.replee.core.model.chat.MessageType
 import com.nhuhuy.replee.core.network.model.ConversationDTO
+import java.util.Date
 
 //Create new object to upload
 fun ConversationAndUser.createConversationDTO(): ConversationDTO {
@@ -15,7 +17,7 @@ fun ConversationAndUser.createConversationDTO(): ConversationDTO {
         ),
         lastMessageId = conversation.lastMessageId,
         lastSenderId = conversation.lastSenderId,
-        lastMessageTime = conversation.lastMessageTime,
+        lastMessageTime = conversation.lastMessageTime?.let { Timestamp(Date(it)) },
         lastMessageContent = conversation.lastMessageContent,
         lastMessageType = MessageType.valueOf(conversation.lastMessageType),
         lastDeletedMessageId = conversation.lastDeletedMessageId,

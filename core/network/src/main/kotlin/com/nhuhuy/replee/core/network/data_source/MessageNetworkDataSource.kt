@@ -237,7 +237,7 @@ class MessageNetworkDataSourceImp @Inject constructor(
         }
 
         if (afterTimestamp != null) {
-            query = query.whereGreaterThan("sendAt", afterTimestamp)
+            query = query.whereGreaterThan("sendAt", Timestamp(Date(afterTimestamp)))
         }
 
         val snapshot = query

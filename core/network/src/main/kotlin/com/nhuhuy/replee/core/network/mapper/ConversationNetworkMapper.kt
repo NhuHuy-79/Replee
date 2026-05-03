@@ -1,10 +1,12 @@
 package com.nhuhuy.replee.core.network.mapper
 
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.nhuhuy.replee.core.model.chat.Conversation
 import com.nhuhuy.replee.core.model.chat.MessageType
 import com.nhuhuy.replee.core.network.model.ConversationDTO
 import com.nhuhuy.replee.core.network.utils.toMilliseconds
+import java.util.Date
 
 //Create new object to upload
 fun createConversationDTO(
@@ -34,7 +36,7 @@ fun createConversationDTO(
         ),
         lastMessageId = lastMessageId,
         lastSenderId = lastSenderId,
-        lastMessageTime = lastMessageTime,
+        lastMessageTime = lastMessageTime?.let { Timestamp(Date(it)) },
         lastMessageContent = lastMessageContent,
         lastMessageType = MessageType.valueOf(lastMessageType),
         lastDeletedMessageId = lastDeletedMessageId,
@@ -109,7 +111,7 @@ fun ConversationDTO.toConversation(
         lastMessageId = lastMessageId,
         lastMessageContent = lastMessageContent,
         lastSenderId = lastSenderId,
-        lastMessageTime = lastMessageTime,
+        lastMessageTime = lastMessageTime?.toMilliseconds(),
         lastMessageType = lastMessageType,
         lastDeletedMessageId = lastDeletedMessageId,
         unreadMessageCount = unReadMessages[ownerId] ?: 0,
