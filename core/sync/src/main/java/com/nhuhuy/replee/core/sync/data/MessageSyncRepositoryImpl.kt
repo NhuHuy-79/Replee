@@ -5,7 +5,7 @@ import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.domain.SessionManager
 import com.nhuhuy.replee.core.model.chat.Message
 import com.nhuhuy.replee.core.model.error_handling.NetworkResult
-import com.nhuhuy.replee.core.network.data_source.NetworkMultipleWriteRunner
+import com.nhuhuy.replee.core.network.data_source.transaction.NetworkMultipleWriteRunner
 import com.nhuhuy.replee.core.network.mapper.toMessageDTO
 import com.nhuhuy.replee.core.sync.domain.MessageSyncRepository
 import kotlinx.coroutines.CoroutineDispatcher

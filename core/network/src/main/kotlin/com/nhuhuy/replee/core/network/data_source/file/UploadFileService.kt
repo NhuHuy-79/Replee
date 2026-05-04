@@ -1,5 +1,4 @@
-package com.nhuhuy.replee.core.network.data_source
-
+package com.nhuhuy.replee.core.network.data_source.file
 
 import com.nhuhuy.replee.core.model.UploadFileState
 import kotlinx.coroutines.flow.Flow
@@ -15,5 +14,3 @@ interface UploadFileService {
     suspend fun uploadImageWithUriPath(uriPath: String): String
     fun observeUploadFile(uriPath: String): Flow<UploadFileState>
 }
-
-

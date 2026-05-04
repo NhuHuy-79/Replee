@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.network.data_source
+package com.nhuhuy.replee.core.network.data_source.conversation
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldPath

@@ -16,8 +16,8 @@ import com.nhuhuy.replee.core.model.chat.Conversation
 import com.nhuhuy.replee.core.model.chat.Message
 import com.nhuhuy.replee.core.model.chat.MessageType
 import com.nhuhuy.replee.core.model.error_handling.NetworkResult
-import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.network.data_source.ConversationNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.account.AccountNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.core.network.mapper.toMessageDTO
 import com.nhuhuy.replee.core.network.model.DataChange
 import kotlinx.coroutines.CoroutineDispatcher

@@ -3,8 +3,8 @@ package com.nhuhuy.replee.core.data.paging_source
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.nhuhuy.replee.core.model.chat.Message
-import com.nhuhuy.replee.core.network.data_source.ConversationNetworkDataSource
-import com.nhuhuy.replee.core.network.data_source.MessageNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.conversation.ConversationNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.message.MessageNetworkDataSource
 import com.nhuhuy.replee.core.network.mapper.toMessage
 import timber.log.Timber
 

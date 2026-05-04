@@ -1,10 +1,10 @@
 package com.nhuhuy.replee.core.data.repository
 
-import com.nhuhuy.replee.core.model.error_handling.NetworkResult
-import com.nhuhuy.replee.core.domain.repository.PresenceRepository
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
-import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
-import com.nhuhuy.replee.core.network.data_source.PresenceNetworkDataSource
+import com.nhuhuy.replee.core.domain.repository.PresenceRepository
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.network.data_source.account.AccountNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.account.PresenceNetworkDataSource
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

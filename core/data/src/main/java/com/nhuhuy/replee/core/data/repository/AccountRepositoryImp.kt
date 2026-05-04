@@ -13,7 +13,7 @@ import com.nhuhuy.replee.core.domain.repository.AccountRepository
 import com.nhuhuy.replee.core.model.account.Account
 import com.nhuhuy.replee.core.model.chat.SearchHistoryResult
 import com.nhuhuy.replee.core.model.error_handling.NetworkResult
-import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.account.AccountNetworkDataSource
 import com.nhuhuy.replee.core.network.model.AccountDTO
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -66,7 +66,7 @@ class AccountRepositoryImp @Inject constructor(
                 accountLocalDataSource.updateDeviceToken(uid = uid, token = token)
                 accountNetworkDataSource.updateDeviceToken(uid, token)
             }
-            Timber.Forest.e("Uid is nullable, need to work manager!")
+            Timber.e("Uid is nullable, need to work manager!")
         }
     }
 
@@ -127,7 +127,7 @@ class AccountRepositoryImp @Inject constructor(
     ): Flow<Boolean> {
         return accountLocalDataSource.observeBlockStatus(block)
             .map { list ->
-                Timber.Forest.d("$list")
+                Timber.d("$list")
                 list.contains(isBlocked)
             }
     }
@@ -140,7 +140,7 @@ class AccountRepositoryImp @Inject constructor(
             }
             user.blockedList.contains(owner)
         } catch (e: Exception) {
-            Timber.Forest.e(e)
+            Timber.e(e)
             false
         }
     }

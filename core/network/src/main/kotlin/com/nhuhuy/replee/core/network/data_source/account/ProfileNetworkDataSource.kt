@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.network.data_source
+package com.nhuhuy.replee.core.network.data_source.account
 
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth

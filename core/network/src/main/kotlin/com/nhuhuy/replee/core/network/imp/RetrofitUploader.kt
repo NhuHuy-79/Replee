@@ -4,7 +4,7 @@ import android.webkit.MimeTypeMap
 import com.nhuhuy.replee.core.model.UploadFileState
 import com.nhuhuy.replee.core.network.BuildConfig
 import com.nhuhuy.replee.core.network.api.cloudinary.CloudinaryApi
-import com.nhuhuy.replee.core.network.data_source.UploadFileService
+import com.nhuhuy.replee.core.network.data_source.file.UploadFileService
 import kotlinx.coroutines.flow.Flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody

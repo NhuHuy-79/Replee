@@ -14,7 +14,7 @@ import com.nhuhuy.replee.core.model.UploadFileState
 import com.nhuhuy.replee.core.model.chat.FilePath
 import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.model.validate.ValidateFileResult
-import com.nhuhuy.replee.core.network.data_source.UploadFileService
+import com.nhuhuy.replee.core.network.data_source.file.UploadFileService
 import com.nhuhuy.replee.core.network.quailify.Retrofit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher

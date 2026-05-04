@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.network.data_source
+package com.nhuhuy.replee.core.network.data_source.message
 
 import com.google.firebase.messaging.FirebaseMessaging
 import com.nhuhuy.replee.core.network.api.fcm.ConversationNotificationRequest

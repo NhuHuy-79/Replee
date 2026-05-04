@@ -10,8 +10,8 @@ import com.nhuhuy.replee.core.database.entity.file_path.MessageWithLocalPath
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
 import com.nhuhuy.replee.core.database.entity.pager.MessageRemoteKey
 import com.nhuhuy.replee.core.database.mapper.toMessageEntity
-import com.nhuhuy.replee.core.network.data_source.ConversationNetworkDataSource
-import com.nhuhuy.replee.core.network.data_source.PagingMessageNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.conversation.ConversationNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.message.PagingMessageNetworkDataSource
 import com.nhuhuy.replee.core.network.mapper.toMessage
 import com.nhuhuy.replee.core.network.utils.toMilliseconds
 import kotlinx.coroutines.withTimeout

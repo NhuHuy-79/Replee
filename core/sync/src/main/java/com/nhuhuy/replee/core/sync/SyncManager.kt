@@ -1,19 +1,19 @@
 package com.nhuhuy.replee.core.sync
 
+import com.nhuhuy.replee.core.common.utils.IoDispatcher
+import com.nhuhuy.replee.core.data.mapper.toUpdatePatch
+import com.nhuhuy.replee.core.data.utils.execute
 import com.nhuhuy.replee.core.database.data_source.ConversationLocalDataSource
 import com.nhuhuy.replee.core.database.data_source.MessageLocalDataSource
-import com.nhuhuy.replee.core.network.data_source.ConversationNetworkDataSource
-import com.nhuhuy.replee.core.network.data_source.MessageNetworkDataSource
-import com.nhuhuy.replee.core.network.data_source.UploadFileService
-import com.nhuhuy.replee.core.network.quailify.Retrofit
 import com.nhuhuy.replee.core.database.mapper.toMessage
-import com.nhuhuy.replee.core.network.mapper.toMessageDTO
-import com.nhuhuy.replee.core.data.mapper.toUpdatePatch
 import com.nhuhuy.replee.core.model.chat.MessageStatus
 import com.nhuhuy.replee.core.model.chat.MessageType
 import com.nhuhuy.replee.core.model.error_handling.NetworkResult
-import com.nhuhuy.replee.core.common.utils.IoDispatcher
-import com.nhuhuy.replee.core.data.utils.execute
+import com.nhuhuy.replee.core.network.data_source.conversation.ConversationNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.file.UploadFileService
+import com.nhuhuy.replee.core.network.data_source.message.MessageNetworkDataSource
+import com.nhuhuy.replee.core.network.mapper.toMessageDTO
+import com.nhuhuy.replee.core.network.quailify.Retrofit
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

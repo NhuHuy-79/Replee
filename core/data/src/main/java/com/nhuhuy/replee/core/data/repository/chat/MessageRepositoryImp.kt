@@ -23,10 +23,10 @@ import com.nhuhuy.replee.core.model.chat.LocalPathMessage
 import com.nhuhuy.replee.core.model.chat.Message
 import com.nhuhuy.replee.core.model.chat.MessageStatus
 import com.nhuhuy.replee.core.model.error_handling.NetworkResult
-import com.nhuhuy.replee.core.network.data_source.ConversationNetworkDataSource
-import com.nhuhuy.replee.core.network.data_source.MessageNetworkDataSource
-import com.nhuhuy.replee.core.network.data_source.NetworkTransactionRunner
-import com.nhuhuy.replee.core.network.data_source.PagingMessageNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.conversation.ConversationNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.message.MessageNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.message.PagingMessageNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.transaction.NetworkTransactionRunner
 import com.nhuhuy.replee.core.network.mapper.toMessageDTO
 import com.nhuhuy.replee.core.network.model.DataChange
 import kotlinx.coroutines.CoroutineDispatcher
