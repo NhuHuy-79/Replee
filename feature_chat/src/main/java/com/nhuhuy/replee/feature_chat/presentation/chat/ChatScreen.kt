@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.paging.compose.LazyPagingItems
 import com.nhuhuy.replee.core.common.utils.showLongToast
-import com.nhuhuy.replee.core.model.chat.LocalPathMessage
 import com.nhuhuy.replee.core.presentation.component.Banner
 import com.nhuhuy.replee.core.presentation.launcher.rememberCameraRequestPicker
 import com.nhuhuy.replee.feature_chat.R
@@ -53,6 +52,7 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.Messag
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageScreen
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.MessageUiModel
 import kotlinx.coroutines.delay
 import timber.log.Timber
 
@@ -61,7 +61,7 @@ import timber.log.Timber
 fun ChatScreen(
     otherUserReadTime: Long,
     typingUsers: List<String>,
-    pagedMessages: LazyPagingItems<LocalPathMessage>,
+    pagedMessages: LazyPagingItems<MessageUiModel>,
     blocked: Boolean,
     state: ChatState,
     onAction: (ChatAction) -> Unit,
@@ -153,6 +153,7 @@ fun ChatScreen(
                 )
             } else {
                 MessageScreen(
+                    uiState = state,
                     anchorMessagePosition = state.messagePosition,
                     anchorMessageId = state.messageAnchorId,
                     recipientReadAt = otherUserReadTime,

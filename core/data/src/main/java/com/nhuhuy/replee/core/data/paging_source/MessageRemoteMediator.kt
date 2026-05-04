@@ -13,10 +13,7 @@ import com.nhuhuy.replee.core.database.mapper.toMessageEntity
 import com.nhuhuy.replee.core.network.data_source.conversation.ConversationNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.message.PagingMessageNetworkDataSource
 import com.nhuhuy.replee.core.network.mapper.toMessage
-import com.nhuhuy.replee.core.network.utils.toMilliseconds
-import kotlinx.coroutines.withTimeout
 import timber.log.Timber
-import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalPagingApi::class)
 class MessageRemoteMediator(
@@ -32,25 +29,25 @@ class MessageRemoteMediator(
     private val conversationDao = coreDatabase.provideConversationDao()
     private val remoteKeyDao = coreDatabase.provideMessageRemoteKeyDao()
 
-    override suspend fun initialize(): InitializeAction {
-        return try {
-            val conversationAndUser = conversationDao.getConversationById(conversationId)
-            val lastSynced = conversationAndUser?.conversation?.lastTimeSynced ?: 0
-            val now = withTimeout(1.5.seconds) {
-                conversationNetworkDataSource.fetchConversationById(conversationId)?.lastSynced?.toMilliseconds()
-                    ?: 0
-            }
-            if (lastSynced < now) {
+    /*  override suspend fun initialize(): InitializeAction {
+          return try {
+              val conversationAndUser = conversationDao.getConversationById(conversationId)
+              val lastSynced = conversationAndUser?.conversation?.lastTimeSynced ?: 0
+              val now = withTimeout(1.5.seconds) {
+                  conversationNetworkDataSource.fetchConversationById(conversationId)?.lastSynced?.toMilliseconds()
+                      ?: 0
+              }
+              if (lastSynced < now) {
 
-                InitializeAction.LAUNCH_INITIAL_REFRESH
-            } else {
-                InitializeAction.SKIP_INITIAL_REFRESH
-            }
-        } catch (e: Exception) {
-            Timber.e(e)
-            InitializeAction.SKIP_INITIAL_REFRESH
-        }
-    }
+                  InitializeAction.LAUNCH_INITIAL_REFRESH
+              } else {
+                  InitializeAction.SKIP_INITIAL_REFRESH
+              }
+          } catch (e: Exception) {
+              Timber.e(e)
+              InitializeAction.SKIP_INITIAL_REFRESH
+          }
+      }*/
 
     override suspend fun load(
         loadType: LoadType,

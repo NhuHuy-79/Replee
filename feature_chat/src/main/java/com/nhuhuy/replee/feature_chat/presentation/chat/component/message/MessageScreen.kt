@@ -7,15 +7,12 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
-import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
@@ -36,23 +33,23 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
-import com.nhuhuy.replee.core.common.utils.formatToChatTime
-import com.nhuhuy.replee.core.design_system.component.UserImage
-import com.nhuhuy.replee.core.model.chat.LocalPathMessage
-import com.nhuhuy.replee.core.model.chat.MessageType
 import com.nhuhuy.replee.core.presentation.animation.slideInVerticallyAnimation
 import com.nhuhuy.replee.core.presentation.animation.slideOutVerticallyAnimation
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.StatusContent
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.TypingAnimatedIndicator
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.emote.EmoteFlowRow
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.message_bubble.MessageBubbleItem
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.MessagePosition
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.MessageUiModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 
 @OptIn(FlowPreview::class)
 @Composable
 fun MessageScreen(
+    uiState: ChatState,
     modifier: Modifier = Modifier,
     anchorMessageId: String?,
     anchorMessagePosition: Int = 1,
@@ -63,7 +60,7 @@ fun MessageScreen(
     otherUserName: String,
     onAction: (ChatAction) -> Unit,
     currentUserId: String,
-    pagingItems: LazyPagingItems<LocalPathMessage>,
+    pagingItems: LazyPagingItems<MessageUiModel>,
 ) {
     val scope = rememberCoroutineScope()
     val isAtBottom by remember {
@@ -105,7 +102,7 @@ fun MessageScreen(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState,
             reverseLayout = true,
-            verticalArrangement = Arrangement.spacedBy(10.dp, alignment = Alignment.Bottom)
+            verticalArrangement = Arrangement.spacedBy(4.dp, alignment = Alignment.Bottom)
         ) {
             item {
                 TypingAnimatedIndicator(
@@ -118,95 +115,96 @@ fun MessageScreen(
 
             items(
                 count = pagingItems.itemCount,
-                key = pagingItems.itemKey { item -> item.message.messageId },
+                key = pagingItems.itemKey { item ->
+                    when (item) {
+                        is MessageUiModel.MessageItem -> item.message.message.messageId
+                        is MessageUiModel.DateSeparator -> item.date
+                    }
+                },
+                contentType = pagingItems.itemContentType { item ->
+                    when (item) {
+                        is MessageUiModel.MessageItem -> item.message.message.type
+                        is MessageUiModel.DateSeparator -> "date"
+                    }
+                }
             ) { index ->
-                val messageData = pagingItems[index] ?: return@items
-                val isCurrentUser = messageData.message.senderId == currentUserId
-                val isAnchor = messageData.message.messageId == anchorMessageId
-                val replyTo =
-                    if (messageData.message.repliedMessageSenderId == currentUserId) "You"
-                    else otherUserName
-                MessageLayout(
-                    modifier = Modifier,
-                    isCurrentUser = isCurrentUser,
-                    userImage = {
-                        UserImage(
-                            userName = otherUserName,
-                            photoUrl = otherUserImg,
-                            modifier = Modifier.size(36.dp)
-                        )
-                    },
-                    extraContent = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = messageData.message.sentAt.formatToChatTime(),
-                                style = MaterialTheme.typography.labelSmall
-                            )
-
-                            if (messageData.message.pinned) {
-                                Icon(
-                                    imageVector = Icons.Rounded.PushPin,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(12.dp)
-                                )
+                when (val item = pagingItems[index]) {
+                    is MessageUiModel.MessageItem -> {
+                        val olderItem =
+                            if (index < pagingItems.itemCount - 1) pagingItems.peek(index + 1) else null
+                        val newerItem = if (index > 0) pagingItems.peek(index - 1) else null
+                        val isFirstInGroup = when (olderItem) {
+                            is MessageUiModel.DateSeparator -> true
+                            is MessageUiModel.MessageItem -> {
+                                val isDifferentSender =
+                                    olderItem.message.message.senderId != item.message.message.senderId
+                                val isFarApart =
+                                    (item.message.message.sentAt - olderItem.message.message.sentAt) > 600_000L
+                                isDifferentSender || isFarApart
                             }
+
+                            null -> true
                         }
-                    },
-                    reactionContent = {
-                        val allReactions =
-                            messageData.message.ownerReactions + messageData.message.otherUserReactions
-                        EmoteFlowRow(
+
+                        val isLastInGroup = when (newerItem) {
+                            is MessageUiModel.DateSeparator -> true
+                            is MessageUiModel.MessageItem -> {
+                                val isDifferentSender =
+                                    newerItem.message.message.senderId != item.message.message.senderId
+                                val isFarApart =
+                                    (newerItem.message.message.sentAt - item.message.message.sentAt) > 600_000L
+                                isDifferentSender || isFarApart
+                            }
+
+                            null -> true
+                        }
+                        val position = when {
+                            isFirstInGroup && isLastInGroup -> MessagePosition.SINGLE
+                            isFirstInGroup -> MessagePosition.START
+                            isLastInGroup -> MessagePosition.END
+                            else -> MessagePosition.MIDDLE
+                        }
+
+                        val isLastInScreen = index == 0
+
+                        MessageBubbleItem(
+                            readingTime = recipientReadAt,
+                            uiState = uiState,
+                            item = item.message,
+                            onReplyContentClick = {
+                                //On Scroll to Reply Message
+
+                            },
+                            onTextMessageClick = {
+                                //OnMessageClick
+                            },
+                            onImageMessageClick = { message ->
+                                onAction(ChatAction.OnImagePress(message.remoteUrl.orEmpty()))
+                            },
+                            onMessageLongClick = {
+                                onAction(ChatAction.OnMessageLongPress(message = item.message.message))
+                            },
                             onReactionClick = { reaction ->
                                 onAction(
-                                    ChatAction.OnMessageReactionClick(
+                                    ChatAction.OnReactionDelete(
                                         reaction = reaction,
-                                        messageId = messageData.message.messageId
+                                        messageId = item.message.message.messageId
                                     )
                                 )
                             },
                             modifier = Modifier,
-                            reactions = allReactions,
-                        )
-                    },
-                    statusContent = {
-                        StatusContent(
-                            otherUserReadingTime = recipientReadAt,
-                            message = messageData.message,
-                            receiverImageUrl = otherUserImg,
-                            receiverName = otherUserName,
-                        )
-                    },
-                    messageContent = {
-                        MessageContainer(
-                            isAnchor = isAnchor,
-                            replyTo = replyTo,
-                            messageItem = messageData,
-                            isCurrentUser = isCurrentUser,
-                            onClick = {
-                                when (messageData.message.type) {
-                                    MessageType.TEXT -> {
-
-                                    }
-                                    MessageType.IMAGE -> {
-                                        onAction(
-                                            ChatAction.OnImagePress(
-                                                urlKey = messageData.localPath
-                                                    ?: messageData.message.remoteUrl.orEmpty(),
-                                            )
-                                        )
-                                    }
-                                }
-                            },
-                            onLongClick = {
-                                onAction(ChatAction.OnMessageLongPress(message = messageData.message))
-                            }
+                            isLastInGroup = isLastInGroup,
+                            isLastInScreen = isLastInScreen,
+                            position = position
                         )
                     }
-                )
+
+                    is MessageUiModel.DateSeparator -> {
+                        DateHeader(date = item.date)
+                    }
+
+                    null -> {}
+                }
             }
 
         }
@@ -242,8 +240,8 @@ fun MessageScreen(
                     }
                 },
                 colors = IconButtonDefaults.iconButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
             ) {
                 Icon(
@@ -252,6 +250,22 @@ fun MessageScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun DateHeader(date: String, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(vertical = 16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = date,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.outline
+        )
     }
 }
 
