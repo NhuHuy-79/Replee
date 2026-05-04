@@ -22,5 +22,6 @@ data class Conversation(
     val pinned: Boolean = false,
     val blocked: Boolean = false,
     val deleted: Boolean = false,
-    val lastTimeDeleted: Long? = null
+    val lastTimeDeleted: Long? = null,
+    val lastSyncedTime: Long? = null,
 )

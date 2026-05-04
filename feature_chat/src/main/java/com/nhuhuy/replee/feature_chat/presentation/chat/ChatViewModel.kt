@@ -9,7 +9,7 @@ import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.utils.ApplicationCoroutineScope
 import com.nhuhuy.replee.core.domain.usecase.GetAccountByIdUseCase
 import com.nhuhuy.replee.core.model.validate.ValidateFileResult
-import com.nhuhuy.replee.core.sync.usecase.message.SyncMessageUseCase
+import com.nhuhuy.replee.core.sync.domain.usecase.message.SyncMessageUseCase
 import com.nhuhuy.replee.feature_chat.data.NotificationManager
 import com.nhuhuy.replee.feature_chat.domain.usecase.GetConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.CheckBlockUseCase

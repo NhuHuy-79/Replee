@@ -54,6 +54,8 @@ data class ConversationEntity(
     val otherUserImg: String = "",
     @ColumnInfo(name = "ownerImg", defaultValue = "")
     val ownerImg: String = "",
+    @ColumnInfo(name = "lastSyncedTime", defaultValue = "null")
+    val lastTimeSynced: Long? = null
     )
 
 data class ConversationAndUser(

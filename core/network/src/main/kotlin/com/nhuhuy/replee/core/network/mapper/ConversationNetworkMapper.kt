@@ -120,5 +120,6 @@ fun ConversationDTO.toConversation(
         blocked = isBlocked[ownerId] ?: false,
         muted = isMuted[ownerId] ?: false,
         pinned = isPinned[ownerId] ?: false,
+        lastSyncedTime = lastSynced?.toMilliseconds()
     )
 }

@@ -13,9 +13,7 @@ import com.nhuhuy.replee.core.network.model.DataChange
 import com.nhuhuy.replee.core.network.model.MessageDTO
 import com.nhuhuy.replee.core.network.model.observeMultipleDataChanges
 import com.nhuhuy.replee.core.network.utils.optimizedWrite
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import javax.inject.Inject
@@ -28,7 +26,6 @@ interface ConversationNetworkDataSource {
     suspend fun fetchConversationsByUser(uid: String): List<ConversationDTO>
     suspend fun fetchConversationById(conversationId: String): ConversationDTO?
     suspend fun fetchConversationByIdOrThrow(conversationId: String): ConversationDTO
-    suspend fun sendConversations(conversationDTOList: List<ConversationDTO>)
     suspend fun updateNicknameForUser(
         uid: String,
         nickName: String,
@@ -36,12 +33,9 @@ interface ConversationNetworkDataSource {
     )
 
     suspend fun updateConversationDataMap(dataMaps: List<Map<String, Any>>)
-
     suspend fun updateLastMessage(message: MessageDTO, conversation: ConversationDTO)
     suspend fun updateMutedStatus(conversationId: String, uid: String, muted: Boolean)
     suspend fun updatePinnedStatus(conversationId: String, uid: String, pinned: Boolean)
-    fun streamConversationsByOwner(ownerId: String): Flow<List<ConversationDTO>>
-    fun listenConversationChangesByOwner(ownerId: String): Flow<List<DataChange<ConversationDTO>>>
     fun listenConversationChanges(
         ownerId: String,
         limit: Int
@@ -130,25 +124,6 @@ class ConversationNetworkDataSourceImp @Inject constructor(
 
     }
 
-    override suspend fun sendConversations(conversationDTOList: List<ConversationDTO>) {
-        optimizedWrite(
-            items = conversationDTOList,
-            singleWrite = { conversationDTO ->
-                collection.document(conversationDTO.id)
-                    .set(conversationDTO)
-                    .await()
-            },
-            batchWrite = { list ->
-                firestore.runBatch { batch ->
-                    for (conversation in list) {
-                        val ref = collection.document(conversation.id)
-                        batch.set(ref, conversation)
-                    }
-                }.await()
-            }
-        )
-    }
-
     override suspend fun updateNicknameForUser(
         uid: String,
         nickName: String,
@@ -220,33 +195,6 @@ class ConversationNetworkDataSourceImp @Inject constructor(
         collection.document(conversationId)
             .update(field, pinned)
             .await()
-    }
-
-    override fun streamConversationsByOwner(ownerId: String): Flow<List<ConversationDTO>> {
-        return callbackFlow {
-            val listener = collection
-                .whereArrayContains("memberIds", ownerId)
-                .orderBy("lastMessageTime", Query.Direction.DESCENDING)
-                .addSnapshotListener { value, error ->
-                    if (error != null) {
-                        Timber.e(error, "Error streaming conversations")
-                        trySend(emptyList())
-                        return@addSnapshotListener
-                    }
-
-                    val conversationList = value?.toObjects<ConversationDTO>() ?: emptyList()
-                    trySend(conversationList)
-                }
-            awaitClose { listener.remove() }
-        }
-    }
-
-    override fun listenConversationChangesByOwner(ownerId: String): Flow<List<DataChange<ConversationDTO>>> {
-        // Sửa: Thêm orderBy để đảm bảo thứ tự đồng bộ chính xác
-        val query = collection
-            .whereArrayContains("memberIds", ownerId)
-            .orderBy("lastMessageTime", Query.Direction.DESCENDING)
-        return query.observeMultipleDataChanges<ConversationDTO>()
     }
 
     override fun listenConversationChanges(

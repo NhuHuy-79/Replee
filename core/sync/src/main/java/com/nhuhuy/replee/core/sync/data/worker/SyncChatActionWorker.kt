@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.sync.worker
+package com.nhuhuy.replee.core.sync.data.worker
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
@@ -6,11 +6,11 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import com.nhuhuy.replee.core.model.error_handling.NetworkResult
-import com.nhuhuy.replee.core.sync.usecase.conversation.DeleteConversationSyncUseCase
-import com.nhuhuy.replee.core.sync.usecase.message.DeleteMessagesSyncUseCase
-import com.nhuhuy.replee.core.sync.usecase.message.PinMessageSyncUseCase
-import com.nhuhuy.replee.core.sync.usecase.message.UnPinMessageSyncUseCase
-import com.nhuhuy.replee.core.sync.usecase.message.UpdateReactionSyncUseCase
+import com.nhuhuy.replee.core.sync.domain.usecase.conversation.DeleteConversationSyncUseCase
+import com.nhuhuy.replee.core.sync.domain.usecase.message.DeleteMessagesSyncUseCase
+import com.nhuhuy.replee.core.sync.domain.usecase.message.PinMessageSyncUseCase
+import com.nhuhuy.replee.core.sync.domain.usecase.message.UnPinMessageSyncUseCase
+import com.nhuhuy.replee.core.sync.domain.usecase.message.UpdateReactionSyncUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher

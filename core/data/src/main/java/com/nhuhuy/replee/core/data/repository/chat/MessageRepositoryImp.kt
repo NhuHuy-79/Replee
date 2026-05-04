@@ -50,7 +50,6 @@ class MessageRepositoryImp @Inject constructor(
     private val conversationLocalDataSource: ConversationLocalDataSource,
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
     private val sessionManager: SessionManager,
-
     ) : MessageRepository {
 
     // --- CREATE / SEND---
@@ -129,16 +128,17 @@ class MessageRepositoryImp @Inject constructor(
                 messageIdToJump = anchorMessageId,
                 conversationId = conversationId,
                 coreDatabase = coreDatabase,
-                pagingMessageNetworkDataSource = pagingMessageNetworkDataSource
+                pagingMessageNetworkDataSource = pagingMessageNetworkDataSource,
+                conversationNetworkDataSource = conversationNetworkDataSource
             )
         ) {
             messageDao.getMessagesPagingSource(conversationId)
         }.flow
             .map { pagingData ->
-            pagingData.map { messageEntity ->
-                messageEntity.toLocalPathMessage()
+                pagingData.map { messageEntity ->
+                    messageEntity.toLocalPathMessage()
+                }
             }
-        }
             .flowOn(ioDispatcher)
     }
 
@@ -226,7 +226,13 @@ class MessageRepositoryImp @Inject constructor(
                 )
 
             }
-            messageNetworkDataSource.addReaction(conversationId, messageId, userId, reaction)
+
+            networkTransactionRunner.addReactToMessageAndUpdateConversation(
+                userId = userId,
+                reaction = reaction,
+                messageId = messageId,
+                conversationId = conversationId
+            )
         }
     }
 
@@ -253,7 +259,12 @@ class MessageRepositoryImp @Inject constructor(
                     newOtherUserReactions
                 )
             }
-            messageNetworkDataSource.removeReaction(conversationId, messageId, userId, reaction)
+            networkTransactionRunner.removeReactToMessageAndUpdateConversation(
+                userId = userId,
+                reaction = reaction,
+                messageId = messageId,
+                conversationId = conversationId
+            )
         }
     }
 

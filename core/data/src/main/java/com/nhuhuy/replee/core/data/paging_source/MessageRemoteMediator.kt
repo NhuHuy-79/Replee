@@ -10,9 +10,13 @@ import com.nhuhuy.replee.core.database.entity.file_path.MessageWithLocalPath
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
 import com.nhuhuy.replee.core.database.entity.pager.MessageRemoteKey
 import com.nhuhuy.replee.core.database.mapper.toMessageEntity
+import com.nhuhuy.replee.core.network.data_source.ConversationNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.PagingMessageNetworkDataSource
 import com.nhuhuy.replee.core.network.mapper.toMessage
+import com.nhuhuy.replee.core.network.utils.toMilliseconds
+import kotlinx.coroutines.withTimeout
 import timber.log.Timber
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalPagingApi::class)
 class MessageRemoteMediator(
@@ -20,11 +24,33 @@ class MessageRemoteMediator(
     private val messageIdToJump: String?,
     private val conversationId: String,
     private val coreDatabase: CoreDatabase,
-    private val pagingMessageNetworkDataSource: PagingMessageNetworkDataSource
+    private val pagingMessageNetworkDataSource: PagingMessageNetworkDataSource,
+    private val conversationNetworkDataSource: ConversationNetworkDataSource,
 ) : RemoteMediator<Int, MessageWithLocalPath>() {
     private val isPagingLocked = messageIdToJump != null
     private val messageDao = coreDatabase.provideMessageDao()
+    private val conversationDao = coreDatabase.provideConversationDao()
     private val remoteKeyDao = coreDatabase.provideMessageRemoteKeyDao()
+
+    override suspend fun initialize(): InitializeAction {
+        return try {
+            val conversationAndUser = conversationDao.getConversationById(conversationId)
+            val lastSynced = conversationAndUser?.conversation?.lastTimeSynced ?: 0
+            val now = withTimeout(1.5.seconds) {
+                conversationNetworkDataSource.fetchConversationById(conversationId)?.lastSynced?.toMilliseconds()
+                    ?: 0
+            }
+            if (lastSynced < now) {
+
+                InitializeAction.LAUNCH_INITIAL_REFRESH
+            } else {
+                InitializeAction.SKIP_INITIAL_REFRESH
+            }
+        } catch (e: Exception) {
+            Timber.e(e)
+            InitializeAction.SKIP_INITIAL_REFRESH
+        }
+    }
 
     override suspend fun load(
         loadType: LoadType,

@@ -4,8 +4,8 @@ import com.nhuhuy.replee.core.domain.usecase.GetCurrentAccountUseCase
 import com.nhuhuy.replee.core.domain.usecase.SearchAccountByEmailUseCase
 import com.nhuhuy.replee.core.model.account.Account
 import com.nhuhuy.replee.core.model.error_handling.NetworkResult
-import com.nhuhuy.replee.core.sync.usecase.conversation.SyncConversationUsersUseCase
-import com.nhuhuy.replee.core.sync.usecase.conversation.SyncConversationsUseCase
+import com.nhuhuy.replee.core.sync.domain.usecase.conversation.SyncConversationUsersUseCase
+import com.nhuhuy.replee.core.sync.domain.usecase.conversation.SyncConversationsUseCase
 import com.nhuhuy.replee.core.test.MainDispatcherRule
 import com.nhuhuy.replee.feature_home.domain.usecase.account.SetUserOnlineUseCase
 import com.nhuhuy.replee.feature_home.domain.usecase.account.UpdateCurrentAccountUseCase

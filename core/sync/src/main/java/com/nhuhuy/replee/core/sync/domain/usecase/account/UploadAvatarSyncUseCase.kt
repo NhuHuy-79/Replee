@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.sync.usecase.account
+package com.nhuhuy.replee.core.sync.domain.usecase.account
 
 import com.nhuhuy.replee.core.data.utils.flatMap
 import com.nhuhuy.replee.core.domain.repository.AccountRepository

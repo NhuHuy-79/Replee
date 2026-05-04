@@ -17,10 +17,18 @@ interface NetworkTransactionRunner {
         conversationId: String,
     )
 
-    suspend fun reactToMessageAndUpdateConversation(
+    suspend fun addReactToMessageAndUpdateConversation(
         userId: String,
         reaction: String,
-        messageDTO: MessageDTO,
+        messageId: String,
+        conversationId: String
+    )
+
+    suspend fun removeReactToMessageAndUpdateConversation(
+        userId: String,
+        reaction: String,
+        messageId: String,
+        conversationId: String
     )
 
     suspend fun editMessageAndUpdateConversation(messageDTO: MessageDTO)
@@ -66,16 +74,32 @@ class NetworkTransactionRunnerImpl @Inject constructor(
         }.await()
     }
 
-    override suspend fun reactToMessageAndUpdateConversation(
+    override suspend fun addReactToMessageAndUpdateConversation(
         userId: String,
         reaction: String,
-        messageDTO: MessageDTO
+        messageId: String,
+        conversationId: String
     ) {
-        val conversationRef = conversationCollection.document(messageDTO.conversationId)
+        val conversationRef = conversationCollection.document(conversationId)
         val messageRef = conversationRef.collection(Constant.Firestore.CONVERSATION_COLLECTION)
-            .document(messageDTO.messageId)
+            .document(messageId)
         firestore.runBatch { batch ->
             batch.update(messageRef, "reactions.$userId", FieldValue.arrayUnion(reaction))
+            batch.update(conversationRef, "lastSync", FieldValue.serverTimestamp())
+        }.await()
+    }
+
+    override suspend fun removeReactToMessageAndUpdateConversation(
+        userId: String,
+        reaction: String,
+        messageId: String,
+        conversationId: String
+    ) {
+        val conversationRef = conversationCollection.document(conversationId)
+        val messageRef = conversationRef.collection(Constant.Firestore.CONVERSATION_COLLECTION)
+            .document(messageId)
+        firestore.runBatch { batch ->
+            batch.update(messageRef, "reactions.$userId", FieldValue.arrayRemove(reaction))
             batch.update(conversationRef, "lastSync", FieldValue.serverTimestamp())
         }.await()
     }

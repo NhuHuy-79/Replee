@@ -25,10 +25,10 @@ fun Conversation.toConversationEntity(): ConversationEntity {
         deleted = this.deleted,
         lastTimeDeleted = this.lastTimeDeleted,
         synced = true,
-        lastMessageId = lastMessageId,
-        lastTimeSyncs = System.currentTimeMillis(),
+        lastMessageId = this.lastMessageId,
         lastMessageType = this.lastMessageType.name,
         lastDeletedMessageId = this.lastDeletedMessageId,
+        lastTimeSynced = this.lastSyncedTime,
     )
 }
 
@@ -55,6 +55,7 @@ fun ConversationAndUser.toConversation(): Conversation {
         blocked = conversation.blocked,
         deleted = conversation.deleted,
         lastTimeDeleted = conversation.lastTimeDeleted,
+        lastSyncedTime = conversation.lastTimeSynced,
         otherUserOnline = otherUser?.isOnline ?: false
     )
 }

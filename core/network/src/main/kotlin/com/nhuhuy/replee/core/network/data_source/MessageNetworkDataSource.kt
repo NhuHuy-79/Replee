@@ -2,12 +2,10 @@ package com.nhuhuy.replee.core.network.data_source
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldPath
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.toObjects
-import com.nhuhuy.replee.core.model.chat.MessageStatus
 import com.nhuhuy.replee.core.network.model.Constant
 import com.nhuhuy.replee.core.network.model.Constant.Firestore.MESSAGE_SUBCOLLECTION
 import com.nhuhuy.replee.core.network.model.DataChange
@@ -15,26 +13,12 @@ import com.nhuhuy.replee.core.network.model.MessageDTO
 import com.nhuhuy.replee.core.network.model.observeMultipleDataChanges
 import com.nhuhuy.replee.core.network.utils.optimizedWrite
 import com.nhuhuy.replee.core.network.utils.toMilliseconds
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
-import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
 
 interface MessageNetworkDataSource {
-    suspend fun updatePinStatus(
-        conversationId: String,
-        messageId: String,
-        pinned: Boolean
-    )
-    suspend fun updateReceiverMessageStatus(
-        conversationId: String,
-        status: MessageStatus,
-        receiverId: String,
-    )
-
     suspend fun fetchPinnedMessageBefore(
         currentUserId: String,
         conversationId: String,
@@ -52,8 +36,6 @@ interface MessageNetworkDataSource {
         query: String
     ): List<MessageDTO>
 
-    suspend fun deleteMultipleMessage(messages: List<MessageDTO>)
-    suspend fun pinMultipleMessage(messages: List<MessageDTO>, pinned: Boolean)
     suspend fun fetchMessagesInConversationByTimestamp(
         conversationId: String,
         timestamp: Long
@@ -61,80 +43,13 @@ interface MessageNetworkDataSource {
 
     suspend fun sendMessages(list: List<MessageDTO>): List<String>
     suspend fun fetchMessagesByConversationId(conversationId: String): List<MessageDTO>
-    suspend fun deleteMessage(conversationId: String, messageId: String)
-
-    suspend fun updateMessageSeenStatus(
-        conversationId: String,
-        messageIds: List<String>,
-        receiverId: String
-    ): Int
-
     fun listenMessageChangesByConversationId(conversationId: String): Flow<List<DataChange<MessageDTO>>>
-
-    suspend fun addReaction(
-        conversationId: String,
-        messageId: String,
-        userId: String,
-        reaction: String
-    )
-
-    suspend fun removeReaction(
-        conversationId: String,
-        messageId: String,
-        userId: String,
-        reaction: String
-    )
-
 }
 
 class MessageNetworkDataSourceImp @Inject constructor(
     private val firestore: FirebaseFirestore
 ) : MessageNetworkDataSource {
     private val collection = firestore.collection(Constant.Firestore.CONVERSATION_COLLECTION)
-    override suspend fun updatePinStatus(
-        conversationId: String,
-        messageId: String,
-        pinned: Boolean
-    ) {
-        collection.document(conversationId)
-            .collection(MESSAGE_SUBCOLLECTION)
-            .document(messageId)
-            .update("pinned", pinned)
-            .await()
-    }
-
-    override suspend fun updateReceiverMessageStatus(
-        conversationId: String,
-        status: MessageStatus,
-        receiverId: String
-    ) {
-        val snapshots = collection.document(conversationId)
-            .collection(MESSAGE_SUBCOLLECTION)
-            .whereEqualTo("receiverId", receiverId)
-            .whereEqualTo("status", MessageStatus.SYNCED.name)
-            .get()
-            .await()
-
-        if (snapshots.isEmpty) {
-            return
-        }
-
-        val documents = snapshots.documents
-
-        optimizedWrite(
-            items = documents,
-            singleWrite = { snapshot ->
-                snapshot.reference.update("status", status.name).await()
-            },
-            batchWrite = { listDocs ->
-                firestore.runBatch { batch ->
-                    listDocs.forEach { doc ->
-                        batch.update(doc.reference, "status", status.name)
-                    }
-                }.await()
-            },
-        )
-    }
 
     override suspend fun fetchMessageByQuery(
         currentUserId: String,
@@ -211,66 +126,6 @@ class MessageNetworkDataSourceImp @Inject constructor(
         return snapshot.toObjects<MessageDTO>()
     }
 
-    override suspend fun deleteMultipleMessage(messages: List<MessageDTO>) {
-        if (messages.isEmpty()) return
-
-        optimizedWrite(
-            items = messages,
-            singleWrite = { message ->
-                deleteMessage(message.conversationId, message.messageId)
-            },
-            batchWrite = { items ->
-                val messagesByConversationId = items.groupBy { dTO -> dTO.conversationId }
-                firestore.runBatch { batch ->
-                    messagesByConversationId.forEach { (conversationId, messages) ->
-                        val conversationRef = collection.document(conversationId)
-                        messages.forEach { dto ->
-                            val messageRef = conversationRef
-                                .collection(MESSAGE_SUBCOLLECTION)
-                                .document(dto.messageId)
-
-                            batch.delete(messageRef)
-                        }
-
-                        val lastDeletedMessage = messages.maxByOrNull { it.sendAt?.seconds ?: -1L }
-                        val lastDeletedMessageId = lastDeletedMessage?.messageId
-                        lastDeletedMessageId.let {
-                            batch.update(
-                                conversationRef,
-                                "lastDeletedMessageId",
-                                lastDeletedMessageId
-                            )
-                        }
-                    }
-                }.await()
-            }
-        )
-    }
-
-    override suspend fun pinMultipleMessage(messages: List<MessageDTO>, pinned: Boolean) {
-        val context = currentCoroutineContext()
-        optimizedWrite(
-            items = messages,
-            singleWrite = { message ->
-                updatePinStatus(message.conversationId, message.messageId, true)
-            },
-            batchWrite = {
-                firestore.runBatch { batch ->
-                    for (message in messages) {
-                        context.ensureActive()
-                        batch.update(
-                            collection.document(message.conversationId)
-                                .collection(MESSAGE_SUBCOLLECTION)
-                                .document(message.messageId),
-                            "pinned",
-                            pinned
-                        )
-                    }
-                }.await()
-            }
-        )
-    }
-
     override suspend fun sendMessages(
         list: List<MessageDTO>
     ): List<String> {
@@ -321,43 +176,6 @@ class MessageNetworkDataSourceImp @Inject constructor(
         return snapshot.toObjects<MessageDTO>()
     }
 
-    override suspend fun deleteMessage(conversationId: String, messageId: String) {
-        firestore.runBatch { batch ->
-            val conversationRef = collection.document(conversationId)
-            val messageRef = conversationRef
-                .collection(MESSAGE_SUBCOLLECTION)
-                .document(messageId)
-            batch.delete(messageRef)
-            batch.update(conversationRef, "lastDeletedMessageId", messageId)
-        }.await()
-    }
-
-    override suspend fun updateMessageSeenStatus(
-        conversationId: String,
-        messageIds: List<String>,
-        receiverId: String
-    ): Int {
-        if (messageIds.isEmpty()) return 0
-        Timber.d("messages: $messageIds")
-
-        val messageCollection = firestore
-            .collection(Constant.Firestore.CONVERSATION_COLLECTION)
-            .document(conversationId)
-            .collection(MESSAGE_SUBCOLLECTION)
-
-        val updateData = mapOf("seen" to true)
-        val chunks = messageIds.distinct().chunked(500)
-        chunks.forEach { chunkIds ->
-            firestore.runBatch { batch ->
-                chunkIds.forEach { msgId ->
-                    val docRef = messageCollection.document(msgId)
-                    batch.set(docRef, updateData, SetOptions.merge())
-                }
-            }.await()
-        }
-        return messageIds.size
-    }
-
     override fun listenMessageChangesByConversationId(conversationId: String): Flow<List<DataChange<MessageDTO>>> {
         val query = collection.document(conversationId)
             .collection(MESSAGE_SUBCOLLECTION)
@@ -379,32 +197,6 @@ class MessageNetworkDataSourceImp @Inject constructor(
             .get()
             .await()
             .toObjects<MessageDTO>()
-    }
-
-    override suspend fun addReaction(
-        conversationId: String,
-        messageId: String,
-        userId: String,
-        reaction: String
-    ) {
-        collection.document(conversationId)
-            .collection(MESSAGE_SUBCOLLECTION)
-            .document(messageId)
-            .update("reactions.$userId", FieldValue.arrayUnion(reaction))
-            .await()
-    }
-
-    override suspend fun removeReaction(
-        conversationId: String,
-        messageId: String,
-        userId: String,
-        reaction: String
-    ) {
-        collection.document(conversationId)
-            .collection(MESSAGE_SUBCOLLECTION)
-            .document(messageId)
-            .update("reactions.$userId", FieldValue.arrayRemove(reaction))
-            .await()
     }
 
 }

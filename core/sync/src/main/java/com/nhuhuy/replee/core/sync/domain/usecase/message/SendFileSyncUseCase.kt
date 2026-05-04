@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.core.sync.usecase.message
+package com.nhuhuy.replee.core.sync.domain.usecase.message
 
 import com.nhuhuy.replee.core.domain.SessionManager
 import com.nhuhuy.replee.core.domain.repository.ConversationRepository

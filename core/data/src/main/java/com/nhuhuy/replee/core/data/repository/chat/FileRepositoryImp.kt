@@ -2,20 +2,20 @@ package com.nhuhuy.replee.core.data.repository.chat
 
 import android.content.Context
 import androidx.core.net.toUri
-import com.nhuhuy.replee.core.model.chat.FilePath
-import com.nhuhuy.replee.core.model.error_handling.NetworkResult
-import com.nhuhuy.replee.core.model.UploadFileState
-import com.nhuhuy.replee.core.model.validate.ValidateFileResult
-import com.nhuhuy.replee.core.domain.repository.FileMetadata
-import com.nhuhuy.replee.core.domain.repository.FileRepository
+import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.data_source.FileStorageDataSource
 import com.nhuhuy.replee.core.data.data_source.FileValidator
 import com.nhuhuy.replee.core.data.data_source.file_path.FilePathLocalDataSource
-import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.execute
+import com.nhuhuy.replee.core.domain.repository.FileMetadata
+import com.nhuhuy.replee.core.domain.repository.FileRepository
+import com.nhuhuy.replee.core.domain.worker.WorkerScheduler
+import com.nhuhuy.replee.core.model.UploadFileState
+import com.nhuhuy.replee.core.model.chat.FilePath
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.model.validate.ValidateFileResult
 import com.nhuhuy.replee.core.network.data_source.UploadFileService
 import com.nhuhuy.replee.core.network.quailify.Retrofit
-import com.nhuhuy.replee.core.domain.worker.WorkerScheduler
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -23,10 +23,6 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
-
-const val MESSAGE_ID_INPUT = "message_id_input"
-const val URI_PATH_INPUT = "uri_path_input"
-
 
 class FileRepositoryImp @Inject constructor(
     private val filePathLocalDataSourceImp: FilePathLocalDataSource,
