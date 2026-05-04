@@ -32,7 +32,7 @@ class NetworkMultipleWriteRunnerImpl @Inject constructor(
                     conversationRef.collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
                         .document(messageDTO.messageId)
                 transaction.delete(messageRef)
-                transaction.update(conversationRef, "lastSync", FieldValue.serverTimestamp())
+                transaction.update(conversationRef, "lastSynced", FieldValue.serverTimestamp())
             },
         )
     }
@@ -48,8 +48,8 @@ class NetworkMultipleWriteRunnerImpl @Inject constructor(
                 val messageRef =
                     conversationRef.collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
                         .document(messageDTO.messageId)
-                transaction.update(messageRef, "isPinned", pinned)
-                transaction.update(conversationRef, "lastSync", FieldValue.serverTimestamp())
+                transaction.update(messageRef, "pinned", pinned)
+                transaction.update(conversationRef, "lastSynced", FieldValue.serverTimestamp())
             },
         )
     }
@@ -69,7 +69,7 @@ class NetworkMultipleWriteRunnerImpl @Inject constructor(
                         "lastMessageContent" to messageDTO.content,
                         "lastSenderId" to messageDTO.senderId,
                         "lastMessageType" to messageDTO.type,
-                        "lastSync" to FieldValue.serverTimestamp()
+                        "lastSynced" to FieldValue.serverTimestamp()
                     )
                 )
             },
@@ -82,17 +82,15 @@ class NetworkMultipleWriteRunnerImpl @Inject constructor(
     ) {
         firebaseFirestore.multipleRunBatch(
             items = messageDTOs,
-            block = { messageDTO, transaction ->
+            block = { messageDTO, batch ->
                 val conversationRef = chatCollection.document(messageDTO.conversationId)
                 val messageRef =
                     conversationRef.collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
                         .document(messageDTO.messageId)
                 val reaction = messageDTO.reactions[currentUserId]
-                transaction.update(messageRef, "reactions.$currentUserId", reaction)
-                transaction.update(
-                    conversationRef, mapOf(
-                        "lastSync" to FieldValue.serverTimestamp()
-                    )
+                batch.update(messageRef, "reactions.$currentUserId", reaction)
+                batch.update(
+                    conversationRef, mapOf("lastSynced" to FieldValue.serverTimestamp())
                 )
             },
         )

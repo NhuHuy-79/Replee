@@ -44,7 +44,7 @@ class NetworkTransactionRunnerImpl @Inject constructor(
 
     override suspend fun sendMessageAndUpdateConversation(messageDTO: MessageDTO) {
         val conversationRef = conversationCollection.document(messageDTO.conversationId)
-        val messageRef = conversationRef.collection(Constant.Firestore.CONVERSATION_COLLECTION)
+        val messageRef = conversationRef.collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
             .document(messageDTO.messageId)
         firestore.runBatch { batch ->
             batch.set(messageRef, messageDTO)
@@ -54,7 +54,7 @@ class NetworkTransactionRunnerImpl @Inject constructor(
                     "lastMessageContent" to messageDTO.content,
                     "lastSenderId" to messageDTO.senderId,
                     "lastMessageType" to messageDTO.type,
-                    "lastSync" to FieldValue.serverTimestamp()
+                    "lastSynced" to FieldValue.serverTimestamp()
                 )
             )
         }.await()
@@ -66,11 +66,11 @@ class NetworkTransactionRunnerImpl @Inject constructor(
         conversationId: String,
     ) {
         val conversationRef = conversationCollection.document(conversationId)
-        val messageRef = conversationRef.collection(Constant.Firestore.CONVERSATION_COLLECTION)
+        val messageRef = conversationRef.collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
             .document(messageId)
         firestore.runBatch { batch ->
             batch.set(messageRef, mapOf("pinned" to pinned), SetOptions.merge())
-            batch.update(conversationRef, "lastSync", FieldValue.serverTimestamp())
+            batch.update(conversationRef, "lastSynced", FieldValue.serverTimestamp())
         }.await()
     }
 
@@ -81,11 +81,11 @@ class NetworkTransactionRunnerImpl @Inject constructor(
         conversationId: String
     ) {
         val conversationRef = conversationCollection.document(conversationId)
-        val messageRef = conversationRef.collection(Constant.Firestore.CONVERSATION_COLLECTION)
+        val messageRef = conversationRef.collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
             .document(messageId)
         firestore.runBatch { batch ->
             batch.update(messageRef, "reactions.$userId", FieldValue.arrayUnion(reaction))
-            batch.update(conversationRef, "lastSync", FieldValue.serverTimestamp())
+            batch.update(conversationRef, "lastSynced", FieldValue.serverTimestamp())
         }.await()
     }
 
@@ -96,39 +96,44 @@ class NetworkTransactionRunnerImpl @Inject constructor(
         conversationId: String
     ) {
         val conversationRef = conversationCollection.document(conversationId)
-        val messageRef = conversationRef.collection(Constant.Firestore.CONVERSATION_COLLECTION)
+        val messageRef = conversationRef.collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
             .document(messageId)
         firestore.runBatch { batch ->
             batch.update(messageRef, "reactions.$userId", FieldValue.arrayRemove(reaction))
-            batch.update(conversationRef, "lastSync", FieldValue.serverTimestamp())
+            batch.update(conversationRef, "lastSynced", FieldValue.serverTimestamp())
         }.await()
     }
 
     override suspend fun editMessageAndUpdateConversation(messageDTO: MessageDTO) {
         val conversationRef = conversationCollection.document(messageDTO.conversationId)
-        val messageRef = conversationRef.collection(Constant.Firestore.CONVERSATION_COLLECTION)
+        val messageRef = conversationRef.collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
             .document(messageDTO.messageId)
-        firestore.runTransaction { batch ->
+        firestore.runBatch { batch ->
             batch.update(
                 messageRef, mapOf(
                     "content" to messageDTO.content,
-                    "edited" to true
                 )
             )
-            batch.update(conversationRef, "lastSync", FieldValue.serverTimestamp())
+            batch.update(
+                conversationRef,
+                mapOf(
+                    "lastSynced" to FieldValue.serverTimestamp(),
+                    "lastMessageContent" to messageDTO.content
+                )
+            )
         }.await()
     }
 
     override suspend fun deleteMessageAndUpdateConversation(messageDTO: MessageDTO) {
         val conversationRef = conversationCollection.document(messageDTO.conversationId)
-        val messageRef = conversationRef.collection(Constant.Firestore.CONVERSATION_COLLECTION)
+        val messageRef = conversationRef.collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
             .document(messageDTO.messageId)
-        firestore.runTransaction { batch ->
+        firestore.runBatch { batch ->
             batch.delete(messageRef)
             batch.update(
                 conversationRef, mapOf(
                     "lastDeletedMessageId" to messageDTO.messageId,
-                    "lastSync" to FieldValue.serverTimestamp()
+                    "lastSynced" to FieldValue.serverTimestamp()
                 )
             )
         }.await()

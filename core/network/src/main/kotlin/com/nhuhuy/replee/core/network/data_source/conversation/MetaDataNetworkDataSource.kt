@@ -91,7 +91,5 @@ class MetaDataNetworkDataSourceImpl @Inject constructor(
         database.child("metadata/reading/$conversationId/$userId").apply {
             setValue(reading).await()
         }
-
     }
-
 }
