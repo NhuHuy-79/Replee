@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.core.data.repository.chat
 
+import com.google.firebase.firestore.FieldValue
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.mapper.createConversationDTO
 import com.nhuhuy.replee.core.data.mapper.toAccountEntity
@@ -167,7 +168,6 @@ class ConversationRepositoryImp @Inject constructor(
         currentUserId: String
     ): NetworkResult<Unit> {
         return executeWithTimeout(ioDispatcher) {
-            Timber.d("Delete unread messages")
             conversationLocalDataSource.clearUnreadMessages(conversationId)
             conversationNetworkDataSource.deleteAllUnreadMessages(conversationId, currentUserId)
         }
@@ -198,7 +198,8 @@ class ConversationRepositoryImp @Inject constructor(
             val patch = mapOf(
                 "id" to id,
                 "isDeleted.$uid" to true,
-                "lastTimeDeleted.$uid" to now
+                "lastTimeDeleted.$uid" to now,
+                "lastSynced" to FieldValue.serverTimestamp()
             )
             conversationNetworkDataSource.updateConversationDataMap(listOf(patch))
         }
@@ -216,7 +217,8 @@ class ConversationRepositoryImp @Inject constructor(
                     mapOf(
                         "id" to id,
                         "isDeleted.$uid" to true,
-                        "lastTimeDeleted.$uid" to now
+                        "lastTimeDeleted.$uid" to now,
+                        "lastSynced" to FieldValue.serverTimestamp()
                     )
                 )
             }

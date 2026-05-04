@@ -53,7 +53,7 @@ class ConversationNetworkDataSourceImp @Inject constructor(
         conversationId: String,
         uid: String
     ) {
-        val field = mapOf("unReadMessages.$uid" to 0)
+        val field = mapOf("unReadMessages.$uid" to 0, "lastSynced" to FieldValue.serverTimestamp())
         collection.document(conversationId)
             .update(field)
             .await()
@@ -66,7 +66,10 @@ class ConversationNetworkDataSourceImp @Inject constructor(
         count: Int
     ) {
         collection.document(conversationId)
-            .update("unReadMessages.$receiverId", 0)
+            .update(
+                "unReadMessages.$receiverId", 0,
+                "lastSynced", FieldValue.serverTimestamp()
+            )
             .await()
     }
 
@@ -130,7 +133,10 @@ class ConversationNetworkDataSourceImp @Inject constructor(
         conversationDTO: ConversationDTO,
     ) {
         collection.document(conversationDTO.id)
-            .update("nickName.$uid", nickName)
+            .update(
+                "nickName.$uid", nickName,
+                "lastSynced", FieldValue.serverTimestamp()
+            )
             .await()
     }
 
@@ -173,7 +179,8 @@ class ConversationNetworkDataSourceImp @Inject constructor(
             "lastMessageTime" to (messageDTO.sendAt ?: Timestamp.now()),
             "lastSenderId" to messageDTO.senderId,
             "lastMessageType" to messageDTO.type.name,
-            "unReadMessages.${messageDTO.receiverId}" to FieldValue.increment(1)
+            "unReadMessages.${messageDTO.receiverId}" to FieldValue.increment(1),
+            "lastSynced" to FieldValue.serverTimestamp()
         )
 
         collection.document(message.conversationId)
@@ -185,7 +192,10 @@ class ConversationNetworkDataSourceImp @Inject constructor(
     override suspend fun updateMutedStatus(conversationId: String, uid: String, muted: Boolean) {
         val field = FieldPath.of("isMuted", uid)
         collection.document(conversationId)
-            .update(field, muted)
+            .update(
+                field, muted,
+                "lastSynced", FieldValue.serverTimestamp()
+            )
             .await()
 
     }
@@ -193,7 +203,11 @@ class ConversationNetworkDataSourceImp @Inject constructor(
     override suspend fun updatePinnedStatus(conversationId: String, uid: String, pinned: Boolean) {
         val field = FieldPath.of("isPinned", uid)
         collection.document(conversationId)
-            .update(field, pinned)
+            .update(
+                field, pinned,
+                "lastSynced", FieldValue.serverTimestamp()
+            )
+
             .await()
     }
 
