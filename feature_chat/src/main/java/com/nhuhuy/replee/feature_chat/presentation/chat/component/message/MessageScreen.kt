@@ -117,13 +117,13 @@ fun MessageScreen(
                 count = pagingItems.itemCount,
                 key = pagingItems.itemKey { item ->
                     when (item) {
-                        is MessageUiModel.MessageItem -> item.message.message.messageId
+                        is MessageUiModel.MessageItem -> item.data.message.messageId
                         is MessageUiModel.DateSeparator -> item.date
                     }
                 },
                 contentType = pagingItems.itemContentType { item ->
                     when (item) {
-                        is MessageUiModel.MessageItem -> item.message.message.type
+                        is MessageUiModel.MessageItem -> item.data.message.type
                         is MessageUiModel.DateSeparator -> "date"
                     }
                 }
@@ -137,9 +137,9 @@ fun MessageScreen(
                             is MessageUiModel.DateSeparator -> true
                             is MessageUiModel.MessageItem -> {
                                 val isDifferentSender =
-                                    olderItem.message.message.senderId != item.message.message.senderId
+                                    olderItem.data.message.senderId != item.data.message.senderId
                                 val isFarApart =
-                                    (item.message.message.sentAt - olderItem.message.message.sentAt) > 600_000L
+                                    (item.data.message.sentAt - olderItem.data.message.sentAt) > 600_000L
                                 isDifferentSender || isFarApart
                             }
 
@@ -150,9 +150,9 @@ fun MessageScreen(
                             is MessageUiModel.DateSeparator -> true
                             is MessageUiModel.MessageItem -> {
                                 val isDifferentSender =
-                                    newerItem.message.message.senderId != item.message.message.senderId
+                                    newerItem.data.message.senderId != item.data.message.senderId
                                 val isFarApart =
-                                    (newerItem.message.message.sentAt - item.message.message.sentAt) > 600_000L
+                                    (newerItem.data.message.sentAt - item.data.message.sentAt) > 600_000L
                                 isDifferentSender || isFarApart
                             }
 
@@ -170,7 +170,7 @@ fun MessageScreen(
                         MessageBubbleItem(
                             readingTime = recipientReadAt,
                             uiState = uiState,
-                            item = item.message,
+                            item = item.data,
                             onReplyContentClick = {
                                 //On Scroll to Reply Message
 
@@ -182,13 +182,13 @@ fun MessageScreen(
                                 onAction(ChatAction.OnImagePress(message.remoteUrl.orEmpty()))
                             },
                             onMessageLongClick = {
-                                onAction(ChatAction.OnMessageLongPress(message = item.message.message))
+                                onAction(ChatAction.OnMessageLongPress(message = item.data.message))
                             },
                             onReactionClick = { reaction ->
                                 onAction(
                                     ChatAction.OnReactionDelete(
                                         reaction = reaction,
-                                        messageId = item.message.message.messageId
+                                        messageId = item.data.message.messageId
                                     )
                                 )
                             },

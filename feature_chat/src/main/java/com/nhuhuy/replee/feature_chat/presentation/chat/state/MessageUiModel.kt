@@ -6,7 +6,7 @@ import com.nhuhuy.replee.core.model.chat.LocalPathMessage
 @Immutable
 sealed class MessageUiModel {
     data class MessageItem(
-        val message: LocalPathMessage,
+        val data: LocalPathMessage,
         val position: MessagePosition = MessagePosition.SINGLE,
         val isLastInGroup: Boolean = false
     ) : MessageUiModel()

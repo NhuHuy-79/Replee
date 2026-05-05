@@ -138,7 +138,7 @@ class ChatViewModel @AssistedInject constructor(
                                 return@insertSeparators null
                             }
 
-                            val beforeDate = beforeItem.message.message.sentAt.toLocalDate()
+                            val beforeDate = beforeItem.data.message.sentAt.toLocalDate()
                             val formatter =
                                 java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
@@ -150,7 +150,7 @@ class ChatViewModel @AssistedInject constructor(
                                 )
                             }
 
-                            val afterDate = afterItem.message.message.sentAt.toLocalDate()
+                            val afterDate = afterItem.data.message.sentAt.toLocalDate()
 
                             if (beforeDate != afterDate) {
                                 return@insertSeparators MessageUiModel.DateSeparator(
