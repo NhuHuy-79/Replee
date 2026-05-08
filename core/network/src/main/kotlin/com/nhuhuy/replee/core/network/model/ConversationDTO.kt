@@ -17,6 +17,7 @@ data class ConversationDTO(
     val lastMessageId: String = "",
     val lastMessageContent: String = "",
     val lastSenderId: String = "",
+    @ServerTimestamp
     val lastMessageTime: Timestamp? = null,
     val lastMessageType: MessageType = MessageType.TEXT,
     val lastDeletedMessageId: String? = null,

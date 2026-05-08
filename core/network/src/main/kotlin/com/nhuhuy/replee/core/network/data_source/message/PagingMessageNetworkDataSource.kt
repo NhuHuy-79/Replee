@@ -66,7 +66,7 @@ class PagingMessageNetworkDataSourceImp @Inject constructor(
 
         if (!anchorSnapshot.exists()) return emptyList()
 
-        val beforeMessageSize = pageSize * 2 / 3
+        val beforeMessageSize = pageSize / 2
         val afterMessageSize = pageSize - beforeMessageSize
 
         val beforeMessageList = messageRef

@@ -25,6 +25,9 @@ class MessageRemoteMediator(
     private val conversationNetworkDataSource: ConversationNetworkDataSource,
 ) : RemoteMediator<Int, MessageWithLocalPath>() {
     private val isPagingLocked = messageIdToJump != null
+
+    private var lastRecentTime = System.currentTimeMillis()
+    private val delayTimestamp = 1000L
     private val messageDao = coreDatabase.provideMessageDao()
     private val conversationDao = coreDatabase.provideConversationDao()
     private val remoteKeyDao = coreDatabase.provideMessageRemoteKeyDao()
@@ -54,11 +57,16 @@ class MessageRemoteMediator(
         state: PagingState<Int, MessageWithLocalPath>
     ): MediatorResult {
         return try {
-            if (isPagingLocked && loadType != LoadType.REFRESH) {
-                return MediatorResult.Success(endOfPaginationReached = true)
-            }
+            /* if (loadType != LoadType.REFRESH){
+                 val now = System.currentTimeMillis()
 
-            Timber.d("CurrentThread: ${Thread.currentThread().name}")
+                 if (now - lastRecentTime < delayTimestamp) {
+                     Timber.d("Too Fast, reject!")
+                     return MediatorResult.Success(endOfPaginationReached = false)
+                 }
+                 lastRecentTime = now
+             }*/
+
             val currentRemoteKey = remoteKeyDao.get(conversationId = conversationId)
             val pageSize = state.config.pageSize.toLong()
             val initialSize = state.config.initialLoadSize.toLong()
@@ -71,11 +79,17 @@ class MessageRemoteMediator(
                             pageSize = initialSize
                         )
                     } else {
-                        pagingMessageNetworkDataSource.fetchMessageListAroundAnchor(
+                        val message = pagingMessageNetworkDataSource.fetchMessageListAroundAnchor(
                             conversationId = conversationId,
                             messageId = messageIdToJump,
-                            pageSize = pageSize
+                            pageSize = initialSize
                         )
+
+                        val indexOfAnchorMessage =
+                            message.indexOfFirst { message -> message.messageId == messageIdToJump }
+
+                        Timber.d("Index of Message: $indexOfAnchorMessage")
+                        message
                     }
                 }
 
@@ -184,5 +198,4 @@ class MessageRemoteMediator(
             MediatorResult.Error(e)
         }
     }
-
 }

@@ -5,6 +5,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.nhuhuy.replee.LocalNetworkStatus
+import com.nhuhuy.replee.core.common.utils.ChatIdGenerator
 import com.nhuhuy.replee.feature_chat.navigation.ChatRoute
 import com.nhuhuy.replee.feature_chat.navigation.OptionRoute
 import com.nhuhuy.replee.feature_chat.navigation.PinRoute
@@ -99,7 +100,21 @@ fun EntryProviderScope<NavKey>.chatGraph(
             }
         )
 
+
         ChatRoute(
+            messageContentViewModel = hiltViewModel(
+                creationCallback = { factory: com.nhuhuy.replee.feature_chat.presentation.chat.MessageContentViewModel.Factory ->
+                    factory.create(
+                        conversationId = ChatIdGenerator.generate(
+                            uid1 = screen.currentUserId,
+                            uid2 = screen.otherUserId,
+
+                            ),
+                        anchorMessageId = screen.anchorMessageId
+
+                    )
+                }
+            ),
             viewModel = viewModel,
             onNavigateBack = { backstack.removeLastOrNull() },
             onNavigateToSearch = { conversationId, otherUserId, currentUserId ->

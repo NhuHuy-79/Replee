@@ -7,11 +7,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.nhuhuy.replee.core.presentation.ObserveEffect
 import com.nhuhuy.replee.core.presentation.component.BoxContainer
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatScreen
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatViewModel
+import com.nhuhuy.replee.feature_chat.presentation.chat.MessageContentViewModel
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.dialog.FullImageDialog
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.emote.FullScreenEmojiPickerDialog
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageSheet
@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ChatRoute(
+    messageContentViewModel: MessageContentViewModel,
     viewModel: ChatViewModel,
     onNavigateBack: () -> Unit,
     onNavigateToSearch: (conversationId: String, otherUserId: String, currentUserId: String) -> Unit,
@@ -40,8 +41,8 @@ fun ChatRoute(
     val otherUserReadTime by viewModel.otherLastReadingTime.collectAsStateWithLifecycle()
     val typingUsers by viewModel.typingUserIds.collectAsStateWithLifecycle()
     val blocked by viewModel.blocked.collectAsStateWithLifecycle()
-    val pagedMessages = viewModel.pagedMessages.collectAsLazyPagingItems()
-
+    val messages by messageContentViewModel.messagesUiFlow.collectAsStateWithLifecycle()
+    val messageUiState by messageContentViewModel.uiState.collectAsStateWithLifecycle()
     val onAction = viewModel::onAction
     val coroutineScope = rememberCoroutineScope()
     val localClipboard = LocalClipboard.current
@@ -92,12 +93,14 @@ fun ChatRoute(
     }
 
     ChatScreen(
+        messages = messages,
         otherUserReadTime = otherUserReadTime,
         typingUsers = typingUsers,
-        pagedMessages = pagedMessages,
         blocked = blocked,
         state = state,
-        onAction = viewModel::onAction
+        onAction = onAction,
+        messageUiState = messageUiState,
+        onMessageAction = messageContentViewModel::onAction
     )
 
     when (val overlay = state.overlay) {

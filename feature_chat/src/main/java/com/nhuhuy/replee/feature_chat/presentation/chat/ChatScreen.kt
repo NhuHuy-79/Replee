@@ -41,7 +41,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
-import androidx.paging.compose.LazyPagingItems
 import com.nhuhuy.replee.core.common.utils.showLongToast
 import com.nhuhuy.replee.core.presentation.component.Banner
 import com.nhuhuy.replee.core.presentation.launcher.rememberCameraRequestPicker
@@ -49,7 +48,7 @@ import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.BlockOverlay
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.ReplyBanner
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageInput
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageScreen
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageLazyList
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.MessageUiModel
@@ -59,12 +58,14 @@ import timber.log.Timber
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChatScreen(
+    messageUiState: MessageUiState,
+    messages: List<MessageUiModel>,
     otherUserReadTime: Long,
     typingUsers: List<String>,
-    pagedMessages: LazyPagingItems<MessageUiModel>,
     blocked: Boolean,
     state: ChatState,
     onAction: (ChatAction) -> Unit,
+    onMessageAction: (MessageAction) -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -95,13 +96,6 @@ fun ChatScreen(
             Timber.e("No media selected")
         }
     }
-
-    LaunchedEffect(pagedMessages.loadState) {
-        if (pagedMessages.loadState.isIdle && state.messagePosition > 0) {
-            lazyListState.scrollToItem(state.messagePosition)
-        }
-    }
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -152,18 +146,17 @@ fun ChatScreen(
                         .padding(horizontal = 16.dp)
                 )
             } else {
-                MessageScreen(
+                MessageLazyList(
+                    messageUiState = messageUiState,
+                    messages = messages,
                     uiState = state,
-                    anchorMessagePosition = state.messagePosition,
                     anchorMessageId = state.messageAnchorId,
                     recipientReadAt = otherUserReadTime,
                     showTypingIndicator = typingUsers.contains(state.otherUser.id),
-                    lazyListState = lazyListState,
                     otherUserImg = state.otherUser.imageUrl,
                     otherUserName = state.otherUser.name,
-                    currentUserId = state.currentUserId,
-                    pagingItems = pagedMessages,
                     onAction = onAction,
+                    onMessageAction = onMessageAction,
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 16.dp)

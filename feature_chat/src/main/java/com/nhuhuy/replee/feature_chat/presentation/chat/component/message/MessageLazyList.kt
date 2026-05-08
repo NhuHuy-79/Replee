@@ -2,7 +2,6 @@ package com.nhuhuy.replee.feature_chat.presentation.chat.component.message
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -10,10 +9,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -27,41 +25,53 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.unit.dp
-import androidx.paging.LoadState
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.itemContentType
-import androidx.paging.compose.itemKey
 import com.nhuhuy.replee.core.presentation.animation.slideInVerticallyAnimation
 import com.nhuhuy.replee.core.presentation.animation.slideOutVerticallyAnimation
+import com.nhuhuy.replee.feature_chat.presentation.chat.MessageAction
+import com.nhuhuy.replee.feature_chat.presentation.chat.MessageUiState
+import com.nhuhuy.replee.feature_chat.presentation.chat.ScrollPosition
+import com.nhuhuy.replee.feature_chat.presentation.chat.ScrollPosition.BOTTOM
+import com.nhuhuy.replee.feature_chat.presentation.chat.ScrollPosition.TOP
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.TypingAnimatedIndicator
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message_bubble.MessageBubbleItem
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.MessagePosition
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.MessageUiModel
+import com.nhuhuy.replee.feature_chat.utils.rememberScrollState
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import kotlin.math.abs
 
 @OptIn(FlowPreview::class)
 @Composable
-fun MessageScreen(
+fun MessageLazyList(
+    messages: List<MessageUiModel>,
+    messageUiState: MessageUiState,
     uiState: ChatState,
     modifier: Modifier = Modifier,
     anchorMessageId: String?,
-    anchorMessagePosition: Int = 1,
     recipientReadAt: Long,
     showTypingIndicator: Boolean,
-    lazyListState: LazyListState,
     otherUserImg: String,
     otherUserName: String,
     onAction: (ChatAction) -> Unit,
-    currentUserId: String,
-    pagingItems: LazyPagingItems<MessageUiModel>,
+    onMessageAction: (MessageAction) -> Unit,
 ) {
+    var requestAnchorMessagePosition by remember { mutableStateOf(anchorMessageId != null) }
+    val lazyListState = rememberLazyListState()
+    val scrollState = rememberScrollState(
+        anchorMessageId = anchorMessageId,
+        lazyListState = lazyListState
+    )
     val scope = rememberCoroutineScope()
     val isAtBottom by remember {
         derivedStateOf {
@@ -69,26 +79,70 @@ fun MessageScreen(
                     lazyListState.firstVisibleItemScrollOffset == 0
         }
     }
-    var isLoading by remember { mutableStateOf(true) }
 
-    LaunchedEffect(pagingItems.loadState, anchorMessageId) {
-        if (anchorMessageId.isNullOrEmpty()) {
-            isLoading = false
-            return@LaunchedEffect
-        }
+    LaunchedEffect(messages) {
+        if (requestAnchorMessagePosition && anchorMessageId != null && messages.isNotEmpty()) {
+            val centerViewPortOffset = abs(
+                lazyListState.layoutInfo.viewportStartOffset -
+                        lazyListState.layoutInfo.viewportEndOffset
+            ) / 2
 
-        when (pagingItems.loadState.refresh) {
-            is LoadState.Error -> isLoading = false
-            LoadState.Loading -> isLoading = true
-            is LoadState.NotLoading -> {
-                lazyListState.scrollToItem(anchorMessagePosition)
-                isLoading = false
+            val anchorMessageIndex = messages.indexOfFirst { messageUiModel ->
+                messageUiModel is MessageUiModel.MessageItem && messageUiModel.data.message.messageId == anchorMessageId
+            }
+
+            Timber.e("AnchorId: ${messageUiState.anchorMessageId} And Index: $anchorMessageIndex")
+
+            if (anchorMessageIndex != -1) {
+                lazyListState.requestScrollToItem(
+                    index = anchorMessageIndex,
+                    scrollOffset = -centerViewPortOffset
+                )
+                requestAnchorMessagePosition = false
             }
         }
-
     }
 
-    LaunchedEffect(pagingItems.itemCount) {
+    LaunchedEffect(lazyListState) {
+        snapshotFlow {
+            val layoutInfo = lazyListState.layoutInfo
+            val totalItems = layoutInfo.totalItemsCount
+            if (totalItems == 0) return@snapshotFlow ScrollPosition.MIDDLE
+            val firstVisibleIndex = lazyListState.firstVisibleItemIndex
+            val lastVisibleIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+
+            when {
+                lastVisibleIndex >= totalItems - messageUiState.thresholdTrigger -> TOP
+                firstVisibleIndex <= messageUiState.thresholdTrigger -> BOTTOM
+                else -> ScrollPosition.MIDDLE
+            }
+        }
+            .distinctUntilChanged()
+            .filter { it != ScrollPosition.MIDDLE }
+            .collect { scrollPosition ->
+                when (scrollPosition) {
+                    TOP -> onMessageAction(MessageAction.ScrollToTop)
+                    BOTTOM -> onMessageAction(MessageAction.ScrollToBottom)
+                    else -> Unit
+                }
+            }
+    }
+
+    LaunchedEffect(scrollState.lazyListState) {
+        snapshotFlow {
+            Triple(
+                scrollState.lazyListState.firstVisibleItemIndex,
+                scrollState.lazyListState.firstVisibleItemScrollOffset,
+                scrollState.lazyListState.layoutInfo.totalItemsCount
+            )
+        }.distinctUntilChanged()
+            .collect { (index, offset, totalItems) ->
+                Timber.tag("SCROLL")
+                    .d("FirstVisibleIndex: $index | PixelOffset: $offset | TotalItems: $totalItems")
+            }
+    }
+
+    LaunchedEffect(messages.size) {
         if (isAtBottom) {
             onAction(ChatAction.OnNewMessageTrigger)
         }
@@ -114,25 +168,25 @@ fun MessageScreen(
             }
 
             items(
-                count = pagingItems.itemCount,
-                key = pagingItems.itemKey { item ->
-                    when (item) {
+                count = messages.size,
+                key = { index ->
+                    when (val item = messages[index]) {
                         is MessageUiModel.MessageItem -> item.data.message.messageId
-                        is MessageUiModel.DateSeparator -> item.date
+                        is MessageUiModel.DateSeparator -> "date_sep_${item.date}_$index"
                     }
                 },
-                contentType = pagingItems.itemContentType { item ->
-                    when (item) {
+                contentType = { index ->
+                    when (val item = messages[index]) {
                         is MessageUiModel.MessageItem -> item.data.message.type
-                        is MessageUiModel.DateSeparator -> "date"
+                        is MessageUiModel.DateSeparator -> "date_separator"
                     }
                 }
             ) { index ->
-                when (val item = pagingItems[index]) {
+                when (val item = messages[index]) {
                     is MessageUiModel.MessageItem -> {
                         val olderItem =
-                            if (index < pagingItems.itemCount - 1) pagingItems.peek(index + 1) else null
-                        val newerItem = if (index > 0) pagingItems.peek(index - 1) else null
+                            if (index < messages.size - 1) messages[index + 1] else null
+                        val newerItem = if (index > 0) messages[index - 1] else null
                         val isFirstInGroup = when (olderItem) {
                             is MessageUiModel.DateSeparator -> true
                             is MessageUiModel.MessageItem -> {
@@ -202,22 +256,9 @@ fun MessageScreen(
                     is MessageUiModel.DateSeparator -> {
                         DateHeader(date = item.date)
                     }
-
-                    null -> {}
                 }
             }
 
-        }
-
-        if (isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = MaterialTheme.colorScheme.background),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
         }
 
         AnimatedVisibility(
@@ -234,8 +275,7 @@ fun MessageScreen(
                         if (!anchorMessageId.isNullOrEmpty()) {
                             onAction(ChatAction.OnScrollToBottom)
                         } else {
-                            lazyListState.scrollToItem(0)
-
+                            scrollState.lazyListState.scrollToItem(0)
                         }
                     }
                 },

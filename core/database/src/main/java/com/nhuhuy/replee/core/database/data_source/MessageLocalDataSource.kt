@@ -2,6 +2,7 @@ package com.nhuhuy.replee.core.database.data_source
 
 import androidx.room.withTransaction
 import com.nhuhuy.replee.core.database.CoreDatabase
+import com.nhuhuy.replee.core.database.entity.file_path.MessageWithLocalPath
 import com.nhuhuy.replee.core.database.entity.message.MessageDao
 import com.nhuhuy.replee.core.database.entity.message.MessageEntity
 import com.nhuhuy.replee.core.database.mapper.toMessageEntity
@@ -16,8 +17,7 @@ interface MessageLocalDataSource {
     suspend fun upsertMessage(message: MessageEntity)
     suspend fun upsertMessages(messages: List<MessageEntity>)
     suspend fun upsertAndDeleteMessages(upsert: List<Message>, delete: List<String>)
-
-    // --- READ ---
+    suspend fun getLastSyncedMessage(conversationId: String): MessageEntity?
     suspend fun getMessageById(messageId: String): MessageEntity?
     suspend fun getMessageListById(messageIds: List<String>): List<MessageEntity>
     suspend fun getUnsyncedMessageByType(messageType: MessageType): List<MessageEntity>
@@ -25,7 +25,7 @@ interface MessageLocalDataSource {
     suspend fun getIndexOfMessage(conversationId: String, messageId: String): Int
     suspend fun getMessagesByQuery(conversationId: String, query: String): List<MessageEntity>
     suspend fun getNewestMessageInConversation(conversationId: String): MessageEntity?
-    fun observeMessages(conversationId: String): Flow<List<MessageEntity>>
+    fun observeMessages(conversationId: String): Flow<List<MessageWithLocalPath>>
     fun observeMessagesWithQuery(conversationId: String, query: String): Flow<List<MessageEntity>>
     fun observePinnedMessages(conversationId: String): Flow<List<MessageEntity>>
 
@@ -45,6 +45,11 @@ interface MessageLocalDataSource {
     // --- DELETE ---
     suspend fun deleteMessage(message: MessageEntity)
     suspend fun deleteMessageByConversationId(limit: Int)
+    fun observeMessagesAroundMessageId(
+        conversationId: String,
+        anchorMessageId: String,
+        limit: Int
+    ): Flow<List<MessageWithLocalPath>>
 }
 
 class MessageLocalDataSourceImp @Inject constructor(
@@ -74,7 +79,9 @@ class MessageLocalDataSourceImp @Inject constructor(
     }
 
     // --- READ ---
-
+    override suspend fun getLastSyncedMessage(conversationId: String): MessageEntity? {
+        return messageDao.getLatestMessage(conversationId)
+    }
 
     override suspend fun getIndexOfMessage(conversationId: String, messageId: String): Int {
         return messageDao.getIndexOfMessage(conversationId = conversationId, messageId = messageId)
@@ -195,5 +202,17 @@ class MessageLocalDataSourceImp @Inject constructor(
 
     override suspend fun deleteMessageByConversationId(limit: Int) =
         messageDao.deleteMessageByConversationId(limit)
+
+    override fun observeMessagesAroundMessageId(
+        conversationId: String,
+        anchorMessageId: String,
+        limit: Int
+    ): Flow<List<MessageWithLocalPath>> {
+        return messageDao.observeMessagesAroundId(
+            id = conversationId,
+            anchorMessageId = anchorMessageId,
+            limit = limit
+        )
+    }
 
 }
