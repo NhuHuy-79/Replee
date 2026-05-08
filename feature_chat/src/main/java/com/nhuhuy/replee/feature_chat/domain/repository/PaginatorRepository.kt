@@ -9,6 +9,12 @@ interface PaginatorRepository {
     fun observeLocalMessageAroundKey(key: String, conversationId: String, limit: Int):
             Flow<List<LocalPathMessage>>
 
+    fun observeMessagesAround(
+        conversationId: String,
+        startTime: Long,
+        endTime: Long
+    ): Flow<List<LocalPathMessage>>
+
     fun observeLocalMessages(conversationId: String): Flow<List<LocalPathMessage>>
     suspend fun getCurrentKey(conversationId: String): String?
     suspend fun fetchLatestMessage(

@@ -45,6 +45,17 @@ class PaginatorRepositoryImpl @Inject constructor(
         }.flowOn(ioDispatcher)
     }
 
+    override fun observeMessagesAround(
+        conversationId: String,
+        startTime: Long,
+        endTime: Long
+    ): Flow<List<LocalPathMessage>> {
+        return messageLocalDataSource.observeMessagesAround(conversationId, startTime, endTime)
+            .map { entities ->
+                entities.map { entity -> entity.toLocalPathMessage() }
+            }.flowOn(ioDispatcher)
+    }
+
     override suspend fun getCurrentKey(conversationId: String): String? {
         return messageLocalDataSource.getLastSyncedMessage(conversationId)?.messageId
     }

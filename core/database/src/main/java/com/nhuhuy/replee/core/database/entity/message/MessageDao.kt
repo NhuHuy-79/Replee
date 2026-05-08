@@ -45,6 +45,21 @@ interface MessageDao : BaseDao<MessageEntity> {
     @Query("SELECT * FROM message WHERE conversationId = :conversationId ORDER BY sentAt DESC")
     fun observeMessageByConversationId(conversationId: String): Flow<List<MessageWithLocalPath>>
 
+    @Transaction
+    @Query(
+        """
+        SELECT * FROM message 
+        WHERE conversationId = :conversationId 
+        AND sentAt >= :startTime AND sentAt <= :endTime
+        ORDER BY sentAt DESC
+    """
+    )
+    fun observeMessagesAround(
+        conversationId: String,
+        startTime: Long,
+        endTime: Long
+    ): Flow<List<MessageWithLocalPath>>
+
     @Query("SELECT * FROM message WHERE messageId = :messageId")
     suspend fun getMessageById(messageId: String): MessageEntity?
 

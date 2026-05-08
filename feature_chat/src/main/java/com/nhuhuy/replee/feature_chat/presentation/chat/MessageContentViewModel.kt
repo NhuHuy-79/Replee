@@ -6,13 +6,13 @@ import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.UiAction
 import com.nhuhuy.replee.core.common.base.UiState
 import com.nhuhuy.replee.core.common.base.reduce
+import com.nhuhuy.replee.core.model.chat.LocalPathMessage
+import com.nhuhuy.replee.core.model.chat.Message
 import com.nhuhuy.replee.core.model.error_handling.onSuccess
-import com.nhuhuy.replee.feature_chat.domain.usecase.message.GetMessagePositionUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.paging.GetCurrentKeyUseCase
+import com.nhuhuy.replee.feature_chat.domain.repository.PaginatorRepository
 import com.nhuhuy.replee.feature_chat.domain.usecase.paging.GetLatestMessagesUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.paging.GetMessageAfterKeyUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.paging.GetMessageBeforeKeyUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.paging.ObserveMessagesAroundUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.paging.ObserveMessagesUseCase
 import com.nhuhuy.replee.feature_chat.utils.toUiModelsWithSeparators
 import dagger.assisted.Assisted
@@ -23,6 +23,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -58,15 +59,15 @@ enum class ScrollPosition {
 class MessageContentViewModel @AssistedInject constructor(
     @Assisted("conversationId") private val conversationId: String,
     @Assisted("anchorMessageId") private val anchorMessageId: String? = null,
+    private val paginatorRepository: PaginatorRepository,
     private val observeMessagesUseCase: ObserveMessagesUseCase,
-    private val getCurrentKeyUseCase: GetCurrentKeyUseCase,
-    private val observeMessagesAroundUseCase: ObserveMessagesAroundUseCase,
     private val getLatestMessagesUseCase: GetLatestMessagesUseCase,
-    private val getMessagePositionUseCase: GetMessagePositionUseCase,
     private val getMessageAfterKeyUseCase: GetMessageAfterKeyUseCase,
     private val getMessageBeforeKeyUseCase: GetMessageBeforeKeyUseCase,
 ) : ViewModel() {
-    private val currentAnchorMessageId = MutableStateFlow(anchorMessageId)
+    private val _beforeTime = MutableStateFlow<Long?>(null)
+    private val _afterTime = MutableStateFlow<Long?>(null)
+
     private val _uiState = MutableStateFlow(MessageUiState(anchorMessageId = anchorMessageId))
     val uiState = _uiState.asStateFlow()
     private val stateValue get() = uiState.value
@@ -74,20 +75,20 @@ class MessageContentViewModel @AssistedInject constructor(
     private var topKey: String? = null
     private var bottomKey: String? = null
 
-    //Observe message around Message id
-
     @OptIn(ExperimentalCoroutinesApi::class)
-    val messagesUiFlow = currentAnchorMessageId.flatMapLatest { anchorMessageId ->
-        if (anchorMessageId == null) {
+    val messagesUiFlow = combine(_beforeTime, _afterTime) { before, after ->
+        before to after
+    }.flatMapLatest { (before, after) ->
+        if (before == null || after == null) {
             observeMessagesUseCase(conversationId = conversationId)
         } else {
-            observeMessagesAroundUseCase(
+            observeMessagesUseCase(
                 conversationId = conversationId,
-                anchorMessageId = anchorMessageId,
-                limit = 15
+                startTime = before,
+                endTime = after
             )
         }
-    }.onEach { localMessages ->
+    }.onEach { localMessages: List<LocalPathMessage> ->
         if (localMessages.isNotEmpty()) {
             bottomKey = localMessages.first().message.messageId
             topKey = localMessages.last().message.messageId
@@ -98,27 +99,18 @@ class MessageContentViewModel @AssistedInject constructor(
         .map { it.toUiModelsWithSeparators() }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val messages = observeMessagesUseCase(conversationId)
-        .onEach { localMessages ->
-            if (localMessages.isNotEmpty()) {
-                bottomKey = localMessages.first().message.messageId
-                topKey = localMessages.last().message.messageId
-                Timber.e("AUTO UPDATE KEYS: bottom=$bottomKey, top=$topKey | Total: ${localMessages.size}")
-            }
-        }
-        .distinctUntilChanged()
-        .map { it.toUiModelsWithSeparators() }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
-
     init {
         viewModelScope.launch {
-            getLatestMessagesUseCase(
-                conversationId = conversationId,
-                pageSize = stateValue.pageSize
-            )
-                .onSuccess { networkMessages ->
+            if (anchorMessageId != null) {
+                detectMessageToJump(anchorMessageId)
+            } else {
+                getLatestMessagesUseCase(
+                    conversationId = conversationId,
+                    pageSize = stateValue.pageSize
+                ).onSuccess { networkMessages ->
                     Timber.e("FETCH INITIAL FROM SERVER SUCCESS: ${networkMessages.size} items")
                 }
+            }
         }
     }
 
@@ -144,6 +136,12 @@ class MessageContentViewModel @AssistedInject constructor(
                 if (networkMessages.isNotEmpty()) {
                     val sortedMessages = networkMessages.sortedByDescending { it.sentAt }
                     topKey = sortedMessages.last().messageId
+
+                    // Cập nhật beforeTime để Flow observe rộng ra thêm về quá khứ
+                    if (_beforeTime.value != null) {
+                        _beforeTime.update { sortedMessages.last().sentAt }
+                    }
+                    
                     Timber.e("FETCH TOP SUCCESS: New topKey=$topKey (Oldest), count=${sortedMessages.size}")
                 }
 
@@ -173,6 +171,12 @@ class MessageContentViewModel @AssistedInject constructor(
                 if (networkMessages.isNotEmpty()) {
                     val sortedMessages = networkMessages.sortedByDescending { it.sentAt }
                     bottomKey = sortedMessages.first().messageId
+
+                    // Cập nhật afterTime để Flow observe rộng ra thêm về hiện tại
+                    if (_afterTime.value != null) {
+                        _afterTime.update { sortedMessages.first().sentAt }
+                    }
+
                     Timber.e("FETCH BOTTOM SUCCESS: New bottomKey=$bottomKey (Newest), count=${sortedMessages.size}")
                 }
 
@@ -197,10 +201,28 @@ class MessageContentViewModel @AssistedInject constructor(
     }
 
     private fun detectMessageToJump(messageId: String) {
+        viewModelScope.launch {
+            _uiState.reduce { copy(isLoadingTop = true, isLoadingBottom = true) }
 
+            paginatorRepository.fetchMessageBetweenKey(
+                conversationId = conversationId,
+                key = messageId,
+                limit = 15L
+            ).onSuccess { messages: List<Message> ->
+                if (messages.isNotEmpty()) {
+                    val sorted = messages.sortedByDescending { it.sentAt }
+                    _beforeTime.update { sorted.last().sentAt }
+                    _afterTime.update { sorted.first().sentAt }
+                    _uiState.reduce { copy(anchorMessageId = messageId) }
+                }
+                _uiState.reduce { copy(isLoadingTop = false, isLoadingBottom = false) }
+            }
+        }
     }
 
     private fun restorePaging() {
-        currentAnchorMessageId.update { null }
+        _beforeTime.update { null }
+        _afterTime.update { null }
+        _uiState.reduce { copy(anchorMessageId = null) }
     }
 }

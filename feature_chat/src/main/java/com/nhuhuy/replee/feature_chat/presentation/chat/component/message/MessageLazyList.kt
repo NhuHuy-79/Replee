@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
@@ -41,7 +42,6 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.component.TypingAnimated
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message_bubble.MessageBubbleItem
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.MessagePosition
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.MessageUiModel
 import com.nhuhuy.replee.feature_chat.utils.rememberScrollState
 import kotlinx.coroutines.FlowPreview
@@ -49,7 +49,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import kotlin.math.abs
 
 @OptIn(FlowPreview::class)
 @Composable
@@ -67,6 +66,8 @@ fun MessageLazyList(
     onMessageAction: (MessageAction) -> Unit,
 ) {
     var requestAnchorMessagePosition by remember { mutableStateOf(anchorMessageId != null) }
+    var trackedMessageId by remember { mutableStateOf<String?>(null) }
+
     val lazyListState = rememberLazyListState()
     val scrollState = rememberScrollState(
         anchorMessageId = anchorMessageId,
@@ -80,12 +81,9 @@ fun MessageLazyList(
         }
     }
 
-    LaunchedEffect(messages) {
+    LaunchedEffect(Unit) {
         if (requestAnchorMessagePosition && anchorMessageId != null && messages.isNotEmpty()) {
-            val centerViewPortOffset = abs(
-                lazyListState.layoutInfo.viewportStartOffset -
-                        lazyListState.layoutInfo.viewportEndOffset
-            ) / 2
+            val centerViewPortOffset = lazyListState.layoutInfo.viewportSize.height / 2
 
             val anchorMessageIndex = messages.indexOfFirst { messageUiModel ->
                 messageUiModel is MessageUiModel.MessageItem && messageUiModel.data.message.messageId == anchorMessageId
@@ -107,19 +105,29 @@ fun MessageLazyList(
         snapshotFlow {
             val layoutInfo = lazyListState.layoutInfo
             val totalItems = layoutInfo.totalItemsCount
-            if (totalItems == 0) return@snapshotFlow ScrollPosition.MIDDLE
-            val firstVisibleIndex = lazyListState.firstVisibleItemIndex
-            val lastVisibleIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val visibleItems = layoutInfo.visibleItemsInfo
+
+            if (totalItems == 0) return@snapshotFlow ScrollPosition.MIDDLE to null
+
+            val firstMessageItem = visibleItems.first()
+            val lastMessageItem = visibleItems.last()
+
+            val firstMessageItemKey = firstMessageItem.key as? String
+            val lastMessageItemKey = lastMessageItem.key as? String
 
             when {
-                lastVisibleIndex >= totalItems - messageUiState.thresholdTrigger -> TOP
-                firstVisibleIndex <= messageUiState.thresholdTrigger -> BOTTOM
-                else -> ScrollPosition.MIDDLE
+                lastMessageItem.index >= totalItems - messageUiState.thresholdTrigger -> TOP to lastMessageItemKey
+                firstMessageItem.index <= messageUiState.thresholdTrigger -> {
+                    BOTTOM to firstMessageItemKey
+                }
+
+                else -> ScrollPosition.MIDDLE to null
             }
         }
             .distinctUntilChanged()
-            .filter { it != ScrollPosition.MIDDLE }
-            .collect { scrollPosition ->
+            .filter { (scrollPosition, _) -> scrollPosition != ScrollPosition.MIDDLE }
+            .collect { (scrollPosition, key) ->
+                trackedMessageId = key
                 when (scrollPosition) {
                     TOP -> onMessageAction(MessageAction.ScrollToTop)
                     BOTTOM -> onMessageAction(MessageAction.ScrollToBottom)
@@ -128,23 +136,9 @@ fun MessageLazyList(
             }
     }
 
-    LaunchedEffect(scrollState.lazyListState) {
-        snapshotFlow {
-            Triple(
-                scrollState.lazyListState.firstVisibleItemIndex,
-                scrollState.lazyListState.firstVisibleItemScrollOffset,
-                scrollState.lazyListState.layoutInfo.totalItemsCount
-            )
-        }.distinctUntilChanged()
-            .collect { (index, offset, totalItems) ->
-                Timber.tag("SCROLL")
-                    .d("FirstVisibleIndex: $index | PixelOffset: $offset | TotalItems: $totalItems")
-            }
-    }
-
     LaunchedEffect(messages.size) {
         if (isAtBottom) {
-            onAction(ChatAction.OnNewMessageTrigger)
+            lazyListState.animateScrollToItem(0)
         }
     }
 
@@ -168,65 +162,28 @@ fun MessageLazyList(
             }
 
             items(
-                count = messages.size,
-                key = { index ->
-                    when (val item = messages[index]) {
+                items = messages,
+                key = { item ->
+                    when (item) {
                         is MessageUiModel.MessageItem -> item.data.message.messageId
-                        is MessageUiModel.DateSeparator -> "date_sep_${item.date}_$index"
+                        is MessageUiModel.DateSeparator -> "date_sep_${item.date}"
                     }
                 },
-                contentType = { index ->
-                    when (val item = messages[index]) {
+                contentType = { item ->
+                    when (item) {
                         is MessageUiModel.MessageItem -> item.data.message.type
                         is MessageUiModel.DateSeparator -> "date_separator"
                     }
                 }
-            ) { index ->
-                when (val item = messages[index]) {
+            ) { item ->
+                when (item) {
                     is MessageUiModel.MessageItem -> {
-                        val olderItem =
-                            if (index < messages.size - 1) messages[index + 1] else null
-                        val newerItem = if (index > 0) messages[index - 1] else null
-                        val isFirstInGroup = when (olderItem) {
-                            is MessageUiModel.DateSeparator -> true
-                            is MessageUiModel.MessageItem -> {
-                                val isDifferentSender =
-                                    olderItem.data.message.senderId != item.data.message.senderId
-                                val isFarApart =
-                                    (item.data.message.sentAt - olderItem.data.message.sentAt) > 600_000L
-                                isDifferentSender || isFarApart
-                            }
-
-                            null -> true
-                        }
-
-                        val isLastInGroup = when (newerItem) {
-                            is MessageUiModel.DateSeparator -> true
-                            is MessageUiModel.MessageItem -> {
-                                val isDifferentSender =
-                                    newerItem.data.message.senderId != item.data.message.senderId
-                                val isFarApart =
-                                    (newerItem.data.message.sentAt - item.data.message.sentAt) > 600_000L
-                                isDifferentSender || isFarApart
-                            }
-
-                            null -> true
-                        }
-                        val position = when {
-                            isFirstInGroup && isLastInGroup -> MessagePosition.SINGLE
-                            isFirstInGroup -> MessagePosition.START
-                            isLastInGroup -> MessagePosition.END
-                            else -> MessagePosition.MIDDLE
-                        }
-
-                        val isLastInScreen = index == 0
-
+                        val isLastInScreen = messages.getOrNull(0) == item
                         MessageBubbleItem(
                             readingTime = recipientReadAt,
                             uiState = uiState,
                             item = item.data,
                             onReplyContentClick = {
-                                //On Scroll to Reply Message
 
                             },
                             onTextMessageClick = {
@@ -247,9 +204,9 @@ fun MessageLazyList(
                                 )
                             },
                             modifier = Modifier,
-                            isLastInGroup = isLastInGroup,
+                            isLastInGroup = item.isLastInGroup,
                             isLastInScreen = isLastInScreen,
-                            position = position
+                            position = item.position
                         )
                     }
 
