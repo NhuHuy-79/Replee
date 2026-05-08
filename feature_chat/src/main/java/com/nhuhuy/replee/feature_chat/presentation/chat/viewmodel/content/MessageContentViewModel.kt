@@ -1,10 +1,7 @@
-package com.nhuhuy.replee.feature_chat.presentation.chat
+package com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content
 
-import androidx.compose.runtime.Immutable
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nhuhuy.replee.core.common.base.UiAction
-import com.nhuhuy.replee.core.common.base.UiState
+import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.model.chat.LocalPathMessage
 import com.nhuhuy.replee.core.model.chat.Message
@@ -33,28 +30,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-sealed interface MessageAction : UiAction {
-    data class JumpToMessageId(val messageId: String) : MessageAction
-    data object ScrollToTop : MessageAction
-    data object ScrollToBottom : MessageAction
-}
-
-@Immutable
-data class MessageUiState(
-    val pageSize: Int = 20,
-    val anchorMessagePosition: Int = 0,
-    val anchorMessageId: String? = null,
-    val isLoadingTop: Boolean = false,
-    val isLoadingBottom: Boolean = false,
-    val thresholdTrigger: Int = 5,
-    val endOfBottom: Boolean = false,
-    val endOfTop: Boolean = false
-) : UiState
-
-enum class ScrollPosition {
-    MIDDLE, TOP, BOTTOM
-}
-
 @HiltViewModel(assistedFactory = MessageContentViewModel.Factory::class)
 class MessageContentViewModel @AssistedInject constructor(
     @Assisted("conversationId") private val conversationId: String,
@@ -64,13 +39,13 @@ class MessageContentViewModel @AssistedInject constructor(
     private val getLatestMessagesUseCase: GetLatestMessagesUseCase,
     private val getMessageAfterKeyUseCase: GetMessageAfterKeyUseCase,
     private val getMessageBeforeKeyUseCase: GetMessageBeforeKeyUseCase,
-) : ViewModel() {
+) : BaseViewModel<MessageAction, MessageEvent, MessageUiState>() {
     private val _beforeTime = MutableStateFlow<Long?>(null)
     private val _afterTime = MutableStateFlow<Long?>(null)
 
     private val _uiState = MutableStateFlow(MessageUiState(anchorMessageId = anchorMessageId))
-    val uiState = _uiState.asStateFlow()
-    private val stateValue get() = uiState.value
+    override val state = _uiState.asStateFlow()
+    private val stateValue get() = state.value
 
     private var topKey: String? = null
     private var bottomKey: String? = null
@@ -114,7 +89,7 @@ class MessageContentViewModel @AssistedInject constructor(
         }
     }
 
-    fun onAction(action: MessageAction) {
+    override fun onAction(action: MessageAction) {
         when (action) {
             is MessageAction.JumpToMessageId -> detectMessageToJump(messageId = action.messageId)
             MessageAction.ScrollToBottom -> fetchInBottom()

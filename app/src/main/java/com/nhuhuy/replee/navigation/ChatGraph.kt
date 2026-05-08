@@ -11,6 +11,7 @@ import com.nhuhuy.replee.feature_chat.navigation.OptionRoute
 import com.nhuhuy.replee.feature_chat.navigation.PinRoute
 import com.nhuhuy.replee.feature_chat.navigation.SearchRoute
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatViewModel
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageContentViewModel
 import com.nhuhuy.replee.feature_chat.presentation.option.OptionViewModel
 import com.nhuhuy.replee.feature_chat.presentation.pin.PinViewModel
 import com.nhuhuy.replee.feature_chat.presentation.search.SearchViewModel
@@ -103,7 +104,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
 
         ChatRoute(
             messageContentViewModel = hiltViewModel(
-                creationCallback = { factory: com.nhuhuy.replee.feature_chat.presentation.chat.MessageContentViewModel.Factory ->
+                creationCallback = { factory: MessageContentViewModel.Factory ->
                     factory.create(
                         conversationId = ChatIdGenerator.generate(
                             uid1 = screen.currentUserId,

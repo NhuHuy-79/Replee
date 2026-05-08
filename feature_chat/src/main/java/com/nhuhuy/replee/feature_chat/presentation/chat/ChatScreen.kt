@@ -52,6 +52,8 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.Messag
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.MessageUiModel
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageAction
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageUiState
 import kotlinx.coroutines.delay
 import timber.log.Timber
 

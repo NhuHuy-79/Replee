@@ -11,7 +11,6 @@ import com.nhuhuy.replee.core.presentation.ObserveEffect
 import com.nhuhuy.replee.core.presentation.component.BoxContainer
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatScreen
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatViewModel
-import com.nhuhuy.replee.feature_chat.presentation.chat.MessageContentViewModel
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.dialog.FullImageDialog
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.emote.FullScreenEmojiPickerDialog
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageSheet
@@ -19,6 +18,7 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction.OnReactionSelect
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageContentViewModel
 import kotlinx.coroutines.launch
 
 @Composable
