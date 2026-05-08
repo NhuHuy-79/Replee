@@ -3,13 +3,9 @@
 package com.nhuhuy.replee.feature_chat.presentation.chat
 
 import androidx.lifecycle.viewModelScope
-import androidx.paging.cachedIn
-import androidx.paging.insertSeparators
-import androidx.paging.map
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.utils.ApplicationCoroutineScope
-import com.nhuhuy.replee.core.common.utils.toLocalDate
 import com.nhuhuy.replee.core.domain.usecase.GetAccountByIdUseCase
 import com.nhuhuy.replee.core.model.validate.ValidateFileResult
 import com.nhuhuy.replee.core.sync.domain.usecase.message.SyncMessageUseCase
@@ -24,7 +20,6 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.message.AddReactionUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.DeleteMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.GetMessagePositionUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.MarkMessagesReadUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObserveLocalMessagesUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.PinMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.RemoveReactionUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendMessageUseCase
@@ -43,7 +38,6 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.FullIm
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.MessageOption
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay.None
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.MessageUiModel
 import com.nhuhuy.replee.feature_chat.utils.ChatSessionManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -59,10 +53,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
@@ -75,7 +66,6 @@ class ChatViewModel @AssistedInject constructor(
     @Assisted("currentUserId") private val currentUserId: String,
     @Assisted("messageId") private val anchorMessageId: String? = null,
     @param:ApplicationCoroutineScope private val externalScope: CoroutineScope,
-    observeLocalMessagesUseCase: ObserveLocalMessagesUseCase,
     getReadTimeUseCase: GetReadTimeUseCase,
     observeOwnerIsBlockUseCase: ObserveOwnerIsBlockUseCase,
     getTypingUseCase: GetTypingUseCase,
@@ -119,52 +109,6 @@ class ChatViewModel @AssistedInject constructor(
             isInitialJumpLoading = anchorMessageId != null
         )
     )
-
-    val pagedMessages = state
-        .map { it.messageAnchorId }
-        .distinctUntilChanged()
-        .flatMapLatest { anchor ->
-            observeLocalMessagesUseCase(
-                anchorMessageId = anchor,
-                conversationId = conversationId
-            )
-                .map { pagingData ->
-                    pagingData.map { MessageUiModel.MessageItem(it) as MessageUiModel }
-                        .insertSeparators { before, after ->
-                            val beforeItem = before as? MessageUiModel.MessageItem
-                            val afterItem = after as? MessageUiModel.MessageItem
-
-                            if (beforeItem == null) {
-                                return@insertSeparators null
-                            }
-
-                            val beforeDate = beforeItem.data.message.sentAt.toLocalDate()
-                            val formatter =
-                                java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")
-
-                            if (afterItem == null) {
-                                return@insertSeparators MessageUiModel.DateSeparator(
-                                    beforeDate.format(
-                                        formatter
-                                    )
-                                )
-                            }
-
-                            val afterDate = afterItem.data.message.sentAt.toLocalDate()
-
-                            if (beforeDate != afterDate) {
-                                return@insertSeparators MessageUiModel.DateSeparator(
-                                    beforeDate.format(
-                                        formatter
-                                    )
-                                )
-                            }
-
-                            return@insertSeparators null
-                        }
-                }
-                .cachedIn(viewModelScope)
-        }
 
     val otherLastReadingTime =
         getReadTimeUseCase(conversationId = conversationId, otherUserId = otherUserId)

@@ -10,17 +10,13 @@ import java.time.format.DateTimeFormatter
 
 fun List<LocalPathMessage>.toUiModelsWithSeparators(): List<MessageUiModel> {
     if (this.isEmpty()) return emptyList()
-
     val result = mutableListOf<MessageUiModel>()
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-
-    // Giả định list đầu vào đã được sắp xếp DESC (Mới -> Cũ)
     for (i in this.indices) {
         val currentItem = this[i]
         val olderItem = this.getOrNull(i + 1)
         val newerItem = this.getOrNull(i - 1)
 
-        // 1. Tính toán logic Grouping
         val isFirstInGroup = when (olderItem) {
             null -> true
             else -> {
@@ -59,7 +55,6 @@ fun List<LocalPathMessage>.toUiModelsWithSeparators(): List<MessageUiModel> {
             )
         )
 
-        // 3. Logic thêm DateSeparator (nếu là tin nhắn cũ nhất trong ngày hoặc cuối list)
         val currentDate = currentItem.message.sentAt.toLocalDate()
         val nextItemDate = olderItem?.message?.sentAt?.toLocalDate()
 
