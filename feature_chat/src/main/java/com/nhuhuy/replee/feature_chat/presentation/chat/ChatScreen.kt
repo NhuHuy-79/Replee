@@ -12,7 +12,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.MessageContentComposable
 import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessageUiModel
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.ChatMediatorState
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundAction
@@ -26,12 +25,12 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.input.MessageI
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChatScreen(
+    messages: List<MessageUiModel>,
     messageUiState: MessageUiState,
     chatBackgroundState: ChatBackgroundState,
     chatBackgroundCombineState: ChatBackgroundCombineState,
     chatMediatorState: ChatMediatorState,
     messageInputState: MessageInputState,
-    messages: List<MessageUiModel>,
     onInputAction: (MessageInputAction) -> Unit,
     onBackgroundAction: (ChatBackgroundAction) -> Unit,
     onMessageAction: (MessageAction) -> Unit
@@ -65,6 +64,7 @@ fun ChatScreen(
             MessageInputComposable(
                 chatMediatorState = chatMediatorState,
                 chatBackgroundState = chatBackgroundState,
+                chatBackgroundCombineState = chatBackgroundCombineState,
                 messageInputState = messageInputState,
                 onAction = onInputAction
             )

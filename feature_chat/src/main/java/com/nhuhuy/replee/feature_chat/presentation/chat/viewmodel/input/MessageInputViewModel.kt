@@ -29,7 +29,7 @@ class MessageInputViewModel @Inject constructor(
     private val validateFileSizeUseCase: ValidateFileSizeUseCase,
     private val updateTypingUseCase: UpdateTypingUseCase,
     private val scopeHolder: ScopeHolder,
-    @field:ChatScopeId private val chatScopeId: String
+    @param:ChatScopeId private val chatScopeId: String
 ) : BaseViewModel<MessageInputAction, MessageInputEvent, MessageInputState>() {
     private val chatMediator by lazy {
         scopeHolder.getOrCreateMediator(scopeId = chatScopeId) { ChatMediator() }

@@ -28,7 +28,6 @@ fun MessageContent(
     modifier: Modifier = Modifier,
 ) {
     val message = localPathMessage.message
-
     val containerColor = when {
         isAnchor -> MaterialTheme.colorScheme.primary
         isCurrentUser -> MaterialTheme.colorScheme.secondaryContainer

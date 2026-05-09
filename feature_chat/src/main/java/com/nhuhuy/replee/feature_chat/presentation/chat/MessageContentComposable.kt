@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.chat.component
+package com.nhuhuy.replee.feature_chat.presentation.chat
 
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.presentation.component.Banner
 import com.nhuhuy.replee.feature_chat.R
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.BlockOverlay
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageLazyList
 import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessageUiModel
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundAction
@@ -29,7 +30,7 @@ fun ColumnScope.MessageContentComposable(
     onMessageAction: (MessageAction) -> Unit,
     onBackgroundAction: (ChatBackgroundAction) -> Unit
 ) {
-    if (chatBackgroundState.ownerIsBlocked) {
+    if (chatBackgroundState.isBlocked) {
         Banner(
             label = stringResource(R.string.chat_screen_block_banner),
             containerColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -40,7 +41,7 @@ fun ColumnScope.MessageContentComposable(
     }
     Spacer(Modifier.height(16.dp))
 
-    if (chatBackgroundState.isBlocked) {
+    if (chatBackgroundCombineState.ownerIsBlock) {
         BlockOverlay(
             onUnBlock = {
                 onBackgroundAction(ChatBackgroundAction.OnUnblockUser)
@@ -51,6 +52,7 @@ fun ColumnScope.MessageContentComposable(
         )
     } else {
         MessageLazyList(
+            modifier = Modifier.weight(1f),
             messageUiState = messageUiState,
             messages = messages,
             chatBackgroundCombineState = chatBackgroundCombineState,

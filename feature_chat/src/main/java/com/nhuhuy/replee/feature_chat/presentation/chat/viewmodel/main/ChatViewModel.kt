@@ -55,7 +55,6 @@ class ChatViewModel @AssistedInject constructor(
     override fun onCleared() {
         val conversationId = mediator.currentState.conversationId
         chatSessionManager.setCurrentChatId(conversationId = null)
-
         externalScope.launch {
             updateTypingUseCase(
                 conversationId = conversationId,

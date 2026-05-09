@@ -53,6 +53,7 @@ import timber.log.Timber
 @OptIn(FlowPreview::class)
 @Composable
 fun MessageLazyList(
+    modifier: Modifier = Modifier,
     messages: List<MessageUiModel>,
     messageUiState: MessageUiState,
     chatBackgroundState: ChatBackgroundState,
@@ -135,8 +136,7 @@ fun MessageLazyList(
     }
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier
             .padding(horizontal = 16.dp),
         contentAlignment = Alignment.Center
     ) {

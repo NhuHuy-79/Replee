@@ -33,7 +33,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
@@ -56,19 +55,19 @@ class ChatBackgroundViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
     @Assisted("messageId") private val anchorMessageId: String? = null,
+    syncMessageUseCase: SyncMessageUseCase,
+    notificationManager: NotificationManager,
+    observeOwnerIsBlockUseCase: ObserveOwnerIsBlockUseCase,
+    getReadTimeUseCase: GetReadTimeUseCase,
+    getTypingUseCase: GetTypingUseCase,
     private val scopeHolder: ScopeHolder,
     private val updateReadTimeUseCase: UpdateReadTimeUseCase,
-    private val syncMessageUseCase: SyncMessageUseCase,
     private val getAccountByIdUseCase: GetAccountByIdUseCase,
     private val markMessagesReadUseCase: MarkMessagesReadUseCase,
     private val checkBlockUseCase: CheckBlockUseCase,
     private val getConversationUseCase: GetConversationUseCase,
     private val getMessagePositionUseCase: GetMessagePositionUseCase,
     private val unblockUserUseCase: UnblockUserUseCase,
-    private val notificationManager: NotificationManager,
-    private val observeOwnerIsBlockUseCase: ObserveOwnerIsBlockUseCase,
-    private val getReadTimeUseCase: GetReadTimeUseCase,
-    private val getTypingUseCase: GetTypingUseCase,
 ) : BaseViewModel<ChatBackgroundAction, ChatBackgroundEvent, ChatBackgroundState>() {
     private val _state = MutableStateFlow(ChatBackgroundState())
     override val state = _state.asStateFlow()
@@ -80,7 +79,6 @@ class ChatBackgroundViewModel @AssistedInject constructor(
 
     private val ownerIsBlocked: Flow<Boolean> =
         observeOwnerIsBlockUseCase(ownerId = currentUserId, otherUserId = otherUserId)
-            .onEach { isBlocked -> _state.reduce { copy(ownerIsBlocked = isBlocked) } }
 
     private val otherLastReadingTime: Flow<Long> = getReadTimeUseCase(
         conversationId = ChatIdGenerator.generate(currentUserId, otherUserId),
@@ -200,6 +198,7 @@ class ChatBackgroundViewModel @AssistedInject constructor(
             ChatBackgroundAction.OnUnblockUser -> {
                 viewModelScope.launch {
                     unblockUserUseCase(otherUserId = otherUserId)
+                    _state.reduce { copy(isBlocked = false) }
                 }
             }
             ChatBackgroundAction.OnNewMessageTrigger -> {

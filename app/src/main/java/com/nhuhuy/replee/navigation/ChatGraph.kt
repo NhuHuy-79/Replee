@@ -5,7 +5,10 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.nhuhuy.replee.LocalNetworkStatus
+import com.nhuhuy.replee.core.common.di.ScopeHolder
+import com.nhuhuy.replee.core.common.di.ScopeId
 import com.nhuhuy.replee.core.common.utils.ChatIdGenerator
+import com.nhuhuy.replee.di.HiltScopedComposable
 import com.nhuhuy.replee.feature_chat.navigation.ChatRoute
 import com.nhuhuy.replee.feature_chat.navigation.OptionRoute
 import com.nhuhuy.replee.feature_chat.navigation.PinRoute
@@ -59,6 +62,7 @@ sealed interface HomeDestination : NavKey {
 }
 
 fun EntryProviderScope<NavKey>.chatGraph(
+    scopeHolder: ScopeHolder,
     backstack: NavBackStack<NavKey>,
 ) {
     entry<HomeDestination.ConversationList> { screen ->
@@ -100,58 +104,63 @@ fun EntryProviderScope<NavKey>.chatGraph(
         )
 
 
-        ChatRoute(
-            chatViewModel = viewModel,
-            chatBackgroundViewModel = hiltViewModel(
-                creationCallback = { factory: ChatBackgroundViewModel.Factory ->
-                    factory.create(
-                        otherUserId = screen.otherUserId,
-                        currentUserId = screen.currentUserId,
-                        anchorMessageId = screen.anchorMessageId
+        HiltScopedComposable(
+            scopeName = ScopeId.CHAT.name,
+            scopeHolder = scopeHolder
+        ) {
+            ChatRoute(
+                chatViewModel = viewModel,
+                chatBackgroundViewModel = hiltViewModel(
+                    creationCallback = { factory: ChatBackgroundViewModel.Factory ->
+                        factory.create(
+                            otherUserId = screen.otherUserId,
+                            currentUserId = screen.currentUserId,
+                            anchorMessageId = screen.anchorMessageId
+                        )
+                    }
+                ),
+                messageContentViewModel = hiltViewModel(
+                    creationCallback = { factory: MessageContentViewModel.Factory ->
+                        factory.create(
+                            conversationId = ChatIdGenerator.generate(
+                                uid1 = screen.currentUserId,
+                                uid2 = screen.otherUserId,
+                            ),
+                            anchorMessageId = screen.anchorMessageId
+                        )
+                    }
+                ),
+                messageInputViewModel = hiltViewModel(),
+                onNavigateBack = { backstack.removeLastOrNull() },
+                onNavigateToSearch = { conversationId, otherUserId, currentUserId ->
+                    backstack.add(
+                        Search(
+                            conversationId = conversationId,
+                            otherUserId = otherUserId,
+                            currentUserId = currentUserId,
+                        )
+                    )
+                },
+                onNavigateToPin = { conversationId, otherUserId, currentUserId ->
+                    backstack.add(
+                        Pin(
+                            conversationId = conversationId,
+                            otherUserId = otherUserId,
+                            currentUserId = currentUserId
+                        )
+                    )
+                },
+                onNavigateToInformation = { currentId, convId, otherId ->
+                    backstack.add(
+                        Information(
+                            otherUserId = otherId,
+                            conversationId = convId,
+                            currentUserId = currentId,
+                        )
                     )
                 }
-            ),
-            messageContentViewModel = hiltViewModel(
-                creationCallback = { factory: MessageContentViewModel.Factory ->
-                    factory.create(
-                        conversationId = ChatIdGenerator.generate(
-                            uid1 = screen.currentUserId,
-                            uid2 = screen.otherUserId,
-                        ),
-                        anchorMessageId = screen.anchorMessageId
-                    )
-                }
-            ),
-            messageInputViewModel = hiltViewModel(),
-            onNavigateBack = { backstack.removeLastOrNull() },
-            onNavigateToSearch = { conversationId, otherUserId, currentUserId ->
-                backstack.add(
-                    Search(
-                        conversationId = conversationId,
-                        otherUserId = otherUserId,
-                        currentUserId = currentUserId,
-                    )
-                )
-            },
-            onNavigateToPin = { conversationId, otherUserId, currentUserId ->
-                backstack.add(
-                    Pin(
-                        conversationId = conversationId,
-                        otherUserId = otherUserId,
-                        currentUserId = currentUserId
-                    )
-                )
-            },
-            onNavigateToInformation = { currentId, convId, otherId ->
-                backstack.add(
-                    Information(
-                        otherUserId = otherId,
-                        conversationId = convId,
-                        currentUserId = currentId,
-                    )
-                )
-            }
-        )
+            )
+        }
     }
 
     entry<Information> { screen ->

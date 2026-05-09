@@ -1,6 +1,5 @@
 package com.nhuhuy.replee.feature_chat.presentation.chat
 
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -17,15 +16,17 @@ import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.ReplyBanner
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageInput
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.ChatMediatorState
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundCombineState
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundState
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.input.MessageInputAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.input.MessageInputState
 import kotlinx.coroutines.delay
 
 @Composable
-fun ColumnScope.MessageInputComposable(
+fun MessageInputComposable(
     chatMediatorState: ChatMediatorState,
     chatBackgroundState: ChatBackgroundState,
+    chatBackgroundCombineState: ChatBackgroundCombineState,
     messageInputState: MessageInputState,
     onAction: (MessageInputAction) -> Unit,
 ) {
@@ -68,7 +69,7 @@ fun ColumnScope.MessageInputComposable(
     )
 
 
-    if (!chatBackgroundState.ownerIsBlocked && !chatBackgroundState.isBlocked) {
+    if (!chatBackgroundCombineState.ownerIsBlock) {
         MessageInput(
             focusRequester = focusRequester,
             value = messageInputState.input,
