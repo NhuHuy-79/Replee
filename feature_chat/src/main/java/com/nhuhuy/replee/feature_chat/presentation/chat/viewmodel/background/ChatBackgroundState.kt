@@ -10,4 +10,6 @@ data class ChatBackgroundState(
     val otherAccount: Account = Account(),
     val isBlocked: Boolean = false,
     val ownerIsBlocked: Boolean = false,
+    val otherLastReadingTime: Long = 0L,
+    val typingUserIds: List<String> = emptyList(),
 ) : UiState

@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.chat.state
+package com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.main
 
 
 import androidx.compose.runtime.Immutable

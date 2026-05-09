@@ -1,0 +1,62 @@
+package com.nhuhuy.replee.feature_chat.presentation.chat.component
+
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import com.nhuhuy.replee.core.presentation.component.Banner
+import com.nhuhuy.replee.feature_chat.R
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageLazyList
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessageUiModel
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundAction
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundCombineState
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundState
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageAction
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageUiState
+
+@Composable
+fun ColumnScope.MessageContentComposable(
+    messages: List<MessageUiModel>,
+    messageUiState: MessageUiState,
+    chatBackgroundCombineState: ChatBackgroundCombineState,
+    chatBackgroundState: ChatBackgroundState,
+    onMessageAction: (MessageAction) -> Unit,
+    onBackgroundAction: (ChatBackgroundAction) -> Unit
+) {
+    if (chatBackgroundState.ownerIsBlocked) {
+        Banner(
+            label = stringResource(R.string.chat_screen_block_banner),
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+            modifier = Modifier.fillMaxWidth()
+
+        )
+    }
+    Spacer(Modifier.height(16.dp))
+
+    if (chatBackgroundState.isBlocked) {
+        BlockOverlay(
+            onUnBlock = {
+                onBackgroundAction(ChatBackgroundAction.OnUnblockUser)
+            },
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 16.dp)
+        )
+    } else {
+        MessageLazyList(
+            messageUiState = messageUiState,
+            messages = messages,
+            chatBackgroundCombineState = chatBackgroundCombineState,
+            chatBackgroundState = chatBackgroundState,
+            onBackgroundAction = onBackgroundAction,
+            onMessageAction = onMessageAction,
+        )
+    }
+}

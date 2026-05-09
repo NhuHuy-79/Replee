@@ -16,7 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.MessagePosition
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition
 
 @Composable
 fun MessageBubbleLayout(

@@ -23,53 +23,51 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.common.utils.formatToChatTime
 import com.nhuhuy.replee.core.design_system.component.UserImage
-import com.nhuhuy.replee.core.model.chat.LocalPathMessage
 import com.nhuhuy.replee.core.model.chat.Message
 import com.nhuhuy.replee.core.model.chat.MessageType
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.StatusContent
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.emote.EmoteFlowRow
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageContent
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.ReplyContent
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.MessagePosition
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessageUiModel
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundState
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageUiState
 
 @Composable
 fun MessageBubbleItem(
-    modifier: Modifier = Modifier,
-    isLastInGroup: Boolean,
     isLastInScreen: Boolean,
-    position: MessagePosition,
     readingTime: Long,
-    uiState: ChatState,
-    item: LocalPathMessage,
+    item: MessageUiModel.MessageItem,
+    messageUiState: MessageUiState,
+    chatBackgroundState: ChatBackgroundState,
     onReplyContentClick: () -> Unit,
-    onTextMessageClick: (message: Message) -> Unit,
     onImageMessageClick: (message: Message) -> Unit,
     onMessageLongClick: () -> Unit,
     onReactionClick: (reaction: String) -> Unit
 ) {
     var showStatus by remember { mutableStateOf(false) }
-    val isAnchor = uiState.messageAnchorId == item.message.messageId
-    val isCurrentUser = item.message.senderId == uiState.currentUserId
-    val sender = if (isCurrentUser) uiState.currentUser else uiState.otherUser
+    val isAnchor = messageUiState.anchorMessageId == item.data.message.messageId
+    val isCurrentUser = item.data.message.senderId == chatBackgroundState.currentAccount.id
+    val sender =
+        if (isCurrentUser) chatBackgroundState.currentAccount else chatBackgroundState.otherAccount
     val repliedUser =
-        if (item.message.repliedMessageSenderId == uiState.currentUserId) uiState.currentUser
-        else uiState.otherUser
+        if (item.data.message.repliedMessageSenderId == chatBackgroundState.currentAccount.id) chatBackgroundState.currentAccount
+        else chatBackgroundState.otherAccount
     val isHideReactions =
-        item.message.ownerReactions.isEmpty() && item.message.otherUserReactions.isEmpty()
+        item.data.message.ownerReactions.isEmpty() && item.data.message.otherUserReactions.isEmpty()
 
     Box(
-        modifier = modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         contentAlignment = if (isCurrentUser) Alignment.CenterEnd else Alignment.CenterStart
     ) {
         MessageBubbleLayout(
-            isLastInGroup = isLastInGroup,
+            isLastInGroup = item.isLastInGroup,
             isLastInScreen = isLastInScreen,
-            position = position,
+            position = item.position,
             isCurrentUser = isCurrentUser,
             showReactions = !isHideReactions,
             showStatus = showStatus,
-            isReplyMessage = item.message.repliedMessageId != null,
+            isReplyMessage = item.data.message.repliedMessageId != null,
             userImageContent = {
                 UserImage(
                     userName = sender.name,
@@ -83,11 +81,11 @@ fun MessageBubbleItem(
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
-                        text = item.message.sentAt.formatToChatTime(),
+                        text = item.data.message.sentAt.formatToChatTime(),
                         style = MaterialTheme.typography.labelSmall
                     )
 
-                    if (item.message.pinned) {
+                    if (item.data.message.pinned) {
                         Icon(
                             imageVector = Icons.Rounded.PushPin,
                             contentDescription = null,
@@ -100,18 +98,18 @@ fun MessageBubbleItem(
             statusContent = {
                 StatusContent(
                     otherUserReadingTime = readingTime,
-                    message = item.message,
-                    receiverImageUrl = uiState.otherUser.imageUrl,
-                    receiverName = uiState.otherUser.name,
+                    message = item.data.message,
+                    receiverImageUrl = chatBackgroundState.otherAccount.imageUrl,
+                    receiverName = chatBackgroundState.otherAccount.name,
                 )
             },
             replyContent = {
                 ReplyContent(
                     isCurrentUser = isCurrentUser,
                     replyTo = repliedUser.name,
-                    content = item.message.repliedMessageContent.orEmpty(),
-                    type = item.message.repliedMessageType,
-                    remoteUrl = item.message.repliedMessageRemoteUrl,
+                    content = item.data.message.repliedMessageContent.orEmpty(),
+                    type = item.data.message.repliedMessageType,
+                    remoteUrl = item.data.message.repliedMessageRemoteUrl,
                     modifier = Modifier
                         .clickable(onClick = onReplyContentClick)
                 )
@@ -121,12 +119,12 @@ fun MessageBubbleItem(
                     horizontalAlignment = Alignment.End
                 ) {
                     MessageContent(
-                        localPathMessage = item,
-                        position = position,
+                        localPathMessage = item.data,
+                        position = item.position,
                         isAnchor = isAnchor,
                         isCurrentUser = isCurrentUser,
                         onClick = {
-                            when (item.message.type) {
+                            when (item.data.message.type) {
                                 MessageType.TEXT -> {
                                     showStatus = !showStatus
                                 }
@@ -143,7 +141,7 @@ fun MessageBubbleItem(
             },
             reactionContent = {
                 val allReactions =
-                    item.message.ownerReactions + item.message.otherUserReactions
+                    item.data.message.ownerReactions + item.data.message.otherUserReactions
                 val alignment = if (isCurrentUser) Alignment.End else Alignment.Start
                 val horizontalPadding = if (isCurrentUser) 0.dp else 48.dp
                 EmoteFlowRow(

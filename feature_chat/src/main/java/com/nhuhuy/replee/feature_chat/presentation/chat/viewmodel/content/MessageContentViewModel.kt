@@ -18,8 +18,8 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.paging.GetLatestMessagesUse
 import com.nhuhuy.replee.feature_chat.domain.usecase.paging.GetMessageAfterKeyUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.paging.GetMessageBeforeKeyUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.paging.ObserveMessagesUseCase
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.ChatMediator
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.main.ChatOverlay
 import com.nhuhuy.replee.feature_chat.utils.toUiModelsWithSeparators
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory

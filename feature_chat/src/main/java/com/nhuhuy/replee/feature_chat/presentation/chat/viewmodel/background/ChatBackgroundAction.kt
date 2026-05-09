@@ -8,4 +8,5 @@ sealed interface ChatBackgroundAction : UiAction {
     data object OnSearchClick : ChatBackgroundAction
     data object OnPinClick : ChatBackgroundAction
     data object OnUnblockUser : ChatBackgroundAction
+    data object OnNewMessageTrigger : ChatBackgroundAction
 }

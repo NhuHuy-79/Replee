@@ -58,7 +58,7 @@
 -keep class com.nhuhuy.replee.feature_chat.data.model.** { *; }
 -keep class com.nhuhuy.replee.feature_chat.data.worker.** { *; }
 -keep class com.nhuhuy.replee.feature_chat.domain.** { *; }
--keep class com.nhuhuy.replee.feature_chat.presentation.chat.state.**{ *; }
+-keep class com.nhuhuy.replee.feature_chat.presentation.chat.model.**{ *; }
 -keep class com.nhuhuy.replee.feature_chat.presentation.conversation.state.**{ *; }
 -keep class com.nhuhuy.replee.feature_chat.presentation.search.state.**{ *; }
 -keep class com.nhuhuy.replee.feature_chat.presentation.pin.state.**{ *; }

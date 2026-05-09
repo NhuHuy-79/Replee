@@ -15,7 +15,7 @@ import com.nhuhuy.replee.core.model.chat.Message
 import com.nhuhuy.replee.core.model.chat.MessageType
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.image.ImageMessage
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.text.TextMessage
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.MessagePosition
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition
 
 @Composable
 fun MessageContent(

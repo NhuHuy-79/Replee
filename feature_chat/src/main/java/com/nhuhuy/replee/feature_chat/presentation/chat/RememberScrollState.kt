@@ -12,7 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.paging.compose.LazyPagingItems
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.MessageUiModel
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessageUiModel
 
 
 @Composable

@@ -10,8 +10,9 @@ import com.nhuhuy.replee.feature_chat.navigation.ChatRoute
 import com.nhuhuy.replee.feature_chat.navigation.OptionRoute
 import com.nhuhuy.replee.feature_chat.navigation.PinRoute
 import com.nhuhuy.replee.feature_chat.navigation.SearchRoute
-import com.nhuhuy.replee.feature_chat.presentation.chat.ChatViewModel
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundViewModel
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageContentViewModel
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.main.ChatViewModel
 import com.nhuhuy.replee.feature_chat.presentation.option.OptionViewModel
 import com.nhuhuy.replee.feature_chat.presentation.pin.PinViewModel
 import com.nhuhuy.replee.feature_chat.presentation.search.SearchViewModel
@@ -37,12 +38,9 @@ sealed interface HomeDestination : NavKey {
 
     @Serializable
     data class Information(
-        val otherUserImg: String,
         val currentUserId: String,
         val conversationId: String,
-        val otherUserName: String,
         val otherUserId: String,
-        val otherUserEmail: String
     ) : HomeDestination
 
     @Serializable
@@ -103,20 +101,28 @@ fun EntryProviderScope<NavKey>.chatGraph(
 
 
         ChatRoute(
+            chatViewModel = viewModel,
+            chatBackgroundViewModel = hiltViewModel(
+                creationCallback = { factory: ChatBackgroundViewModel.Factory ->
+                    factory.create(
+                        otherUserId = screen.otherUserId,
+                        currentUserId = screen.currentUserId,
+                        anchorMessageId = screen.anchorMessageId
+                    )
+                }
+            ),
             messageContentViewModel = hiltViewModel(
                 creationCallback = { factory: MessageContentViewModel.Factory ->
                     factory.create(
                         conversationId = ChatIdGenerator.generate(
                             uid1 = screen.currentUserId,
                             uid2 = screen.otherUserId,
-
-                            ),
+                        ),
                         anchorMessageId = screen.anchorMessageId
-
                     )
                 }
             ),
-            chatViewModel = viewModel,
+            messageInputViewModel = hiltViewModel(),
             onNavigateBack = { backstack.removeLastOrNull() },
             onNavigateToSearch = { conversationId, otherUserId, currentUserId ->
                 backstack.add(
@@ -136,15 +142,12 @@ fun EntryProviderScope<NavKey>.chatGraph(
                     )
                 )
             },
-            onNavigateToInformation = { img, currentId, convId, otherId, name, email ->
+            onNavigateToInformation = { currentId, convId, otherId ->
                 backstack.add(
                     Information(
                         otherUserId = otherId,
-                        otherUserName = name,
-                        otherUserEmail = email,
                         conversationId = convId,
                         currentUserId = currentId,
-                        otherUserImg = img
                     )
                 )
             }
@@ -156,11 +159,8 @@ fun EntryProviderScope<NavKey>.chatGraph(
             creationCallback = { factory: OptionViewModel.Factory ->
                 factory.create(
                     otherUserId = screen.otherUserId,
-                    otherUserName = screen.otherUserName,
-                    otherUserEmail = screen.otherUserEmail,
                     currentUserId = screen.currentUserId,
                     conversationId = screen.conversationId,
-                    otherUserImg = screen.otherUserImg
                 )
             }
         )

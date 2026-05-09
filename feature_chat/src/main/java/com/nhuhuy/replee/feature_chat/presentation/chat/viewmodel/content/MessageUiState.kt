@@ -2,7 +2,7 @@ package com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content
 
 import androidx.compose.runtime.Immutable
 import com.nhuhuy.replee.core.common.base.UiState
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.main.ChatOverlay
 
 @Immutable
 data class MessageUiState(

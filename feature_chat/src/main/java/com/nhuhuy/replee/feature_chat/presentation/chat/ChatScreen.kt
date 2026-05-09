@@ -2,120 +2,46 @@
 
 package com.nhuhuy.replee.feature_chat.presentation.chat
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
-import com.nhuhuy.replee.core.common.utils.showLongToast
-import com.nhuhuy.replee.core.presentation.component.Banner
-import com.nhuhuy.replee.core.presentation.launcher.rememberCameraRequestPicker
-import com.nhuhuy.replee.feature_chat.R
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.BlockOverlay
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.ReplyBanner
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageInput
-import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageLazyList
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.MessageUiModel
+import com.nhuhuy.replee.feature_chat.presentation.chat.component.MessageContentComposable
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessageUiModel
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.ChatMediatorState
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundAction
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundCombineState
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundState
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageUiState
-import kotlinx.coroutines.delay
-import timber.log.Timber
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.input.MessageInputAction
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.input.MessageInputState
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChatScreen(
     messageUiState: MessageUiState,
+    chatBackgroundState: ChatBackgroundState,
+    chatBackgroundCombineState: ChatBackgroundCombineState,
+    chatMediatorState: ChatMediatorState,
+    messageInputState: MessageInputState,
     messages: List<MessageUiModel>,
-    otherUserReadTime: Long,
-    typingUsers: List<String>,
-    blocked: Boolean,
-    state: ChatState,
-    onAction: (ChatAction) -> Unit,
+    onInputAction: (MessageInputAction) -> Unit,
+    onBackgroundAction: (ChatBackgroundAction) -> Unit,
     onMessageAction: (MessageAction) -> Unit
 ) {
-    val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val context = LocalContext.current
-
-    LaunchedEffect(state.isReplying) {
-        if (state.isReplying) {
-            delay(100)
-            focusRequester.requestFocus()
-            keyboardController?.show()
-        }
-    }
-    val openCamera = rememberCameraRequestPicker(
-        onImageCaptured = { file ->
-            onAction(ChatAction.OnImageSend(file.toUri()))
-        },
-        onPermissionDenied = {
-            context.showLongToast(R.string.permission_camera)
-        }
-    )
-    val lazyListState = rememberLazyListState()
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri != null) {
-            onAction(ChatAction.OnImageSend(uri))
-        } else {
-            Timber.e("No media selected")
-        }
-    }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            ChatTopBar(
-                enable = !blocked,
-                otherUserName = state.otherUser.name,
-                onBackClick = {
-                    onAction(ChatAction.OnBackClick)
-                },
-                onSearchClick = {
-                    onAction(ChatAction.OnSearchClick)
-                },
-                onPinClick = {
-                    onAction(ChatAction.OnPinClick)
-                },
-                onMoreClick = {
-                    onAction(ChatAction.OnMoreClick)
-                },
+            ChatTopComposable(
+                chatBackgroundState = chatBackgroundState,
+                onAction = onBackgroundAction
             )
         },
     ) { innerPadding ->
@@ -127,140 +53,21 @@ fun ChatScreen(
                 .imePadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (state.isBlocked) {
-                Banner(
-                    label = stringResource(R.string.chat_screen_block_banner),
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                    modifier = Modifier.fillMaxWidth()
-
-                )
-            }
-            Spacer(Modifier.height(16.dp))
-
-            if (blocked) {
-                BlockOverlay(
-                    onUnBlock = {
-                        onAction(ChatAction.OnUnblockUser)
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 16.dp)
-                )
-            } else {
-                MessageLazyList(
-                    messageUiState = messageUiState,
-                    messages = messages,
-                    uiState = state,
-                    anchorMessageId = state.messageAnchorId,
-                    recipientReadAt = otherUserReadTime,
-                    showTypingIndicator = typingUsers.contains(state.otherUser.id),
-                    otherUserImg = state.otherUser.imageUrl,
-                    otherUserName = state.otherUser.name,
-                    onAction = onAction,
-                    onMessageAction = onMessageAction,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 16.dp)
-                )
-            }
-
-            ReplyBanner(
-                onCancelReply = {
-                    onAction(ChatAction.OnMessageCancelReply)
-                },
-                sender = if (state.currentMessage?.senderId == state.currentUserId) state.otherUser.name else state.otherUser.name,
-                currentMessage = state.currentMessage,
-                isReplying = state.isReplying
+            MessageContentComposable(
+                messages = messages,
+                messageUiState = messageUiState,
+                chatBackgroundCombineState = chatBackgroundCombineState,
+                chatBackgroundState = chatBackgroundState,
+                onMessageAction = onMessageAction,
+                onBackgroundAction = onBackgroundAction
             )
 
-            if (!blocked && !state.isBlocked) {
-                MessageInput(
-                    focusRequester = focusRequester,
-                    value = state.messageInput,
-                    onValueChange = { value ->
-                        onAction(ChatAction.OnMessageInputChanged(value))
-                    },
-                    onCameraClick = {
-                        openCamera()
-                    },
-                    onImageClick = {
-                        launcher.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                        )
-                    },
-                    onSendMessage = {
-                        onAction(ChatAction.OnSendMessageClicked)
-
-                    },
-                    scrollCallback = { lazyListState.animateScrollToItem(0) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
-            }
+            MessageInputComposable(
+                chatMediatorState = chatMediatorState,
+                chatBackgroundState = chatBackgroundState,
+                messageInputState = messageInputState,
+                onAction = onInputAction
+            )
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ChatTopBar(
-    modifier: Modifier = Modifier,
-    otherUserName: String,
-    enable: Boolean = true,
-    onPinClick: () -> Unit,
-    onBackClick: () -> Unit,
-    onSearchClick: () -> Unit,
-    onMoreClick: () -> Unit,
-) {
-    TopAppBar(
-        modifier = modifier,
-        title = {
-            Text(
-                text = otherUserName,
-                fontWeight = FontWeight.Medium,
-                fontSize = 22.sp
-            )
-        },
-        navigationIcon = {
-            IconButton(
-                onClick = onBackClick
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                    contentDescription = null
-                )
-            }
-        },
-        actions = {
-            IconButton(
-                enabled = enable,
-                onClick = onPinClick
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_pin_board),
-                    contentDescription = null
-                )
-            }
-
-            IconButton(
-                enabled = enable,
-                onClick = onSearchClick
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Search,
-                    contentDescription = null
-                )
-            }
-            IconButton(
-                enabled = enable,
-                onClick = onMoreClick
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.MoreVert,
-                    contentDescription = null
-                )
-            }
-        }
-    )
 }

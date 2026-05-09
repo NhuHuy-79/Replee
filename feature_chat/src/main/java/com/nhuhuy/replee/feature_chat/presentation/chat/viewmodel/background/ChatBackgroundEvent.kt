@@ -5,12 +5,9 @@ import com.nhuhuy.replee.core.common.base.UiEvent
 sealed interface ChatBackgroundEvent : UiEvent {
     data object NavigateBack : ChatBackgroundEvent
     data class NavigateToInformation(
-        val otherUserImg: String,
         val currentUserId: String,
         val conversationId: String,
         val otherUserId: String,
-        val otherUserName: String,
-        val otherUserEmail: String
     ) : ChatBackgroundEvent
 
     data class NavigateToSearch(

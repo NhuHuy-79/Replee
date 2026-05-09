@@ -3,17 +3,21 @@ package com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.main
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.di.ChatScopeId
 import com.nhuhuy.replee.core.common.di.ScopeHolder
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatState
+import com.nhuhuy.replee.core.common.utils.ApplicationCoroutineScope
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.MarkMessagesReadUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.UpdateTypingUseCase
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.ChatMediator
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.ChatMediatorState
+import com.nhuhuy.replee.feature_chat.utils.ChatSessionManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = ChatViewModel.Factory::class)
 class ChatViewModel @AssistedInject constructor(
@@ -21,12 +25,18 @@ class ChatViewModel @AssistedInject constructor(
     @Assisted("otherUserId") private val otherUserId: String,
     @Assisted("currentUserId") private val currentUserId: String,
     @Assisted("messageId") private val anchorMessageId: String? = null,
+    @param:ApplicationCoroutineScope private val externalScope: CoroutineScope,
     private val scopeHolder: ScopeHolder,
+    private val chatSessionManager: ChatSessionManager,
+    private val updateTypingUseCase: UpdateTypingUseCase,
+    private val markMessagesReadUseCase: MarkMessagesReadUseCase,
 ) : BaseViewModel<ChatAction, ChatEvent, ChatState>() {
 
     private val mediator by lazy {
         scopeHolder.getOrCreateMediator(scopeId = scopeId) { ChatMediator() }
     }
+
+    val mediatorState: StateFlow<ChatMediatorState> = mediator.state
 
     private val _state = MutableStateFlow(ChatState(currentUserId = currentUserId))
     override val state: StateFlow<ChatState> = _state.asStateFlow()
@@ -37,13 +47,27 @@ class ChatViewModel @AssistedInject constructor(
             otherUserId = otherUserId,
             anchorMessageId = anchorMessageId
         )
+        chatSessionManager.setCurrentChatId(conversationId = mediator.currentState.conversationId)
     }
 
-    override fun onAction(action: ChatAction) {
-        // ChatViewModel sẽ chủ yếu điều phối hoặc xử lý các action chung nếu cần
-    }
+    override fun onAction(action: ChatAction) {}
 
     override fun onCleared() {
+        val conversationId = mediator.currentState.conversationId
+        chatSessionManager.setCurrentChatId(conversationId = null)
+
+        externalScope.launch {
+            updateTypingUseCase(
+                conversationId = conversationId,
+                userId = currentUserId,
+                typing = false
+            )
+            markMessagesReadUseCase(
+                conversationId = conversationId,
+                receiverId = otherUserId
+            )
+        }
+
         scopeHolder.releaseScope(scopeId)
         super.onCleared()
     }
