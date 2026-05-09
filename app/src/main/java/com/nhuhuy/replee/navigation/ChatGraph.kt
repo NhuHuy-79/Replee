@@ -116,7 +116,7 @@ fun EntryProviderScope<NavKey>.chatGraph(
                     )
                 }
             ),
-            viewModel = viewModel,
+            chatViewModel = viewModel,
             onNavigateBack = { backstack.removeLastOrNull() },
             onNavigateToSearch = { conversationId, otherUserId, currentUserId ->
                 backstack.add(

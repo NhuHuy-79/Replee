@@ -18,13 +18,17 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction.OnReactionSelect
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundViewModel
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageContentViewModel
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.input.MessageInputViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun ChatRoute(
+    messageInputViewModel: MessageInputViewModel,
+    chatBackgroundViewModel: ChatBackgroundViewModel,
     messageContentViewModel: MessageContentViewModel,
-    viewModel: ChatViewModel,
+    chatViewModel: ChatViewModel,
     onNavigateBack: () -> Unit,
     onNavigateToSearch: (conversationId: String, otherUserId: String, currentUserId: String) -> Unit,
     onNavigateToPin: (conversationId: String, otherUserId: String, currentUserId: String) -> Unit,
@@ -37,17 +41,22 @@ fun ChatRoute(
         otherUserEmail: String
     ) -> Unit
 ) = BoxContainer {
-    val state by viewModel.state.collectAsStateWithLifecycle()
-    val otherUserReadTime by viewModel.otherLastReadingTime.collectAsStateWithLifecycle()
-    val typingUsers by viewModel.typingUserIds.collectAsStateWithLifecycle()
-    val blocked by viewModel.blocked.collectAsStateWithLifecycle()
+    val state by chatViewModel.state.collectAsStateWithLifecycle()
+    val otherUserReadTime by chatViewModel.otherLastReadingTime.collectAsStateWithLifecycle()
+    val typingUsers by chatViewModel.typingUserIds.collectAsStateWithLifecycle()
+    val blocked by chatViewModel.blocked.collectAsStateWithLifecycle()
     val messages by messageContentViewModel.messagesUiFlow.collectAsStateWithLifecycle()
-    val messageUiState by messageContentViewModel.uiState.collectAsStateWithLifecycle()
-    val onAction = viewModel::onAction
+    val messageUiState by messageContentViewModel.state.collectAsStateWithLifecycle()
+    val onAction = chatViewModel::onAction
     val coroutineScope = rememberCoroutineScope()
     val localClipboard = LocalClipboard.current
 
-    ObserveEffect(viewModel.event) { event ->
+
+    chatBackgroundViewModel::onAction
+    messageInputViewModel::onAction
+    messageContentViewModel::onAction
+
+    ObserveEffect(chatViewModel.event) { event ->
         when (event) {
             ChatEvent.NavigateBack -> onNavigateBack()
             is ChatEvent.NavigateToSearch -> onNavigateToSearch(

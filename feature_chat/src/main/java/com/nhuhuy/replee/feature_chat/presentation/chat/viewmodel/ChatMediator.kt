@@ -13,6 +13,8 @@ data class ChatMediatorState(
     val isReplying: Boolean = false,
     val currentUserId: String = "",
     val otherUserId: String = "",
+    val anchorMessageId: String? = null,
+    val anchorPosition: Int = 0,
 ) {
     val conversationId: String
         get() = ChatIdGenerator.generate(
@@ -30,9 +32,24 @@ class ChatMediator {
     fun initializeState(
         currentUserId: String,
         otherUserId: String,
+        anchorMessageId: String? = null,
     ) {
         _state.reduce {
-            copy(currentUserId = currentUserId, otherUserId = otherUserId)
+            copy(
+                currentUserId = currentUserId,
+                otherUserId = otherUserId,
+                anchorMessageId = anchorMessageId
+            )
+        }
+    }
+
+    fun setAnchorPosition(position: Int) {
+        _state.reduce { copy(anchorPosition = position) }
+    }
+
+    fun setSelectedMessage(message: Message, isReplying: Boolean = false) {
+        _state.reduce {
+            copy(selectedMessage = message, isReplying = isReplying)
         }
     }
 

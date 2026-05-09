@@ -3,14 +3,23 @@ package com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content
 import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
+import com.nhuhuy.replee.core.common.di.ChatScopeId
+import com.nhuhuy.replee.core.common.di.ScopeHolder
 import com.nhuhuy.replee.core.model.chat.LocalPathMessage
 import com.nhuhuy.replee.core.model.chat.Message
 import com.nhuhuy.replee.core.model.error_handling.onSuccess
 import com.nhuhuy.replee.feature_chat.domain.repository.PaginatorRepository
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.AddReactionUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.DeleteMessageUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.PinMessageUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.RemoveReactionUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.UnPinMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.paging.GetLatestMessagesUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.paging.GetMessageAfterKeyUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.paging.GetMessageBeforeKeyUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.paging.ObserveMessagesUseCase
+import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.ChatMediator
 import com.nhuhuy.replee.feature_chat.utils.toUiModelsWithSeparators
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -32,14 +41,25 @@ import timber.log.Timber
 
 @HiltViewModel(assistedFactory = MessageContentViewModel.Factory::class)
 class MessageContentViewModel @AssistedInject constructor(
+    @param:ChatScopeId private val scopeId: String,
     @Assisted("conversationId") private val conversationId: String,
     @Assisted("anchorMessageId") private val anchorMessageId: String? = null,
+    private val scopeHolder: ScopeHolder,
     private val paginatorRepository: PaginatorRepository,
     private val observeMessagesUseCase: ObserveMessagesUseCase,
     private val getLatestMessagesUseCase: GetLatestMessagesUseCase,
     private val getMessageAfterKeyUseCase: GetMessageAfterKeyUseCase,
     private val getMessageBeforeKeyUseCase: GetMessageBeforeKeyUseCase,
+    private val deleteMessageUseCase: DeleteMessageUseCase,
+    private val pinMessageUseCase: PinMessageUseCase,
+    private val unPinMessageUseCase: UnPinMessageUseCase,
+    private val addReactionUseCase: AddReactionUseCase,
+    private val removeReactionUseCase: RemoveReactionUseCase,
 ) : BaseViewModel<MessageAction, MessageEvent, MessageUiState>() {
+    private val mediator by lazy {
+        scopeHolder.getOrCreateMediator(scopeId = scopeId) { ChatMediator() }
+    }
+
     private val _beforeTime = MutableStateFlow<Long?>(null)
     private val _afterTime = MutableStateFlow<Long?>(null)
 
@@ -67,7 +87,6 @@ class MessageContentViewModel @AssistedInject constructor(
         if (localMessages.isNotEmpty()) {
             bottomKey = localMessages.first().message.messageId
             topKey = localMessages.last().message.messageId
-            Timber.e("AUTO UPDATE KEYS: bottom=$bottomKey, top=$topKey | Total: ${localMessages.size}")
         }
     }
         .distinctUntilChanged()
@@ -94,6 +113,91 @@ class MessageContentViewModel @AssistedInject constructor(
             is MessageAction.JumpToMessageId -> detectMessageToJump(messageId = action.messageId)
             MessageAction.ScrollToBottom -> fetchInBottom()
             MessageAction.ScrollToTop -> fetchInTop()
+            MessageAction.OnDismiss -> _uiState.reduce { copy(overlay = ChatOverlay.None) }
+            is MessageAction.OnImagePress -> _uiState.reduce {
+                copy(
+                    overlay = ChatOverlay.FullImage(
+                        action.urlKey
+                    )
+                )
+            }
+
+            is MessageAction.OnMessageLongPress -> {
+                _uiState.reduce { copy(overlay = ChatOverlay.MessageOption(action.message)) }
+                mediator.setSelectedMessage(action.message, isReplying = false)
+            }
+
+            MessageAction.OnMessageReply -> {
+                _uiState.reduce { copy(overlay = ChatOverlay.None) }
+                mediator.setSelectedMessage(
+                    mediator.currentState.selectedMessage ?: return,
+                    isReplying = true
+                )
+            }
+
+            MessageAction.OnMessageDelete -> {
+                val currentMessage = mediator.currentState.selectedMessage ?: return
+                _uiState.reduce { copy(overlay = ChatOverlay.None) }
+                viewModelScope.launch {
+                    deleteMessageUseCase(message = currentMessage)
+                    mediator.removeSelectedMessage()
+                }
+            }
+
+            MessageAction.OnMessagePin -> {
+                val message = mediator.currentState.selectedMessage ?: return
+                _uiState.reduce { copy(overlay = ChatOverlay.None) }
+                viewModelScope.launch {
+                    pinMessageUseCase(message = message)
+                    mediator.removeSelectedMessage()
+                }
+            }
+
+            MessageAction.OnMessageUnPin -> {
+                val message = mediator.currentState.selectedMessage ?: return
+                _uiState.reduce { copy(overlay = ChatOverlay.None) }
+                viewModelScope.launch {
+                    unPinMessageUseCase(message = message)
+                    mediator.removeSelectedMessage()
+                }
+            }
+
+            is MessageAction.OnReactionSelect -> {
+                val messageId = mediator.currentState.selectedMessage?.messageId ?: return
+                _uiState.reduce { copy(overlay = ChatOverlay.None) }
+                viewModelScope.launch {
+                    addReactionUseCase(
+                        conversationId = conversationId,
+                        messageId = messageId,
+                        reaction = action.reaction,
+                        userId = mediator.currentState.currentUserId
+                    )
+                    mediator.removeSelectedMessage()
+                }
+            }
+
+            is MessageAction.OnReactionDelete -> {
+                viewModelScope.launch {
+                    removeReactionUseCase(
+                        conversationId = conversationId,
+                        messageId = action.messageId,
+                        reaction = action.reaction,
+                        userId = mediator.currentState.currentUserId
+                    )
+                }
+            }
+
+            MessageAction.OnReactionMoreClick -> _uiState.reduce { copy(overlay = ChatOverlay.EmojiPicker) }
+            is MessageAction.OnMessageReactionClick -> {
+                viewModelScope.launch {
+                    removeReactionUseCase(
+                        conversationId = conversationId,
+                        messageId = action.messageId,
+                        reaction = action.reaction,
+                        userId = mediator.currentState.currentUserId
+                    )
+                }
+            }
         }
     }
 
@@ -112,7 +216,6 @@ class MessageContentViewModel @AssistedInject constructor(
                     val sortedMessages = networkMessages.sortedByDescending { it.sentAt }
                     topKey = sortedMessages.last().messageId
 
-                    // Cập nhật beforeTime để Flow observe rộng ra thêm về quá khứ
                     if (_beforeTime.value != null) {
                         _beforeTime.update { sortedMessages.last().sentAt }
                     }
@@ -147,7 +250,6 @@ class MessageContentViewModel @AssistedInject constructor(
                     val sortedMessages = networkMessages.sortedByDescending { it.sentAt }
                     bottomKey = sortedMessages.first().messageId
 
-                    // Cập nhật afterTime để Flow observe rộng ra thêm về hiện tại
                     if (_afterTime.value != null) {
                         _afterTime.update { sortedMessages.first().sentAt }
                     }
