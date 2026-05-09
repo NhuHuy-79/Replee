@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 import javax.inject.Inject
 
 class PaginatorRepositoryImpl @Inject constructor(
@@ -41,14 +42,15 @@ class PaginatorRepositoryImpl @Inject constructor(
 
     override fun observeLocalMessages(conversationId: String): Flow<List<LocalPathMessage>> {
         return messageLocalDataSource.observeMessages(conversationId).map { entities ->
+            Timber.e("MessageSize: ${entities.size}")
             entities.map { entity -> entity.toLocalPathMessage() }
         }.flowOn(ioDispatcher)
     }
 
     override fun observeMessagesAround(
         conversationId: String,
-        startTime: Long,
-        endTime: Long
+        startTime: Long?,
+        endTime: Long?
     ): Flow<List<LocalPathMessage>> {
         return messageLocalDataSource.observeMessagesAround(conversationId, startTime, endTime)
             .map { entities ->

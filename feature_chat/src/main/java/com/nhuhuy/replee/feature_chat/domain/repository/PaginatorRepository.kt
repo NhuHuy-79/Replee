@@ -11,8 +11,8 @@ interface PaginatorRepository {
 
     fun observeMessagesAround(
         conversationId: String,
-        startTime: Long,
-        endTime: Long
+        startTime: Long?,
+        endTime: Long?
     ): Flow<List<LocalPathMessage>>
 
     fun observeLocalMessages(conversationId: String): Flow<List<LocalPathMessage>>

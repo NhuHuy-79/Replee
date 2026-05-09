@@ -11,7 +11,7 @@ class ObserveMessagesUseCase @Inject constructor(
 
     operator fun invoke(
         conversationId: String,
-        startTime: Long,
-        endTime: Long
+        startTime: Long?,
+        endTime: Long?
     ) = paginatorRepository.observeMessagesAround(conversationId, startTime, endTime)
 }

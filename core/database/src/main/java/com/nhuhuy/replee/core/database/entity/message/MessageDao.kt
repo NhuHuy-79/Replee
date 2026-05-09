@@ -50,14 +50,15 @@ interface MessageDao : BaseDao<MessageEntity> {
         """
         SELECT * FROM message 
         WHERE conversationId = :conversationId 
-        AND sentAt >= :startTime AND sentAt <= :endTime
+        AND (:startTime IS NULL OR sentAt >= :startTime) 
+        AND (:endTime IS NULL OR sentAt <= :endTime)
         ORDER BY sentAt DESC
     """
     )
     fun observeMessagesAround(
         conversationId: String,
-        startTime: Long,
-        endTime: Long
+        startTime: Long?,
+        endTime: Long?
     ): Flow<List<MessageWithLocalPath>>
 
     @Query("SELECT * FROM message WHERE messageId = :messageId")

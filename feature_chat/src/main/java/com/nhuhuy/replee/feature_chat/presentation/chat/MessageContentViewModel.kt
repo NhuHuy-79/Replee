@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -79,9 +78,12 @@ class MessageContentViewModel @AssistedInject constructor(
     val messagesUiFlow = combine(_beforeTime, _afterTime) { before, after ->
         before to after
     }.flatMapLatest { (before, after) ->
-        if (before == null || after == null) {
+        Timber.e("OBSERVING RANGE: startTime=$before, endTime=$after")
+        // Nếu cả 2 đều null thì quan sát toàn bộ (chế độ mặc định)
+        if (before == null && after == null) {
             observeMessagesUseCase(conversationId = conversationId)
         } else {
+            // Nếu có ít nhất 1 cái không null, sử dụng query có bounds
             observeMessagesUseCase(
                 conversationId = conversationId,
                 startTime = before,
@@ -89,13 +91,12 @@ class MessageContentViewModel @AssistedInject constructor(
             )
         }
     }.onEach { localMessages: List<LocalPathMessage> ->
+        Timber.e("ROOM EMITTED: ${localMessages.size} messages")
         if (localMessages.isNotEmpty()) {
             bottomKey = localMessages.first().message.messageId
             topKey = localMessages.last().message.messageId
-            Timber.e("AUTO UPDATE KEYS: bottom=$bottomKey, top=$topKey | Total: ${localMessages.size}")
         }
     }
-        .distinctUntilChanged()
         .map { it.toUiModelsWithSeparators() }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
@@ -109,6 +110,9 @@ class MessageContentViewModel @AssistedInject constructor(
                     pageSize = stateValue.pageSize
                 ).onSuccess { networkMessages ->
                     Timber.e("FETCH INITIAL FROM SERVER SUCCESS: ${networkMessages.size} items")
+                    // Đảm bảo ban đầu bounds là null để nhận tin nhắn mới
+                    _beforeTime.update { null }
+                    _afterTime.update { null }
                 }
             }
         }
@@ -182,6 +186,12 @@ class MessageContentViewModel @AssistedInject constructor(
 
                 val endOfData =
                     networkMessages.isEmpty() || networkMessages.size < stateValue.pageSize
+
+                // Nếu đã tới đáy (tin mới nhất), hãy mở bound afterTime để nhận tin nhắn real-time
+                if (endOfData) {
+                    _afterTime.update { null }
+                }
+
                 _uiState.reduce {
                     copy(
                         endOfBottom = endOfData,

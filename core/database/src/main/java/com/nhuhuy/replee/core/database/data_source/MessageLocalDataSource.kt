@@ -28,8 +28,8 @@ interface MessageLocalDataSource {
     fun observeMessages(conversationId: String): Flow<List<MessageWithLocalPath>>
     fun observeMessagesAround(
         conversationId: String,
-        startTime: Long,
-        endTime: Long
+        startTime: Long?,
+        endTime: Long?
     ): Flow<List<MessageWithLocalPath>>
     fun observeMessagesWithQuery(conversationId: String, query: String): Flow<List<MessageEntity>>
     fun observePinnedMessages(conversationId: String): Flow<List<MessageEntity>>
@@ -132,8 +132,8 @@ class MessageLocalDataSourceImp @Inject constructor(
 
     override fun observeMessagesAround(
         conversationId: String,
-        startTime: Long,
-        endTime: Long
+        startTime: Long?,
+        endTime: Long?
     ): Flow<List<MessageWithLocalPath>> {
         return messageDao.observeMessagesAround(conversationId, startTime, endTime)
     }
