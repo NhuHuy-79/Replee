@@ -1,6 +1,7 @@
 package com.nhuhuy.replee.feature_chat.utils
 
 import com.nhuhuy.replee.core.model.chat.LocalPathMessage
+import com.nhuhuy.replee.core.model.chat.MessageType
 import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition
 import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessageUiModel
 import java.time.Instant
@@ -12,30 +13,35 @@ fun List<LocalPathMessage>.toUiModelsWithSeparators(): List<MessageUiModel> {
     if (this.isEmpty()) return emptyList()
     val result = mutableListOf<MessageUiModel>()
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+
     for (i in this.indices) {
         val currentItem = this[i]
         val olderItem = this.getOrNull(i + 1)
         val newerItem = this.getOrNull(i - 1)
 
-        val isFirstInGroup = when (olderItem) {
-            null -> true
+        val currentIsText = currentItem.message.type == MessageType.TEXT
+
+        val isFirstInGroup = when {
+            olderItem == null || !currentIsText -> true
             else -> {
+                val olderIsText = olderItem.message.type == MessageType.TEXT
                 val isDifferentSender = olderItem.message.senderId != currentItem.message.senderId
                 val isFarApart = (currentItem.message.sentAt - olderItem.message.sentAt) > 600_000L
                 val isDifferentDate =
                     currentItem.message.sentAt.toLocalDate() != olderItem.message.sentAt.toLocalDate()
-                isDifferentSender || isFarApart || isDifferentDate
+                !olderIsText || isDifferentSender || isFarApart || isDifferentDate
             }
         }
 
-        val isLastInGroup = when (newerItem) {
-            null -> true
+        val isLastInGroup = when {
+            newerItem == null || !currentIsText -> true
             else -> {
+                val newerIsText = newerItem.message.type == MessageType.TEXT
                 val isDifferentSender = newerItem.message.senderId != currentItem.message.senderId
                 val isFarApart = (newerItem.message.sentAt - currentItem.message.sentAt) > 600_000L
                 val isDifferentDate =
                     newerItem.message.sentAt.toLocalDate() != currentItem.message.sentAt.toLocalDate()
-                isDifferentSender || isFarApart || isDifferentDate
+                !newerIsText || isDifferentSender || isFarApart || isDifferentDate
             }
         }
 
@@ -46,7 +52,6 @@ fun List<LocalPathMessage>.toUiModelsWithSeparators(): List<MessageUiModel> {
             else -> MessagePosition.MIDDLE
         }
 
-        // 2. Thêm MessageItem vào list
         result.add(
             MessageUiModel.MessageItem(
                 data = currentItem,
@@ -55,6 +60,7 @@ fun List<LocalPathMessage>.toUiModelsWithSeparators(): List<MessageUiModel> {
             )
         )
 
+        // Thêm Date Separator nếu ngày của tin nhắn tiếp theo (older) khác ngày hiện tại
         val currentDate = currentItem.message.sentAt.toLocalDate()
         val nextItemDate = olderItem?.message?.sentAt?.toLocalDate()
 

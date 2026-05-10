@@ -99,14 +99,16 @@ class ConversationLocalDataSourceImp @Inject constructor(
     ): ConversationAndUser {
         val conversationId = createConversationId(ownerId, otherUserId)
 
-        conversationDao.getConversationById(conversationId)
-            ?: conversationDao.upsert(
+        val existing = conversationDao.getConversationById(conversationId)
+        if (existing == null) {
+            conversationDao.upsert(
                 ConversationEntity(
                     id = conversationId,
                     ownerId = ownerId,
                     otherUserId = otherUserId,
                 )
             )
+        }
 
         return conversationDao.getConversationAndUserById(conversationId)
             ?: throw IllegalStateException(

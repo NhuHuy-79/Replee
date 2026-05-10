@@ -54,14 +54,24 @@ class MessageRepositoryImp @Inject constructor(
 
     // --- CREATE / SEND---
     override suspend fun sendMessage(message: Message): NetworkResult<String> {
+        localTransactionRunner.runInTransaction {
+            conversationLocalDataSource.getConversationAndUserById(
+                ownerId = message.senderId,
+                otherUserId = message.receiverId
+            )
+
+            val entity = message.toMessageEntity()
+            messageLocalDataSource.upsertMessage(message = entity)
+            conversationLocalDataSource.updateLastMessage(message = entity)
+        }
         return executeWithTimeout(dispatcher = ioDispatcher) {
-            localTransactionRunner.runInTransaction {
-                val entity = message.toMessageEntity()
-                messageLocalDataSource.upsertMessage(message = entity)
-                conversationLocalDataSource.updateLastMessage(message = entity)
-            }
             val dto = message.toMessageDTO().copy(status = MessageStatus.SYNCED)
             networkTransactionRunner.sendMessageAndUpdateConversation(dto)
+
+            messageLocalDataSource.updateMessageStatus(
+                status = MessageStatus.SYNCED,
+                messageId = message.messageId
+            )
             message.messageId
         }
     }

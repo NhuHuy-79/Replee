@@ -24,10 +24,16 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.nhuhuy.replee.core.model.chat.MessageType
 import com.nhuhuy.replee.feature_chat.R
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition.END
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition.MIDDLE
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition.SINGLE
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition.START
 
 
 @Composable
 fun ReplyContent(
+    mainMessagePosition: MessagePosition,
     isCurrentUser: Boolean,
     replyTo: String,
     content: String,
@@ -42,13 +48,66 @@ fun ReplyContent(
     }
 
     val shape = if (isCurrentUser) {
-        RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomEnd = 8.dp, bottomStart = 24.dp)
-    } else RoundedCornerShape(
-        bottomStart = 8.dp,
-        topEnd = 24.dp,
-        topStart = 24.dp,
-        bottomEnd = 24.dp
-    )
+        when (mainMessagePosition) {
+            START -> RoundedCornerShape(
+                topStart = 24.dp,
+                bottomStart = 24.dp,
+                bottomEnd = 4.dp,
+                topEnd = 24.dp
+            )
+
+            MIDDLE -> RoundedCornerShape(
+                topStart = 24.dp,
+                bottomStart = 24.dp,
+                bottomEnd = 4.dp,
+                topEnd = 4.dp
+            )
+
+            END -> RoundedCornerShape(
+                topStart = 24.dp,
+                bottomStart = 24.dp,
+                bottomEnd = 4.dp,
+                topEnd = 4.dp
+            )
+
+            SINGLE -> RoundedCornerShape(
+                topStart = 24.dp,
+                topEnd = 24.dp,
+                bottomEnd = 4.dp,
+                bottomStart = 24.dp
+            )
+        }
+    } else {
+        when (mainMessagePosition) {
+            START -> RoundedCornerShape(
+                topStart = 24.dp,
+                bottomStart = 4.dp,
+                bottomEnd = 24.dp,
+                topEnd = 24.dp
+            )
+
+            MIDDLE -> RoundedCornerShape(
+                topStart = 4.dp,
+                bottomStart = 4.dp,
+                bottomEnd = 24.dp,
+                topEnd = 24.dp
+            )
+
+            END -> RoundedCornerShape(
+                topStart = 4.dp,
+                bottomStart = 4.dp,
+                bottomEnd = 24.dp,
+                topEnd = 24.dp
+            )
+
+            SINGLE -> RoundedCornerShape(
+                topStart = 4.dp,
+                topEnd = 4.dp,
+                bottomEnd = 24.dp,
+                bottomStart = 4.dp
+            )
+        }
+    }
 
     Row(
         modifier = modifier

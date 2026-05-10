@@ -27,6 +27,7 @@ fun MessageContent(
     onClick: (message: Message) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val isReplying = localPathMessage.message.repliedMessageId != null
     val message = localPathMessage.message
     val containerColor = when {
         isAnchor -> MaterialTheme.colorScheme.primary
@@ -41,16 +42,27 @@ fun MessageContent(
     }
 
     val messageTextShape = remember(position, isCurrentUser) {
-        val large = 20.dp
+        val large = 24.dp
         val small = 4.dp
         if (isCurrentUser) {
             when (position) {
-                MessagePosition.START -> RoundedCornerShape(
-                    topStart = large,
-                    topEnd = large,
-                    bottomEnd = small,
-                    bottomStart = large
-                )
+                MessagePosition.START -> {
+                    if (isReplying) {
+                        RoundedCornerShape(
+                            topStart = large,
+                            topEnd = small,
+                            bottomEnd = small,
+                            bottomStart = large
+                        )
+                    } else {
+                        RoundedCornerShape(
+                            topStart = large,
+                            topEnd = large,
+                            bottomEnd = small,
+                            bottomStart = large
+                        )
+                    }
+                }
 
                 MessagePosition.MIDDLE -> RoundedCornerShape(
                     topStart = large,
@@ -59,28 +71,50 @@ fun MessageContent(
                     bottomStart = large
                 )
 
-                MessagePosition.END -> RoundedCornerShape(
-                    topStart = large,
-                    topEnd = small,
-                    bottomEnd = large,
-                    bottomStart = large
-                )
+                MessagePosition.END -> {
+                    RoundedCornerShape(
+                        topStart = large,
+                        topEnd = small,
+                        bottomEnd = large,
+                        bottomStart = large
+                    )
+                }
 
-                MessagePosition.SINGLE -> RoundedCornerShape(
-                    topStart = large,
-                    topEnd = large,
-                    bottomEnd = large,
-                    bottomStart = large
-                )
+                MessagePosition.SINGLE -> {
+                    if (isReplying) {
+                        RoundedCornerShape(
+                            topStart = large,
+                            topEnd = small,
+                            bottomEnd = large,
+                            bottomStart = large
+                        )
+                    } else {
+                        RoundedCornerShape(
+                            topStart = large,
+                            topEnd = large,
+                            bottomEnd = large,
+                            bottomStart = large
+                        )
+                    }
+                }
             }
         } else {
             when (position) {
-                MessagePosition.START -> RoundedCornerShape(
-                    topStart = large,
-                    topEnd = large,
-                    bottomEnd = large,
-                    bottomStart = small
-                )
+                MessagePosition.START -> {
+                    if (isReplying) {
+                        RoundedCornerShape(
+                            topStart = small,
+                            topEnd = large,
+                            bottomEnd = large,
+                            bottomStart = small
+                        )
+                    } else RoundedCornerShape(
+                        topStart = large,
+                        topEnd = large,
+                        bottomEnd = large,
+                        bottomStart = small
+                    )
+                }
 
                 MessagePosition.MIDDLE -> RoundedCornerShape(
                     topStart = small,

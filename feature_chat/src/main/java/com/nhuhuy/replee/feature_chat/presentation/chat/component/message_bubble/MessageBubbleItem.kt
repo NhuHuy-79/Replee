@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.common.utils.formatToChatTime
 import com.nhuhuy.replee.core.design_system.component.UserImage
@@ -29,6 +31,10 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.component.StatusContent
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.emote.EmoteFlowRow
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageContent
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.ReplyContent
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition.END
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition.MIDDLE
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition.SINGLE
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition.START
 import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessageUiModel
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundState
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageContentState
@@ -56,8 +62,17 @@ fun MessageBubbleItem(
     val isHideReactions =
         item.data.message.ownerReactions.isEmpty() && item.data.message.otherUserReactions.isEmpty()
 
+    val paddingValues = when (item.position) {
+        START -> PaddingValues(top = 8.dp)
+        MIDDLE -> PaddingValues(0.dp)
+        END -> PaddingValues(bottom = 8.dp)
+        SINGLE -> PaddingValues(top = 4.dp, bottom = 4.dp)
+    }
+
     Box(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(paddingValues),
         contentAlignment = if (isCurrentUser) Alignment.CenterEnd else Alignment.CenterStart
     ) {
         MessageBubbleLayout(
@@ -82,7 +97,7 @@ fun MessageBubbleItem(
                 ) {
                     Text(
                         text = item.data.message.sentAt.formatToChatTime(),
-                        style = MaterialTheme.typography.labelSmall
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold)
                     )
 
                     if (item.data.message.pinned) {
@@ -105,6 +120,7 @@ fun MessageBubbleItem(
             },
             replyContent = {
                 ReplyContent(
+                    mainMessagePosition = item.position,
                     isCurrentUser = isCurrentUser,
                     replyTo = repliedUser.name,
                     content = item.data.message.repliedMessageContent.orEmpty(),

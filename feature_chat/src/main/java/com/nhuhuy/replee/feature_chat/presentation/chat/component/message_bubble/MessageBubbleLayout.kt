@@ -83,7 +83,7 @@ fun MessageBubbleLayout(
             reactionContent()
         }
 
-        if ((isCurrentUser && isLastInScreen) || showStatus) {
+        if (isCurrentUser && (isLastInScreen || showStatus)) {
             statusContent()
         }
     }

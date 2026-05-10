@@ -1,5 +1,6 @@
 package com.nhuhuy.replee.core.network.data_source.transaction
 
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -49,13 +50,15 @@ class NetworkTransactionRunnerImpl @Inject constructor(
         firestore.runBatch { batch ->
             batch.set(messageRef, messageDTO)
             batch.update(
-                conversationRef, mapOf(
-                    "lastMessageTime" to messageDTO.sendAt,
-                    "lastMessageContent" to messageDTO.content,
-                    "lastSenderId" to messageDTO.senderId,
-                    "lastMessageType" to messageDTO.type,
-                    "lastSynced" to FieldValue.serverTimestamp()
-                )
+                conversationRef,
+                FieldPath.of("lastMessageTime"), FieldValue.serverTimestamp(),
+                FieldPath.of("lastMessageContent"), messageDTO.content,
+                FieldPath.of("lastSenderId"), messageDTO.senderId,
+                FieldPath.of("lastMessageType"), messageDTO.type.name,
+                FieldPath.of("lastMessageId"), messageDTO.messageId,
+                FieldPath.of("unReadMessages", messageDTO.receiverId), FieldValue.increment(1),
+                FieldPath.of("unReadMessages", messageDTO.senderId), 0,
+                FieldPath.of("lastSynced"), FieldValue.serverTimestamp()
             )
         }.await()
     }
@@ -84,8 +87,13 @@ class NetworkTransactionRunnerImpl @Inject constructor(
         val messageRef = conversationRef.collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
             .document(messageId)
         firestore.runBatch { batch ->
-            batch.update(messageRef, "reactions.$userId", FieldValue.arrayUnion(reaction))
-            batch.update(conversationRef, "lastSynced", FieldValue.serverTimestamp())
+            // Sử dụng FieldPath để tránh lỗi nếu userId chứa ký tự đặc biệt
+            batch.update(
+                messageRef,
+                FieldPath.of("reactions", userId),
+                FieldValue.arrayUnion(reaction)
+            )
+            batch.update(conversationRef, FieldPath.of("lastSynced"), FieldValue.serverTimestamp())
         }.await()
     }
 
@@ -99,8 +107,13 @@ class NetworkTransactionRunnerImpl @Inject constructor(
         val messageRef = conversationRef.collection(Constant.Firestore.MESSAGE_SUBCOLLECTION)
             .document(messageId)
         firestore.runBatch { batch ->
-            batch.update(messageRef, "reactions.$userId", FieldValue.arrayRemove(reaction))
-            batch.update(conversationRef, "lastSynced", FieldValue.serverTimestamp())
+            // Sử dụng FieldPath để tránh lỗi nếu userId chứa ký tự đặc biệt
+            batch.update(
+                messageRef,
+                FieldPath.of("reactions", userId),
+                FieldValue.arrayRemove(reaction)
+            )
+            batch.update(conversationRef, FieldPath.of("lastSynced"), FieldValue.serverTimestamp())
         }.await()
     }
 

@@ -15,7 +15,6 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.block.ObserveOwnerIsBlockUs
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.UnblockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.GetMessagePositionUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.message.MarkMessagesReadUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.GetReadTimeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.GetTypingUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.UpdateReadTimeUseCase
@@ -63,7 +62,6 @@ class ChatBackgroundViewModel @AssistedInject constructor(
     private val scopeHolder: ScopeHolder,
     private val updateReadTimeUseCase: UpdateReadTimeUseCase,
     private val getAccountByIdUseCase: GetAccountByIdUseCase,
-    private val markMessagesReadUseCase: MarkMessagesReadUseCase,
     private val checkBlockUseCase: CheckBlockUseCase,
     private val getConversationUseCase: GetConversationUseCase,
     private val getMessagePositionUseCase: GetMessagePositionUseCase,
@@ -158,10 +156,6 @@ class ChatBackgroundViewModel @AssistedInject constructor(
 
                 launch {
                     updateReadingTime()
-                    markMessagesReadUseCase(
-                        conversationId = mediator.currentState.conversationId,
-                        receiverId = currentUserId
-                    )
                 }
             }
         }

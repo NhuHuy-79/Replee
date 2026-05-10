@@ -15,11 +15,11 @@ class MarkMessagesReadUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         conversationId: String,
-        receiverId: String,
+        currentUserId: String,
     ): NetworkResult<Unit> {
         return conversationRepository.markAllMessagesRead(
             conversationId = conversationId,
-            currentUserId = receiverId
+            currentUserId = currentUserId
         )
             .onFailure {
                 syncManager.updateConversationStatus(

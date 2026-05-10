@@ -63,7 +63,7 @@ class ChatViewModel @AssistedInject constructor(
             )
             markMessagesReadUseCase(
                 conversationId = conversationId,
-                receiverId = otherUserId
+                currentUserId = currentUserId
             )
         }
 
