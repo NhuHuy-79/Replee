@@ -1,8 +1,8 @@
 package com.nhuhuy.replee.feature_chat.utils
 
 import com.nhuhuy.replee.core.model.chat.LocalPathMessage
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.MessagePosition
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.MessageUiModel
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessageUiModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId

@@ -1,19 +1,25 @@
-package com.nhuhuy.replee.feature_chat.presentation.chat
+package com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content
 
-import androidx.compose.runtime.Immutable
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nhuhuy.replee.core.common.base.UiAction
-import com.nhuhuy.replee.core.common.base.UiState
+import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
+import com.nhuhuy.replee.core.common.di.ChatScopeId
+import com.nhuhuy.replee.core.common.di.ScopeHolder
 import com.nhuhuy.replee.core.model.chat.LocalPathMessage
 import com.nhuhuy.replee.core.model.chat.Message
 import com.nhuhuy.replee.core.model.error_handling.onSuccess
 import com.nhuhuy.replee.feature_chat.domain.repository.PaginatorRepository
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.AddReactionUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.DeleteMessageUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.PinMessageUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.RemoveReactionUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.UnPinMessageUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.paging.GetLatestMessagesUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.paging.GetMessageAfterKeyUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.paging.GetMessageBeforeKeyUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.paging.ObserveMessagesUseCase
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.ChatMediator
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.main.ChatOverlay
 import com.nhuhuy.replee.feature_chat.utils.toUiModelsWithSeparators
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -24,6 +30,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -32,45 +39,33 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-sealed interface MessageAction : UiAction {
-    data class JumpToMessageId(val messageId: String) : MessageAction
-    data object ScrollToTop : MessageAction
-    data object ScrollToBottom : MessageAction
-}
-
-@Immutable
-data class MessageUiState(
-    val pageSize: Int = 20,
-    val anchorMessagePosition: Int = 0,
-    val anchorMessageId: String? = null,
-    val isLoadingTop: Boolean = false,
-    val isLoadingBottom: Boolean = false,
-    val thresholdTrigger: Int = 5,
-    val endOfBottom: Boolean = false,
-    val endOfTop: Boolean = false
-) : UiState
-
-enum class ScrollPosition {
-    MIDDLE, TOP, BOTTOM
-}
-
 @HiltViewModel(assistedFactory = MessageContentViewModel.Factory::class)
 class MessageContentViewModel @AssistedInject constructor(
+    @param:ChatScopeId private val scopeId: String,
     @Assisted("conversationId") private val conversationId: String,
     @Assisted("anchorMessageId") private val anchorMessageId: String? = null,
+    private val scopeHolder: ScopeHolder,
     private val paginatorRepository: PaginatorRepository,
     private val observeMessagesUseCase: ObserveMessagesUseCase,
     private val getLatestMessagesUseCase: GetLatestMessagesUseCase,
     private val getMessageAfterKeyUseCase: GetMessageAfterKeyUseCase,
     private val getMessageBeforeKeyUseCase: GetMessageBeforeKeyUseCase,
-) : ViewModel() {
+    private val deleteMessageUseCase: DeleteMessageUseCase,
+    private val pinMessageUseCase: PinMessageUseCase,
+    private val unPinMessageUseCase: UnPinMessageUseCase,
+    private val addReactionUseCase: AddReactionUseCase,
+    private val removeReactionUseCase: RemoveReactionUseCase,
+) : BaseViewModel<MessageContentAction, MessageContentEvent, MessageContentState>() {
+    private val mediator by lazy {
+        scopeHolder.getOrCreateMediator(scopeId = scopeId) { ChatMediator() }
+    }
+
     private val _beforeTime = MutableStateFlow<Long?>(null)
     private val _afterTime = MutableStateFlow<Long?>(null)
 
-    private val _uiState = MutableStateFlow(MessageUiState(anchorMessageId = anchorMessageId))
-    val uiState = _uiState.asStateFlow()
-    private val stateValue get() = uiState.value
-
+    private val _uiState = MutableStateFlow(MessageContentState(anchorMessageId = anchorMessageId))
+    override val state = _uiState.asStateFlow()
+    private val stateValue get() = state.value
     private var topKey: String? = null
     private var bottomKey: String? = null
 
@@ -78,12 +73,9 @@ class MessageContentViewModel @AssistedInject constructor(
     val messagesUiFlow = combine(_beforeTime, _afterTime) { before, after ->
         before to after
     }.flatMapLatest { (before, after) ->
-        Timber.e("OBSERVING RANGE: startTime=$before, endTime=$after")
-        // Nếu cả 2 đều null thì quan sát toàn bộ (chế độ mặc định)
-        if (before == null && after == null) {
+        if (before == null || after == null) {
             observeMessagesUseCase(conversationId = conversationId)
         } else {
-            // Nếu có ít nhất 1 cái không null, sử dụng query có bounds
             observeMessagesUseCase(
                 conversationId = conversationId,
                 startTime = before,
@@ -91,14 +83,14 @@ class MessageContentViewModel @AssistedInject constructor(
             )
         }
     }.onEach { localMessages: List<LocalPathMessage> ->
-        Timber.e("ROOM EMITTED: ${localMessages.size} messages")
         if (localMessages.isNotEmpty()) {
             bottomKey = localMessages.first().message.messageId
             topKey = localMessages.last().message.messageId
         }
     }
+        .distinctUntilChanged()
         .map { it.toUiModelsWithSeparators() }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     init {
         viewModelScope.launch {
@@ -110,19 +102,101 @@ class MessageContentViewModel @AssistedInject constructor(
                     pageSize = stateValue.pageSize
                 ).onSuccess { networkMessages ->
                     Timber.e("FETCH INITIAL FROM SERVER SUCCESS: ${networkMessages.size} items")
-                    // Đảm bảo ban đầu bounds là null để nhận tin nhắn mới
-                    _beforeTime.update { null }
-                    _afterTime.update { null }
                 }
             }
         }
     }
 
-    fun onAction(action: MessageAction) {
+    override fun onAction(action: MessageContentAction) {
         when (action) {
-            is MessageAction.JumpToMessageId -> detectMessageToJump(messageId = action.messageId)
-            MessageAction.ScrollToBottom -> fetchInBottom()
-            MessageAction.ScrollToTop -> fetchInTop()
+            is MessageContentAction.JumpToMessageContentId -> detectMessageToJump(messageId = action.messageId)
+            MessageContentAction.ScrollToBottom -> fetchInBottom()
+            MessageContentAction.ScrollToTop -> fetchInTop()
+            MessageContentAction.OnDismiss -> _uiState.reduce { copy(overlay = ChatOverlay.None) }
+            is MessageContentAction.OnImagePress -> _uiState.reduce {
+                copy(
+                    overlay = ChatOverlay.FullImage(
+                        action.urlKey
+                    )
+                )
+            }
+
+            is MessageContentAction.OnMessageContentLongPress -> {
+                _uiState.reduce { copy(overlay = ChatOverlay.MessageOption(action.message)) }
+                mediator.setSelectedMessage(action.message, isReplying = false)
+            }
+
+            MessageContentAction.OnMessageContentReply -> {
+                _uiState.reduce { copy(overlay = ChatOverlay.None) }
+                mediator.setSelectedMessage(
+                    mediator.currentState.selectedMessage ?: return,
+                    isReplying = true
+                )
+            }
+
+            MessageContentAction.OnMessageContentDelete -> {
+                val currentMessage = mediator.currentState.selectedMessage ?: return
+                _uiState.reduce { copy(overlay = ChatOverlay.None) }
+                viewModelScope.launch {
+                    deleteMessageUseCase(message = currentMessage)
+                    mediator.removeSelectedMessage()
+                }
+            }
+
+            MessageContentAction.OnMessageContentPin -> {
+                val message = mediator.currentState.selectedMessage ?: return
+                _uiState.reduce { copy(overlay = ChatOverlay.None) }
+                viewModelScope.launch {
+                    pinMessageUseCase(message = message)
+                    mediator.removeSelectedMessage()
+                }
+            }
+
+            MessageContentAction.OnMessageContentUnPin -> {
+                val message = mediator.currentState.selectedMessage ?: return
+                _uiState.reduce { copy(overlay = ChatOverlay.None) }
+                viewModelScope.launch {
+                    unPinMessageUseCase(message = message)
+                    mediator.removeSelectedMessage()
+                }
+            }
+
+            is MessageContentAction.OnReactionSelect -> {
+                val messageId = mediator.currentState.selectedMessage?.messageId ?: return
+                _uiState.reduce { copy(overlay = ChatOverlay.None) }
+                viewModelScope.launch {
+                    addReactionUseCase(
+                        conversationId = conversationId,
+                        messageId = messageId,
+                        reaction = action.reaction,
+                        userId = mediator.currentState.currentUserId
+                    )
+                    mediator.removeSelectedMessage()
+                }
+            }
+
+            is MessageContentAction.OnReactionDelete -> {
+                viewModelScope.launch {
+                    removeReactionUseCase(
+                        conversationId = conversationId,
+                        messageId = action.messageId,
+                        reaction = action.reaction,
+                        userId = mediator.currentState.currentUserId
+                    )
+                }
+            }
+
+            MessageContentAction.OnReactionMoreClick -> _uiState.reduce { copy(overlay = ChatOverlay.EmojiPicker) }
+            is MessageContentAction.OnMessageContentReactionClick -> {
+                viewModelScope.launch {
+                    removeReactionUseCase(
+                        conversationId = conversationId,
+                        messageId = action.messageId,
+                        reaction = action.reaction,
+                        userId = mediator.currentState.currentUserId
+                    )
+                }
+            }
         }
     }
 
@@ -141,7 +215,6 @@ class MessageContentViewModel @AssistedInject constructor(
                     val sortedMessages = networkMessages.sortedByDescending { it.sentAt }
                     topKey = sortedMessages.last().messageId
 
-                    // Cập nhật beforeTime để Flow observe rộng ra thêm về quá khứ
                     if (_beforeTime.value != null) {
                         _beforeTime.update { sortedMessages.last().sentAt }
                     }
@@ -176,7 +249,6 @@ class MessageContentViewModel @AssistedInject constructor(
                     val sortedMessages = networkMessages.sortedByDescending { it.sentAt }
                     bottomKey = sortedMessages.first().messageId
 
-                    // Cập nhật afterTime để Flow observe rộng ra thêm về hiện tại
                     if (_afterTime.value != null) {
                         _afterTime.update { sortedMessages.first().sentAt }
                     }
@@ -187,7 +259,6 @@ class MessageContentViewModel @AssistedInject constructor(
                 val endOfData =
                     networkMessages.isEmpty() || networkMessages.size < stateValue.pageSize
 
-                // Nếu đã tới đáy (tin mới nhất), hãy mở bound afterTime để nhận tin nhắn real-time
                 if (endOfData) {
                     _afterTime.update { null }
                 }

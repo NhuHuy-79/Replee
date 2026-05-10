@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.core.common.di
 
-import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.common.utils.ApplicationCoroutineScope
+import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import dagger.Module
 import dagger.Provides
@@ -31,4 +31,11 @@ object CommonDataModule {
     fun provideApplicationCoroutineScope() = CoroutineScope(
         context = SupervisorJob() + Dispatchers.IO
     )
+
+    @Provides
+    @Singleton
+    @ChatScopeId
+    fun provideChatScopeId(): String = ScopeId.CHAT.name
+
+
 }

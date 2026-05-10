@@ -13,20 +13,24 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.nhuhuy.replee.core.model.settings.ThemeMode
+import com.nhuhuy.replee.core.common.di.ScopeHolder
 import com.nhuhuy.replee.core.design_system.theme.DynamicRepleeTheme
+import com.nhuhuy.replee.core.model.settings.ThemeMode
 import com.nhuhuy.replee.core.network.manager.NetworkStatus
 import com.nhuhuy.replee.feature_chat.utils.toPrimaryColor
 import com.nhuhuy.replee.navigation.MainGraph
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 val LocalNetworkStatus =
     compositionLocalOf<NetworkStatus> { NetworkStatus.Online }
 
-val LocalMainUiState = compositionLocalOf<MainState> { MainState() }
+val LocalMainUiState = compositionLocalOf { MainState() }
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject
+    lateinit var scopeHolder: ScopeHolder
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
@@ -68,7 +72,9 @@ class MainActivity : ComponentActivity() {
                     seedColor = state.dynamicColor.toPrimaryColor(),
                     isDark = appTheme
                 ) {
-                    MainGraph()
+                    MainGraph(
+                        scopeHolder = scopeHolder
+                    )
                 }
             }
         }

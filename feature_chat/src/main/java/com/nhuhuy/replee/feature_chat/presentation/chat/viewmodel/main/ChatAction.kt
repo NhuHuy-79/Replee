@@ -1,4 +1,4 @@
-package com.nhuhuy.replee.feature_chat.presentation.chat.state
+package com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.main
 
 import android.net.Uri
 import com.nhuhuy.replee.core.common.base.UiAction

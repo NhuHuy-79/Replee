@@ -11,6 +11,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.nhuhuy.replee.core.common.di.ScopeHolder
 import com.nhuhuy.replee.navigation.HomeDestination.ConversationList
 import com.nhuhuy.replee.navigation.splash.SplashKey
 import com.nhuhuy.replee.navigation.splash.splashGraph
@@ -18,7 +19,9 @@ import com.nhuhuy.replee.navigation.splash.splashGraph
 private const val DURATION = 350
 
 @Composable
-fun MainGraph() {
+fun MainGraph(
+    scopeHolder: ScopeHolder
+) {
     val startDestination: NavKey = SplashKey
     val backStack = rememberNavBackStack(startDestination)
     NavDisplay(
@@ -70,7 +73,10 @@ fun MainGraph() {
                 }
             )
             authGraph(backStack)
-            chatGraph(backstack = backStack)
+            chatGraph(
+                backstack = backStack,
+                scopeHolder = scopeHolder
+            )
             profileGraph(backStack)
         }
     )

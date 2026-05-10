@@ -25,6 +25,7 @@
     <string name="failure_invalid_credential">Email or password is wrong!!</string>
     <string name="failure_network">There\'s no connection! Please check your internet connection.</string>
     <string name="failure_unknown">Unknown error!</string>
+    <string name="failure_time_out">Time out!</string>
 
     <!--Shared Component -->
 

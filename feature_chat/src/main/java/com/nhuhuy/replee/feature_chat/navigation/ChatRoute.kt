@@ -10,128 +10,110 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nhuhuy.replee.core.presentation.ObserveEffect
 import com.nhuhuy.replee.core.presentation.component.BoxContainer
 import com.nhuhuy.replee.feature_chat.presentation.chat.ChatScreen
-import com.nhuhuy.replee.feature_chat.presentation.chat.ChatViewModel
-import com.nhuhuy.replee.feature_chat.presentation.chat.MessageContentViewModel
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.dialog.FullImageDialog
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.emote.FullScreenEmojiPickerDialog
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageSheet
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatAction.OnReactionSelect
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatEvent
-import com.nhuhuy.replee.feature_chat.presentation.chat.state.ChatOverlay
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundEvent
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundViewModel
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageContentAction
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageContentViewModel
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.input.MessageInputViewModel
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.main.ChatOverlay
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.main.ChatViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun ChatRoute(
+    chatViewModel: ChatViewModel,
+    chatBackgroundViewModel: ChatBackgroundViewModel,
     messageContentViewModel: MessageContentViewModel,
-    viewModel: ChatViewModel,
+    messageInputViewModel: MessageInputViewModel,
     onNavigateBack: () -> Unit,
     onNavigateToSearch: (conversationId: String, otherUserId: String, currentUserId: String) -> Unit,
     onNavigateToPin: (conversationId: String, otherUserId: String, currentUserId: String) -> Unit,
     onNavigateToInformation: (
-        otherUserImg: String,
         currentUserId: String,
         conversationId: String,
         otherUserId: String,
-        otherUserName: String,
-        otherUserEmail: String
     ) -> Unit
 ) = BoxContainer {
-    val state by viewModel.state.collectAsStateWithLifecycle()
-    val otherUserReadTime by viewModel.otherLastReadingTime.collectAsStateWithLifecycle()
-    val typingUsers by viewModel.typingUserIds.collectAsStateWithLifecycle()
-    val blocked by viewModel.blocked.collectAsStateWithLifecycle()
+    val backgroundState by chatBackgroundViewModel.state.collectAsStateWithLifecycle()
+    val combineState by chatBackgroundViewModel.combineState.collectAsStateWithLifecycle()
+    val contentState by messageContentViewModel.state.collectAsStateWithLifecycle()
     val messages by messageContentViewModel.messagesUiFlow.collectAsStateWithLifecycle()
-    val messageUiState by messageContentViewModel.uiState.collectAsStateWithLifecycle()
-    val onAction = viewModel::onAction
+    val inputState by messageInputViewModel.state.collectAsStateWithLifecycle()
+    val mediatorState by chatViewModel.mediatorState.collectAsStateWithLifecycle()
+    
     val coroutineScope = rememberCoroutineScope()
     val localClipboard = LocalClipboard.current
 
-    ObserveEffect(viewModel.event) { event ->
+    ObserveEffect(chatBackgroundViewModel.event) { event ->
         when (event) {
-            ChatEvent.NavigateBack -> onNavigateBack()
-            is ChatEvent.NavigateToSearch -> onNavigateToSearch(
+            ChatBackgroundEvent.NavigateBack -> onNavigateBack()
+            is ChatBackgroundEvent.NavigateToSearch -> onNavigateToSearch(
                 event.conversationId,
                 event.otherUserId,
                 event.currentUserId
             )
 
-            is ChatEvent.NavigateToPin -> onNavigateToPin(
+            is ChatBackgroundEvent.NavigateToPin -> onNavigateToPin(
                 event.conversationId,
                 event.otherUserId,
                 event.currentUserId
             )
-            is ChatEvent.NavigateToInformation -> onNavigateToInformation(
-                event.otherUserImg,
+
+            is ChatBackgroundEvent.NavigateToInformation -> onNavigateToInformation(
                 event.currentUserId,
                 event.conversationId,
                 event.otherUserId,
-                event.otherUserName,
-                event.otherUserEmail
             )
-
-            ChatEvent.FileTooLarge -> {
-                // Handle
-            }
-
-            ChatEvent.UnSupportedFile -> {
-                // Handle
-            }
-
-            ChatEvent.Unknown -> {
-                // Handle
-            }
-
-            is ChatEvent.ScrollToAnchor -> {
-                // Handled in Screen usually
-            }
-
-            is ChatEvent.SendImage.Failure -> {}
-            ChatEvent.SendImage.Success -> {}
-            ChatEvent.OnDeleteConfirmed -> onNavigateBack()
         }
     }
 
     ChatScreen(
+        messageContentState = contentState,
+        chatBackgroundState = backgroundState,
+        chatBackgroundCombineState = combineState,
+        chatMediatorState = mediatorState,
+        messageInputState = inputState,
         messages = messages,
-        otherUserReadTime = otherUserReadTime,
-        typingUsers = typingUsers,
-        blocked = blocked,
-        state = state,
-        onAction = onAction,
-        messageUiState = messageUiState,
+        onInputAction = messageInputViewModel::onAction,
+        onBackgroundAction = chatBackgroundViewModel::onAction,
         onMessageAction = messageContentViewModel::onAction
     )
 
-    when (val overlay = state.overlay) {
+    when (val overlay = contentState.overlay) {
         is ChatOverlay.FullImage -> {
             FullImageDialog(
                 url = overlay.url,
-                onDismiss = { onAction(ChatAction.OnDismiss) }
+                onDismiss = { messageContentViewModel.onAction(MessageContentAction.OnDismiss) }
             )
         }
 
         ChatOverlay.None -> Unit
         is ChatOverlay.MessageOption -> {
             MessageSheet(
-                currentUserId = state.currentUserId,
+                currentUserId = backgroundState.currentAccount.id,
                 message = overlay.message,
-                onDismiss = { onAction(ChatAction.OnDismiss) },
-                onMessagePin = { onAction(ChatAction.OnMessagePin) },
-                onMessageUnPin = { onAction(ChatAction.OnMessageUnPin) },
-                onMessageReply = { onAction(ChatAction.OnMessageReply) },
-                onMessageDelete = { onAction(ChatAction.OnMessageDelete) },
-                onReactionSelect = { reaction -> onAction(OnReactionSelect(reaction)) },
-                onReactionMoreClick = { onAction(ChatAction.OnReactionMoreClick) },
+                onDismiss = { messageContentViewModel.onAction(MessageContentAction.OnDismiss) },
+                onMessagePin = { messageContentViewModel.onAction(MessageContentAction.OnMessageContentPin) },
+                onMessageUnPin = { messageContentViewModel.onAction(MessageContentAction.OnMessageContentUnPin) },
+                onMessageReply = { messageContentViewModel.onAction(MessageContentAction.OnMessageContentReply) },
+                onMessageDelete = { messageContentViewModel.onAction(MessageContentAction.OnMessageContentDelete) },
+                onReactionSelect = { reaction ->
+                    messageContentViewModel.onAction(
+                        MessageContentAction.OnReactionSelect(
+                            reaction
+                        )
+                    )
+                },
+                onReactionMoreClick = { messageContentViewModel.onAction(MessageContentAction.OnReactionMoreClick) },
                 onMessageCopy = {
                     coroutineScope.launch {
-                        val clipData = ClipData.newPlainText(
-                            "plain text",
-                            state.currentMessage?.content.orEmpty()
-                        )
+                        val clipData = ClipData.newPlainText("plain text", overlay.message.content)
                         val clipEntry = ClipEntry(clipData)
                         localClipboard.setClipEntry(clipEntry)
-                        onAction(ChatAction.OnDismiss)
+                        messageContentViewModel.onAction(MessageContentAction.OnDismiss)
                     }
                 }
             )
@@ -139,13 +121,19 @@ fun ChatRoute(
 
         ChatOverlay.EmojiPicker -> {
             FullScreenEmojiPickerDialog(
-                onDismiss = { onAction(ChatAction.OnDismiss) },
-                onEmojiSelected = { reaction -> onAction(OnReactionSelect(reaction)) }
+                onDismiss = { messageContentViewModel.onAction(MessageContentAction.OnDismiss) },
+                onEmojiSelected = { reaction ->
+                    messageContentViewModel.onAction(
+                        MessageContentAction.OnReactionSelect(
+                            reaction
+                        )
+                    )
+                }
             )
         }
 
         is ChatOverlay.MessageReaction -> {
-
+            // Handle if needed
         }
     }
 }

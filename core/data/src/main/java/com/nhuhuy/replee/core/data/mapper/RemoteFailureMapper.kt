@@ -14,11 +14,13 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.nhuhuy.replee.core.common.error.GoogleCredentialError
 import com.nhuhuy.replee.core.common.error.RemoteFailure
+import kotlinx.coroutines.TimeoutCancellationException
 
 fun Exception.toRemoteFailure(): RemoteFailure {
     return when (this) {
         is FirebaseAuthException -> this.toRemoteFailure()
         is FirebaseNetworkException -> RemoteFailure.Network
+        is TimeoutCancellationException -> RemoteFailure.Timeout
         else -> RemoteFailure.Unknown
     }
 }
@@ -27,6 +29,7 @@ fun Throwable.toRemoteFailure(): RemoteFailure {
     return when (this) {
         is FirebaseAuthException -> this.toRemoteFailure()
         is FirebaseNetworkException -> RemoteFailure.Network
+        is TimeoutCancellationException -> RemoteFailure.Timeout
         is GetCredentialException -> this.toRemoteFailure()
         else -> RemoteFailure.Unknown
     }

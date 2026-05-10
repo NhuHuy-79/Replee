@@ -31,14 +31,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
-import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.core.model.chat.Message
 import com.nhuhuy.replee.core.model.chat.MessageType
+import com.nhuhuy.replee.feature_chat.R
 
 @Composable
 fun ReplyBanner(
     onCancelReply: () -> Unit,
-    sender: String,
+    replyTo: String,
     currentMessage: Message? = null,
     isReplying: Boolean,
 ) {
@@ -72,7 +72,7 @@ fun ReplyBanner(
                 .weight(1f)
                 .padding(horizontal = 8.dp)) {
                 Text(
-                    text = stringResource(R.string.reply_title, sender),
+                    text = stringResource(R.string.reply_title, replyTo),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
