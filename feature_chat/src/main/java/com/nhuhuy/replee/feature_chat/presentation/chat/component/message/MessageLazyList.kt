@@ -47,8 +47,8 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.Scroll
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @OptIn(FlowPreview::class)
 @Composable
@@ -73,24 +73,26 @@ fun MessageLazyList(
         }
     }
 
-    LaunchedEffect(Unit) {
-        if (requestAnchorMessagePosition && messageContentState.anchorMessageId != null && messages.isNotEmpty()) {
-            val centerViewPortOffset = lazyListState.layoutInfo.viewportSize.height / 2
+    LaunchedEffect(messageContentState.anchorMessageId, requestAnchorMessagePosition) {
+        if (!requestAnchorMessagePosition || messageContentState.anchorMessageId == null) return@LaunchedEffect
+        snapshotFlow { lazyListState.layoutInfo }
+            .first { it.viewportSize.height > 0 && messages.isNotEmpty() }
+            .let { layoutInfo ->
+                val anchorMessageIndex = messages.indexOfFirst {
+                    it is MessageUiModel.MessageItem && it.data.message.messageId ==
+                            messageContentState.anchorMessageId
+                }
 
-            val anchorMessageIndex = messages.indexOfFirst { messageUiModel ->
-                messageUiModel is MessageUiModel.MessageItem && messageUiModel.data.message.messageId == messageContentState.anchorMessageId
+                if (anchorMessageIndex != -1) {
+                    val offset = -(layoutInfo.viewportSize.height * 2 / 3)
+
+                    lazyListState.requestScrollToItem(
+                        index = anchorMessageIndex,
+                        scrollOffset = offset
+                    )
+                    requestAnchorMessagePosition = false
+                }
             }
-
-            Timber.e("AnchorId: ${messageContentState.anchorMessageId} And Index: $anchorMessageIndex")
-
-            if (anchorMessageIndex != -1) {
-                lazyListState.requestScrollToItem(
-                    index = anchorMessageIndex,
-                    scrollOffset = -centerViewPortOffset
-                )
-                requestAnchorMessagePosition = false
-            }
-        }
     }
 
     LaunchedEffect(lazyListState) {
@@ -149,8 +151,11 @@ fun MessageLazyList(
             item(
                 key = "typing",
             ) {
+                val showTyping = chatBackgroundCombineState.isUserTyping(
+                    chatBackgroundState.currentAccount.id
+                )
                 TypingAnimatedIndicator(
-                    visible = chatBackgroundCombineState.isUserTyping(chatBackgroundState.otherAccount.id),
+                    visible = showTyping,
                     name = chatBackgroundState.otherAccount.name,
                     imgUrl = chatBackgroundState.otherAccount.imageUrl,
                     modifier = Modifier

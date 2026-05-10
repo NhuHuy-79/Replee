@@ -20,8 +20,4 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.core.ktx)
-
-    // Coil for Image Launchers/etc if needed
-    implementation(libs.coil.compose)
-    api(libs.lottie.compose)
 }

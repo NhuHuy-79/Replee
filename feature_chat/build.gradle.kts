@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":core:domain"))
     implementation(project(":core:data"))
     implementation(project(":core:sync"))
+    implementation(libs.androidx.compose.ui.graphics)
 
     // Worker
     implementation(libs.androidx.work.runtime.ktx)
