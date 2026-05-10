@@ -39,8 +39,8 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessageUiModel
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundCombineState
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundState
-import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageAction
-import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageUiState
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageContentAction
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageContentState
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.ScrollPosition
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.ScrollPosition.BOTTOM
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.ScrollPosition.TOP
@@ -55,13 +55,13 @@ import timber.log.Timber
 fun MessageLazyList(
     modifier: Modifier = Modifier,
     messages: List<MessageUiModel>,
-    messageUiState: MessageUiState,
+    messageContentState: MessageContentState,
     chatBackgroundState: ChatBackgroundState,
     chatBackgroundCombineState: ChatBackgroundCombineState,
     onBackgroundAction: (ChatBackgroundAction) -> Unit,
-    onMessageAction: (MessageAction) -> Unit,
+    onMessageAction: (MessageContentAction) -> Unit,
 ) {
-    var requestAnchorMessagePosition by remember { mutableStateOf(messageUiState.anchorMessageId != null) }
+    var requestAnchorMessagePosition by remember { mutableStateOf(messageContentState.anchorMessageId != null) }
     var trackedMessageId by remember { mutableStateOf<String?>(null) }
 
     val lazyListState = rememberLazyListState()
@@ -74,14 +74,14 @@ fun MessageLazyList(
     }
 
     LaunchedEffect(Unit) {
-        if (requestAnchorMessagePosition && messageUiState.anchorMessageId != null && messages.isNotEmpty()) {
+        if (requestAnchorMessagePosition && messageContentState.anchorMessageId != null && messages.isNotEmpty()) {
             val centerViewPortOffset = lazyListState.layoutInfo.viewportSize.height / 2
 
             val anchorMessageIndex = messages.indexOfFirst { messageUiModel ->
-                messageUiModel is MessageUiModel.MessageItem && messageUiModel.data.message.messageId == messageUiState.anchorMessageId
+                messageUiModel is MessageUiModel.MessageItem && messageUiModel.data.message.messageId == messageContentState.anchorMessageId
             }
 
-            Timber.e("AnchorId: ${messageUiState.anchorMessageId} And Index: $anchorMessageIndex")
+            Timber.e("AnchorId: ${messageContentState.anchorMessageId} And Index: $anchorMessageIndex")
 
             if (anchorMessageIndex != -1) {
                 lazyListState.requestScrollToItem(
@@ -108,8 +108,8 @@ fun MessageLazyList(
             val lastMessageItemKey = lastMessageItem.key as? String
 
             when {
-                lastMessageItem.index >= totalItems - messageUiState.thresholdTrigger -> TOP to lastMessageItemKey
-                firstMessageItem.index <= messageUiState.thresholdTrigger -> {
+                lastMessageItem.index >= totalItems - messageContentState.thresholdTrigger -> TOP to lastMessageItemKey
+                firstMessageItem.index <= messageContentState.thresholdTrigger -> {
                     BOTTOM to firstMessageItemKey
                 }
 
@@ -121,8 +121,8 @@ fun MessageLazyList(
             .collect { (scrollPosition, key) ->
                 trackedMessageId = key
                 when (scrollPosition) {
-                    TOP -> onMessageAction(MessageAction.ScrollToTop)
-                    BOTTOM -> onMessageAction(MessageAction.ScrollToBottom)
+                    TOP -> onMessageAction(MessageContentAction.ScrollToTop)
+                    BOTTOM -> onMessageAction(MessageContentAction.ScrollToBottom)
                     else -> Unit
                 }
             }
@@ -146,7 +146,9 @@ fun MessageLazyList(
             reverseLayout = true,
             verticalArrangement = Arrangement.spacedBy(4.dp, alignment = Alignment.Bottom)
         ) {
-            item {
+            item(
+                key = "typing",
+            ) {
                 TypingAnimatedIndicator(
                     visible = chatBackgroundCombineState.isUserTyping(chatBackgroundState.otherAccount.id),
                     name = chatBackgroundState.otherAccount.name,
@@ -173,7 +175,7 @@ fun MessageLazyList(
                 when (item) {
                     is MessageUiModel.MessageItem -> {
                         MessageBubbleItem(
-                            messageUiState = messageUiState,
+                            messageContentState = messageContentState,
                             chatBackgroundState = chatBackgroundState,
                             item = item,
                             readingTime = chatBackgroundCombineState.otherReadingTime,
@@ -182,14 +184,18 @@ fun MessageLazyList(
                                 //Scroll to item
                             },
                             onImageMessageClick = { message ->
-                                onMessageAction(MessageAction.OnImagePress(message.remoteUrl.orEmpty()))
+                                onMessageAction(MessageContentAction.OnImagePress(message.remoteUrl.orEmpty()))
                             },
                             onMessageLongClick = {
-                                onMessageAction(MessageAction.OnMessageLongPress(message = item.data.message))
+                                onMessageAction(
+                                    MessageContentAction.OnMessageContentLongPress(
+                                        message = item.data.message
+                                    )
+                                )
                             },
                             onReactionClick = { reaction ->
                                 onMessageAction(
-                                    MessageAction.OnReactionDelete(
+                                    MessageContentAction.OnReactionDelete(
                                         reaction = reaction,
                                         messageId = item.data.message.messageId
                                     )
@@ -207,7 +213,7 @@ fun MessageLazyList(
         }
 
         AnimatedVisibility(
-            visible = !isAtBottom || messageUiState.anchorMessageId != null,
+            visible = !isAtBottom || messageContentState.anchorMessageId != null,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(16.dp),
@@ -217,8 +223,8 @@ fun MessageLazyList(
             FilledTonalIconButton(
                 onClick = {
                     scope.launch {
-                        if (!messageUiState.anchorMessageId.isNullOrEmpty()) {
-                            onMessageAction(MessageAction.ScrollToBottom)
+                        if (!messageContentState.anchorMessageId.isNullOrEmpty()) {
+                            onMessageAction(MessageContentAction.ScrollToBottom)
                         } else {
                             lazyListState.scrollToItem(0)
                         }

@@ -15,7 +15,7 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.component.emote.FullScre
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.MessageSheet
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundEvent
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundViewModel
-import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageAction
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageContentAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageContentViewModel
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.input.MessageInputViewModel
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.main.ChatOverlay
@@ -71,7 +71,7 @@ fun ChatRoute(
     }
 
     ChatScreen(
-        messageUiState = contentState,
+        messageContentState = contentState,
         chatBackgroundState = backgroundState,
         chatBackgroundCombineState = combineState,
         chatMediatorState = mediatorState,
@@ -86,7 +86,7 @@ fun ChatRoute(
         is ChatOverlay.FullImage -> {
             FullImageDialog(
                 url = overlay.url,
-                onDismiss = { messageContentViewModel.onAction(MessageAction.OnDismiss) }
+                onDismiss = { messageContentViewModel.onAction(MessageContentAction.OnDismiss) }
             )
         }
 
@@ -95,25 +95,25 @@ fun ChatRoute(
             MessageSheet(
                 currentUserId = backgroundState.currentAccount.id,
                 message = overlay.message,
-                onDismiss = { messageContentViewModel.onAction(MessageAction.OnDismiss) },
-                onMessagePin = { messageContentViewModel.onAction(MessageAction.OnMessagePin) },
-                onMessageUnPin = { messageContentViewModel.onAction(MessageAction.OnMessageUnPin) },
-                onMessageReply = { messageContentViewModel.onAction(MessageAction.OnMessageReply) },
-                onMessageDelete = { messageContentViewModel.onAction(MessageAction.OnMessageDelete) },
+                onDismiss = { messageContentViewModel.onAction(MessageContentAction.OnDismiss) },
+                onMessagePin = { messageContentViewModel.onAction(MessageContentAction.OnMessageContentPin) },
+                onMessageUnPin = { messageContentViewModel.onAction(MessageContentAction.OnMessageContentUnPin) },
+                onMessageReply = { messageContentViewModel.onAction(MessageContentAction.OnMessageContentReply) },
+                onMessageDelete = { messageContentViewModel.onAction(MessageContentAction.OnMessageContentDelete) },
                 onReactionSelect = { reaction ->
                     messageContentViewModel.onAction(
-                        MessageAction.OnReactionSelect(
+                        MessageContentAction.OnReactionSelect(
                             reaction
                         )
                     )
                 },
-                onReactionMoreClick = { messageContentViewModel.onAction(MessageAction.OnReactionMoreClick) },
+                onReactionMoreClick = { messageContentViewModel.onAction(MessageContentAction.OnReactionMoreClick) },
                 onMessageCopy = {
                     coroutineScope.launch {
                         val clipData = ClipData.newPlainText("plain text", overlay.message.content)
                         val clipEntry = ClipEntry(clipData)
                         localClipboard.setClipEntry(clipEntry)
-                        messageContentViewModel.onAction(MessageAction.OnDismiss)
+                        messageContentViewModel.onAction(MessageContentAction.OnDismiss)
                     }
                 }
             )
@@ -121,10 +121,10 @@ fun ChatRoute(
 
         ChatOverlay.EmojiPicker -> {
             FullScreenEmojiPickerDialog(
-                onDismiss = { messageContentViewModel.onAction(MessageAction.OnDismiss) },
+                onDismiss = { messageContentViewModel.onAction(MessageContentAction.OnDismiss) },
                 onEmojiSelected = { reaction ->
                     messageContentViewModel.onAction(
-                        MessageAction.OnReactionSelect(
+                        MessageContentAction.OnReactionSelect(
                             reaction
                         )
                     )

@@ -18,16 +18,16 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessageUiModel
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundCombineState
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundState
-import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageAction
-import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageUiState
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageContentAction
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageContentState
 
 @Composable
 fun ColumnScope.MessageContentComposable(
     messages: List<MessageUiModel>,
-    messageUiState: MessageUiState,
+    messageContentState: MessageContentState,
     chatBackgroundCombineState: ChatBackgroundCombineState,
     chatBackgroundState: ChatBackgroundState,
-    onMessageAction: (MessageAction) -> Unit,
+    onMessageAction: (MessageContentAction) -> Unit,
     onBackgroundAction: (ChatBackgroundAction) -> Unit
 ) {
     if (chatBackgroundState.isBlocked) {
@@ -53,7 +53,7 @@ fun ColumnScope.MessageContentComposable(
     } else {
         MessageLazyList(
             modifier = Modifier.weight(1f),
-            messageUiState = messageUiState,
+            messageContentState = messageContentState,
             messages = messages,
             chatBackgroundCombineState = chatBackgroundCombineState,
             chatBackgroundState = chatBackgroundState,

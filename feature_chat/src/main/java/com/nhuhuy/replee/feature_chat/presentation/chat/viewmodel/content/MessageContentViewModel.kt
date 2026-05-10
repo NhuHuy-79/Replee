@@ -55,7 +55,7 @@ class MessageContentViewModel @AssistedInject constructor(
     private val unPinMessageUseCase: UnPinMessageUseCase,
     private val addReactionUseCase: AddReactionUseCase,
     private val removeReactionUseCase: RemoveReactionUseCase,
-) : BaseViewModel<MessageAction, MessageEvent, MessageUiState>() {
+) : BaseViewModel<MessageContentAction, MessageContentEvent, MessageContentState>() {
     private val mediator by lazy {
         scopeHolder.getOrCreateMediator(scopeId = scopeId) { ChatMediator() }
     }
@@ -63,10 +63,9 @@ class MessageContentViewModel @AssistedInject constructor(
     private val _beforeTime = MutableStateFlow<Long?>(null)
     private val _afterTime = MutableStateFlow<Long?>(null)
 
-    private val _uiState = MutableStateFlow(MessageUiState(anchorMessageId = anchorMessageId))
+    private val _uiState = MutableStateFlow(MessageContentState(anchorMessageId = anchorMessageId))
     override val state = _uiState.asStateFlow()
     private val stateValue get() = state.value
-
     private var topKey: String? = null
     private var bottomKey: String? = null
 
@@ -91,7 +90,7 @@ class MessageContentViewModel @AssistedInject constructor(
     }
         .distinctUntilChanged()
         .map { it.toUiModelsWithSeparators() }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     init {
         viewModelScope.launch {
@@ -108,13 +107,13 @@ class MessageContentViewModel @AssistedInject constructor(
         }
     }
 
-    override fun onAction(action: MessageAction) {
+    override fun onAction(action: MessageContentAction) {
         when (action) {
-            is MessageAction.JumpToMessageId -> detectMessageToJump(messageId = action.messageId)
-            MessageAction.ScrollToBottom -> fetchInBottom()
-            MessageAction.ScrollToTop -> fetchInTop()
-            MessageAction.OnDismiss -> _uiState.reduce { copy(overlay = ChatOverlay.None) }
-            is MessageAction.OnImagePress -> _uiState.reduce {
+            is MessageContentAction.JumpToMessageContentId -> detectMessageToJump(messageId = action.messageId)
+            MessageContentAction.ScrollToBottom -> fetchInBottom()
+            MessageContentAction.ScrollToTop -> fetchInTop()
+            MessageContentAction.OnDismiss -> _uiState.reduce { copy(overlay = ChatOverlay.None) }
+            is MessageContentAction.OnImagePress -> _uiState.reduce {
                 copy(
                     overlay = ChatOverlay.FullImage(
                         action.urlKey
@@ -122,12 +121,12 @@ class MessageContentViewModel @AssistedInject constructor(
                 )
             }
 
-            is MessageAction.OnMessageLongPress -> {
+            is MessageContentAction.OnMessageContentLongPress -> {
                 _uiState.reduce { copy(overlay = ChatOverlay.MessageOption(action.message)) }
                 mediator.setSelectedMessage(action.message, isReplying = false)
             }
 
-            MessageAction.OnMessageReply -> {
+            MessageContentAction.OnMessageContentReply -> {
                 _uiState.reduce { copy(overlay = ChatOverlay.None) }
                 mediator.setSelectedMessage(
                     mediator.currentState.selectedMessage ?: return,
@@ -135,7 +134,7 @@ class MessageContentViewModel @AssistedInject constructor(
                 )
             }
 
-            MessageAction.OnMessageDelete -> {
+            MessageContentAction.OnMessageContentDelete -> {
                 val currentMessage = mediator.currentState.selectedMessage ?: return
                 _uiState.reduce { copy(overlay = ChatOverlay.None) }
                 viewModelScope.launch {
@@ -144,7 +143,7 @@ class MessageContentViewModel @AssistedInject constructor(
                 }
             }
 
-            MessageAction.OnMessagePin -> {
+            MessageContentAction.OnMessageContentPin -> {
                 val message = mediator.currentState.selectedMessage ?: return
                 _uiState.reduce { copy(overlay = ChatOverlay.None) }
                 viewModelScope.launch {
@@ -153,7 +152,7 @@ class MessageContentViewModel @AssistedInject constructor(
                 }
             }
 
-            MessageAction.OnMessageUnPin -> {
+            MessageContentAction.OnMessageContentUnPin -> {
                 val message = mediator.currentState.selectedMessage ?: return
                 _uiState.reduce { copy(overlay = ChatOverlay.None) }
                 viewModelScope.launch {
@@ -162,7 +161,7 @@ class MessageContentViewModel @AssistedInject constructor(
                 }
             }
 
-            is MessageAction.OnReactionSelect -> {
+            is MessageContentAction.OnReactionSelect -> {
                 val messageId = mediator.currentState.selectedMessage?.messageId ?: return
                 _uiState.reduce { copy(overlay = ChatOverlay.None) }
                 viewModelScope.launch {
@@ -176,7 +175,7 @@ class MessageContentViewModel @AssistedInject constructor(
                 }
             }
 
-            is MessageAction.OnReactionDelete -> {
+            is MessageContentAction.OnReactionDelete -> {
                 viewModelScope.launch {
                     removeReactionUseCase(
                         conversationId = conversationId,
@@ -187,8 +186,8 @@ class MessageContentViewModel @AssistedInject constructor(
                 }
             }
 
-            MessageAction.OnReactionMoreClick -> _uiState.reduce { copy(overlay = ChatOverlay.EmojiPicker) }
-            is MessageAction.OnMessageReactionClick -> {
+            MessageContentAction.OnReactionMoreClick -> _uiState.reduce { copy(overlay = ChatOverlay.EmojiPicker) }
+            is MessageContentAction.OnMessageContentReactionClick -> {
                 viewModelScope.launch {
                     removeReactionUseCase(
                         conversationId = conversationId,
@@ -259,6 +258,11 @@ class MessageContentViewModel @AssistedInject constructor(
 
                 val endOfData =
                     networkMessages.isEmpty() || networkMessages.size < stateValue.pageSize
+
+                if (endOfData) {
+                    _afterTime.update { null }
+                }
+
                 _uiState.reduce {
                     copy(
                         endOfBottom = endOfData,

@@ -45,6 +45,7 @@ fun RemoteFailure.toUiText() : Int{
         RemoteFailure.Auth.INVALID_CREDENTIAL -> R.string.failure_invalid_credential
         RemoteFailure.Network -> R.string.failure_network
         RemoteFailure.Unknown -> R.string.failure_unknown
+        RemoteFailure.Timeout -> R.string.failure_time_out
         is GoogleCredentialError -> this.toStringRes()
     }
 }

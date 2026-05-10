@@ -5,7 +5,7 @@ import com.nhuhuy.replee.core.common.base.UiState
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.main.ChatOverlay
 
 @Immutable
-data class MessageUiState(
+data class MessageContentState(
     val pageSize: Int = 20,
     val anchorMessagePosition: Int = 0,
     val anchorMessageId: String? = null,

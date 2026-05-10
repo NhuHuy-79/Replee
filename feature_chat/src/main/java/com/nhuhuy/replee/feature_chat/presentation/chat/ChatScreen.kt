@@ -17,8 +17,8 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.ChatMediatorSt
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundCombineState
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundState
-import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageAction
-import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageUiState
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageContentAction
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageContentState
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.input.MessageInputAction
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.input.MessageInputState
 
@@ -26,14 +26,14 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.input.MessageI
 @Composable
 fun ChatScreen(
     messages: List<MessageUiModel>,
-    messageUiState: MessageUiState,
+    messageContentState: MessageContentState,
     chatBackgroundState: ChatBackgroundState,
     chatBackgroundCombineState: ChatBackgroundCombineState,
     chatMediatorState: ChatMediatorState,
     messageInputState: MessageInputState,
     onInputAction: (MessageInputAction) -> Unit,
     onBackgroundAction: (ChatBackgroundAction) -> Unit,
-    onMessageAction: (MessageAction) -> Unit
+    onMessageAction: (MessageContentAction) -> Unit
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -54,7 +54,7 @@ fun ChatScreen(
         ) {
             MessageContentComposable(
                 messages = messages,
-                messageUiState = messageUiState,
+                messageContentState = messageContentState,
                 chatBackgroundCombineState = chatBackgroundCombineState,
                 chatBackgroundState = chatBackgroundState,
                 onMessageAction = onMessageAction,

@@ -10,10 +10,10 @@ import com.nhuhuy.replee.core.common.utils.ChatIdGenerator
 import com.nhuhuy.replee.core.domain.usecase.GetAccountByIdUseCase
 import com.nhuhuy.replee.core.sync.domain.usecase.message.SyncMessageUseCase
 import com.nhuhuy.replee.feature_chat.data.NotificationManager
-import com.nhuhuy.replee.feature_chat.domain.usecase.GetConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.CheckBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.ObserveOwnerIsBlockUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.UnblockUserUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.GetMessagePositionUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.MarkMessagesReadUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.GetReadTimeUseCase
@@ -101,6 +101,11 @@ class ChatBackgroundViewModel @AssistedInject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatBackgroundCombineState())
 
     init {
+        mediator.initializeState(
+            currentUserId = currentUserId,
+            otherUserId = otherUserId,
+            anchorMessageId = anchorMessageId
+        )
         val conversationId = mediator.currentState.conversationId
         notificationManager.cancelNotification(notificationId = conversationId.hashCode())
 

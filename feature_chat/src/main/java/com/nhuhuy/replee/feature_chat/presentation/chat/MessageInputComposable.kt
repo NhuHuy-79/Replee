@@ -34,7 +34,6 @@ fun MessageInputComposable(
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-
     val onCameraClick = rememberCameraRequestPicker(
         onImageCaptured = { file ->
             onAction(MessageInputAction.OnImageSelect(file.toUri()))

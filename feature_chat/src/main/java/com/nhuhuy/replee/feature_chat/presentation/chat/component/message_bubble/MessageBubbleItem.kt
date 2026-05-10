@@ -31,14 +31,14 @@ import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.Messag
 import com.nhuhuy.replee.feature_chat.presentation.chat.component.message.ReplyContent
 import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessageUiModel
 import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.background.ChatBackgroundState
-import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageUiState
+import com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.content.MessageContentState
 
 @Composable
 fun MessageBubbleItem(
     isLastInScreen: Boolean,
     readingTime: Long,
     item: MessageUiModel.MessageItem,
-    messageUiState: MessageUiState,
+    messageContentState: MessageContentState,
     chatBackgroundState: ChatBackgroundState,
     onReplyContentClick: () -> Unit,
     onImageMessageClick: (message: Message) -> Unit,
@@ -46,7 +46,7 @@ fun MessageBubbleItem(
     onReactionClick: (reaction: String) -> Unit
 ) {
     var showStatus by remember { mutableStateOf(false) }
-    val isAnchor = messageUiState.anchorMessageId == item.data.message.messageId
+    val isAnchor = messageContentState.anchorMessageId == item.data.message.messageId
     val isCurrentUser = item.data.message.senderId == chatBackgroundState.currentAccount.id
     val sender =
         if (isCurrentUser) chatBackgroundState.currentAccount else chatBackgroundState.otherAccount
