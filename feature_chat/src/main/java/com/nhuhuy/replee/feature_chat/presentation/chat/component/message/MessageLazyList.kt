@@ -224,7 +224,7 @@ fun MessageLazyList(
                 onClick = {
                     scope.launch {
                         if (!messageContentState.anchorMessageId.isNullOrEmpty()) {
-                            onMessageAction(MessageContentAction.ScrollToBottom)
+                            onMessageAction(MessageContentAction.JumpToBottom)
                         } else {
                             lazyListState.scrollToItem(0)
                         }

@@ -197,6 +197,8 @@ class MessageContentViewModel @AssistedInject constructor(
                     )
                 }
             }
+
+            MessageContentAction.JumpToBottom -> restorePaging()
         }
     }
 

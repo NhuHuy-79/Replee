@@ -5,6 +5,7 @@ import com.nhuhuy.replee.core.model.chat.Message
 
 sealed interface MessageContentAction : UiAction {
     data class JumpToMessageContentId(val messageId: String) : MessageContentAction
+    data object JumpToBottom : MessageContentAction
     data object ScrollToTop : MessageContentAction
     data object ScrollToBottom : MessageContentAction
     data object OnDismiss : MessageContentAction
