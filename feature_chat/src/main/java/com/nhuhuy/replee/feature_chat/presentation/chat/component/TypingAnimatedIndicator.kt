@@ -23,13 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.unit.dp
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.rememberLottieComposition
 import com.nhuhuy.replee.core.design_system.component.UserImage
 import com.nhuhuy.replee.core.presentation.animation.slideInVerticallyAnimation
 import com.nhuhuy.replee.core.presentation.animation.slideOutVerticallyAnimation
-import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.presentation.chat.canvas.drawTypingDots
 
 @Composable
@@ -98,16 +94,3 @@ fun TypingAnimatedIndicator(
     }
 }
 
-@Composable
-private fun TypingAnimation(
-    modifier: Modifier = Modifier
-) {
-    val composition by rememberLottieComposition(
-        spec = LottieCompositionSpec.RawRes(R.raw.typing_indicator)
-    )
-    LottieAnimation(
-        composition = composition,
-        modifier = modifier.width(56.dp),
-        iterations = Int.MAX_VALUE,
-    )
-}
