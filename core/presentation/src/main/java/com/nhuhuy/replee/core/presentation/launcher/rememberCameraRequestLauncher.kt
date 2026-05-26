@@ -2,7 +2,6 @@ package com.nhuhuy.replee.core.presentation.launcher
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -13,6 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import timber.log.Timber
 import java.io.File
 
 @Composable
@@ -38,10 +38,10 @@ fun rememberCameraRequestPicker(
                 File.createTempFile("IMG_${System.currentTimeMillis()}_", ".jpg", context.cacheDir)
             photoFile = file
             val uri =
-                FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+                FileProvider.getUriForFile(context, "${context.packageName}.file provider", file)
             cameraLauncher.launch(uri)
         } catch (e: Exception) {
-            Log.e("CAMERA PICKEr", "Cannot create a file!", e)
+            Timber.tag("CAMERA PICKEr").e(e, "Cannot create a file!")
         }
     }
 

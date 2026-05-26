@@ -1,12 +1,12 @@
 package com.nhuhuy.replee.core.database.data_source
 
-import android.util.Log
 import com.nhuhuy.replee.core.database.CoreDatabase
 import com.nhuhuy.replee.core.database.entity.account.AccountEntity
 import com.nhuhuy.replee.core.database.entity.search_history.SearchHistoryEntity
 import com.nhuhuy.replee.core.model.chat.SearchHistoryResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 import javax.inject.Inject
 
 interface AccountLocalDataSource {
@@ -68,7 +68,7 @@ class AccountLocalDataSourceImp @Inject constructor(
 
     override fun observeBlockStatus(owner: String): Flow<List<String>> {
         return accountDao.observeBlockStatus(owner).map { accountEntity ->
-            Log.d("AccountLocalSource", "observeBlockStatus: $accountEntity")
+            Timber.d("observeBlockStatus: $accountEntity")
             accountEntity?.blockedUserList ?: emptyList()
         }
     }

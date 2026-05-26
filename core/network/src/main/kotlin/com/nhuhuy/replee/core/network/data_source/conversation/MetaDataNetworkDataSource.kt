@@ -29,10 +29,25 @@ class MetaDataNetworkDataSourceImpl @Inject constructor(
     override fun observeTyping(
         conversationId: String,
     ): Flow<Map<String, Boolean>> = callbackFlow {
-        val ref = database.child("metadata/typing").child(conversationId)
+
+        val ref = database
+            .child("metadata/typing")
+            .child(conversationId)
+
         val listener = object : ValueEventListener {
+
             override fun onDataChange(snapshot: DataSnapshot) {
-                val data = snapshot.value as? Map<String, Boolean> ?: emptyMap()
+
+                val data = snapshot.children.associate { child ->
+
+                    val uid = child.key.orEmpty()
+
+                    val isTyping =
+                        child.getValue(Boolean::class.java) ?: false
+
+                    uid to isTyping
+                }
+
                 trySend(data)
             }
 
@@ -40,8 +55,12 @@ class MetaDataNetworkDataSourceImpl @Inject constructor(
                 close(error.toException())
             }
         }
+
         ref.addValueEventListener(listener)
-        awaitClose { ref.removeEventListener(listener) }
+
+        awaitClose {
+            ref.removeEventListener(listener)
+        }
     }
 
     override suspend fun setTyping(

@@ -7,6 +7,7 @@ group = "com.android.replee.buildlogic"
 dependencies {
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
+    implementation(libs.detekt.gradlePlugin)
 }
 
 gradlePlugin {
@@ -30,6 +31,10 @@ gradlePlugin {
         register("androidDomain") {
             id = "replee.android.domain"
             implementationClass = "AndroidDomainConventionPlugin"
+        }
+        register("androidDetekt") {
+            id = "replee.android.detekt"
+            implementationClass = "AndroidDetektConventionPlugin"
         }
     }
 }

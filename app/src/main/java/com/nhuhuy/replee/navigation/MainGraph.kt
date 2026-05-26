@@ -6,23 +6,22 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.nhuhuy.replee.core.common.di.ScopeHolder
 import com.nhuhuy.replee.navigation.HomeDestination.ConversationList
-import com.nhuhuy.replee.navigation.splash.SplashKey
-import com.nhuhuy.replee.navigation.splash.splashGraph
 
 private const val DURATION = 350
 
 @Composable
 fun MainGraph(
+    userId: String? = null,
     scopeHolder: ScopeHolder
 ) {
-    val startDestination: NavKey = SplashKey
+    val startDestination = userId?.let { ConversationList(userId) }
+        ?: AuthDestination.Login
     val backStack = rememberNavBackStack(startDestination)
     NavDisplay(
         backStack = backStack,
@@ -62,16 +61,6 @@ fun MainGraph(
 
         ),
         entryProvider = entryProvider {
-            splashGraph(
-                navigateToHome = { uid ->
-                    backStack.clear()
-                    backStack.add(ConversationList(currentUserId = uid))
-                },
-                navigateToLogin = {
-                    backStack.clear()
-                    backStack.add(AuthDestination.Login)
-                }
-            )
             authGraph(backStack)
             chatGraph(
                 backstack = backStack,

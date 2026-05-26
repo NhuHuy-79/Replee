@@ -6,12 +6,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nhuhuy.replee.core.common.di.ScopeHolder
 import com.nhuhuy.replee.core.design_system.theme.DynamicRepleeTheme
@@ -29,6 +30,9 @@ val LocalMainUiState = compositionLocalOf { MainState() }
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val viewModel: MainViewModel by viewModels()
+
     @Inject
     lateinit var scopeHolder: ScopeHolder
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,8 +43,11 @@ class MainActivity : ComponentActivity() {
                 darkScrim = Color.TRANSPARENT
             )
         )
+        val splashScreen = installSplashScreen()
+        splashScreen.setKeepOnScreenCondition {
+            viewModel.state.value.showSplashScreen
+        }
         setContent {
-            val viewModel: MainViewModel = hiltViewModel()
             val state: MainState by viewModel.state.collectAsStateWithLifecycle()
             val network by viewModel.network.collectAsStateWithLifecycle()
 
@@ -73,6 +80,7 @@ class MainActivity : ComponentActivity() {
                     isDark = appTheme
                 ) {
                     MainGraph(
+                        userId = state.currentUserId,
                         scopeHolder = scopeHolder
                     )
                 }

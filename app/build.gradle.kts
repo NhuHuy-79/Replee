@@ -36,6 +36,9 @@ dependencies {
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
 
+    //Splash
+    implementation(libs.androidx.core.splashscreen)
+
     //Nav3
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.navigation3.runtime)

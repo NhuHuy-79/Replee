@@ -38,6 +38,13 @@ internal fun Project.configureKotlinAndroid(
                 excludes += "**/assets/fonts/emoji*"
             }
         }
+
+        lint {
+            abortOnError = false
+            checkReleaseBuilds = false
+            warningsAsErrors = true
+            disable += listOf("TypographyFractions", "TypographyQuotes")
+        }
     }
 
     dependencies {
