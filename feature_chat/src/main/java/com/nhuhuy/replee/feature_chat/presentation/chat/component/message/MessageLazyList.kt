@@ -73,7 +73,13 @@ fun MessageLazyList(
         }
     }
 
-    LaunchedEffect(messageContentState.anchorMessageId, requestAnchorMessagePosition) {
+    LaunchedEffect(messageContentState.jumpTrigger) {
+        if (messageContentState.anchorMessageId != null) {
+            requestAnchorMessagePosition = true
+        }
+    }
+
+    LaunchedEffect(messageContentState.jumpTrigger, requestAnchorMessagePosition) {
         if (!requestAnchorMessagePosition || messageContentState.anchorMessageId == null) return@LaunchedEffect
         snapshotFlow { lazyListState.layoutInfo }
             .first { it.viewportSize.height > 0 && messages.isNotEmpty() }
@@ -84,9 +90,9 @@ fun MessageLazyList(
                 }
 
                 if (anchorMessageIndex != -1) {
-                    val offset = -(layoutInfo.viewportSize.height * 2 / 3)
+                    val offset = -(layoutInfo.viewportSize.height * 1 / 3)
 
-                    lazyListState.requestScrollToItem(
+                    lazyListState.animateScrollToItem(
                         index = anchorMessageIndex,
                         scrollOffset = offset
                     )
@@ -186,7 +192,13 @@ fun MessageLazyList(
                             readingTime = chatBackgroundCombineState.otherReadingTime,
                             isLastInScreen = messages.firstOrNull() == item,
                             onReplyContentClick = {
-                                //Scroll to item
+                                item.data.message.repliedMessageId?.let { repliedId ->
+                                    onMessageAction(
+                                        MessageContentAction.JumpToMessageContentId(
+                                            repliedId
+                                        )
+                                    )
+                                }
                             },
                             onImageMessageClick = { message ->
                                 onMessageAction(MessageContentAction.OnImagePress(message.remoteUrl.orEmpty()))

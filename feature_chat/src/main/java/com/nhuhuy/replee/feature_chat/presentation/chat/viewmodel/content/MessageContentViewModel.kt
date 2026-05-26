@@ -296,7 +296,12 @@ class MessageContentViewModel @AssistedInject constructor(
                     val sorted = messages.sortedByDescending { it.sentAt }
                     _beforeTime.update { sorted.last().sentAt }
                     _afterTime.update { sorted.first().sentAt }
-                    _uiState.reduce { copy(anchorMessageId = messageId) }
+                    _uiState.reduce {
+                        copy(
+                            anchorMessageId = messageId,
+                            jumpTrigger = System.currentTimeMillis()
+                        )
+                    }
                 }
                 _uiState.reduce { copy(isLoadingTop = false, isLoadingBottom = false) }
             }

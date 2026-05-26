@@ -15,6 +15,7 @@ data class MessageContentState(
     val endOfBottom: Boolean = false,
     val endOfTop: Boolean = false,
     val overlay: ChatOverlay = ChatOverlay.None,
+    val jumpTrigger: Long = 0L,
 ) : UiState
 
 enum class ScrollPosition {
