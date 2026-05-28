@@ -21,15 +21,20 @@ data class Message(
     //update 1 map <UserId, Reactions> to list reactions
     val ownerReactions: List<String> = emptyList(),
     val otherUserReactions: List<String> = emptyList()
-
-)
+) {
+    val reactions: Map<String, Int>
+        get() =
+            ownerReactions.groupBy { it }.mapValues { it.value.size } +
+                    otherUserReactions.groupBy { it }.mapValues { it.value.size }
+}
 
 enum class MessageType {
     TEXT,
     IMAGE,
 
 }
-enum class MessageStatus{
+
+enum class MessageStatus {
     SYNCED,
     PENDING,
     FAILED,

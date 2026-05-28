@@ -156,16 +156,18 @@ fun MessageBubbleItem(
                 }
             },
             reactionContent = {
-                val allReactions =
-                    item.data.message.ownerReactions + item.data.message.otherUserReactions
                 val alignment = if (isCurrentUser) Alignment.End else Alignment.Start
                 val horizontalPadding = if (isCurrentUser) 0.dp else 48.dp
                 EmoteFlowRow(
-                    onReactionClick = onReactionClick,
+                    reactions = item.data.message.reactions,
+                    onReactionClick = { reaction ->
+                        if (item.data.message.ownerReactions.contains(reaction)) {
+                            onReactionClick(reaction)
+                        }
+                    },
                     modifier = Modifier
                         .align(alignment = alignment)
                         .padding(horizontal = horizontalPadding),
-                    reactions = allReactions,
                 )
             }
         )
