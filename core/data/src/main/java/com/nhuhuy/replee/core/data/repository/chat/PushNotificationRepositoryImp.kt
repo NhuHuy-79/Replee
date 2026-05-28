@@ -68,10 +68,7 @@ class PushNotificationRepositoryImp @Inject constructor(
             val authenticationId = sessionManager.getNewAuthenticatedToken()
 
             val tokenWithRequest = createConversationRequest(message)
-
-            if (tokenWithRequest == null) {
-                throw Exception("No token to send notification")
-            }
+                ?: throw Exception("No token to send notification")
 
             val token = tokenWithRequest.first
             val request = tokenWithRequest.second
@@ -86,6 +83,7 @@ class PushNotificationRepositoryImp @Inject constructor(
     }
 
     private fun getContentTypeFromMessage(message: Message): ContentType {
+        if (message.repliedMessageId != null) return ContentType.REPLY
         return when (message.type) {
             MessageType.TEXT -> ContentType.PLAIN_TEXT
             MessageType.IMAGE -> ContentType.IMAGE_URL

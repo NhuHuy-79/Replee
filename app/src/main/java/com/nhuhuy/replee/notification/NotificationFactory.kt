@@ -12,6 +12,7 @@ import androidx.core.content.LocusIdCompat
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
+import androidx.core.net.toUri
 import coil3.BitmapImage
 import coil3.imageLoader
 import coil3.request.ImageRequest
@@ -23,6 +24,7 @@ import com.nhuhuy.replee.R
 import com.nhuhuy.replee.broadcast.ReplyBroadcast
 import com.nhuhuy.replee.core.network.api.fcm.ContentType
 import com.nhuhuy.replee.core.network.api.fcm.NotificationResponse
+import com.nhuhuy.replee.deeplink.DOMAIN_URI
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -44,10 +46,18 @@ abstract class NotificationFactory(
                 R.string.notification_msg_image,
                 response.senderName
             )
-
             ContentType.VIDEO_URL -> context.getString(
                 R.string.notification_msg_video,
                 response.senderName
+            )
+            ContentType.REPLY -> context.getString(
+                R.string.notification_msg_reply,
+                response.senderName,
+                ""
+            )
+
+            ContentType.REACT -> context.getString(
+                R.string.notification_msg_react
             )
         }
     }
@@ -106,11 +116,12 @@ class ConversationNotificationFactory @Inject constructor(
         val messagingStyle = NotificationCompat.MessagingStyle(user)
             .addMessage(getContent(response), System.currentTimeMillis(), sender)
 
-        val contentIntent =
-            context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
-                putExtra(EXTRA_CONVERSATION_ID, response.conversationId)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
+        val chatUri = "$DOMAIN_URI/chat/${response.receiverId}/${response.senderId}".toUri()
+
+        val contentIntent = Intent(Intent.ACTION_VIEW, chatUri).apply {
+            setPackage(context.packageName)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
 
         val contentPendingIntent = PendingIntent.getActivity(
             context,
@@ -150,7 +161,11 @@ class ConversationNotificationFactory @Inject constructor(
             .setShortLabel(response.senderName)
             .setPerson(sender)
             .setLongLived(true)
-            .setIntent(Intent(Intent.ACTION_VIEW).apply { /* Intent mở chat */ })
+            .setIntent(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    chatUri
+                ).apply { setPackage(context.packageName) })
             .build()
         ShortcutManagerCompat.pushDynamicShortcut(context, shortcut)
 
