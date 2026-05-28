@@ -178,7 +178,7 @@ class ConversationNotificationFactory @Inject constructor(
 
 
         return NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.drawable.ic_circle_notification)
+            .setSmallIcon(R.drawable.ic_notification)
             .setStyle(messagingStyle)
             .setContentIntent(contentPendingIntent)
             .setGroup(response.conversationId)
