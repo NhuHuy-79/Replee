@@ -6,23 +6,43 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.nhuhuy.replee.core.common.di.ScopeHolder
-import com.nhuhuy.replee.navigation.HomeDestination.ConversationList
+import com.nhuhuy.replee.core.presentation.ObserveEffect
+import com.nhuhuy.replee.deeplink.DeepLinkDispatcher
 
 private const val DURATION = 350
 
 @Composable
 fun MainGraph(
-    userId: String? = null,
+    isLogged: Boolean,
+    startDestination: NavKey,
+    deepLinkDispatcher: DeepLinkDispatcher,
     scopeHolder: ScopeHolder
 ) {
-    val startDestination = userId?.let { ConversationList(userId) }
-        ?: AuthDestination.Login
+
     val backStack = rememberNavBackStack(startDestination)
+
+    ObserveEffect(deepLinkDispatcher.uriData) { uri ->
+        deepLinkDispatcher.dispatchEvent(
+            isLogged = isLogged,
+            uri = uri,
+            currentList = backStack.toList()
+        )
+    }
+
+    ObserveEffect(deepLinkDispatcher.event) { navKeys ->
+        if (navKeys.isNotEmpty() && navKeys != backStack.toList()) {
+            backStack.clear()
+            backStack.addAll(navKeys)
+        }
+    }
+
+
     NavDisplay(
         backStack = backStack,
         transitionSpec = {
