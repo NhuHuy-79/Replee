@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Theme chính của ứng dụng - sử dụng DayNight để hỗ trợ cả 2 chế độ -->
+
     <style name="Theme.Replee" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-
-    <!-- Theme khởi động (Splash Screen) -->
+    <!-- Theme khởi động cho chế độ tối -->
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/background_splash_light</item>
+        <item name="windowSplashScreenBackground">@color/background_splash_night</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
         <item name="postSplashScreenTheme">@style/Theme.Replee</item>
     </style>

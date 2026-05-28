@@ -1,0 +1,20 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:width="288dp"
+    android:height="288dp"
+    android:viewportWidth="38.4"
+    android:viewportHeight="38.4"
+    tools:ignore="VectorRaster">
+
+    <group
+        android:pivotX="19.2"
+        android:pivotY="19.2"
+        android:scaleX="0.55"
+        android:scaleY="0.55">
+
+        <path
+            android:fillColor="#38bdf8"
+            android:pathData="M32.2,6.1c0,-0.1 0,-0.2 0,-0.3c0,0 0,-0.1 0,-0.1c0,-0.1 -0.1,-0.2 -0.2,-0.2c0,0 0,0 0,-0.1c0,0 0,0 0,0c0,0 0,0 0,0c-0.1,-0.1 -0.2,-0.1 -0.3,-0.2c0,0 -0.1,0 -0.1,0c-0.1,0 -0.2,0 -0.3,-0.1c0,0 -0.1,0 -0.1,0c-0.1,0 -0.2,0 -0.3,0c0,0 -0.1,0 -0.1,0c0,0 0,0 0,0l-25,12C5.5,17.5 5.2,17.8 5.2,18.1s0.1,0.7 0.4,0.9l5.2,3.9l6.8,-5.5c0.4,-0.3 1.1,-0.3 1.4,0.2c0.3,0.4 0.3,1.1 -0.2,1.4L12.2,24.3L12.2,32.2c0,0.4 0.3,0.8 0.7,0.9C13,33.2 13.1,33.2 13.2,33.2c0.3,0 0.6,-0.1 0.8,-0.4l3.7,-4.8l3.9,2.9c0.2,0.1 0.4,0.2 0.6,0.2c0.1,0 0.2,0 0.3,0c0.3,-0.1 0.5,-0.3 0.7,-0.6l9,-24C32.2,6.4 32.2,6.3 32.2,6.1C32.2,6.2 32.2,6.2 32.2,6.1z" />
+
+    </group>
+</vector>

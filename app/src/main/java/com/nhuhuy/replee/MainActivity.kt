@@ -43,18 +43,18 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var scopeHolder: ScopeHolder
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        handleIntent(intent = intent)
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(
                 scrim = Color.TRANSPARENT,
                 darkScrim = Color.TRANSPARENT
             )
         )
-        val splashScreen = installSplashScreen()
         splashScreen.setKeepOnScreenCondition {
             viewModel.state.value.showSplashScreen
         }
+        handleIntent(intent = intent)
         setContent {
             val state: MainState by viewModel.state.collectAsStateWithLifecycle()
             val network by viewModel.network.collectAsStateWithLifecycle()
@@ -83,7 +83,6 @@ class MainActivity : ComponentActivity() {
 
             CompositionLocalProvider(
                 LocalNetworkStatus provides network,
-                LocalMainUiState provides state
             ) {
                 DynamicRepleeTheme(
                     seedColor = state.dynamicColor.toPrimaryColor(),
