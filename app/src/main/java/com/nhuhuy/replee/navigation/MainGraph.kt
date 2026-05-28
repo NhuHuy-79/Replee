@@ -36,25 +36,26 @@ fun MainGraph(
                 uri = uri,
                 currentList = backStack.toList()
             )
-            deepLinkDispatcher.clearIntent()
         }
     }
 
     ObserveEffect(deepLinkDispatcher.event) { result ->
         Timber.tag("DeepLinkDispatcher").d("DeepLinkDispatcher: $result")
-        when (result) {
-            is DeepLinkResult.Fallback -> {
-                backStack.clear()
-                backStack.add(result.navKey)
-            }
+        result?.let {
+            when (result) {
+                is DeepLinkResult.Fallback -> {
+                    backStack.clear()
+                    backStack.add(result.navKey)
+                }
 
-            is DeepLinkResult.NeedSyntheticBackStack -> {
-                backStack.clear()
-                backStack.addAll(result.backstack)
-            }
+                is DeepLinkResult.NeedSyntheticBackStack -> {
+                    backStack.clear()
+                    backStack.addAll(result.backstack)
+                }
 
-            is DeepLinkResult.Success -> {
-                backStack.add(result.destination)
+                is DeepLinkResult.Success -> {
+                    backStack.add(result.destination)
+                }
             }
         }
         deepLinkDispatcher.release()

@@ -233,7 +233,6 @@ class MessageRepositoryImp @Inject constructor(
                     newOwnerReactions,
                     newOtherUserReactions
                 )
-
             }
 
             networkTransactionRunner.addReactToMessageAndUpdateConversation(
@@ -242,6 +241,8 @@ class MessageRepositoryImp @Inject constructor(
                 messageId = messageId,
                 conversationId = conversationId
             )
+
+            messageLocalDataSource.getMessageById(messageId)?.toMessage()
         }
     }
 

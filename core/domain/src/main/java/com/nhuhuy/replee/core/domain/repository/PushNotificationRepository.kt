@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.core.domain.repository
 
-import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.model.chat.Message
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 
 interface PushNotificationRepository {
     suspend fun getCurrentToken(): NetworkResult<String>

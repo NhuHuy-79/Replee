@@ -80,6 +80,7 @@ class MainActivity : ComponentActivity() {
                     }
                 )
             }
+
             CompositionLocalProvider(
                 LocalNetworkStatus provides network,
                 LocalMainUiState provides state

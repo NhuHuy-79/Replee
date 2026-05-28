@@ -62,7 +62,7 @@ class PushNotificationRepositoryImp @Inject constructor(
     }
 
     override suspend fun pushNotification(
-        message: Message
+        message: Message,
     ): NetworkResult<Unit> {
         return execute {
             val authenticationId = sessionManager.getNewAuthenticatedToken()

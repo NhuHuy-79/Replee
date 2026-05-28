@@ -3,10 +3,7 @@ package com.nhuhuy.replee.deeplink
 import androidx.navigation3.runtime.NavKey
 import com.nhuhuy.replee.navigation.AuthDestination
 import com.nhuhuy.replee.navigation.HomeDestination
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import timber.log.Timber
@@ -18,19 +15,12 @@ class DeepLinkDispatcher(
     private val _uriData = MutableStateFlow<String?>(null)
     val uriData = _uriData.asStateFlow()
 
-    private val _event = MutableSharedFlow<DeepLinkResult>(
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val event = _event.asSharedFlow()
+    private val _event = MutableStateFlow<DeepLinkResult?>(null)
+    val event = _event.asStateFlow()
 
     fun submitIntent(uri: String) {
         Timber.tag("DeepLinkDispatcher").d("submitIntent: $uri")
         _uriData.update { uri }
-    }
-
-    fun clearIntent() {
-        _uriData.update { null }
     }
 
     fun dispatchEvent(
@@ -43,7 +33,7 @@ class DeepLinkDispatcher(
             isLogged = isLogged,
             currentList = currentList
         )
-        _event.tryEmit(destination)
+        _event.update { destination }
     }
 
     fun dispatch(

@@ -53,11 +53,12 @@ abstract class NotificationFactory(
             ContentType.REPLY -> context.getString(
                 R.string.notification_msg_reply,
                 response.senderName,
-                ""
+                response.content
             )
 
             ContentType.REACT -> context.getString(
-                R.string.notification_msg_react
+                R.string.notification_msg_react,
+                response.senderName,
             )
         }
     }

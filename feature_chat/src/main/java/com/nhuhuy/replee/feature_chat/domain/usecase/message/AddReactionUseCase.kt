@@ -25,15 +25,16 @@ class AddReactionUseCase @Inject constructor(
             messageId = messageId,
             userId = userId,
             reaction = reaction
-        ).onFailure {
-            val newMessageAction = ChatAction(
-                targetId = messageId,
-                actionType = ActionType.UPDATE_REACTION,
-                payload = reaction
-            )
+        )
+            .onFailure {
+                val newMessageAction = ChatAction(
+                    targetId = messageId,
+                    actionType = ActionType.UPDATE_REACTION,
+                    payload = reaction
+                )
 
-            chatActionRepository.upsertAction(newMessageAction)
-            workerScheduler.scheduleMessageActionWorker()
-        }
+                chatActionRepository.upsertAction(newMessageAction)
+                workerScheduler.scheduleMessageActionWorker()
+            }
     }
 }
