@@ -14,6 +14,8 @@ import androidx.navigation3.ui.NavDisplay
 import com.nhuhuy.replee.core.common.di.ScopeHolder
 import com.nhuhuy.replee.core.presentation.ObserveEffect
 import com.nhuhuy.replee.deeplink.DeepLinkDispatcher
+import com.nhuhuy.replee.deeplink.DeepLinkResult
+import timber.log.Timber
 
 private const val DURATION = 350
 
@@ -24,22 +26,38 @@ fun MainGraph(
     deepLinkDispatcher: DeepLinkDispatcher,
     scopeHolder: ScopeHolder
 ) {
-
     val backStack = rememberNavBackStack(startDestination)
 
     ObserveEffect(deepLinkDispatcher.uriData) { uri ->
-        deepLinkDispatcher.dispatchEvent(
-            isLogged = isLogged,
-            uri = uri,
-            currentList = backStack.toList()
-        )
+        if (uri != null) {
+            Timber.tag("DeepLinkDispatcher").d("MainGraph: Received URI: $uri")
+            deepLinkDispatcher.dispatchEvent(
+                isLogged = isLogged,
+                uri = uri,
+                currentList = backStack.toList()
+            )
+            deepLinkDispatcher.clearIntent()
+        }
     }
 
-    ObserveEffect(deepLinkDispatcher.event) { navKeys ->
-        if (navKeys.isNotEmpty() && navKeys != backStack.toList()) {
-            backStack.clear()
-            backStack.addAll(navKeys)
+    ObserveEffect(deepLinkDispatcher.event) { result ->
+        Timber.tag("DeepLinkDispatcher").d("DeepLinkDispatcher: $result")
+        when (result) {
+            is DeepLinkResult.Fallback -> {
+                backStack.clear()
+                backStack.add(result.navKey)
+            }
+
+            is DeepLinkResult.NeedSyntheticBackStack -> {
+                backStack.clear()
+                backStack.addAll(result.backstack)
+            }
+
+            is DeepLinkResult.Success -> {
+                backStack.add(result.destination)
+            }
         }
+        deepLinkDispatcher.release()
     }
 
 

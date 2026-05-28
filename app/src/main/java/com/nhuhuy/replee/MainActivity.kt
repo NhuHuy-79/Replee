@@ -1,6 +1,5 @@
 package com.nhuhuy.replee
 
-import android.app.ComponentCaller
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -26,6 +25,7 @@ import com.nhuhuy.replee.navigation.AuthDestination
 import com.nhuhuy.replee.navigation.HomeDestination
 import com.nhuhuy.replee.navigation.MainGraph
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import javax.inject.Inject
 
 val LocalNetworkStatus =
@@ -99,13 +99,17 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent, caller: ComponentCaller) {
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
         handleIntent(intent)
-        super.onNewIntent(intent, caller)
     }
 
-    private fun handleIntent(intent: Intent) {
-        val uri = intent.dataString ?: return
-        deepLinkDispatcher.submitIntent(uri)
+    private fun handleIntent(intent: Intent?) {
+        val uri = intent?.dataString
+        Timber.tag("DeepLinkDispatcher").d("MainActivity: handleIntent raw URI: $uri")
+        if (uri != null) {
+            deepLinkDispatcher.submitIntent(uri)
+        }
     }
 }

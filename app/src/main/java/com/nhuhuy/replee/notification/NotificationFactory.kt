@@ -157,6 +157,12 @@ class ConversationNotificationFactory @Inject constructor(
             .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)
             .build()
 
+        val openAction = NotificationCompat.Action.Builder(
+            R.drawable.ic_notification_msg,
+            context.getString(R.string.action_open_chat),
+            contentPendingIntent
+        ).build()
+
         val shortcut = ShortcutInfoCompat.Builder(context, response.conversationId)
             .setShortLabel(response.senderName)
             .setPerson(sender)
@@ -178,6 +184,7 @@ class ConversationNotificationFactory @Inject constructor(
             .setGroupSummary(false)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .addAction(replyAction)
+            .addAction(openAction)
             .setShortcutId(response.conversationId)
             .setLocusId(LocusIdCompat(response.conversationId))
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
