@@ -6,10 +6,10 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 
 
-const val FCM_URL = "https://replee-deploy.vercel.app/api/v1/notifications/"
+const val REPLEE_BACKEND_URL = "https://replee-deploy.vercel.app/"
 
 interface FcmApi {
-    @POST("send")
+    @POST("api/v1/notifications/send")
     suspend fun sendNotification(
         @Header("Authorization") bearerToken: String,
         @Header("device-token") deviceToken: String,

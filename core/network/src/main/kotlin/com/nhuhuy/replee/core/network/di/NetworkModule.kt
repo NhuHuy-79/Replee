@@ -8,10 +8,11 @@ import com.google.firebase.database.database
 import com.google.firebase.firestore.firestore
 import com.google.firebase.messaging.messaging
 import com.nhuhuy.replee.core.network.api.cloudinary.CloudinaryApi
-import com.nhuhuy.replee.core.network.api.fcm.FCM_URL
 import com.nhuhuy.replee.core.network.api.fcm.FcmApi
+import com.nhuhuy.replee.core.network.api.fcm.REPLEE_BACKEND_URL
+import com.nhuhuy.replee.core.network.api.file.FileApi
 import com.nhuhuy.replee.core.network.quailify.CloudinaryUrl
-import com.nhuhuy.replee.core.network.quailify.FcmBackendUrl
+import com.nhuhuy.replee.core.network.quailify.RepleeBackend
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -55,11 +56,11 @@ object NetworkModule {
     }
 
     @Provides
-    @FcmBackendUrl
+    @RepleeBackend
     @Singleton
-    fun provideFcmRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideRepleeRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(FCM_URL)
+            .baseUrl(REPLEE_BACKEND_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()
@@ -67,8 +68,14 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideFcmApi(@FcmBackendUrl retrofit: Retrofit): FcmApi {
+    fun provideFcmApi(@RepleeBackend retrofit: Retrofit): FcmApi {
         return retrofit.create(FcmApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFileApi(@RepleeBackend retrofit: Retrofit): FileApi {
+        return retrofit.create(FileApi::class.java)
     }
 
     @Provides

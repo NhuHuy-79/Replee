@@ -6,6 +6,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.nhuhuy.replee.core.common.utils.IoDispatcher
+import com.nhuhuy.replee.core.common.utils.extractPublicId
 import com.nhuhuy.replee.core.data.paging_source.MessageRemoteMediator
 import com.nhuhuy.replee.core.data.paging_source.PinnedMessagePagingSource
 import com.nhuhuy.replee.core.data.paging_source.SearchedMessagePagingSource
@@ -24,6 +25,7 @@ import com.nhuhuy.replee.core.model.chat.Message
 import com.nhuhuy.replee.core.model.chat.MessageStatus
 import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.network.data_source.conversation.ConversationNetworkDataSource
+import com.nhuhuy.replee.core.network.data_source.file.UploadFileService
 import com.nhuhuy.replee.core.network.data_source.message.MessageNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.message.PagingMessageNetworkDataSource
 import com.nhuhuy.replee.core.network.data_source.transaction.NetworkTransactionRunner
@@ -40,7 +42,8 @@ import javax.inject.Inject
 import com.nhuhuy.replee.core.network.mapper.toMessage as toMessageNetwork
 
 class MessageRepositoryImp @Inject constructor(
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val fileService: UploadFileService,
     private val localTransactionRunner: LocalTransactionRunner,
     private val coreDatabase: CoreDatabase,
     private val networkTransactionRunner: NetworkTransactionRunner,
@@ -283,6 +286,9 @@ class MessageRepositoryImp @Inject constructor(
     override suspend fun deleteMessage(message: Message): NetworkResult<String> {
         return executeWithTimeout(dispatcher = ioDispatcher) {
             messageLocalDataSource.deleteMessage(message.toMessageEntity())
+            extractPublicId(message.content)?.let {
+                fileService.deleteFile(it)
+            }
             message.messageId
         }
     }

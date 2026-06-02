@@ -4,6 +4,9 @@ import android.webkit.MimeTypeMap
 import com.nhuhuy.replee.core.model.UploadFileState
 import com.nhuhuy.replee.core.network.BuildConfig
 import com.nhuhuy.replee.core.network.api.cloudinary.CloudinaryApi
+import com.nhuhuy.replee.core.network.api.file.DeleteImageRequest
+import com.nhuhuy.replee.core.network.api.file.FileApi
+import com.nhuhuy.replee.core.network.api.getDataOrThrow
 import com.nhuhuy.replee.core.network.data_source.file.UploadFileService
 import kotlinx.coroutines.flow.Flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -14,7 +17,8 @@ import java.io.IOException
 import javax.inject.Inject
 
 class RetrofitUploader @Inject constructor(
-    private val api: CloudinaryApi
+    private val cloudinaryApi: CloudinaryApi,
+    private val fileApi: FileApi,
 ) : UploadFileService {
 
     override suspend fun uploadImageWithOption(
@@ -45,7 +49,7 @@ class RetrofitUploader @Inject constructor(
         val qualityPart = "auto".toRequestBody("text/plain".toMediaTypeOrNull())
 
         return try {
-            val response = api.uploadImage(
+            val response = cloudinaryApi.uploadImage(
                 cloudName = BuildConfig.CLOUDINARY_CLOUD_NAME,
                 file = filePart,
                 uploadPreset = presetPart,
@@ -85,7 +89,7 @@ class RetrofitUploader @Inject constructor(
             BuildConfig.CLOUDINARY_UPLOAD_PRESET.toRequestBody("text/plain".toMediaTypeOrNull())
 
         return try {
-            val response = api.uploadImage(
+            val response = cloudinaryApi.uploadImage(
                 cloudName = BuildConfig.CLOUDINARY_CLOUD_NAME,
                 file = filePart,
                 uploadPreset = presetPart
@@ -100,5 +104,15 @@ class RetrofitUploader @Inject constructor(
 
     override fun observeUploadFile(uriPath: String): Flow<UploadFileState> {
         TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteFile(publicId: String): String {
+        return try {
+            fileApi.deleteFile(request = DeleteImageRequest(publicId = publicId)).getDataOrThrow()
+        } catch (e: IOException) {
+            throw e
+        } catch (e: Exception) {
+            throw e
+        }
     }
 }

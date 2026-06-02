@@ -13,4 +13,6 @@ interface UploadFileService {
     suspend fun uploadMessageWithUri(messageAndUri: Map<String, String>): Map<String, String>
     suspend fun uploadImageWithUriPath(uriPath: String): String
     fun observeUploadFile(uriPath: String): Flow<UploadFileState>
+
+    suspend fun deleteFile(publicId: String): String
 }

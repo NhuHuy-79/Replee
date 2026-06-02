@@ -162,12 +162,11 @@ class MessageContentViewModel @AssistedInject constructor(
             }
 
             is MessageContentAction.OnReactionSelect -> {
-                val messageId = mediator.currentState.selectedMessage?.messageId ?: return
+                val currentMessage = mediator.currentState.selectedMessage ?: return
                 _uiState.reduce { copy(overlay = ChatOverlay.None) }
                 viewModelScope.launch {
                     addReactionUseCase(
-                        conversationId = conversationId,
-                        messageId = messageId,
+                        message = currentMessage,
                         reaction = action.reaction,
                         userId = mediator.currentState.currentUserId
                     )
