@@ -31,6 +31,7 @@ import com.nhuhuy.replee.core.network.data_source.message.PagingMessageNetworkDa
 import com.nhuhuy.replee.core.network.data_source.transaction.NetworkTransactionRunner
 import com.nhuhuy.replee.core.network.mapper.toMessageDTO
 import com.nhuhuy.replee.core.network.model.DataChange
+import com.nhuhuy.replee.core.network.quailify.Retrofit
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -43,7 +44,7 @@ import com.nhuhuy.replee.core.network.mapper.toMessage as toMessageNetwork
 
 class MessageRepositoryImp @Inject constructor(
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    private val fileService: UploadFileService,
+    @param:Retrofit private val fileService: UploadFileService,
     private val localTransactionRunner: LocalTransactionRunner,
     private val coreDatabase: CoreDatabase,
     private val networkTransactionRunner: NetworkTransactionRunner,
