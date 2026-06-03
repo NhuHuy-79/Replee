@@ -1,5 +1,7 @@
 package com.nhuhuy.replee.core.design_system.component
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -11,22 +13,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.LocalPlatformContext
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import coil3.request.placeholder
+import com.nhuhuy.replee.core.design_system.R
 
 @Composable
 fun UserImage(
     modifier: Modifier = Modifier,
     userName: String,
-    photoUrl: String? = null
+    photoUrl: String? = null,
+    placeholder: Int = R.drawable.avatar_placeholder
 ) {
     UserAvatar(
         userName = userName,
         photoUrl = photoUrl,
+        fallback = placeholder,
         modifier = modifier,
     )
 }
@@ -36,7 +44,22 @@ fun UserAvatar(
     modifier: Modifier = Modifier,
     userName: String,
     photoUrl: String? = null,
+    @DrawableRes fallback: Int = R.drawable.avatar_placeholder
 ) {
+
+    val isPreview = LocalInspectionMode.current
+
+    if (isPreview) {
+        Image(
+            painter = painterResource(fallback),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = modifier
+                .size(56.dp)
+                .clip(CircleShape),
+        )
+        return
+    }
     val url = photoUrl?.trim().orEmpty()
     if (url.isBlank()) {
         UserAvatarFallback(
@@ -52,6 +75,7 @@ fun UserAvatar(
         model = ImageRequest.Builder(context)
             .data(url)
             .crossfade(true)
+            .placeholder(fallback)
             .build(),
         contentDescription = "User Avatar",
         contentScale = ContentScale.Crop,

@@ -7,12 +7,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -42,7 +46,18 @@ fun HomeScreen(
     val localResource = LocalResources.current
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        snackbarHost = { snackBarHost }
+        snackbarHost = { SnackbarHost(hostState = snackBarHost) },
+        topBar = {
+            MediumTopAppBar(
+                modifier = Modifier.fillMaxWidth(),
+                title = {
+                    Text(
+                        text = "Replee",
+                        style = MaterialTheme.typography.headlineLarge
+                    )
+                }
+            )
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -70,6 +85,10 @@ fun HomeScreen(
             )
 
             ConversationSearchBar(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = MaterialTheme.colorScheme.background)
+                    .padding(horizontal = 16.dp),
                 currentUser = state.currentUser,
                 state = state.searchState,
                 searchHistory = searchHistory,

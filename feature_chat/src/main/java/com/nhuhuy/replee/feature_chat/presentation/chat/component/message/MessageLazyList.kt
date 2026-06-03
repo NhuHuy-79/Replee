@@ -158,7 +158,7 @@ fun MessageLazyList(
                 key = "typing",
             ) {
                 val showTyping = chatBackgroundCombineState.isUserTyping(
-                    chatBackgroundState.currentAccount.id
+                    chatBackgroundState.otherAccount.id
                 )
                 TypingAnimatedIndicator(
                     visible = showTyping,

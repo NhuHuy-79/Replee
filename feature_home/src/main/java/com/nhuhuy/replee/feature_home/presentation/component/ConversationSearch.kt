@@ -1,7 +1,9 @@
 package com.nhuhuy.replee.feature_home.presentation.component
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -54,113 +56,114 @@ fun ConversationSearchBar(
     onValueChange: (String) -> Unit,
     onExpandChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
-){
-    TextFieldDefaults.colors(
-        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-        unfocusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer
-    )
-    SearchBar(
-        inputField = {
-            SearchBarDefaults.InputField(
-                modifier = modifier,
-                query = input,
-                onQueryChange = onValueChange,
-                onSearch = onSearch,
-                onExpandedChange = onExpandChange,
-                placeholder = {
-                    Text(
-                        text = "Search",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                ),
-                trailingIcon = {
-                    UserImage(
-                        photoUrl = currentUser.imageUrl,
-                        userName = currentUser.name,
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clickable {
-                                goToProfile()
-                            }
-                    )
-                },
-                leadingIcon = {
-                    IconButton(
-                        onClick = {
-                            onExpandChange(!expand)
-                        }
-                    ) {
-                        Icon(
-                            imageVector = if (!expand) Icons.Rounded.Search else Icons.AutoMirrored.Rounded.ArrowBack,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-                expanded = expand,
-            )
-        },
-        expanded = expand,
-        onExpandedChange = onExpandChange,
-        shape = RoundedCornerShape(32.dp),
-        colors = SearchBarDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            dividerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-        )
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
     ) {
-        ScreenStateHost(
-            state = state,
-            modifier = Modifier.fillMaxWidth(),
-            idle = {
-                LazyRow(
-                    modifier = modifier,
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                ) {
-                    items(
-                        items = searchHistory,
-                        key = { result -> result.uid }
-                    ) { item ->
-                        UserItem(
-                            userName = item.name,
-                            imgUrl = item.imgUrl,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .animateItem()
-                                .clickable {
-                                    onSearchResultClick(item)
-                                }
-
+        SearchBar(
+            inputField = {
+                SearchBarDefaults.InputField(
+                    modifier = Modifier,
+                    query = input,
+                    onQueryChange = onValueChange,
+                    onSearch = onSearch,
+                    onExpandedChange = onExpandChange,
+                    placeholder = {
+                        Text(
+                            text = "Search",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    ),
+                    trailingIcon = {
+                        UserImage(
+                            photoUrl = currentUser.imageUrl,
+                            userName = currentUser.name,
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clickable {
+                                    goToProfile()
+                                }
+                        )
+                    },
+                    leadingIcon = {
+                        IconButton(
+                            onClick = {
+                                onExpandChange(!expand)
+                            }
+                        ) {
+                            Icon(
+                                imageVector = if (!expand) Icons.Rounded.Search else Icons.AutoMirrored.Rounded.ArrowBack,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    },
+                    expanded = expand,
+                )
+            },
+            expanded = expand,
+            onExpandedChange = onExpandChange,
+            shape = RoundedCornerShape(32.dp),
+            colors = SearchBarDefaults.colors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                dividerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            )
+        ) {
+            ScreenStateHost(
+                state = state,
+                modifier = Modifier.fillMaxWidth(),
+                idle = {
+                    LazyRow(
+                        modifier = modifier,
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                    ) {
+                        items(
+                            items = searchHistory,
+                            key = { result -> result.uid }
+                        ) { item ->
+                            UserItem(
+                                userName = item.name,
+                                imgUrl = item.imgUrl,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .animateItem()
+                                    .clickable {
+                                        onSearchResultClick(item)
+                                    }
+
+                            )
+                        }
                     }
+                },
+                success = { users ->
+                    SearchResultContent(
+                        userList = users,
+                        modifier = Modifier.fillMaxWidth(),
+                        onUserClick = { account ->
+                            onAvatarClick(account)
+                        }
+                    )
+                },
+                failure = {
+                    Icon(
+                        imageVector = Icons.Rounded.WifiOff,
+                        contentDescription = null,
+                        modifier = Modifier.size(56.dp),
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                },
+                loading = {
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
-            },
-            success = { users ->
-                SearchResultContent(
-                    userList = users,
-                    modifier = Modifier.fillMaxWidth(),
-                    onUserClick = { account ->
-                        onAvatarClick(account)
-                    }
-                )
-            },
-            failure = {
-                Icon(
-                    imageVector = Icons.Rounded.WifiOff,
-                    contentDescription = null,
-                    modifier = Modifier.size(56.dp),
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-            },
-            loading = {
-                LinearProgressIndicator(
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        )
+            )
+        }
     }
 }
 
@@ -170,7 +173,7 @@ fun SearchResultContent(
     userList: List<Account>,
     onUserClick: (account: Account) -> Unit,
     modifier: Modifier = Modifier
-){
+) {
     if (userList.isEmpty()) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -194,8 +197,8 @@ fun SearchResultContent(
         ) {
             items(
                 items = userList,
-                key = { user -> user.id}
-            ){ item ->
+                key = { user -> user.id }
+            ) { item ->
                 UserItem(
                     userName = item.name,
                     imgUrl = item.imageUrl,
@@ -214,9 +217,10 @@ fun SearchResultContent(
 
 @Composable
 fun UserItem(
+    modifier: Modifier = Modifier,
     imgUrl: String,
     userName: String,
-    modifier: Modifier = Modifier
+    @DrawableRes fallback: Int = com.nhuhuy.replee.core.design_system.R.drawable.avatar_placeholder,
 ) {
     Column(
         modifier = modifier.padding(16.dp),
@@ -225,7 +229,8 @@ fun UserItem(
     ) {
         UserImage(
             userName = userName,
-            photoUrl = imgUrl
+            photoUrl = imgUrl,
+            placeholder = fallback,
         )
         Spacer(Modifier.height(8.dp))
         Text(
