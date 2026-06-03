@@ -5,8 +5,15 @@ import com.nhuhuy.replee.core.network.model.MessageDTO
 import com.nhuhuy.replee.core.network.utils.toMilliseconds
 
 fun MessageDTO.toMessage(currentUserId: String? = null): Message {
-    val ownerReactions = currentUserId?.let { reactions[it] } ?: emptyList()
-    val otherUserReactions = reactions.filter { it.key != currentUserId }.values.flatten()
+    val safeReactions = reactions
+    val ownerReactions = currentUserId?.let { safeReactions[it] } ?: emptyList()
+    val otherUserReactions = mutableListOf<String>()
+
+    safeReactions.forEach { (userId, reactionList) ->
+        if (userId != currentUserId && reactionList != null) {
+            otherUserReactions.addAll(reactionList.filterNotNull())
+        }
+    }
 
     return Message(
         conversationId = conversationId,
@@ -25,7 +32,7 @@ fun MessageDTO.toMessage(currentUserId: String? = null): Message {
         repliedMessageSenderId = repliedMessageSenderId,
         repliedMessageType = repliedMessageType,
         repliedMessageRemoteUrl = repliedMessageRemoteUrl,
-        ownerReactions = ownerReactions,
+        ownerReactions = ownerReactions.filterNotNull(),
         otherUserReactions = otherUserReactions
     )
 }

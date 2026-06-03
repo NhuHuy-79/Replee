@@ -110,7 +110,7 @@ fun ConversationSearchBar(
             onExpandedChange = onExpandChange,
             shape = RoundedCornerShape(32.dp),
             colors = SearchBarDefaults.colors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                containerColor = MaterialTheme.colorScheme.background,
                 dividerColor = MaterialTheme.colorScheme.surfaceContainerHigh
             )
         ) {

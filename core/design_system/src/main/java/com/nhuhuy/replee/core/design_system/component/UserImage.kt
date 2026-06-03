@@ -46,8 +46,19 @@ fun UserAvatar(
     photoUrl: String? = null,
     @DrawableRes fallback: Int = R.drawable.avatar_placeholder
 ) {
+    val url = photoUrl?.trim().orEmpty()
+
+    if (url.isBlank()) {
+        UserAvatarFallback(
+            userName = userName,
+            modifier = modifier.size(56.dp)
+        )
+        return
+    }
 
     val isPreview = LocalInspectionMode.current
+    val context = LocalPlatformContext.current
+
 
     if (isPreview) {
         Image(
@@ -60,16 +71,6 @@ fun UserAvatar(
         )
         return
     }
-    val url = photoUrl?.trim().orEmpty()
-    if (url.isBlank()) {
-        UserAvatarFallback(
-            userName = userName,
-            modifier = modifier.size(56.dp)
-        )
-        return
-    }
-
-    val context = LocalPlatformContext.current
 
     SubcomposeAsyncImage(
         model = ImageRequest.Builder(context)

@@ -19,9 +19,7 @@ import com.nhuhuy.replee.feature_home.presentation.state.HomeState
     wallpaper = RED_DOMINATED_EXAMPLE
 )
 @Composable
-fun HomeScreenPreview(
-
-) {
+fun HomeScreenPreview() {
     RepleeTheme(
         darkTheme = true,
         dynamicColor = true
