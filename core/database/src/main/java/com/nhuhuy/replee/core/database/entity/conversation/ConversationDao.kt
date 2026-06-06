@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 interface ConversationDao : BaseDao<ConversationEntity> {
 
     @Query("Update conversation SET unreadMessageCount = 0 WHERE id = :conversationId")
-    suspend fun clearUnreadMessages(conversationId: String)
+    suspend fun deleteUnreadMessage(conversationId: String)
 
     @Transaction
     @Query("SELECT * FROM conversation WHERE id = :id")
@@ -43,9 +43,8 @@ interface ConversationDao : BaseDao<ConversationEntity> {
 
     @Query("DELETE FROM conversation WHERE id = :id")
     suspend fun deleteConversationById(id: String)
-
     @Transaction
-    @Query("SELECT * FROM conversation WHERE ownerId = :uid ORDER BY pinned DESC, lastMessageTime DESC")
+    @Query("SELECT * FROM conversation WHERE ownerId = :uid AND (lastMessageTime IS NULL OR lastMessageTime > IFNULL(lastTimeDeleted, 0)) ORDER BY pinned DESC, lastMessageTime DESC")
     fun observeConversations(uid: String): Flow<List<ConversationAndUser>>
 
     @Query("SELECT COUNT(*) FROM conversation WHERE ownerId = :ownerId")
@@ -81,6 +80,9 @@ interface ConversationDao : BaseDao<ConversationEntity> {
 
     @Query("UPDATE conversation SET deleted = :deleted WHERE id = :conversationId")
     suspend fun updateDeleteStatus(conversationId: String, deleted: Boolean)
+
+    @Query("UPDATE conversation SET deleted = :deleted, lastTimeDeleted = :timestamp WHERE id = :conversationId")
+    suspend fun updateDeleteAndTimestamp(conversationId: String, deleted: Boolean, timestamp: Long)
 
     @Query("UPDATE conversation SET blocked = :blocked WHERE id = :conversationId")
     suspend fun updateBlockStatus(conversationId: String, blocked: Boolean)

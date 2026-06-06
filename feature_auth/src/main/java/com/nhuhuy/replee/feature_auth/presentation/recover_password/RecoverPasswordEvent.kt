@@ -6,5 +6,5 @@ import com.nhuhuy.replee.core.common.error.RemoteFailure
 sealed interface RecoverPasswordEvent : UiEvent{
     data object SendEmailSuccessfully : RecoverPasswordEvent
     data object NavigateBack : RecoverPasswordEvent
-    data class Failure(val error: RemoteFailure): RecoverPasswordEvent
+    data class SendEmailFailure(val error: RemoteFailure) : RecoverPasswordEvent
 }

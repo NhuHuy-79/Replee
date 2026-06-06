@@ -3,18 +3,17 @@ package com.nhuhuy.replee.feature_chat.presentation.search.component
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.common.utils.formatToChatTime
 import com.nhuhuy.replee.core.design_system.component.UserImage
-import com.nhuhuy.replee.feature_chat.domain.model.message.Message
+import com.nhuhuy.replee.core.model.chat.Message
 
 @Composable
 fun SearchResultItem(
@@ -37,20 +36,22 @@ fun SearchResultItem(
         )
 
         Column(
-            modifier = Modifier.fillMaxHeight(),
+            modifier = Modifier.weight(1f),
         ) {
             Text(
                 text = senderName,
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
             )
 
             Text(
                 text = message.content,
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
             )
         }
-
-        Spacer(Modifier.weight(1f))
 
         Text(
             text = message.sentAt.formatToChatTime(),

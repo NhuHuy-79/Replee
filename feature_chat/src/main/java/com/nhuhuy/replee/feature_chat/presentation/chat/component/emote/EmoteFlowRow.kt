@@ -11,16 +11,16 @@ import androidx.compose.ui.unit.dp
 fun EmoteFlowRow(
     onReactionClick: (reaction: String) -> Unit,
     modifier: Modifier = Modifier,
-    reactions: List<String> = emptyList(),
+    reactions: Map<String, Int>,
 ) {
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
         modifier = modifier,
     ) {
-        reactions.groupBy { it }.forEach { (reaction, list) ->
+        reactions.onEach { entry ->
             ReactionCard(
-                reaction = reaction,
-                count = list.size,
+                reaction = entry.key,
+                count = entry.value,
                 onClick = onReactionClick
             )
         }

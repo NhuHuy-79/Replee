@@ -14,10 +14,9 @@ kotlin {
 
 
 dependencies{
-    implementation(libs.junit)
-    implementation(libs.robolectric)
-    implementation(libs.turbine)
-    implementation(libs.kotlinx.coroutines.test)
-    implementation(libs.mockk)
-    implementation(libs.truth)
+    api(libs.junit)
+    api(libs.turbine)
+    api(libs.kotlinx.coroutines.test)
+    api(libs.mockk)
+    api(libs.truth)
 }

@@ -35,6 +35,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MessageInput(
+    modifier: Modifier = Modifier,
     focusRequester: FocusRequester,
     value: String,
     onValueChange: (value: String) -> Unit,
@@ -42,7 +43,6 @@ fun MessageInput(
     onCameraClick:() -> Unit,
     onImageClick: () -> Unit,
     onSendMessage: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
 

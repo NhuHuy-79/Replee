@@ -11,16 +11,57 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.nhuhuy.replee.navigation.HomeDestination.ConversationList
-import com.nhuhuy.replee.navigation.splash.SplashKey
-import com.nhuhuy.replee.navigation.splash.splashGraph
+import com.nhuhuy.replee.core.common.di.ScopeHolder
+import com.nhuhuy.replee.core.presentation.ObserveEffect
+import com.nhuhuy.replee.deeplink.DeepLinkDispatcher
+import com.nhuhuy.replee.deeplink.DeepLinkResult
+import timber.log.Timber
 
 private const val DURATION = 350
 
 @Composable
-fun MainGraph() {
-    val startDestination: NavKey = SplashKey
+fun MainGraph(
+    isLogged: Boolean,
+    startDestination: NavKey,
+    deepLinkDispatcher: DeepLinkDispatcher,
+    scopeHolder: ScopeHolder
+) {
     val backStack = rememberNavBackStack(startDestination)
+
+    ObserveEffect(deepLinkDispatcher.uriData) { uri ->
+        if (uri != null) {
+            Timber.tag("DeepLinkDispatcher").d("MainGraph: Received URI: $uri")
+            deepLinkDispatcher.dispatchEvent(
+                isLogged = isLogged,
+                uri = uri,
+                currentList = backStack.toList()
+            )
+        }
+    }
+
+    ObserveEffect(deepLinkDispatcher.event) { result ->
+        Timber.tag("DeepLinkDispatcher").d("DeepLinkDispatcher: $result")
+        result?.let {
+            when (result) {
+                is DeepLinkResult.Fallback -> {
+                    backStack.clear()
+                    backStack.add(result.navKey)
+                }
+
+                is DeepLinkResult.NeedSyntheticBackStack -> {
+                    backStack.clear()
+                    backStack.addAll(result.backstack)
+                }
+
+                is DeepLinkResult.Success -> {
+                    backStack.add(result.destination)
+                }
+            }
+        }
+        deepLinkDispatcher.release()
+    }
+
+
     NavDisplay(
         backStack = backStack,
         transitionSpec = {
@@ -59,18 +100,11 @@ fun MainGraph() {
 
         ),
         entryProvider = entryProvider {
-            splashGraph(
-                navigateToHome = { uid ->
-                    backStack.clear()
-                    backStack.add(ConversationList(currentUserId = uid))
-                },
-                navigateToLogin = {
-                    backStack.clear()
-                    backStack.add(AuthDestination.Login)
-                }
-            )
             authGraph(backStack)
-            chatGraph(backstack = backStack)
+            chatGraph(
+                backstack = backStack,
+                scopeHolder = scopeHolder
+            )
             profileGraph(backStack)
         }
     )

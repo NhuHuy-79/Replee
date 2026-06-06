@@ -26,10 +26,10 @@ fun SplashScreen(
     navigateToLogin: () -> Unit,
 ) {
     val mainState = LocalMainUiState.current
-    LaunchedEffect(mainState.showSplashScreen, mainState.authenticationState) {
+    LaunchedEffect(mainState.showSplashScreen, mainState.currentUserId) {
         if (!mainState.showSplashScreen) {
-            if (mainState.authenticationState != null) {
-                navigateToHome(mainState.authenticationState)
+            if (mainState.currentUserId != null) {
+                navigateToHome(mainState.currentUserId)
             } else {
                 navigateToLogin()
             }

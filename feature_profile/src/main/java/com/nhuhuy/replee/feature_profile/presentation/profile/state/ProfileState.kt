@@ -1,11 +1,11 @@
 package com.nhuhuy.replee.feature_profile.presentation.profile.state
 
 import androidx.compose.runtime.Immutable
-import com.nhuhuy.core.domain.model.Account
+import com.nhuhuy.replee.core.model.account.Account
 import com.nhuhuy.replee.core.common.base.ScreenState
 import com.nhuhuy.replee.core.common.base.UiState
-import com.nhuhuy.replee.core.data.data_store.NotificationMode
-import com.nhuhuy.replee.core.data.data_store.ThemeMode
+import com.nhuhuy.replee.core.model.settings.NotificationMode
+import com.nhuhuy.replee.core.model.settings.ThemeMode
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
 
 @Immutable

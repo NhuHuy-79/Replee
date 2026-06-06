@@ -5,7 +5,6 @@ package com.nhuhuy.replee.feature_auth.presentation.login
 import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
@@ -29,11 +28,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.core.design_system.component.CommonButton
 import com.nhuhuy.replee.core.design_system.component.NormalTextField
 import com.nhuhuy.replee.core.design_system.component.SecureTextField
-import com.nhuhuy.replee.core.design_system.component.VisibleLoadingScreen
 import com.nhuhuy.replee.feature_auth.R
 import com.nhuhuy.replee.feature_auth.data.repository.GoogleCredentialProvider
 import com.nhuhuy.replee.feature_auth.presentation.shared.AuthLayout
@@ -46,7 +43,7 @@ fun LoginScreen(
     state: LoginState,
     snackBarHostState: SnackbarHostState,
     onAction: (LoginAction) -> Unit
-) = BoxContainer {
+) {
     var googleButtonClicked by remember { mutableStateOf(false) }
     val context: Context = LocalContext.current
     val googleCredentialProvider = remember { GoogleCredentialProvider() }
@@ -167,9 +164,4 @@ fun LoginScreen(
             )
         }
     }
-
-    VisibleLoadingScreen(
-        modifier = Modifier.fillMaxSize(),
-        show = state.showLoading
-    )
 }

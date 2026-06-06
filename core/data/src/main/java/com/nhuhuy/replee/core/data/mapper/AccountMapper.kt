@@ -1,8 +1,8 @@
 package com.nhuhuy.replee.core.data.mapper
 
-import com.nhuhuy.core.domain.model.Account
-import com.nhuhuy.core.domain.model.AuthServiceProvider
 import com.nhuhuy.replee.core.database.entity.account.AccountEntity
+import com.nhuhuy.replee.core.model.account.Account
+import com.nhuhuy.replee.core.model.account.AuthServiceProvider
 import com.nhuhuy.replee.core.network.model.AccountDTO
 import com.nhuhuy.replee.core.network.utils.toMilliseconds
 

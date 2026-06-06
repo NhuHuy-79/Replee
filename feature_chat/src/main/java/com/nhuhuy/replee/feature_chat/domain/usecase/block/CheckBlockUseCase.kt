@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.block
 
-import com.nhuhuy.core.domain.repository.AccountRepository
+import com.nhuhuy.replee.core.domain.repository.AccountRepository
 import javax.inject.Inject
 
 class CheckBlockUseCase @Inject constructor(

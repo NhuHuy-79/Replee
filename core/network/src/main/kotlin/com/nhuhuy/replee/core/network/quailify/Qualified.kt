@@ -13,7 +13,7 @@ annotation class Retrofit
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class FcmBackendUrl
+annotation class RepleeBackend
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)

@@ -16,8 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nhuhuy.replee.core.design_system.component.UserImage
-import com.nhuhuy.replee.feature_chat.domain.model.message.Message
-import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
+import com.nhuhuy.replee.core.model.chat.Message
+import com.nhuhuy.replee.core.model.chat.MessageStatus
 
 @Composable
 fun StatusContent(

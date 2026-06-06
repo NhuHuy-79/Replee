@@ -4,3 +4,4 @@
 *.gradle text eol=lf
 *.properties text eol=lf
 *.json text eol=lf
+app/build.gradle.kts merge=ours

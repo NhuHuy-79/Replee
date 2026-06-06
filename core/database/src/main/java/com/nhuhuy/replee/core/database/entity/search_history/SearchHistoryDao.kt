@@ -2,7 +2,7 @@ package com.nhuhuy.replee.core.database.entity.search_history
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.nhuhuy.core.domain.model.SearchHistoryResult
+import com.nhuhuy.replee.core.model.chat.SearchHistoryResult
 import com.nhuhuy.replee.core.database.base.BaseDao
 import kotlinx.coroutines.flow.Flow
 

@@ -3,9 +3,6 @@
 
 package com.nhuhuy.replee.feature_profile.presentation
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -32,38 +29,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.replee.core.design_system.component.BoxContainer
 import com.nhuhuy.replee.feature_profile.R
-import com.nhuhuy.replee.feature_profile.presentation.profile.component.EditDialog
-import com.nhuhuy.replee.feature_profile.presentation.profile.component.NotificationDialog
 import com.nhuhuy.replee.feature_profile.presentation.profile.component.ProfileUserCard
-import com.nhuhuy.replee.feature_profile.presentation.profile.component.SelectThemeDialog
-import com.nhuhuy.replee.feature_profile.presentation.profile.component.UpdatePasswordSheet
-import com.nhuhuy.replee.feature_profile.presentation.profile.state.Overlay
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction
-import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction.OnNewPasswordChange
-import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction.OnOldPasswordChange
-import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileAction.OnUpdatePassword
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileActionResult
 import com.nhuhuy.replee.feature_profile.presentation.profile.state.ProfileState
-import timber.log.Timber
 
 @Composable
 fun ProfileScreen(
     profileActionResult: ProfileActionResult,
     state: ProfileState,
     onAction: (ProfileAction) -> Unit
-)= BoxContainer {
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri != null) {
-            onAction(ProfileAction.OnPhotoPicker.Select(uri))
-        } else {
-            Timber.e("No media selected")
-        }
-    }
-
+) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -172,69 +149,6 @@ fun ProfileScreen(
                     icon = Icons.Outlined.Info,
                     text = stringResource(R.string.profile_item_about)
                 )
-            }
-        }
-
-        when (state.overlay) {
-            Overlay.NONE -> Unit
-            Overlay.THEME -> SelectThemeDialog(
-                modifier = Modifier,
-                currentThemeMode = state.darkMode,
-                onThemeModeSelect = { theme ->
-                    onAction(ProfileAction.OnDarkModeClick.Select(theme))
-                },
-                onDismiss = {
-                    onAction(ProfileAction.OnDismiss)
-                }
-            )
-            Overlay.NOTIFICATION -> NotificationDialog(
-                currentOption = state.notification,
-                onNotificationSelect = { notification ->
-                    onAction(ProfileAction.OnNotificationClick.Select(notification))
-                },
-                onDismiss = {
-                    onAction(ProfileAction.OnDismiss)
-                },
-            )
-            Overlay.UPDATE_PASSWORD -> UpdatePasswordSheet(
-                result = profileActionResult.updatePassword,
-                state = state,
-                onOldPasswordChange = { value ->
-                    onAction(OnOldPasswordChange(value))
-                },
-                onNewPasswordChange = { value ->
-                    onAction(OnNewPasswordChange(value))
-
-                },
-                onConfirm = {
-                    onAction(OnUpdatePassword.Confirm)
-                },
-                onDismiss = {
-                    onAction(ProfileAction.OnDismiss)
-                },
-            )
-
-            Overlay.OPTIONS -> {
-                EditDialog(
-                    onDismiss = {
-                        onAction(ProfileAction.OnDismiss)
-                    },
-                    onEditPassword = {
-                        onAction(OnUpdatePassword.BottomSheet)
-                    },
-                    onEditAvatar = {
-                        launcher.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                        )
-                        /*
-                                                onAction(ProfileAction.OnPhotoPicker.Launcher)
-                        */
-                    }
-                )
-            }
-
-            Overlay.IMAGE_PICKER -> {
-
             }
         }
     }

@@ -1,0 +1,122 @@
+package com.nhuhuy.replee.core.data.repository.chat
+
+import android.content.Context
+import androidx.core.net.toUri
+import com.nhuhuy.replee.core.common.utils.IoDispatcher
+import com.nhuhuy.replee.core.data.data_source.FileStorageDataSource
+import com.nhuhuy.replee.core.data.data_source.FileValidator
+import com.nhuhuy.replee.core.data.data_source.file_path.FilePathLocalDataSource
+import com.nhuhuy.replee.core.data.utils.execute
+import com.nhuhuy.replee.core.domain.repository.FileMetadata
+import com.nhuhuy.replee.core.domain.repository.FileRepository
+import com.nhuhuy.replee.core.domain.worker.WorkerScheduler
+import com.nhuhuy.replee.core.model.UploadFileState
+import com.nhuhuy.replee.core.model.chat.FilePath
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.model.validate.ValidateFileResult
+import com.nhuhuy.replee.core.network.data_source.file.UploadFileService
+import com.nhuhuy.replee.core.network.quailify.Retrofit
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
+import timber.log.Timber
+import java.io.File
+import javax.inject.Inject
+
+class FileRepositoryImp @Inject constructor(
+    private val filePathLocalDataSourceImp: FilePathLocalDataSource,
+    private val fileValidator: FileValidator,
+    private val fileStorageDataSource: FileStorageDataSource,
+    @ApplicationContext private val context: Context,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    @Retrofit private val uploadFileService: UploadFileService,
+    private val workerScheduler: WorkerScheduler,
+) : FileRepository {
+    override suspend fun uploadImageWithOption(
+        uriPath: String,
+        folder: String,
+        option: Map<String, String>
+    ): NetworkResult<String> {
+        return execute {
+            val url = uploadFileService.uploadImageWithOption(
+                uriPath = uriPath,
+                folder = folder,
+                option = option
+            )
+
+            url
+        }
+    }
+
+    override suspend fun getUriPathWithUserId(userId: String): FilePath? {
+        return withContext(ioDispatcher) {
+            filePathLocalDataSourceImp.getFilePathByUserId(userId)
+        }
+    }
+
+    override suspend fun getUriPathWithMessageId(messageId: String): FilePath? {
+        return withContext(ioDispatcher) {
+            filePathLocalDataSourceImp.getFilePathByMessageId(messageId)
+        }
+    }
+
+    override suspend fun upsertFilePath(filePath: FilePath) {
+        return withContext(ioDispatcher) {
+            filePathLocalDataSourceImp.upsertFilePath(filePath)
+        }
+    }
+
+    override suspend fun saveFileToInternalStorage(uriPath: String): String {
+        return withContext(ioDispatcher) {
+            fileStorageDataSource.saveToInternalStorage(
+                uri = uriPath.toUri()
+            )
+        }
+    }
+
+    override suspend fun validateFileSize(uriPath: String): ValidateFileResult {
+        return withContext(ioDispatcher) {
+            fileValidator.validate(uriPath)
+        }
+    }
+
+    override suspend fun uploadFile(uriPath: String): NetworkResult<String> {
+        return execute(dispatcher = ioDispatcher) {
+            uploadFileService.uploadImageWithUriPath(uriPath)
+        }
+    }
+
+    override suspend fun scheduleUploadFile(messageId: String, uriPath: String) {
+        val uri = uriPath.toUri()
+        val uploadDir = File(context.cacheDir, "upload")
+        if (!uploadDir.exists()) {
+            uploadDir.mkdirs()
+        }
+        val tempFile = File(uploadDir, "${messageId}.jpg")
+        try {
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                tempFile.outputStream().use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e(e)
+            return
+        }
+
+        workerScheduler.scheduleUploadFile(messageId, tempFile.absolutePath)
+    }
+
+    override fun observeUploadFile(messageId: String, uriPath: String): Flow<UploadFileState> {
+        TODO("Not implemented")
+    }
+
+    override suspend fun getFileMetadata(uriPath: String): FileMetadata {
+        return withContext(ioDispatcher) {
+            fileStorageDataSource.getFileMetadata(uriPath)
+        }
+
+    }
+
+}

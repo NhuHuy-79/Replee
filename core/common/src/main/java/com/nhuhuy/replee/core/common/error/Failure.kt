@@ -25,6 +25,6 @@ sealed interface RemoteFailure : Failure{
         USER_ALREADY_EXIST,
         INVALID_CREDENTIAL
     }
-
+    data object Timeout : RemoteFailure
     data object Unknown: RemoteFailure
 }

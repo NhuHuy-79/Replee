@@ -14,6 +14,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:model"))
     implementation(project(":core:domain"))
     api(libs.firebase.auth)
     api(libs.androidx.credentials)
@@ -23,6 +24,7 @@ dependencies {
     api(libs.firebase.firestore)
     api(libs.firebase.messaging)
     api(libs.kotlinx.serialization.json)
+    api(libs.timber)
     //Retrofit
     api(libs.retrofit)
     api(libs.converter.gson)

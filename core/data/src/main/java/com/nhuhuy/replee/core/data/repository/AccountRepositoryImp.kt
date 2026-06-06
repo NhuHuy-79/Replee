@@ -1,19 +1,19 @@
 package com.nhuhuy.replee.core.data.repository
 
-import com.nhuhuy.core.domain.SessionManager
-import com.nhuhuy.core.domain.model.Account
-import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.model.SearchHistoryResult
-import com.nhuhuy.core.domain.repository.AccountRepository
+import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.mapper.toAccount
 import com.nhuhuy.replee.core.data.mapper.toAccountDTO
 import com.nhuhuy.replee.core.data.mapper.toAccountEntity
-import com.nhuhuy.replee.core.data.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.execute
 import com.nhuhuy.replee.core.data.utils.executeWithTimeout
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
 import com.nhuhuy.replee.core.database.entity.search_history.SearchHistoryEntity
-import com.nhuhuy.replee.core.network.data_source.AccountNetworkDataSource
+import com.nhuhuy.replee.core.domain.SessionManager
+import com.nhuhuy.replee.core.domain.repository.AccountRepository
+import com.nhuhuy.replee.core.model.account.Account
+import com.nhuhuy.replee.core.model.chat.SearchHistoryResult
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.network.data_source.account.AccountNetworkDataSource
 import com.nhuhuy.replee.core.network.model.AccountDTO
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -66,7 +66,7 @@ class AccountRepositoryImp @Inject constructor(
                 accountLocalDataSource.updateDeviceToken(uid = uid, token = token)
                 accountNetworkDataSource.updateDeviceToken(uid, token)
             }
-            Timber.Forest.e("Uid is nullable, need to work manager!")
+            Timber.e("Uid is nullable, need to work manager!")
         }
     }
 
@@ -127,7 +127,7 @@ class AccountRepositoryImp @Inject constructor(
     ): Flow<Boolean> {
         return accountLocalDataSource.observeBlockStatus(block)
             .map { list ->
-                Timber.Forest.d("$list")
+                Timber.d("$list")
                 list.contains(isBlocked)
             }
     }
@@ -140,7 +140,7 @@ class AccountRepositoryImp @Inject constructor(
             }
             user.blockedList.contains(owner)
         } catch (e: Exception) {
-            Timber.Forest.e(e)
+            Timber.e(e)
             false
         }
     }

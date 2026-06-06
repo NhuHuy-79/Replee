@@ -12,13 +12,54 @@ import kotlinx.coroutines.flow.Flow
 interface MessageDao : BaseDao<MessageEntity> {
 
     // --- READ (Lấy dữ liệu) ---
+    @Transaction
+    @Query(
+        """
+        SELECT * FROM (
+            SELECT * FROM message
+            WHERE conversationId = :id 
+              AND sentAt >= (SELECT sentAt FROM message WHERE messageId = :anchorMessageId LIMIT 1)
+            ORDER BY sentAt ASC LIMIT :limit
+        )
+        UNION ALL
+        SELECT * FROM (
+            SELECT * FROM message
+            WHERE conversationId = :id 
+              AND sentAt < (SELECT sentAt FROM message WHERE messageId = :anchorMessageId LIMIT 1)
+            ORDER BY sentAt DESC LIMIT :limit
+        )
+        ORDER BY sentAt DESC
+    """
+    )
+    fun observeMessagesAroundId(
+        id: String,
+        anchorMessageId: String,
+        limit: Int
+    ): Flow<List<MessageWithLocalPath>>
     @Query("SELECT * FROM message WHERE conversationId = :conversationId AND pinned = 1 ORDER BY sentAt DESC ")
     fun observePinnedMessages(conversationId: String): Flow<List<MessageEntity>>
     @Query("SELECT * FROM message WHERE conversationId = :conversationId")
     suspend fun getMessageByConversationId(conversationId: String): List<MessageEntity>
 
+    @Transaction
     @Query("SELECT * FROM message WHERE conversationId = :conversationId ORDER BY sentAt DESC")
-    fun observeMessageByConversationId(conversationId: String): Flow<List<MessageEntity>>
+    fun observeMessageByConversationId(conversationId: String): Flow<List<MessageWithLocalPath>>
+
+    @Transaction
+    @Query(
+        """
+        SELECT * FROM message 
+        WHERE conversationId = :conversationId 
+        AND (:startTime IS NULL OR sentAt >= :startTime) 
+        AND (:endTime IS NULL OR sentAt <= :endTime)
+        ORDER BY sentAt DESC
+    """
+    )
+    fun observeMessagesAround(
+        conversationId: String,
+        startTime: Long?,
+        endTime: Long?
+    ): Flow<List<MessageWithLocalPath>>
 
     @Query("SELECT * FROM message WHERE messageId = :messageId")
     suspend fun getMessageById(messageId: String): MessageEntity?
@@ -32,7 +73,7 @@ interface MessageDao : BaseDao<MessageEntity> {
     @Query(
         """
         SELECT * FROM message 
-        WHERE conversationId = :conversationId
+        WHERE conversationId = :conversationId AND status = "SYNCED"
         ORDER BY sentAt DESC 
         LIMIT 1
     """
@@ -40,7 +81,19 @@ interface MessageDao : BaseDao<MessageEntity> {
     suspend fun getLatestMessage(conversationId: String): MessageEntity?
 
     @Transaction
-    @Query("SELECT * FROM message WHERE conversationId = :conversationId AND deleted = 0 ORDER BY sentAt DESC")
+    @Query(
+        """
+    SELECT m.* FROM message m
+    INNER JOIN conversation c ON m.conversationId = c.id
+    WHERE m.conversationId = :conversationId 
+      AND (
+          c.deleted = 0 
+          OR 
+          (c.deleted = 1 AND m.sentAt > c.lastTimeDeleted) 
+      )
+    ORDER BY m.sentAt DESC
+"""
+    )
     fun getMessagesPagingSource(conversationId: String): PagingSource<Int, MessageWithLocalPath>
 
     @Query("SELECT * FROM message WHERE conversationId = :conversationId AND content LIKE :query")
@@ -73,6 +126,21 @@ interface MessageDao : BaseDao<MessageEntity> {
     """
     )
     suspend fun getNewerMessages(senderId: String, sentAt: Long): List<MessageEntity>
+
+    @Query(
+        """
+        SELECT * FROM message 
+        WHERE conversationId = :conversationId 
+        AND sentAt < :sentAt 
+        ORDER BY sentAt DESC 
+        LIMIT :limit
+    """
+    )
+    suspend fun getOlderMessages(
+        conversationId: String,
+        sentAt: Long,
+        limit: Int
+    ): List<MessageEntity>
 
     // --- UPDATE  ---
     @Query("UPDATE message SET pinned = :pinned WHERE messageId = :messageId")

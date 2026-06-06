@@ -2,9 +2,9 @@ package com.nhuhuy.replee.feature_auth.usecase
 
 
 import com.google.common.truth.Truth
-import com.nhuhuy.core.domain.SessionManager
-import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.repository.AccountRepository
+import com.nhuhuy.replee.core.domain.SessionManager
+import com.nhuhuy.replee.core.domain.repository.AccountRepository
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.feature_auth.FakeParameters.Companion.FAKE_TOKEN
 import com.nhuhuy.replee.feature_auth.FakeParameters.Companion.fakeAccount
 import com.nhuhuy.replee.feature_auth.FakeParameters.Companion.fakeException
@@ -110,7 +110,7 @@ class LoginWithEmailTest {
             authRepository.loginWithEmail(fakeAccount.email, "password")
             sessionManager.getCurrentDeviceToken()
             accountRepository.updateDeviceToken(FAKE_TOKEN)
-            sessionManager.logout()
+            sessionManager.logOut()
         }
     }
 
@@ -145,7 +145,7 @@ class LoginWithEmailTest {
         Truth.assertThat(result).isEqualTo(expected)
 
         coVerify {
-            sessionManager.logout()
+            sessionManager.logOut()
         }
     }
 

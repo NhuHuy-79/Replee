@@ -1,9 +1,36 @@
 package com.nhuhuy.replee.core.network.utils
 
-import android.util.Log
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.WriteBatch
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.tasks.await
+import timber.log.Timber
+
+
+suspend inline fun <T> FirebaseFirestore.multipleRunBatch(
+    items: List<T>,
+    noinline block: (T, WriteBatch) -> Unit,
+    chunkedSize: Int = 400,
+) {
+    optimizedWrite(
+        items = items,
+        singleWrite = { item ->
+            this.runBatch { batch ->
+                block(item, batch)
+            }.await()
+        },
+        batchWrite = { list ->
+            this.runBatch { batch ->
+                for (item in list) {
+                    block(item, batch)
+                }
+            }.await()
+        },
+        batchSize = chunkedSize
+    )
+}
 
 /**
  * Optimizes write operations by selecting the most efficient method based on the number of items.
@@ -27,15 +54,12 @@ suspend inline fun <T> optimizedWrite(
 ) {
     when {
         items.isEmpty() -> return
-
         items.size == 1 -> {
             singleWrite(items.first())
         }
-
         items.size <= batchSize -> {
             batchWrite(items)
         }
-
         else -> {
             items.chunked(batchSize).forEach { chunk ->
                 batchWrite(chunk)
@@ -43,7 +67,6 @@ suspend inline fun <T> optimizedWrite(
         }
     }
 }
-
 
 suspend inline fun <T, R> optimizeRead(
     items: List<T>,
@@ -59,7 +82,7 @@ suspend inline fun <T, R> optimizeRead(
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Log.e("OptimizedRead", "Error in optimizedRead: ${e.message}")
+                Timber.tag("OptimizedRead").e("Error in optimizedRead: ${e.message}")
                 emptyList()
             }
         }

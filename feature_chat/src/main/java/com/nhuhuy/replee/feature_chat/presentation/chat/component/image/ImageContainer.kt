@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
@@ -25,7 +24,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
-import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
+import com.nhuhuy.replee.core.model.chat.LocalPathMessage
 
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
@@ -69,12 +68,11 @@ fun ImageMessageContainer(
         contentScale = ContentScale.Fit,
         modifier = imageModifier
             .clip(shape),
-
         loading = {
             LoadingStateImage(
                 containerColor = containerColor,
                 contentColor = contentColor,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.matchParentSize()
             )
         },
 
@@ -82,7 +80,7 @@ fun ImageMessageContainer(
             FailureStateImage(
                 containerColor = containerColor,
                 contentColor = contentColor,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.matchParentSize()
             )
         }
     )
