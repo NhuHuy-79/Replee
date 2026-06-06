@@ -10,7 +10,6 @@ import com.nhuhuy.replee.feature_chat.domain.usecase.block.ObserveOwnerIsBlockUs
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.UnblockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.conversation.GetConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.GetMessagePositionUseCase
-import com.nhuhuy.replee.feature_chat.domain.usecase.message.MarkMessagesReadUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.GetReadTimeUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.GetTypingUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.metadata.UpdateReadTimeUseCase
@@ -40,7 +39,6 @@ class ChatBackgroundViewModelTest {
     private val updateReadTimeUseCase = mockk<UpdateReadTimeUseCase>(relaxed = true)
     private val syncMessageUseCase = mockk<SyncMessageUseCase>(relaxed = true)
     private val getAccountByIdUseCase = mockk<GetAccountByIdUseCase>(relaxed = true)
-    private val markMessagesReadUseCase = mockk<MarkMessagesReadUseCase>(relaxed = true)
     private val checkBlockUseCase = mockk<CheckBlockUseCase>(relaxed = true)
     private val getConversationUseCase = mockk<GetConversationUseCase>(relaxed = true)
     private val getMessagePositionUseCase = mockk<GetMessagePositionUseCase>(relaxed = true)

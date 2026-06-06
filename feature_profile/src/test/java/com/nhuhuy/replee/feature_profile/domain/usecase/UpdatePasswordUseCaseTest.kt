@@ -1,11 +1,10 @@
 package com.nhuhuy.replee.feature_profile.domain.usecase
 
-import com.google.common.truth.Truth
-import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.google.common.truth.Truth.assertThat
 import com.nhuhuy.replee.core.domain.repository.AccountRepository
-import com.nhuhuy.replee.feature_profile.FakeParameters.Companion.fakeAccount
-import com.nhuhuy.replee.feature_profile.FakeParameters.Companion.fakeException
 import com.nhuhuy.replee.core.domain.repository.ProfileRepository
+import com.nhuhuy.replee.core.model.account.Account
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
@@ -13,44 +12,50 @@ import org.junit.Before
 import org.junit.Test
 
 class UpdatePasswordUseCaseTest {
-    private lateinit var accountRepository: AccountRepository
-    private lateinit var profileRepository: ProfileRepository
-    private lateinit var useCase: UpdatePasswordUseCase
+
+    private lateinit var updatePasswordUseCase: UpdatePasswordUseCase
+    private val accountRepository = mockk<AccountRepository>()
+    private val profileRepository = mockk<ProfileRepository>()
 
     @Before
     fun setUp() {
-        accountRepository = mockk(relaxed = true)
-        profileRepository = mockk(relaxed = true)
-        useCase = UpdatePasswordUseCase(accountRepository, profileRepository)
+        updatePasswordUseCase = UpdatePasswordUseCase(accountRepository, profileRepository)
     }
 
     @Test
-    fun `Should return success when password update is successful`() = runTest {
+    fun `When update password is called, it should return success from repository`() = runTest {
         // Arrange
-        coEvery { accountRepository.getCurrentAccount() } returns fakeAccount
+        val email = "test@example.com"
+        val oldPass = "old123"
+        val newPass = "new123"
+        coEvery { accountRepository.getCurrentAccount() } returns Account(email = email)
         coEvery {
-            profileRepository.updatePassword(any(), any(), any())
+            profileRepository.updatePassword(email, oldPass, newPass) 
         } returns NetworkResult.Success(Unit)
 
         // Act
-        val result = useCase("oldPassword", "newPassword")
+        val result = updatePasswordUseCase(oldPass, newPass)
 
         // Assert
-        Truth.assertThat(result).isEqualTo(NetworkResult.Success(Unit))
+        assertThat(result).isInstanceOf(NetworkResult.Success::class.java)
     }
 
     @Test
-    fun `Should return failure when password update fails`() = runTest {
+    fun `When update password fails, it should return failure`() = runTest {
         // Arrange
-        coEvery { accountRepository.getCurrentAccount() } returns fakeAccount
+        val email = "test@example.com"
+        val exception = Exception("Network Error")
+        coEvery { accountRepository.getCurrentAccount() } returns Account(email = email)
         coEvery {
             profileRepository.updatePassword(any(), any(), any())
-        } returns NetworkResult.Failure(fakeException)
+        } returns NetworkResult.Failure(exception)
 
         // Act
-        val result = useCase("oldPassword", "newPassword")
+        val result = updatePasswordUseCase("old", "new")
 
         // Assert
-        Truth.assertThat(result).isEqualTo(NetworkResult.Failure(fakeException))
+        assertThat(result).isInstanceOf(NetworkResult.Failure::class.java)
+        val failure = result as NetworkResult.Failure
+        assertThat(failure.throwable).isEqualTo(exception)
     }
 }
