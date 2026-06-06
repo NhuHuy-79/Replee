@@ -33,13 +33,15 @@ fun ImageMessageContainer(
     localPathMessage: LocalPathMessage,
     containerColor: Color,
     contentColor: Color,
+    shape: androidx.compose.ui.graphics.Shape = androidx.compose.foundation.shape.RoundedCornerShape(
+        16.dp
+    )
 ) {
     val message = localPathMessage.message
     val imageModel = localPathMessage.localPath ?: message.remoteUrl
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val maxWidth = screenWidth * 0.6f
     val maxHeight = screenWidth * 0.6f
-    val isReplying = localPathMessage.message.repliedMessageId != null
 
     val imageModifier = remember(localPathMessage.width, localPathMessage.height) {
         if (localPathMessage.width > 0 && localPathMessage.height > 0) {
@@ -57,10 +59,6 @@ fun ImageMessageContainer(
                 .heightIn(max = maxHeight)
         }
     }
-    val shape = if (isReplying) RoundedCornerShape(
-        bottomStart = 16.dp,
-        bottomEnd = 16.dp
-    ) else RoundedCornerShape(16.dp)
 
     SubcomposeAsyncImage(
         model = imageModel,
@@ -72,7 +70,8 @@ fun ImageMessageContainer(
             LoadingStateImage(
                 containerColor = containerColor,
                 contentColor = contentColor,
-                modifier = Modifier.matchParentSize()
+                modifier = Modifier.matchParentSize(),
+                shape = shape
             )
         },
 
@@ -80,7 +79,8 @@ fun ImageMessageContainer(
             FailureStateImage(
                 containerColor = containerColor,
                 contentColor = contentColor,
-                modifier = Modifier.matchParentSize()
+                modifier = Modifier.matchParentSize(),
+                shape = shape
             )
         }
     )
@@ -90,7 +90,8 @@ fun ImageMessageContainer(
 fun FailureStateImage(
     contentColor: Color,
     containerColor: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    shape: androidx.compose.ui.graphics.Shape = RoundedCornerShape(16.dp)
 ) {
     Box(
         modifier = modifier
@@ -98,7 +99,7 @@ fun FailureStateImage(
             .width(200.dp)
             .background(
                 color = containerColor,
-                shape = RoundedCornerShape(16.dp)
+                shape = shape
             ),
         contentAlignment = Alignment.Center
     ) {
@@ -116,6 +117,7 @@ fun LoadingStateImage(
     containerColor: Color,
     contentColor: Color,
     modifier: Modifier = Modifier,
+    shape: androidx.compose.ui.graphics.Shape = RoundedCornerShape(16.dp)
 ) {
     Box(
         modifier = modifier
@@ -123,7 +125,7 @@ fun LoadingStateImage(
             .width(200.dp)
             .background(
                 color = containerColor,
-                shape = RoundedCornerShape(16.dp)
+                shape = shape
             ),
         contentAlignment = Alignment.Center
     ) {

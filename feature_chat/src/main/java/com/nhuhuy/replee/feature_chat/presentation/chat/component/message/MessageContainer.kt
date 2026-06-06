@@ -25,8 +25,6 @@ import coil3.compose.AsyncImage
 import com.nhuhuy.replee.core.model.chat.MessageType
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition
-import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition.END
-import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition.MIDDLE
 import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition.SINGLE
 import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition.START
 
@@ -47,66 +45,27 @@ fun ReplyContent(
         else -> ""
     }
 
+    val large = 24.dp
+    val small = 4.dp
+
     val shape = if (isCurrentUser) {
-        when (mainMessagePosition) {
-            START -> RoundedCornerShape(
-                topStart = 24.dp,
-                bottomStart = 24.dp,
-                bottomEnd = 4.dp,
-                topEnd = 24.dp
-            )
-
-            MIDDLE -> RoundedCornerShape(
-                topStart = 24.dp,
-                bottomStart = 24.dp,
-                bottomEnd = 4.dp,
-                topEnd = 4.dp
-            )
-
-            END -> RoundedCornerShape(
-                topStart = 24.dp,
-                bottomStart = 24.dp,
-                bottomEnd = 4.dp,
-                topEnd = 4.dp
-            )
-
-            SINGLE -> RoundedCornerShape(
-                topStart = 24.dp,
-                topEnd = 24.dp,
-                bottomEnd = 4.dp,
-                bottomStart = 24.dp
-            )
-        }
+        val topEnd =
+            if (mainMessagePosition == START || mainMessagePosition == SINGLE) large else small
+        RoundedCornerShape(
+            topStart = large,
+            topEnd = topEnd,
+            bottomEnd = small, // Always connect down to main message
+            bottomStart = large
+        )
     } else {
-        when (mainMessagePosition) {
-            START -> RoundedCornerShape(
-                topStart = 24.dp,
-                bottomStart = 4.dp,
-                bottomEnd = 24.dp,
-                topEnd = 24.dp
-            )
-
-            MIDDLE -> RoundedCornerShape(
-                topStart = 4.dp,
-                bottomStart = 4.dp,
-                bottomEnd = 24.dp,
-                topEnd = 24.dp
-            )
-
-            END -> RoundedCornerShape(
-                topStart = 4.dp,
-                bottomStart = 4.dp,
-                bottomEnd = 24.dp,
-                topEnd = 24.dp
-            )
-
-            SINGLE -> RoundedCornerShape(
-                topStart = 4.dp,
-                topEnd = 4.dp,
-                bottomEnd = 24.dp,
-                bottomStart = 4.dp
-            )
-        }
+        val topStart =
+            if (mainMessagePosition == START || mainMessagePosition == SINGLE) large else small
+        RoundedCornerShape(
+            topStart = topStart,
+            topEnd = large,
+            bottomEnd = large,
+            bottomStart = small // Always connect down to main message
+        )
     }
 
     Row(

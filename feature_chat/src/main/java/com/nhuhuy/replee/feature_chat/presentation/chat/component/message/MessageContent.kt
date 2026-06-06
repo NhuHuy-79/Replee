@@ -41,102 +41,31 @@ fun MessageContent(
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 
-    val messageTextShape = remember(position, isCurrentUser) {
+    val messageTextShape = remember(position, isCurrentUser, isReplying) {
         val large = 24.dp
         val small = 4.dp
         if (isCurrentUser) {
-            when (position) {
-                MessagePosition.START -> {
-                    if (isReplying) {
-                        RoundedCornerShape(
-                            topStart = large,
-                            topEnd = small,
-                            bottomEnd = small,
-                            bottomStart = large
-                        )
-                    } else {
-                        RoundedCornerShape(
-                            topStart = large,
-                            topEnd = large,
-                            bottomEnd = small,
-                            bottomStart = large
-                        )
-                    }
-                }
-
-                MessagePosition.MIDDLE -> RoundedCornerShape(
-                    topStart = large,
-                    topEnd = small,
-                    bottomEnd = small,
-                    bottomStart = large
-                )
-
-                MessagePosition.END -> {
-                    RoundedCornerShape(
-                        topStart = large,
-                        topEnd = small,
-                        bottomEnd = large,
-                        bottomStart = large
-                    )
-                }
-
-                MessagePosition.SINGLE -> {
-                    if (isReplying) {
-                        RoundedCornerShape(
-                            topStart = large,
-                            topEnd = small,
-                            bottomEnd = large,
-                            bottomStart = large
-                        )
-                    } else {
-                        RoundedCornerShape(
-                            topStart = large,
-                            topEnd = large,
-                            bottomEnd = large,
-                            bottomStart = large
-                        )
-                    }
-                }
-            }
+            val topEnd =
+                if (isReplying) small else (if (position == MessagePosition.START || position == MessagePosition.SINGLE) large else small)
+            val bottomEnd =
+                if (position == MessagePosition.END || position == MessagePosition.SINGLE) large else small
+            RoundedCornerShape(
+                topStart = large,
+                topEnd = topEnd,
+                bottomEnd = bottomEnd,
+                bottomStart = large
+            )
         } else {
-            when (position) {
-                MessagePosition.START -> {
-                    if (isReplying) {
-                        RoundedCornerShape(
-                            topStart = small,
-                            topEnd = large,
-                            bottomEnd = large,
-                            bottomStart = small
-                        )
-                    } else RoundedCornerShape(
-                        topStart = large,
-                        topEnd = large,
-                        bottomEnd = large,
-                        bottomStart = small
-                    )
-                }
-
-                MessagePosition.MIDDLE -> RoundedCornerShape(
-                    topStart = small,
-                    topEnd = large,
-                    bottomEnd = large,
-                    bottomStart = small
-                )
-
-                MessagePosition.END -> RoundedCornerShape(
-                    topStart = small,
-                    topEnd = large,
-                    bottomEnd = large,
-                    bottomStart = large
-                )
-
-                MessagePosition.SINGLE -> RoundedCornerShape(
-                    topStart = large,
-                    topEnd = large,
-                    bottomEnd = large,
-                    bottomStart = large
-                )
-            }
+            val topStart =
+                if (isReplying) small else (if (position == MessagePosition.START || position == MessagePosition.SINGLE) large else small)
+            val bottomStart =
+                if (position == MessagePosition.END || position == MessagePosition.SINGLE) large else small
+            RoundedCornerShape(
+                topStart = topStart,
+                topEnd = large,
+                bottomEnd = large,
+                bottomStart = bottomStart
+            )
         }
     }
 
@@ -165,8 +94,9 @@ fun MessageContent(
                     modifier = modifier.border(
                         width = 2.dp,
                         color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = RoundedCornerShape(16.dp)
-                    )
+                        shape = messageTextShape
+                    ),
+                    shape = messageTextShape
                 )
             }
         }
