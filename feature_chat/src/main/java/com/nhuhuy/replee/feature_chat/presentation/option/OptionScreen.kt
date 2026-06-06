@@ -24,9 +24,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nhuhuy.replee.core.data.data_store.SeedColor
+import com.nhuhuy.replee.core.model.settings.SeedColor
 import com.nhuhuy.replee.core.design_system.component.AlertDialogContainer
-import com.nhuhuy.replee.core.design_system.component.BoxContainer
+import com.nhuhuy.replee.core.presentation.component.BoxContainer
 import com.nhuhuy.replee.feature_chat.R
 import com.nhuhuy.replee.feature_chat.presentation.option.component.InformationUser
 import com.nhuhuy.replee.feature_chat.presentation.option.component.SecondaryOption
@@ -160,7 +160,26 @@ fun OptionScreen(
                     onAction(OptionAction.OnDismiss)
                 },
                 onConfirm = {
-                    onAction(OptionAction.OnConversationDelete)
+                    onAction(OptionAction.OnDeleteConfirmed)
+                },
+                title = R.string.dialog_delete_conversation,
+                content = R.string.dialog_delete_conversation_content,
+                icon = {
+                    Icon(
+                        imageVector = Icons.Rounded.DeleteOutline,
+                        contentDescription = null
+                    )
+                }
+            )
+        }
+
+        OptionOverlay.DELETE_CONFIRMATION -> {
+            AlertDialogContainer(
+                onDismiss = {
+                    onAction(OptionAction.OnDismiss)
+                },
+                onConfirm = {
+                    onAction(OptionAction.OnDeleteConfirmed)
                 },
                 title = R.string.dialog_delete_conversation,
                 content = R.string.dialog_delete_conversation_content,

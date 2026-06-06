@@ -1,11 +1,11 @@
 package com.nhuhuy.replee.feature_auth.domain.usecase
 
-import com.nhuhuy.core.domain.SessionManager
-import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.model.onFailure
-import com.nhuhuy.core.domain.model.onSuccess
-import com.nhuhuy.core.domain.repository.AccountRepository
 import com.nhuhuy.replee.core.data.utils.then
+import com.nhuhuy.replee.core.domain.SessionManager
+import com.nhuhuy.replee.core.domain.repository.AccountRepository
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.model.error_handling.onFailure
+import com.nhuhuy.replee.core.model.error_handling.onSuccess
 import com.nhuhuy.replee.feature_auth.domain.repository.AuthRepository
 import javax.inject.Inject
 
@@ -30,7 +30,7 @@ class LoginWithEmailUseCase @Inject constructor(
             }
         }.onFailure {
             //Rollback user if all request return a Failure.
-            sessionManager.logout()
+            sessionManager.logOut()
         }
     }
 

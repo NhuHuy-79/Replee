@@ -4,7 +4,7 @@ import android.content.Context
 import android.provider.OpenableColumns
 import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
-import com.nhuhuy.core.domain.model.ValidateFileResult
+import com.nhuhuy.replee.core.model.validate.ValidateFileResult
 import dagger.hilt.android.qualifiers.ApplicationContext
 import timber.log.Timber
 import java.io.File

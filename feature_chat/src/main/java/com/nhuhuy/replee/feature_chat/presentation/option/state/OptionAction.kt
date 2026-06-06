@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_chat.presentation.option.state
 
 import com.nhuhuy.replee.core.common.base.UiAction
-import com.nhuhuy.replee.core.data.data_store.SeedColor
+import com.nhuhuy.replee.core.model.settings.SeedColor
 import com.nhuhuy.replee.feature_chat.presentation.option.component.SecondaryOption
 
 sealed interface OptionAction : UiAction {
@@ -15,5 +15,6 @@ sealed interface OptionAction : UiAction {
     data object OnConversationDelete : OptionAction
     data object OnNickNameSet : OptionAction
     data object OnDismiss : OptionAction
+    data object OnDeleteConfirmed : OptionAction
 }
 

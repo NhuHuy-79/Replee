@@ -2,16 +2,16 @@ package com.nhuhuy.replee.feature_auth.viewmodel
 
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.core.common.base.ValidateResult
 import com.nhuhuy.replee.core.common.utils.InputValidator
 import com.nhuhuy.replee.core.data.mapper.toRemoteFailure
 import com.nhuhuy.replee.core.test.MainDispatcherRule
 import com.nhuhuy.replee.feature_auth.FakeParameters.Companion.fakeException
 import com.nhuhuy.replee.feature_auth.domain.usecase.SendRecoveryEmailUseCase
+import com.nhuhuy.replee.feature_auth.presentation.recover_password.ForgotPasswordViewModel
 import com.nhuhuy.replee.feature_auth.presentation.recover_password.RecoverPasswordAction
 import com.nhuhuy.replee.feature_auth.presentation.recover_password.RecoverPasswordEvent
-import com.nhuhuy.replee.feature_auth.presentation.recover_password.RecoverPasswordViewModel
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -28,14 +28,14 @@ class RecoverPasswordViewModelTest {
     private lateinit var inputValidator: InputValidator
     private lateinit var sendRecoveryEmailUseCase: SendRecoveryEmailUseCase
 
-    private lateinit var viewModel: RecoverPasswordViewModel
+    private lateinit var viewModel: ForgotPasswordViewModel
 
     @Before
     fun setUp() {
         inputValidator = mockk(relaxed = true)
         sendRecoveryEmailUseCase = mockk(relaxed = true)
 
-        viewModel = RecoverPasswordViewModel(
+        viewModel = ForgotPasswordViewModel(
             inputValidator = inputValidator,
             sendRecoveryEmailUseCase = sendRecoveryEmailUseCase
         )
@@ -94,7 +94,7 @@ class RecoverPasswordViewModelTest {
 
         viewModel.event.test {
             viewModel.onAction(RecoverPasswordAction.OnSubmit)
-            assertThat(awaitItem()).isEqualTo(RecoverPasswordEvent.Failure(fakeException.toRemoteFailure()))
+            assertThat(awaitItem()).isEqualTo(RecoverPasswordEvent.SendEmailFailure(fakeException.toRemoteFailure()))
         }
     }
 

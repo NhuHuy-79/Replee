@@ -3,14 +3,14 @@
 package com.nhuhuy.replee
 
 import com.google.firebase.messaging.RemoteMessage
-import com.nhuhuy.core.domain.SessionManager
-import com.nhuhuy.core.domain.usecase.UpdateDeviceTokenUseCase
+import com.nhuhuy.replee.core.domain.SessionManager
+import com.nhuhuy.replee.core.domain.usecase.UpdateDeviceTokenUseCase
 import com.nhuhuy.replee.core.network.api.fcm.ContentType
 import com.nhuhuy.replee.core.network.api.fcm.NotificationResponse
 import com.nhuhuy.replee.core.test.MainDispatcherRule
-import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
-import com.nhuhuy.replee.feature_chat.domain.model.converastion.Conversation
-import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
+import com.nhuhuy.replee.core.domain.worker.WorkerScheduler
+import com.nhuhuy.replee.core.model.chat.Conversation
+import com.nhuhuy.replee.core.domain.repository.ConversationRepository
 import com.nhuhuy.replee.feature_chat.utils.ChatSessionManager
 import com.nhuhuy.replee.notification.NotificationParser
 import com.nhuhuy.replee.service.PushNotificationService

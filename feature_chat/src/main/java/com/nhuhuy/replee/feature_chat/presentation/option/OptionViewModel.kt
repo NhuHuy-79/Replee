@@ -4,8 +4,9 @@ import androidx.lifecycle.viewModelScope
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
 import com.nhuhuy.replee.core.common.utils.InputValidator
-import com.nhuhuy.replee.core.data.data_store.SeedColor
 import com.nhuhuy.replee.core.design_system.component.ValidatableInput
+import com.nhuhuy.replee.core.domain.usecase.GetAccountByIdUseCase
+import com.nhuhuy.replee.core.model.settings.SeedColor
 import com.nhuhuy.replee.feature_chat.domain.usecase.block.BlockUserUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.option.DeleteConversationUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.option.LoadConversationInformationUseCase
@@ -35,9 +36,7 @@ class OptionViewModel @AssistedInject constructor(
     @Assisted("conversationId") private val conversationId: String,
     @Assisted("currentUserId") private val currentUserId: String,
     @Assisted("otherUserId") private val otherUserId: String,
-    @Assisted("name") private val otherUserName: String,
-    @Assisted("email") private val otherUserEmail: String,
-    @Assisted("otherUserImg") private val otherUserImg: String,
+    private val getAccountByIdUseCase: GetAccountByIdUseCase,
     private val loadConversationInformationUseCase: LoadConversationInformationUseCase,
     private val observeChatColorUseCase: ObserveChatColorUseCase,
     private val selectColorUseCase: SelectColorUseCase,
@@ -53,20 +52,17 @@ class OptionViewModel @AssistedInject constructor(
         viewModelScope, SharingStarted.WhileSubscribed(5000), SeedColor.SAPPHIRE
     )
 
-    private val _state = MutableStateFlow(
-        OptionState(
-            otherUserImg = otherUserImg,
-            otherUserId = otherUserId,
-            otherUserName = otherUserName,
-            otherUserEmail = otherUserEmail
-        )
-    )
+    private val _state = MutableStateFlow(OptionState(otherUserId = otherUserId))
 
     init {
         viewModelScope.launch {
+            val otherAccount = getAccountByIdUseCase(otherUserId)
             val conversation = loadConversationInformationUseCase(conversationId)
             _state.reduce {
                 copy(
+                    otherUserName = otherAccount.name,
+                    otherUserEmail = otherAccount.email,
+                    otherUserImg = otherAccount.imageUrl,
                     pinConversation = conversation.pinned,
                     muteConversation = conversation.muted
                 )
@@ -100,7 +96,7 @@ class OptionViewModel @AssistedInject constructor(
                         }
 
                         SecondaryOption.DELETE_CONVERSATION -> {
-                            _state.reduce { copy(overlay = OptionOverlay.DELETE_CHAT) }
+                            _state.reduce { copy(overlay = OptionOverlay.DELETE_CONFIRMATION) }
                         }
                     }
                 }
@@ -121,6 +117,14 @@ class OptionViewModel @AssistedInject constructor(
                         currentUserId = currentUserId,
                         pinned = action.enable
                     )
+                }
+
+                OptionAction.OnDeleteConfirmed -> {
+                    deleteConversationUseCase(conversationId)
+                    _state.reduce {
+                        copy(overlay = OptionOverlay.NONE)
+                    }
+                    onEvent(OptionEvent.NavigateToConversation)
                 }
 
                 OptionAction.OnConversationDelete -> {
@@ -184,9 +188,6 @@ class OptionViewModel @AssistedInject constructor(
             @Assisted("conversationId") conversationId: String,
             @Assisted("currentUserId") currentUserId: String,
             @Assisted("otherUserId") otherUserId: String,
-            @Assisted("name") otherUserName: String,
-            @Assisted("email") otherUserEmail: String,
-            @Assisted("otherUserImg") otherUserImg: String,
         ): OptionViewModel
     }
 }

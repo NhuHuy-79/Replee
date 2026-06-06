@@ -18,4 +18,6 @@ enum class ContentType {
     PLAIN_TEXT,
     IMAGE_URL,
     VIDEO_URL,
+    REPLY,
+    REACT
 }

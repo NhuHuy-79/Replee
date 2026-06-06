@@ -1,11 +1,11 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.option
 
-import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.model.onFailure
-import com.nhuhuy.core.domain.model.onSuccess
-import com.nhuhuy.replee.feature_chat.data.SyncManager
-import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
-import com.nhuhuy.replee.feature_chat.domain.repository.OptionRepository
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.model.error_handling.onFailure
+import com.nhuhuy.replee.core.model.error_handling.onSuccess
+import com.nhuhuy.replee.core.sync.SyncManager
+import com.nhuhuy.replee.core.domain.worker.WorkerScheduler
+import com.nhuhuy.replee.core.domain.repository.OptionRepository
 import javax.inject.Inject
 
 class PinConversationUseCase @Inject constructor(

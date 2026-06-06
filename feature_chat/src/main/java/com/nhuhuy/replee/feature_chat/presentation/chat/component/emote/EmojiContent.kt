@@ -55,11 +55,10 @@ fun FullScreenEmojiPickerDialog(
                             )
                         }
                     },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        // Đồng bộ màu nền của thanh TopBar với màn hình
+                    colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surface,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         titleContentColor = MaterialTheme.colorScheme.onSurface,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 )
             }

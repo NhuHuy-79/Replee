@@ -4,85 +4,37 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.nhuhuy.replee.core.model.chat.MessageType
 import com.nhuhuy.replee.feature_chat.R
-import com.nhuhuy.replee.feature_chat.domain.model.message.LocalPathMessage
-import com.nhuhuy.replee.feature_chat.domain.model.message.Message
-import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
-
-@Composable
-fun MessageContainer(
-    isAnchor: Boolean = false,
-    replyTo: String,
-    messageItem: LocalPathMessage,
-    isCurrentUser: Boolean,
-    onClick: (message: Message) -> Unit,
-    onLongClick: () -> Unit
-) {
-    val isReplying: Boolean = messageItem.message.repliedMessageId != null
-    val message = messageItem.message
-    var replyWidth by remember { mutableStateOf(0.dp) }
-    val density = LocalDensity.current
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = if (isCurrentUser) Alignment.End else Alignment.Start
-    ) {
-        if (isReplying) {
-            ReplyContent(
-                replyTo = replyTo,
-                content = message.repliedMessageContent.orEmpty(),
-                type = message.repliedMessageType,
-                remoteUrl = message.repliedMessageRemoteUrl,
-                modifier = Modifier
-                    .onSizeChanged { size ->
-                    replyWidth = with(density) { size.width.toDp() }
-                }
-            )
-        }
-
-        MessageContent(
-            localPathMessage = messageItem,
-            isAnchor = isAnchor,
-            isCurrentUser = isCurrentUser,
-            onClick = onClick,
-            onLongClick = onLongClick,
-            modifier = Modifier
-                .then(
-                    if (replyWidth > 0.dp) Modifier.width(replyWidth)
-                    else Modifier.wrapContentWidth()
-                )
-        )
-    }
-}
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition.END
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition.MIDDLE
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition.SINGLE
+import com.nhuhuy.replee.feature_chat.presentation.chat.model.MessagePosition.START
 
 
 @Composable
 fun ReplyContent(
+    mainMessagePosition: MessagePosition,
+    isCurrentUser: Boolean,
     replyTo: String,
     content: String,
     type: MessageType?,
@@ -95,14 +47,75 @@ fun ReplyContent(
         else -> ""
     }
 
+    val shape = if (isCurrentUser) {
+        when (mainMessagePosition) {
+            START -> RoundedCornerShape(
+                topStart = 24.dp,
+                bottomStart = 24.dp,
+                bottomEnd = 4.dp,
+                topEnd = 24.dp
+            )
+
+            MIDDLE -> RoundedCornerShape(
+                topStart = 24.dp,
+                bottomStart = 24.dp,
+                bottomEnd = 4.dp,
+                topEnd = 4.dp
+            )
+
+            END -> RoundedCornerShape(
+                topStart = 24.dp,
+                bottomStart = 24.dp,
+                bottomEnd = 4.dp,
+                topEnd = 4.dp
+            )
+
+            SINGLE -> RoundedCornerShape(
+                topStart = 24.dp,
+                topEnd = 24.dp,
+                bottomEnd = 4.dp,
+                bottomStart = 24.dp
+            )
+        }
+    } else {
+        when (mainMessagePosition) {
+            START -> RoundedCornerShape(
+                topStart = 24.dp,
+                bottomStart = 4.dp,
+                bottomEnd = 24.dp,
+                topEnd = 24.dp
+            )
+
+            MIDDLE -> RoundedCornerShape(
+                topStart = 4.dp,
+                bottomStart = 4.dp,
+                bottomEnd = 24.dp,
+                topEnd = 24.dp
+            )
+
+            END -> RoundedCornerShape(
+                topStart = 4.dp,
+                bottomStart = 4.dp,
+                bottomEnd = 24.dp,
+                topEnd = 24.dp
+            )
+
+            SINGLE -> RoundedCornerShape(
+                topStart = 4.dp,
+                topEnd = 4.dp,
+                bottomEnd = 24.dp,
+                bottomStart = 4.dp
+            )
+        }
+    }
+
     Row(
         modifier = modifier
-            .wrapContentWidth()
             .background(
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                shape = shape
             )
-            .padding(8.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -126,7 +139,7 @@ fun ReplyContent(
                 text = messageContent,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
             )
         }
 

@@ -1,17 +1,15 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.message
 
-import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.model.onFailure
-import com.nhuhuy.core.domain.model.onSuccess
-import com.nhuhuy.replee.core.data.utils.then
-import com.nhuhuy.replee.feature_chat.data.SyncManager
-import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
-import com.nhuhuy.replee.feature_chat.domain.model.message.Message
-import com.nhuhuy.replee.feature_chat.domain.model.message.MessageStatus
-import com.nhuhuy.replee.feature_chat.domain.model.message.MessageType
-import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
-import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
-import com.nhuhuy.replee.feature_chat.domain.repository.PushNotificationRepository
+import com.nhuhuy.replee.core.domain.repository.MessageRepository
+import com.nhuhuy.replee.core.domain.repository.PushNotificationRepository
+import com.nhuhuy.replee.core.domain.worker.WorkerScheduler
+import com.nhuhuy.replee.core.model.chat.Message
+import com.nhuhuy.replee.core.model.chat.MessageStatus
+import com.nhuhuy.replee.core.model.chat.MessageType
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.model.error_handling.onFailure
+import com.nhuhuy.replee.core.model.error_handling.onSuccess
+import com.nhuhuy.replee.core.sync.SyncManager
 import java.util.UUID
 import javax.inject.Inject
 
@@ -20,7 +18,6 @@ class SendMessageUseCase @Inject constructor(
     private val syncManager: SyncManager,
     private val pushNotificationRepository: PushNotificationRepository,
     private val workerScheduler: WorkerScheduler,
-    private val conversationRepository: ConversationRepository,
 ) {
     suspend operator fun invoke(
         repliedMessage: Message? = null,
@@ -46,35 +43,28 @@ class SendMessageUseCase @Inject constructor(
         )
 
         return messageRepository.sendMessage(message = message)
-            .then {
-                conversationRepository.updateMetadataConversation(message)
-                    .onSuccess {
-                        syncManager.updateConversationStatus(
-                            conversationId = conversationId,
-                            synced = true
-                        )
-                    }
-                    .onFailure {
-                        syncManager.updateConversationStatus(
-                            conversationId = conversationId,
-                            synced = false
-                        )
-                        workerScheduler.scheduleConversationSyncWorker()
-                    }
-            }
             .onSuccess {
+                pushNotificationRepository.pushNotification(message)
                 syncManager.updateMessageStatus(
                     messageId = message.messageId,
                     status = MessageStatus.SYNCED
                 )
-                pushNotificationRepository.pushNotification(message)
+                syncManager.updateConversationStatus(
+                    conversationId = conversationId,
+                    synced = true
+                )
             }
             .onFailure {
                 syncManager.updateMessageStatus(
                     messageId = message.messageId,
                     status = MessageStatus.FAILED
                 )
+                syncManager.updateConversationStatus(
+                    conversationId = conversationId,
+                    synced = false
+                )
                 workerScheduler.scheduleMessageSyncWorker()
+                workerScheduler.scheduleConversationSyncWorker()
             }
     }
 }

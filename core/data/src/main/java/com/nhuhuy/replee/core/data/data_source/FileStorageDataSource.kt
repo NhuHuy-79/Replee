@@ -10,8 +10,8 @@ import android.provider.OpenableColumns
 import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
-import com.nhuhuy.core.domain.repository.FileMetadata
-import com.nhuhuy.replee.core.data.utils.IoDispatcher
+import com.nhuhuy.replee.core.domain.repository.FileMetadata
+import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

@@ -1,0 +1,36 @@
+package com.nhuhuy.replee.feature_chat.presentation.chat.viewmodel.main
+
+import com.nhuhuy.replee.core.common.base.UiEvent
+
+sealed interface ChatEvent : UiEvent{
+    data class NavigateToSearch(
+        val conversationId: String,
+        val otherUserId: String,
+        val currentUserId: String
+    ) : ChatEvent
+    data class NavigateToPin(
+        val conversationId: String,
+        val otherUserId: String,
+        val currentUserId: String
+    ) : ChatEvent
+    data object NavigateBack : ChatEvent
+
+    sealed interface SendImage : ChatEvent {
+        data object Success : SendImage
+        data object Failure : SendImage
+    }
+
+    data class ScrollToAnchor(val anchorMessageId: String) : ChatEvent
+    data object FileTooLarge : ChatEvent
+    data object UnSupportedFile : ChatEvent
+    data object Unknown : ChatEvent
+    data class NavigateToInformation(
+        val otherUserImg: String,
+        val currentUserId: String,
+        val conversationId: String,
+        val otherUserId: String,
+        val otherUserName: String,
+        val otherUserEmail: String
+    ): ChatEvent
+    data object OnDeleteConfirmed : ChatEvent
+}

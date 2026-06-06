@@ -1,16 +1,15 @@
 package com.nhuhuy.replee.core.data.repository
 
-import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
-import com.nhuhuy.core.domain.SessionManager
-import com.nhuhuy.core.domain.model.AuthenticatedState
-import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.replee.core.data.data_store.AppDataStore
-import com.nhuhuy.replee.core.data.utils.IoDispatcher
+import com.nhuhuy.replee.core.common.utils.IoDispatcher
 import com.nhuhuy.replee.core.data.utils.execute
 import com.nhuhuy.replee.core.database.data_source.AccountLocalDataSource
+import com.nhuhuy.replee.core.database.data_store.AppDataStore
+import com.nhuhuy.replee.core.domain.SessionManager
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.model.validate.AuthenticatedState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -18,7 +17,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.tasks.await
-import timber.log.Timber
 import javax.inject.Inject
 
 class SessionManagerImp @Inject constructor(
@@ -80,18 +78,8 @@ class SessionManagerImp @Inject constructor(
         return execute { firebaseMessaging.token.await() }
     }
 
-    override suspend fun logout() {
-        try {
-            val uid = auth.currentUser?.uid
-            credentialManager.clearCredentialState(ClearCredentialStateRequest())
-            uid?.let {
-                accountLocalDataSource.updateLogoutStatus(it)
-            }
-        } catch (e: Exception) {
-            Timber.e(e)
-        } finally {
-            dataStore.saveAuthenticationToken("")
-            auth.signOut()
-        }
+    override suspend fun logOut() {
+        auth.signOut()
     }
+
 }

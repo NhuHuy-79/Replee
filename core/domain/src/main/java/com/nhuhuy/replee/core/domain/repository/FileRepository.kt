@@ -1,0 +1,36 @@
+package com.nhuhuy.replee.core.domain.repository
+
+import com.nhuhuy.replee.core.model.chat.FilePath
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.model.UploadFileState
+import com.nhuhuy.replee.core.model.validate.ValidateFileResult
+
+import kotlinx.coroutines.flow.Flow
+
+
+interface FileRepository {
+    suspend fun uploadImageWithOption(
+        uriPath: String,
+        folder: String,
+        option: Map<String, String>
+    ): NetworkResult<String>
+
+    suspend fun getUriPathWithUserId(userId: String): FilePath?
+    suspend fun getUriPathWithMessageId(messageId: String): FilePath?
+    suspend fun upsertFilePath(filePath: FilePath)
+    suspend fun saveFileToInternalStorage(uriPath: String): String
+    suspend fun validateFileSize(uriPath: String): ValidateFileResult
+    suspend fun uploadFile(uriPath: String): NetworkResult<String>
+    suspend fun scheduleUploadFile(messageId: String, uriPath: String)
+    fun observeUploadFile(messageId: String, uriPath: String): Flow<UploadFileState>
+
+    suspend fun getFileMetadata(uriPath: String): FileMetadata
+}
+
+data class FileMetadata(
+    val width: Int = 0,
+    val height: Int = 0,
+    val size: Long = 0,
+    val mimeType: String = "",
+    val extension: String = ""
+)

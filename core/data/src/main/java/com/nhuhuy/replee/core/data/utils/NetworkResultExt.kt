@@ -1,6 +1,6 @@
 package com.nhuhuy.replee.core.data.utils
 
-import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

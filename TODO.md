@@ -1,44 +1,35 @@
-//TODO list for building new feature, refactoring, testing or ...
+# 🛠️ Replee Project Refactor Roadmap
 
-### 🏗️ KIẾN TRÚC & CLEAN CODE
+Tài liệu này theo dõi quá trình refactor dài hạn để quản lý sự phát triển của dự án, chuẩn hóa quy ước và tối ưu hóa kiến trúc.
 
-- [ ] **Redundant Code (ConversationMapper.kt)**:
-  - Hàm `toUpdatePatch(uid: String)` dường như không còn được sử dụng và có logic mapping thủ công (
-    hardcode string keys). Cân nhắc xóa bỏ để tránh nhầm lẫn.
-- [ ] **Redundant Code (ConversationRepositoryImp.kt)**:
-  - `fetchConversations()` và `saveConversations()`: Các hàm này hiện đang tồn tại song song với cơ
-    chế `listen` (Realtime). Nếu bạn đã chuyển hẳn sang Realtime sync qua `SyncManager`, nên loại bỏ
-    các hàm fetch/save thủ công này để tránh xung đột dữ liệu.
-- [ ] **Error Handling Consistency**:
-  - Thống nhất việc sử dụng `NetworkResult` (đã có `execute` wrapper). Một số chỗ trong repository
-    vẫn cần rà soát lại để đảm bảo không lọt Exception.
-- [ ] **Naming Convention**:
-  - Trong `ConversationDTO`, các field `user1`, `user2` nên được đặt tên rõ ràng hơn (như `owner`,
-    `otherUser`) để code mapping dễ đọc hơn.
-- [ ] **Log Cleanup**:
-  - Xóa các `Timber.d` debug trong `ConversationRepositoryImp` và `ConversationMapper` trước khi
-    release.
+## 1. 🏗️ Kiến trúc & Module hóa
+- [x] **Trích xuất `:core:model`**: Di chuyển tất cả Domain Models (Conversation, Message, Account...) vào một module thuần Kotlin để tránh phụ thuộc vòng.
+- [x] **Tạo `:core:sync`**: Cô lập toàn bộ logic đồng bộ, bao gồm `WorkerScheduler`, `SyncManager`, và xử lý `ChatAction`.
 
-### 🐛 LỖI TIỀM ẨN & TỐI ƯU
+## 2. 💉 Chiến lược DI (Decentralized DI)
+- [x] **Chuyển đổi DI về Module**: Di chuyển các Hilt Module từ `:app` về đúng module chứa logic.
+- [x] **Chuẩn hóa Module DI**: Mỗi module sẽ có một package `di` riêng.
 
-- [ ] **getOrCreateConversation Safety**:
-  - Hàm này gọi `entity.createConversationDTO()` mà không kiểm tra `entity` có null hay không. Nếu
-    chưa có conversation local, nó sẽ crash.
-- [ ] **SyncManager Optimization**:
-  - Kiểm tra xem `SyncManager` có đang listen quá nhiều hay không. Cần đảm bảo `close` flow khi
-    không cần thiết.
-- [ ] **MessageRemoteMediator**:
-  - Rà soát lại logic `loadKey`. Đảm bảo phân trang hoạt động đúng khi có tin nhắn mới chen ngang.
+## 3. 🎨 Refactor core:design_system & core:presentation
+- [x] **Phân tách trách nhiệm**: `:core:design_system` (Pure UI/Theme) vs `:core:presentation` (Logic UI/State Wrappers).
+- [x] **Di chuyển components**: Chuyển `BoxContainer`, `VisibleLoadingScreen`, `ObserveEffect` sang `:core:presentation`.
+- [x] **Di chuyển launchers**: Chuyển logic `ImagePicker`, `CameraPicker` sang `:core:presentation`.
+- [x] **Update Imports**: Cập nhật lại toàn bộ import tại các module feature.
 
-### ✨ TÍNH NĂNG ĐANG DANG DỞ (Found via Grep)
+## 4. 📊 Tầng Data (Repository & DataSource)
+- [x] **Consolidation**: Di chuyển toàn bộ Repository Implementation về `:core:data`.
+- [ ] **Phân rã Repository**:
+    - [ ] Chia `ConversationRepository` thành `ConversationQueryRepository` và `ConversationActionRepository`.
+    - [ ] Chia `MessageRepository` tương tự.
+- [ ] **Chiến lược Sync thống nhất**: Tạo một `MutationOrchestrator` trong `:core:sync`.
+- [ ] **Room Auto-Migration**: Chuyển sang Auto-Migration API của Room.
 
-- [ ] **OptionViewModel**: Cài đặt theme (`//TODO("Set theme")`)
-- [ ] **ChatScreen**: Xử lý click Camera (`//TODO("camera clicked")`) và chuyển màn Search (
-  `//TODO("navigate to Search screen")`)
-- [ ] **UploadFileWorker**: Cần check tin nhắn tồn tại trước khi upload (
-  `//TODO("Need check message is Exist or not")`)
-- [ ] **ProfileScreen**: Xử lý Storage và Edit Password.
-- [ ] **UpdateMessageChangeUseCase**: Chưa có logic xử lý (`//TODO`).
+## 5. 🏷️ Chuẩn hóa đặt tên (Naming Conventions)
+- [/] **Bắt buộc hậu tố (Suffix)**: `DTO`, `Entity`, `Model`, `Mapper`.
+- [ ] **Đặt tên hàm**: `observe...` (Flow), `get...` (suspend/once), `update...`/`delete...`/`add...` (mutation).
+
+## 6. 🛠️ Cơ sở hạ tầng
+- [ ] **AppLogger Wrapper**: Tạo wrapper cho `Timber`.
 
 ---
-*Cập nhật ngày: 23/10/2023 - Bạn ngủ ngon nhé!*
+*Ghi chú: Giữ nguyên cấu trúc feature modules (không chia api/impl) và tầng Domain/ViewModel hiện tại theo yêu cầu.*

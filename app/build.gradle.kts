@@ -13,6 +13,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:model"))
     implementation(project(":core:common"))
     implementation(project(":core:domain"))
     implementation(project(":core:network"))
@@ -20,6 +21,9 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:test"))
     implementation(project(":core:design_system"))
+    implementation(project(":core:presentation"))
+    implementation(project(":core:sync"))
+    implementation(project(":feature_home"))
     implementation(project(":feature_chat"))
     implementation(project(":feature_auth"))
     implementation(project(":feature_profile"))
@@ -32,6 +36,10 @@ dependencies {
     //Paging for Ui
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
+
+    //Splash
+    implementation(libs.androidx.core.splashscreen)
+
     //Nav3
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.navigation3.runtime)
@@ -39,24 +47,6 @@ dependencies {
     implementation(libs.androidx.material3.adaptive.navigation3)
     implementation(libs.kotlinx.serialization.core)
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
+    // Tests
     testImplementation(libs.robolectric)
-    testImplementation(libs.truth)
-    testImplementation(libs.mockk)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.turbine)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
 }

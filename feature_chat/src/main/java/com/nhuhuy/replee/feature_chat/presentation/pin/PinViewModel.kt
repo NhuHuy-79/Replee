@@ -1,11 +1,12 @@
 package com.nhuhuy.replee.feature_chat.presentation.pin
 
 import androidx.lifecycle.viewModelScope
-import com.nhuhuy.core.domain.usecase.GetAccountByIdUseCase
-import com.nhuhuy.core.domain.usecase.GetCurrentAccountUseCase
+import androidx.paging.cachedIn
 import com.nhuhuy.replee.core.common.base.BaseViewModel
 import com.nhuhuy.replee.core.common.base.reduce
-import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObservePinnedMessageUseCase
+import com.nhuhuy.replee.core.domain.usecase.GetAccountByIdUseCase
+import com.nhuhuy.replee.core.domain.usecase.GetCurrentAccountUseCase
+import com.nhuhuy.replee.feature_chat.domain.usecase.message.ObservePinnedMessagesUseCase
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.UnPinMessageUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -13,27 +14,25 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel(assistedFactory = PinViewModel.Factory::class)
 class PinViewModel @AssistedInject constructor(
     @Assisted("conversationId") private val conversationId: String,
     @Assisted("otherUserId") private val otherUserId: String,
-    private val observePinnedMessageUseCase: ObservePinnedMessageUseCase,
+    @Assisted("currentUserId") private val currentUserId: String,
+    observePinnedMessagesUseCase: ObservePinnedMessagesUseCase,
     private val getCurrentAccountUseCase: GetCurrentAccountUseCase,
     private val getAccountByIdUseCase: GetAccountByIdUseCase,
     private val unPinMessageUseCase: UnPinMessageUseCase
 ) : BaseViewModel<PinAction, PinEvent, PinState>() {
-    val pinnedMessage = observePinnedMessageUseCase(conversationId)
-        .distinctUntilChanged()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5.seconds), emptyList())
+    val pinnedMessages = observePinnedMessagesUseCase(
+        conversationId = conversationId,
+        currentUserId = currentUserId
+    ).cachedIn(viewModelScope)
+
     private val _state = MutableStateFlow(PinState())
 
     init {
@@ -80,7 +79,8 @@ class PinViewModel @AssistedInject constructor(
     interface Factory {
         fun create(
             @Assisted("otherUserId") otherUserId: String,
-            @Assisted("conversationId") conversationId: String
+            @Assisted("conversationId") conversationId: String,
+            @Assisted("currentUserId") currentUserId: String
         ): PinViewModel
     }
 }

@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_profile.domain.usecase
 
-import com.nhuhuy.core.domain.SessionManager
-import com.nhuhuy.core.domain.repository.PresenceRepository
+import com.nhuhuy.replee.core.domain.SessionManager
+import com.nhuhuy.replee.core.domain.repository.PresenceRepository
 import com.nhuhuy.replee.feature_profile.FakeParameters.Companion.fakeAccount
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -33,7 +33,7 @@ class LogOutUseCaseTest {
         // Assert
         coVerify {
             presenceRepository.setOffline(fakeAccount.id)
-            sessionManager.logout()
+            sessionManager.logOut()
         }
     }
 
@@ -47,6 +47,6 @@ class LogOutUseCaseTest {
 
         // Assert
         coVerify(exactly = 0) { presenceRepository.setOffline(any()) }
-        coVerify { sessionManager.logout() }
+        coVerify { sessionManager.logOut() }
     }
 }

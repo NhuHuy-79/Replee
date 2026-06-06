@@ -1,0 +1,101 @@
+package com.nhuhuy.replee.feature_home
+
+import com.nhuhuy.replee.core.domain.usecase.GetCurrentAccountUseCase
+import com.nhuhuy.replee.core.domain.usecase.SearchAccountByEmailUseCase
+import com.nhuhuy.replee.core.model.account.Account
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.sync.domain.usecase.conversation.SyncConversationUsersUseCase
+import com.nhuhuy.replee.core.sync.domain.usecase.conversation.SyncConversationsUseCase
+import com.nhuhuy.replee.core.test.MainDispatcherRule
+import com.nhuhuy.replee.feature_home.domain.usecase.account.SetUserOnlineUseCase
+import com.nhuhuy.replee.feature_home.domain.usecase.account.UpdateCurrentAccountUseCase
+import com.nhuhuy.replee.feature_home.domain.usecase.conversation.GetSearchHistoryUseCase
+import com.nhuhuy.replee.feature_home.domain.usecase.conversation.ObserveLocalConversationListUseCase
+import com.nhuhuy.replee.feature_home.domain.usecase.conversation.SaveConversationListUseCase
+import com.nhuhuy.replee.feature_home.presentation.HomeViewModel
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+
+class ConversationViewModelTest {
+
+    @get:Rule
+    val dispatcherRule = MainDispatcherRule()
+
+    private lateinit var currentUserId: String
+    private lateinit var setUserOnlineUseCase: SetUserOnlineUseCase
+    private lateinit var getSearchHistoryUseCase: GetSearchHistoryUseCase
+    private lateinit var syncConversationUseCase: SyncConversationsUseCase
+    private lateinit var observeLocalConversationListUseCase: ObserveLocalConversationListUseCase
+    private lateinit var saveConversationListUseCase: SaveConversationListUseCase
+    private lateinit var updateCurrentAccountUseCase: UpdateCurrentAccountUseCase
+    private lateinit var getCurrentAccountUseCase: GetCurrentAccountUseCase
+    private lateinit var searchAccountByEmailUseCase: SearchAccountByEmailUseCase
+    private lateinit var syncConversationUsersUseCase: SyncConversationUsersUseCase
+
+    @Before
+    fun setUp() {
+        currentUserId = "id_1"
+        setUserOnlineUseCase = mockk()
+        getSearchHistoryUseCase = mockk()
+        syncConversationUseCase = mockk()
+        observeLocalConversationListUseCase = mockk()
+        saveConversationListUseCase = mockk()
+        updateCurrentAccountUseCase = mockk()
+        getCurrentAccountUseCase = mockk()
+        searchAccountByEmailUseCase = mockk()
+        syncConversationUsersUseCase = mockk()
+
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `Test all methods run in init block`() = runTest {
+        listOf("uid_1", "uid_2")
+        val mockAccount = Account(id = currentUserId, name = "Huy", email = "huy@test.com")
+
+        // Mock các Flow
+        coEvery { getSearchHistoryUseCase(currentUserId) } returns flowOf(emptyList())
+        coEvery { observeLocalConversationListUseCase(currentUserId) } returns flowOf(emptyList())
+        coEvery { syncConversationUsersUseCase(currentUserId) } returns flowOf(Unit)
+
+        // Mock các Suspend function trả về Result/Unit
+        coEvery { updateCurrentAccountUseCase(any()) } returns NetworkResult.Success(currentUserId)
+        coEvery { setUserOnlineUseCase(any()) } returns Unit
+        coEvery { getCurrentAccountUseCase() } returns mockAccount
+        coEvery { syncConversationUseCase(currentUserId, 20) } returns flowOf(Unit)
+
+        HomeViewModel(
+            currentUserId = currentUserId,
+            setUserOnlineUseCase = setUserOnlineUseCase,
+            getSearchHistoryUseCase = getSearchHistoryUseCase,
+            observeLocalConversationListUseCase = observeLocalConversationListUseCase,
+            saveConversationListUseCase = saveConversationListUseCase,
+            updateCurrentAccountUseCase = updateCurrentAccountUseCase,
+            getCurrentAccountUseCase = getCurrentAccountUseCase,
+            searchAccountByEmailUseCase = searchAccountByEmailUseCase,
+            syncConversationUsersUseCase = syncConversationUsersUseCase,
+            syncConversationUseCase = syncConversationUseCase
+        )
+
+        advanceUntilIdle()
+
+        // --- THEN: Xác thực các hành vi ---
+        coVerify {
+            getSearchHistoryUseCase(currentUserId)
+            observeLocalConversationListUseCase(currentUserId)
+            updateCurrentAccountUseCase(currentUserId)
+            setUserOnlineUseCase(currentUserId)
+            getCurrentAccountUseCase()
+            syncConversationUseCase(currentUserId, 20)
+            syncConversationUsersUseCase(currentUserId)
+        }
+    }
+}

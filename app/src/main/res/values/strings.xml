@@ -7,15 +7,18 @@
 
     <string name="notification_failure">Cannot send your message!</string>
     <string name="notification_success">Send message successfully</string>
+    <string name="notification_new_messages">Tin nhắn mới từ %1$s</string>
 
     <string name="splash_screen">Checking your authentication…</string>
 
     <string name="network_failed">You are offline! Please check connection and try again.</string>
     <string name="leak_canary_test_class_name">com.nhuhuy.replee.FakeTestClass</string>
 
-    <string name="notification_msg_image">%1$s đã gửi một hình ảnh.</string>
-    <string name="notification_msg_video">%1$s đã gửi một video.</string>
-    <string name="notification_msg_voice">%1$s đã gửi một tin nhắn thoại.</string>
-    <string name="notification_msg_file">%1$s đã gửi một tệp tin.</string>
-    <string name="notification_msg_sticker">%1$s đã gửi một nhãn dán.</string>
+    <string name="notification_msg_image">%1$s has sent an image.</string>
+    <string name="notification_msg_video">%1$s has sent a video.</string>
+    <string name="notification_msg_voice">%1$s has sent a voice.</string>
+    <string name="notification_msg_file">%1$s has sent a file.</string>
+    <string name="notification_msg_sticker">%1$s has sent a ticker.</string>
+    <string name="notification_msg_react">%1$s has react to a message.</string>
+    <string name="notification_msg_reply">%1$s hast reply you: %2$s</string>
 </resources>

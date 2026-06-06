@@ -1,0 +1,21 @@
+complexity:
+  LargeClass:
+    active: true
+    threshold: 150
+  LongMethod:
+    active: true
+    threshold: 60
+  LongParameterList:
+    active: true
+    threshold: 10
+
+style:
+  MagicNumber:
+    active: true
+    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**' ]
+    ignoreNumbers: [ '-1', '0', '1', '2' ]
+
+formatting:
+  active: true
+  ktlintRestricted:
+    active: true

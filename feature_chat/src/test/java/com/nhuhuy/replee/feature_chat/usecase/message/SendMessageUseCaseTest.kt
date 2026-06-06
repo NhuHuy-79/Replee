@@ -1,14 +1,14 @@
 package com.nhuhuy.replee.feature_chat.usecase.message
 
 import com.google.common.truth.Truth
-import com.nhuhuy.core.domain.model.NetworkResult
+import com.nhuhuy.replee.core.domain.repository.ConversationRepository
+import com.nhuhuy.replee.core.domain.repository.MessageRepository
+import com.nhuhuy.replee.core.domain.repository.PushNotificationRepository
+import com.nhuhuy.replee.core.domain.worker.WorkerScheduler
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
+import com.nhuhuy.replee.core.sync.SyncManager
 import com.nhuhuy.replee.feature_chat.FakeParameters.Companion.fakeException
 import com.nhuhuy.replee.feature_chat.FakeParameters.Companion.fakeMessage
-import com.nhuhuy.replee.feature_chat.data.SyncManager
-import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
-import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
-import com.nhuhuy.replee.feature_chat.domain.repository.MessageRepository
-import com.nhuhuy.replee.feature_chat.domain.repository.PushNotificationRepository
 import com.nhuhuy.replee.feature_chat.domain.usecase.message.SendMessageUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -36,7 +36,6 @@ class SendMessageUseCaseTest {
 
         useCase = SendMessageUseCase(
             messageRepository = messageRepository,
-            conversationRepository = conversationRepository,
             pushNotificationRepository = pushNotificationRepository,
             syncManager = syncManager,
             workerScheduler = workerScheduler

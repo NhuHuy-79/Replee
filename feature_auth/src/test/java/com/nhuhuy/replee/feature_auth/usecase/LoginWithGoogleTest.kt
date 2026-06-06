@@ -1,9 +1,9 @@
 package com.nhuhuy.replee.feature_auth.usecase
 
 import com.google.common.truth.Truth
-import com.nhuhuy.core.domain.SessionManager
-import com.nhuhuy.core.domain.model.NetworkResult
-import com.nhuhuy.core.domain.repository.AccountRepository
+import com.nhuhuy.replee.core.domain.SessionManager
+import com.nhuhuy.replee.core.domain.repository.AccountRepository
+import com.nhuhuy.replee.core.model.error_handling.NetworkResult
 import com.nhuhuy.replee.feature_auth.FakeParameters.Companion.FAKE_TOKEN
 import com.nhuhuy.replee.feature_auth.FakeParameters.Companion.fakeAccount
 import com.nhuhuy.replee.feature_auth.FakeParameters.Companion.fakeException
@@ -91,7 +91,7 @@ class SignInWithGoogleTest {
         // Assert
         Truth.assertThat(result).isEqualTo(expected)
 
-        coVerify { sessionManager.logout() }
+        coVerify { sessionManager.logOut() }
         coVerify(exactly = 0) { accountRepository.createAccount(any(), any()) }
     }
 
@@ -113,7 +113,7 @@ class SignInWithGoogleTest {
         // Assert
         Truth.assertThat(result).isEqualTo(expected)
 
-        coVerify { sessionManager.logout() }
+        coVerify { sessionManager.logOut() }
         coVerify(exactly = 0) { accountRepository.createAccount(any(), any()) }
     }
 
@@ -139,6 +139,6 @@ class SignInWithGoogleTest {
         // Assert
         Truth.assertThat(result).isEqualTo(expected)
 
-        coVerify { sessionManager.logout() }
+        coVerify { sessionManager.logOut() }
     }
 }

@@ -1,26 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--Conversation Screen-->
-    <string name="conversation_screen_empty">You haven\'t opened any conversation yet.\nlease add someone to message.</string>
-    <string name="conversation_screen_search_empty">No result.</string>
-    <string name="conversation_last_message_text">You: %1$s</string>
-    <string name="conversation_my_last_message_image">You \'ve send an image</string>
-    <string name="conversation_other_last_message_image"> %1$s sent an image</string>
-    <string name="conversation_message_is_deleted">Message is deleted</string>
 
-    <!--Notification Permission-->
-    <string name="notification_permission_denied">
-        Notifications are off. You can enable them in Settings to stay updated on new messages
-    </string>
-    <string name="notification_permission_allowed">
-        Great! You\'ll now receive instant alerts for every new message.
-    </string>
 
-    <!--Synchronizing Screen-->
-    <string name="sync_screen">Synchronizing…</string>
-    <!--Retry Screen-->
-    <string name="retry_btn">Retry</string>
-    <string name="retry_content">No connection was found.\nPlease check your connection or try again.</string>
 
     <!--Permission (Toast)-->
     <string name="permission_camera">Camera permission is denied!</string>
@@ -88,8 +69,6 @@
         This action cannot be undone. The conversation will be removed from your account.
     </string>
 
-    <!--Network Status-->
-    <string name="network_failed">You are offline! Please check your connection!</string>
 
     <!--Blocked-->
     <string name="banner_blocked_user">You have blocked this user. If you want to contact to them, please
@@ -108,5 +87,6 @@
     <!--Reply Message-->
     <string name="reply_image">Image</string>
     <string name="reply_title">Replying to %1$s</string>
+    <string name="notification_new_messages">Tin nhắn mới từ %1$s</string>
 
 </resources>

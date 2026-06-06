@@ -2,11 +2,10 @@ package com.nhuhuy.replee.service
 
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.nhuhuy.core.domain.SessionManager
-import com.nhuhuy.core.domain.usecase.UpdateDeviceTokenUseCase
-import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
-import com.nhuhuy.replee.feature_chat.domain.model.converastion.Conversation
-import com.nhuhuy.replee.feature_chat.domain.repository.ConversationRepository
+import com.nhuhuy.replee.core.domain.SessionManager
+import com.nhuhuy.replee.core.domain.usecase.UpdateDeviceTokenUseCase
+import com.nhuhuy.replee.core.domain.worker.WorkerScheduler
+import com.nhuhuy.replee.core.domain.repository.ConversationRepository
 import com.nhuhuy.replee.feature_chat.utils.ChatSessionManager
 import com.nhuhuy.replee.notification.NotificationParser
 import dagger.hilt.android.AndroidEntryPoint
@@ -54,8 +53,13 @@ class PushNotificationService() : FirebaseMessagingService() {
     override fun onMessageReceived(message: RemoteMessage) {
         scope.launch {
             val currentUserId = sessionManager.getUserIdOrNull()
-            var conversation: Conversation? = null
             val notificationBody = notificationParser.getNotificationBody(message)
+            val conversation = notificationBody?.let { response ->
+                conversationRepository.getConversationById(response.conversationId)
+            }
+            val isMuted = conversation?.muted ?: false
+
+
 
             when {
                 notificationBody == null -> {
@@ -74,15 +78,11 @@ class PushNotificationService() : FirebaseMessagingService() {
                 }
             }
 
-            conversation =
-                conversationRepository.getConversationById(notificationBody.conversationId)
-
-
             workerScheduler.scheduleSaveMessageWorker(conversationId = notificationBody.conversationId)
 
             Timber.d("Notification body: $notificationBody")
 
-            if (!conversation.muted) {
+            if (!isMuted) {
                 serviceNotifier.showConversationNotification(notificationBody)
             }
         }

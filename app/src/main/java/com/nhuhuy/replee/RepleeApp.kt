@@ -5,6 +5,9 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.util.Log
+import androidx.core.provider.FontRequest
+import androidx.emoji2.text.EmojiCompat
+import androidx.emoji2.text.FontRequestEmojiCompatConfig
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import coil3.ImageLoader
@@ -16,7 +19,6 @@ import coil3.memory.MemoryCache
 import coil3.request.CachePolicy
 import coil3.request.crossfade
 import coil3.util.DebugLogger
-import com.nhuhuy.replee.feature_chat.data.worker.WorkerScheduler
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 import java.io.File
@@ -32,16 +34,20 @@ class RepleeApp() : Application(), Configuration.Provider, SingletonImageLoader.
             .setWorkerFactory(workerFactory)
             .build()
 
-    @Inject lateinit var workerScheduler: WorkerScheduler
-
     override fun onCreate() {
         super.onCreate()
-        //Create notification channel
         createNotificationChannel(this)
-        //Timber for debug logging
-        if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
-        }
+        val fontRequest = FontRequest(
+            "com.google.android.gms.fonts",
+            "com.google.android.gms",
+            "Noto Color Emoji Compat",
+            R.array.certs
+        )
+        val config = FontRequestEmojiCompatConfig(this, fontRequest)
+        config.setReplaceAll(true)
+        EmojiCompat.init(config)
+
+        Timber.plant(Timber.DebugTree())
     }
 
     private fun createNotificationChannel(context: Context) {
@@ -78,9 +84,7 @@ class RepleeApp() : Application(), Configuration.Provider, SingletonImageLoader.
                     .build()
             }
             .apply {
-                if (BuildConfig.DEBUG) {
-                    logger(DebugLogger())
-                }
+                logger(DebugLogger())
             }
             .build()
     }

@@ -13,15 +13,17 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
                 apply("com.android.library")
                 apply("org.jetbrains.kotlin.android")
                 apply("org.jetbrains.kotlin.plugin.compose")
+                apply("replee.android.detekt")
             }
             val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
             dependencies {
                 add("implementation", project(":core:design_system"))
+                add("implementation", project(":core:presentation"))
                 add("implementation", project(":core:data"))
                 add("implementation", project(":core:domain"))
                 add("implementation", project(":core:common"))
-                add("implementation", project(":core:test"))
+                add("testImplementation", project(":core:test"))
                 add("testImplementation", libs.findLibrary("turbine").get())
                 add("testImplementation", libs.findLibrary("truth").get())
             }

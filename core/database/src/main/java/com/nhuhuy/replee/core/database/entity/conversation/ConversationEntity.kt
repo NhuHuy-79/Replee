@@ -13,7 +13,7 @@ import com.nhuhuy.replee.core.database.entity.account.AccountEntity
     indices = [
         Index(value = ["ownerId", "pinned", "lastMessageTime"]),
         Index(value = ["otherUserId"]),
-        Index(value = ["synced"])
+        Index(value = ["synced"]),
     ]
 )
 data class ConversationEntity(
@@ -45,6 +45,8 @@ data class ConversationEntity(
     val blocked: Boolean = false,
     @ColumnInfo(name = "deleted", defaultValue = "false")
     val deleted: Boolean = false,
+    @ColumnInfo(name = "lastTimeDeleted", defaultValue = "0")
+    val lastTimeDeleted: Long? = null,
     //Add sync
     @ColumnInfo(name = "synced", defaultValue = "false")
     val synced: Boolean = false,
@@ -52,6 +54,8 @@ data class ConversationEntity(
     val otherUserImg: String = "",
     @ColumnInfo(name = "ownerImg", defaultValue = "")
     val ownerImg: String = "",
+    @ColumnInfo(name = "lastSyncedTime", defaultValue = "null")
+    val lastTimeSynced: Long? = null
     )
 
 data class ConversationAndUser(

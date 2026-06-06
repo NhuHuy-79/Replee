@@ -1,7 +1,7 @@
 package com.nhuhuy.replee.feature_chat.domain.usecase.file
 
-import com.nhuhuy.core.domain.model.ValidateFileResult
-import com.nhuhuy.core.domain.repository.FileRepository
+import com.nhuhuy.replee.core.model.validate.ValidateFileResult
+import com.nhuhuy.replee.core.domain.repository.FileRepository
 import javax.inject.Inject
 
 class ValidateFileSizeUseCase @Inject constructor(
