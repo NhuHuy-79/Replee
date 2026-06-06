@@ -19,11 +19,8 @@ secret.properties
 
 # Firebase
 google-services.json
-*.apk
 *dm
 
 #Apk-dm
 *.dm
-*.apk
-
-.kotlin/
+.kotlin
